@@ -18,7 +18,7 @@ const DRAW_PER_TURN = 3;
 const SPIRIT_PER_TURN = 10;
 const MAX_SUMMONS = 2;
 const BURN_BASE_DMG = 30;       // 灼烧每层基础伤害
-const BURN_ENHANCED_DMG = 36;   // 温度升高(S19)后每层伤害
+const BURN_ENHANCED_DMG = 36;   // 温度升高(S24)后每层伤害
 const MAX_BURN_DEFAULT = 10;     // 灼烧默认上限
 const PARALYSIS_DECAY = 2;      // 麻痹每回合衰减
 const PARALYSIS_COST = 2;       // 麻痹每层额外消耗精神力
@@ -68,41 +68,41 @@ class GameEngine {
     this.mirageTurns = [0, 0];               // 剩余回合数
     this.mirageFirstAtk = [false, false];    // 本回合首次攻击已触发
 
-    // 镜面迷宫 (S34)
+    // 镜面迷宫 (S19)
     this.mirrorMaze = [0, 0];               // 剩余出牌次数
 
-    // 影子束缚 (S35)
+    // 影子束缚 (S20)
     this.shadowBindTurns = [0, 0];           // 剩余回合数
 
     // 声系下次增伤 (A51声速激增)
     this.soundSpeedBuff = [0, 0];
 
-    // 偏振过滤 (S13)
+    // 偏振过滤 (S15)
     this.polarizeRestriction = [null, null];
 
-    // 光谱叠加 (S15) 累计伤害加成
+    // 光谱叠加 (S17) 累计伤害加成
     this.spectrumBonus = [0, 0];
 
-    // 用电辅助收集器 (S27 短路开关)
+    // 短路开关 (S30)
     this.shortCircuitActive = [false, false];
 
-    // 高压击穿 (S29)
+    // 高压击穿 (S31)
     this.highVoltagePierce = [0, 0];          // 剩余回合数
 
-    // 多路放电 (S31) 减费效果
+    // 多路放电 (S33) 减费效果
     this.multiDischarge = [false, false];
 
     // 上回合攻击记录（用于A02惯性冲锋和A05蓄力等）
     this.lastTurnDamage = [0, 0];             // 上回合造成的总伤害
     this.lastTurnOwnAtks = [{}, {}];          // 上回合打出的攻击卡 { domain: count }
 
-    // 光速传播 (S14) 激活状态
+    // 光速传播 (S16) 激活状态
     this.lightSpeedActive = [false, false];
     this.lightSpeedTurns = [0, 0];
 
     // 凝固封锁 (A26) 触发状态 — 通过 player.turnBlocked 处理
 
-    // S06回声消声：查看手牌标记
+    // S07回声消声：查看手牌标记
     this.viewedOpponentHand = [false, false];
 
     // A02惯性冲锋：本回合的力系伤害（用于下回合延续）
@@ -112,14 +112,14 @@ class GameEngine {
     this.a10DotBaseTurns = [null, null];
 
     // Combo 临时状态
-    this._a49NoDestroy = false;                // S31→A49 不摧毁辅助卡
-    this._pendingBurnAfterExplode = [0, 0];    // S21→A54 引爆后额外灼烧
+    this._a49NoDestroy = false;                // S33→A49 不摧毁辅助卡
+    this._pendingBurnAfterExplode = [0, 0];    // S26→A54 引爆后额外灼烧
     this._heightBonusPerLevel = [0, 0];        // S01→A05 每层高度额外伤害
-    this._dotIncrementBoost = [0, 0];          // S09→A10 DOT递增加成
-    this._mirrorMazeBoost = [0, 0];            // S13→C03 镜面迷宫概率加成
-    this._burnCapIncrease = [0, 0];            // S17→A51 灼烧上限提升
-    this._burnDmgPerLayer = [48, 48];          // S19→A54 爆燃每层伤害（默认48）
-    this._ignoreDefBonus = [0, 0];             // S31→A49 无视防御额外伤害
+    this._dotIncrementBoost = [0, 0];          // S08→A10 DOT递增加成
+    this._mirrorMazeBoost = [0, 0];            // S15→S19 镜面迷宫概率加成
+    this._burnCapIncrease = [0, 0];            // S14→A55 灼烧上限提升
+    this._burnDmgPerLayer = [48, 48];          // S24→A54 爆燃每层伤害（默认48）
+    this._ignoreDefBonus = [0, 0];             // S33→A49 无视防御额外伤害
 
     // 初始化：洗牌库，抽初始手牌
     for (let i = 0; i < 2; i++) {
@@ -145,8 +145,8 @@ class GameEngine {
       fieldDomain: null,       // {card, turnsRemaining} | null
       fieldSupports: [],       // [{card, turnsRemaining}]
       burnLayers: 0,
-      burnEnhanced: false,     // S19温度升高
-      burnImmune: 0,           // S17比热护盾剩余回合
+      burnEnhanced: false,     // S24温度升高
+      burnImmune: 0,           // S22比热护盾剩余回合
       paralysis: 0,
       dotEffects: [],          // [{dmg, turnsRemaining, cardId}]
       spiritDebuff: 0,         // 精神力恢复减益值（负数或0）
@@ -155,7 +155,7 @@ class GameEngine {
       totalForceDmg: 0,        // 上回合力系伤害累计
       domain: { main: mainDomain, sub: subDomain },
       isLightSub: subDomain === '光',
-      cardForms: {}            // 卡牌形态跟踪，如 { S08: 'up' }
+      cardForms: {}            // 卡牌形态跟踪，如 { S09: 'up' }
     };
   }
 
@@ -191,7 +191,7 @@ class GameEngine {
     player.spirit = Math.min(MAX_SPIRIT, Math.max(0, player.spirit + spiritGain));
     this._addLog(`[${pIdx === 0 ? '玩家' : 'AI'}] 精神力恢复: 基础${SPIRIT_PER_TURN} + 减益${player.spiritDebuff} = ${spiritGain}`);
 
-    // 光速传播(S14)精神力恢复
+    // 光速传播(S16)精神力恢复
     if (this.lightSpeedActive[pIdx]) {
       player.spirit = Math.min(MAX_SPIRIT, player.spirit + 10);
       this.lightSpeedTurns[pIdx]--;
@@ -201,8 +201,8 @@ class GameEngine {
       }
     }
 
-    // 电磁感应(S24)精神力
-    const emInduction = player.fieldSupports.find(s => s.card.id === 'S24');
+    // 电磁感应(S28)精神力
+    const emInduction = player.fieldSupports.find(s => s.card.id === 'S28');
     if (emInduction) {
       player.spirit = Math.min(MAX_SPIRIT, player.spirit + 2);
     }
@@ -381,12 +381,12 @@ class GameEngine {
       this.mirageTurns[this.currentPlayer]--;
     }
 
-    // 处理镜面迷宫(S34)
+    // 处理镜面迷宫(S19)
     if (this.mirrorMaze[this.currentPlayer] > 0) {
       this.mirrorMaze[this.currentPlayer]--;
     }
 
-    // 处理影子束缚(S35)
+    // 处理影子束缚(S20)
     if (this.shadowBindTurns[this.currentPlayer] > 0) {
       this.shadowBindTurns[this.currentPlayer]--;
     }
@@ -566,10 +566,10 @@ class GameEngine {
       this.soundSpeedBuff[attackerIdx] = 0;
     }
 
-    // 光谱叠加(S15)
+    // 光谱叠加(S17)
     damage += this.spectrumBonus[attackerIdx];
 
-    // 短路开关(S27)
+    // 短路开关(S30)
     if (this.shortCircuitActive[attackerIdx] && card.domain.includes('电') && card.type === 'attack') {
       damage += 20;
     }
@@ -592,7 +592,7 @@ class GameEngine {
 
     // 领域卡提供的防御（替换旧领域时新领域才有防御）
     // 本游戏领域中领域卡本身不直接提供防御减伤给玩家
-    // 防御来自辅助卡如 S04, S10, S23, S42
+    // 防御来自辅助卡如 S04, S11, S27
 
     // 领域防御：检查防御方的领域卡是否提供防御
     // 注：领域卡D01-D05不直接提供防御减伤
@@ -692,8 +692,8 @@ class GameEngine {
         break;
     }
 
-    // 电磁感应(S24)：电系卡额外+2精神力
-    const emInduction = player.fieldSupports.find(s => s.card.id === 'S24');
+    // 电磁感应(S28)：电系卡额外+2精神力
+    const emInduction = player.fieldSupports.find(s => s.card.id === 'S28');
     if (emInduction && card.domain.includes('电')) {
       player.spirit = Math.min(MAX_SPIRIT, player.spirit + 2);
     }
@@ -915,7 +915,7 @@ class GameEngine {
       const electricCount = attacker.fieldSupports.filter(s => s.card.domain.includes('电')).length;
       if (electricCount >= 3) {
         damage *= 2;
-        // Combo(S31→A49)：不摧毁辅助卡
+        // Combo(S33→A49)：不摧毁辅助卡
         if (!this._a49NoDestroy) {
           const elecIdx = attacker.fieldSupports.findIndex(s => s.card.domain.includes('电'));
           if (elecIdx !== -1) {
@@ -929,13 +929,13 @@ class GameEngine {
     }
 
     if (card.id === 'A54') {
-      // 爆燃：引爆所有灼烧层数（默认48，S19→A54 combo可提升）
+      // 爆燃：引爆所有灼烧层数（默认48，S24→A54 combo可提升）
       const perLayerDmg = this._burnDmgPerLayer[attackerIdx];
       const burnExplode = opponent.burnLayers * perLayerDmg;
       opponent.burnLayers = 0;
       damage += burnExplode;
       effects.push({ type: 'burn_explode', value: burnExplode, perLayer: perLayerDmg });
-      // Combo(S21→A54)：引爆后额外+灼烧
+      // Combo(S26→A54)：引爆后额外+灼烧
       if (this._pendingBurnAfterExplode[attackerIdx] > 0) {
         opponent.burnLayers += this._pendingBurnAfterExplode[attackerIdx];
         effects.push({ type: 'combo_burn_after_explode', layers: this._pendingBurnAfterExplode[attackerIdx] });
@@ -1127,9 +1127,9 @@ class GameEngine {
     // 特殊效果处理
     this._applySpecialEffects(card, attackerIdx, opponent, effects);
 
-    // S08频率调节：跟踪形态（默认'up'=升高；Phase 4补UI选择）
-    if (card.id === 'S08') {
-      attacker.cardForms['S08'] = 'up'; // 默认升高
+    // S09频率调节：跟踪形态（默认'up'=升高；Phase 4补UI选择）
+    if (card.id === 'S09') {
+      attacker.cardForms['S09'] = 'up'; // 默认升高
       effects.push({ type: 'set_frequency_form', form: 'up', msg: '频率调节：升高模式' });
     }
 
@@ -1250,7 +1250,7 @@ class GameEngine {
 
       // 查看手牌
       if (spec.includes('查看对方') && spec.includes('手牌')) {
-        const count = card.id === 'A52' || card.id === 'S16' ? 'all' : 2;
+        const count = card.id === 'A52' || card.id === 'S18' ? 'all' : 2;
         effects.push({ type: 'view_hand', count, player: oIdx });
       }
 
@@ -1273,7 +1273,7 @@ class GameEngine {
         effects.push({ type: 'spirit_debuff', value: -3 });
       }
 
-      // 对方下回合每出卡+费 (A33, A43, S07)
+      // 对方下回合每出卡+费 (A33, A43, S08)
       if (spec.includes('每出卡+') || spec.includes('每出一张卡额外消耗')) {
         const match = spec.match(/\+(\d+)/);
         if (match) {
@@ -1303,7 +1303,7 @@ class GameEngine {
         }
       }
 
-      // 消耗灼烧发动的辅助 (S20消耗己方, S23消耗对方)
+      // 消耗灼烧发动的辅助 (S25消耗己方, S23消耗对方)
       if (spec.includes('消耗2层灼烧') || spec.includes('消耗对方2层灼烧')) {
         // S23 热机驱动：消耗对方2层灼烧
         if (card.id === 'S23' && opponent.burnLayers >= 2) {
@@ -1321,7 +1321,7 @@ class GameEngine {
         }
       }
 
-      // 给对附加灼烧 (S21)
+      // 给对附加灼烧 (S26)
       if (spec.includes('附加') && spec.includes('层灼烧') && card.type === 'support') {
         const match = spec.match(/(\d+)层灼烧/);
         if (match) {
@@ -1330,9 +1330,9 @@ class GameEngine {
         }
       }
 
-      // 温度升高 (S19)：灼烧伤害从30提升到36，影响双方灼烧结算
-      if (card.id === 'S19') {
-        // S19为全局效果，双方灼烧结算时每层伤害提升至36
+      // 温度升高 (S24)：灼烧伤害从30提升到36，影响双方灼烧结算
+      if (card.id === 'S24') {
+        // S24为全局效果，双方灼烧结算时每层伤害提升至36
         for (let i = 0; i < 2; i++) {
           this.players[i].burnEnhanced = true;
         }
@@ -1341,14 +1341,14 @@ class GameEngine {
         effects.push({ type: 'temperature_rise', msg: '灼烧伤害提升至36/层（持续3回合）' });
       }
 
-      // 比热护盾 (S17)
-      if (card.id === 'S17') {
+      // 比热护盾 (S22)
+      if (card.id === 'S22') {
         player.burnImmune = 3;
         effects.push({ type: 'burn_immune', turns: 3 });
       }
 
-      // 光速传播 (S14)
-      if (card.id === 'S14') {
+      // 光速传播 (S16)
+      if (card.id === 'S16') {
         this.lightSpeedActive[playerIdx] = true;
         this.lightSpeedTurns[playerIdx] = 4;
         effects.push({ type: 'light_speed', turns: 4 });
@@ -1382,16 +1382,16 @@ class GameEngine {
         effects.push({ type: 'mirror_echo', msg: '本回合声系和光系攻击+10伤害' });
       }
 
-      // 偏振过滤 (S13)
-      if (card.id === 'S13') {
+      // 偏振过滤 (S15)
+      if (card.id === 'S15') {
         // 对方下回合只能出攻击卡或辅助卡
         opponent.extraCost = 0; // 不影响费用，限制类型
         this.polarizeRestriction[oIdx] = card.effect.special.includes('攻击或辅助') ? 'restricted' : null;
         effects.push({ type: 'polarize', msg: '对方下回合只能出一种类型的卡' });
       }
 
-      // 光谱叠加 (S15)
-      if (card.id === 'S15') {
+      // 光谱叠加 (S17)
+      if (card.id === 'S17') {
         const uniqueDomains = new Set();
         // 检查攻击方场上所有卡的领域
         for (const s of player.fieldSupports) {
@@ -1404,22 +1404,22 @@ class GameEngine {
         effects.push({ type: 'spectrum', bonus: this.spectrumBonus[playerIdx] });
       }
 
-      // 镜面迷宫 (S34)
-      if (card.id === 'S34') {
+      // 镜面迷宫 (S19)
+      if (card.id === 'S19') {
         this.mirrorMaze[oIdx] = 3;
         effects.push({ type: 'mirror_maze', msg: '对方3次出牌有35%概率失败' });
       }
 
-      // 影子束缚 (S35)
-      if (card.id === 'S35') {
+      // 影子束缚 (S20)
+      if (card.id === 'S20') {
         if (opponent.fieldSupports.length > 0 || opponent.fieldSummons.length > 0 || opponent.fieldDomain) {
           this.shadowBindTurns[oIdx] = 2;
           effects.push({ type: 'shadow_bind', msg: '对方下2回合不能出辅助卡' });
         }
       }
 
-      // 短路开关 (S27)
-      if (card.id === 'S27') {
+      // 短路开关 (S30)
+      if (card.id === 'S30') {
         const elecIdx = player.fieldSupports.findIndex(s => s.card.domain.includes('电'));
         if (elecIdx !== -1) {
           player.fieldSupports.splice(elecIdx, 1);
@@ -1428,26 +1428,26 @@ class GameEngine {
         }
       }
 
-      // 高压击穿 (S29)
-      if (card.id === 'S29') {
+      // 高压击穿 (S31)
+      if (card.id === 'S31') {
         this.highVoltagePierce[playerIdx] = 3;
         effects.push({ type: 'high_voltage', msg: '电攻无视20点防御，持续3回合' });
       }
 
-      // 多路放电 (S31)
-      if (card.id === 'S31') {
+      // 多路放电 (S33)
+      if (card.id === 'S33') {
         this.multiDischarge[playerIdx] = true;
         effects.push({ type: 'multi_discharge', msg: '本回合所有电攻费用-2' });
       }
 
-      // 噪音干扰 (S07)
-      if (card.id === 'S07') {
+      // 噪音干扰 (S08)
+      if (card.id === 'S08') {
         opponent.extraCost = 5;
         effects.push({ type: 'noise', msg: '对方下回合每出卡+5费' });
       }
 
-      // S06 查看手牌+清除负面
-      if (card.id === 'S06') {
+      // S07 查看手牌+清除负面
+      if (card.id === 'S07') {
         effects.push({ type: 'view_hand', count: 2, player: oIdx });
         // 清除己方1种负面状态
         const p = this.players[playerIdx];
@@ -1457,7 +1457,7 @@ class GameEngine {
         effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });
       }
 
-      // 噪声/干扰效果 (S06 回声消声)
+      // 噪声/干扰效果 (S07 回声消声)
       if (spec.includes('对方下回合') && spec.includes('恢复减半')) {
         opponent.spiritDebuff = Math.max(-10, opponent.spiritDebuff - Math.floor(SPIRIT_PER_TURN / 2));
         effects.push({ type: 'spirit_halve', msg: '对方下回合精神力恢复减半' });
@@ -1471,8 +1471,8 @@ class GameEngine {
         }
       }
 
-      // 抽卡效果 (S25静电吸附)
-      if (card.effect.drawCards && card.id === 'S25') {
+      // 抽卡效果 (S29静电吸附)
+      if (card.effect.drawCards && card.id === 'S29') {
         // 需要先弃1张（由UI处理）
         effects.push({ type: 'need_discard', msg: '需先弃1张手牌' });
         this.drawCards(playerIdx, card.effect.drawCards);
@@ -1505,7 +1505,7 @@ class GameEngine {
     const player = this.players[playerIdx];
     if (player.burnLayers <= 0) return;
 
-    // 比热护盾(S17)免疫
+    // 比热护盾(S22)免疫
     if (player.burnImmune > 0) {
       player.burnImmune--;
       this._addLog(`[${playerIdx === 0 ? '玩家' : 'AI'}] 比热护盾免疫了灼烧伤害。`);
@@ -1557,10 +1557,10 @@ class GameEngine {
 
     for (let i = 0; i < player.dotEffects.length; i++) {
       const dot = player.dotEffects[i];
-      // A10次声震荡：DOT递增（含S09→A10 combo加成）
+      // A10次声震荡：DOT递增（含S08→A10 combo加成）
       let dmg = dot.dmg;
       if (dot.cardId === 'A10') {
-        const increment = 13 + this._dotIncrementBoost[playerIdx];  // S09→A10 combo +3
+        const increment = 13 + this._dotIncrementBoost[playerIdx];  // S08→A10 combo +3
         dmg = dot.dmg + (dot.initialTurns - dot.turnsRemaining) * increment || dot.dmg;
       }
       player.hp = Math.max(0, player.hp - dmg);
@@ -1604,8 +1604,8 @@ class GameEngine {
     }
     for (let i = expiredSupports.length - 1; i >= 0; i--) {
       const removed = player.fieldSupports.splice(expiredSupports[i], 1)[0];
-      // S19温度升高过期时清除双方burnEnhanced标记
-      if (removed.card.id === 'S19') {
+      // S24温度升高过期时清除双方burnEnhanced标记
+      if (removed.card.id === 'S24') {
         this.players[0].burnEnhanced = false;
         this.players[1].burnEnhanced = false;
         this._addLog(`[系统] 灼烧增强效果结束，双方灼烧伤害恢复正常。`);
@@ -1615,7 +1615,7 @@ class GameEngine {
       }
     }
 
-    // 高压击穿(S29)回合递减
+    // 高压击穿(S31)回合递减
     if (this.highVoltagePierce[playerIdx] > 0) {
       this.highVoltagePierce[playerIdx]--;
     }
@@ -1644,7 +1644,7 @@ class GameEngine {
     const prevCards = cardsThisTurn.slice(0, -1);
 
     for (const prevCardId of prevCards) {
-      // 构建键：如果有形态信息则追加（如 "S08升"）
+      // 构建键：如果有形态信息则追加（如 "S09升"）
       const form = player.cardForms[prevCardId];
       let prevKey = prevCardId;
       if (form) {
@@ -1833,7 +1833,7 @@ class GameEngine {
     const player = this.players[playerIdx];
     let cost = card.cost + player.extraCost + player.paralysis * PARALYSIS_COST;
 
-    // 多路放电(S31)电攻减费
+    // 多路放电(S33)电攻减费
     if (this.multiDischarge[playerIdx] && card.domain.includes('电') && card.type === 'attack') {
       cost -= 2;
     }
@@ -1876,7 +1876,7 @@ class GameEngine {
       return { can: false, reason: '被影子束缚，无法出辅助卡。' };
     }
 
-    // 镜面迷宫失败概率（S13→C03 combo可提升概率）
+    // 镜面迷宫失败概率（S15→S19 combo可提升概率）
     const mazeProb = Math.max(0.35, this._mirrorMazeBoost[1 - playerIdx] || 0.35);
     if (this.mirrorMaze[playerIdx] > 0 && Math.random() < mazeProb) {
       const refund = Math.floor(card.cost * 0.5);
@@ -1893,7 +1893,7 @@ class GameEngine {
       }
     }
 
-    // 偏振过滤(S13)
+    // 偏振过滤(S15)
     if (this.polarizeRestriction[playerIdx] && playerIdx === this.currentPlayer) {
       // 只允许一种类型
       if (this.cardsThisTurn.length > 0) {

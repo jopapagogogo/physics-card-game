@@ -16,7 +16,7 @@
  *   heal_hp           — 恢复HP
  */
 const COMBO_TABLE = {
-  // ============ 力领域 (6) ============
+  // ============ 力领域 (5) ============
   "S01→A01": {
     type: "combo_s01_a01",
     msg: "质量增大→重力锤击：+65伤害",
@@ -44,40 +44,40 @@ const COMBO_TABLE = {
   },
 
   // ============ 声领域 (6) ============
-  "S08升→A09": {
-    type: "combo_s08_up_a09",
+  "S09升→A09": {
+    type: "combo_s09_up_a09",
     msg: "频率调节(升高)→超声清洗：+15伤害",
     effects: [{ type: "extra_damage", value: 15 }]
   },
-  "S09→A45": {
-    type: "combo_s09_a45",
+  "S10→A45": {
+    type: "combo_s10_a45",
     msg: "共振蓄能→双耳定位：查看对方全部手牌",
     effects: [{ type: "view_hand", count: "all" }]
   },
-  "S08降→A10": {
-    type: "combo_s08_down_a10",
+  "S09降→A10": {
+    type: "combo_s09_down_a10",
     msg: "频率调节(降低)→次声震荡：持续回合+2",
     effects: [{ type: "extend_dot_turns", value: 2 }]
   },
-  "S08升→A13": {
-    type: "combo_s08_up_a13",
+  "S09升→A13": {
+    type: "combo_s09_up_a13",
     msg: "频率调节(升高)→驻波共振：+30伤害",
     effects: [{ type: "extra_damage", value: 30 }]
   },
-  "S06→A14": {
-    type: "combo_s06_a14",
+  "S07→A14": {
+    type: "combo_s07_a14",
     msg: "回声消声→回声爆破：+30伤害",
     effects: [{ type: "extra_damage", value: 30 }]
   },
-  "S07→A10": {
-    type: "combo_s07_a10",
+  "S08→A10": {
+    type: "combo_s08_a10",
     msg: "噪音干扰→次声震荡：每回合递增伤害+3",
     effects: [{ type: "boost_dot_increment", value: 3 }]
   },
 
-  // ============ 光领域 (6) ============
-  "S14→A19": {
-    type: "combo_s14_a19",
+  // ============ 光领域 (5) ============
+  "S16→A19": {
+    type: "combo_s16_a19",
     msg: "光速传播→光纤穿透：+25伤害",
     effects: [{ type: "extra_damage", value: 25 }]
   },
@@ -86,30 +86,30 @@ const COMBO_TABLE = {
     msg: "红外灼烧→热辐射：灼烧层数+1",
     effects: [{ type: "extra_burn", layers: 1 }]
   },
-  "S13→S34": {
-    type: "combo_s13_s34",
+  "S15→S19": {
+    type: "combo_s15_s19",
     msg: "偏振过滤→镜面迷宫：失败概率35%→65%",
     effects: [{ type: "boost_mirror_maze", value: 0.65 }]
   },
-  "S12→A55": {
-    type: "combo_s12_a55",
+  "S14→A55": {
+    type: "combo_s14_a55",
     msg: "滤光→凸透引燃：灼烧上限3→5层",
     effects: [{ type: "boost_burn_cap", value: 5 }]
   },
-  "S15→A16": {
-    type: "combo_s15_a16",
+  "S17→A16": {
+    type: "combo_s17_a16",
     msg: "光谱叠加→色散分解：A16驻场4回合，未被清场则回手0费重打",
     effects: [{ type: "set_return_to_hand", cardId: "A16" }]
   },
 
   // ============ 热领域 (5) ============
-  "S19→A54": {
-    type: "combo_s19_a54",
+  "S24→A54": {
+    type: "combo_s24_a54",
     msg: "温度升高→爆燃：引爆每层伤害50→65",
     effects: [{ type: "boost_burn_dmg", value: 65 }]
   },
-  "S21→A21": {
-    type: "combo_s21_a21",
+  "S26→A21": {
+    type: "combo_s26_a21",
     msg: "热量聚集→烈焰灼蚀：每层灼烧额外+15→+25",
     effects: [{ type: "extra_damage_per_burn", perLayer: 10 }]
   },
@@ -118,8 +118,8 @@ const COMBO_TABLE = {
     msg: "热对流→熔岩喷发：额外+1层灼烧",
     effects: [{ type: "extra_burn", layers: 1 }]
   },
-  "S21→A54": {
-    type: "combo_s21_a54",
+  "S26→A54": {
+    type: "combo_s26_a54",
     msg: "热量聚集→爆燃：引爆后额外+2层灼烧",
     effects: [{ type: "extra_burn_after_detonate", layers: 2 }]
   },
@@ -130,28 +130,28 @@ const COMBO_TABLE = {
   },
 
   // ============ 电领域 (5) ============
-  "S23→A36": {
-    type: "combo_s23_a36",
+  "S27→A36": {
+    type: "combo_s27_a36",
     msg: "电阻屏障→焦耳热击：+25伤害",
     effects: [{ type: "extra_damage", value: 25 }]
   },
-  "S24→A40": {
-    type: "combo_s24_a40",
+  "S28→A40": {
+    type: "combo_s28_a40",
     msg: "电磁感应→安培力冲击：+20伤害",
     effects: [{ type: "extra_damage", value: 20 }]
   },
-  "S25→A27": {
-    type: "combo_s25_a27",
+  "S29→A27": {
+    type: "combo_s29_a27",
     msg: "静电吸附→闪电劈击：+10伤害",
     effects: [{ type: "extra_damage", value: 10 }]
   },
-  "S29→A27": {
-    type: "combo_s29_a27",
+  "S31→A27": {
+    type: "combo_s31_a27",
     msg: "高压击穿→闪电劈击：无视防御20→30",
     effects: [{ type: "boost_ignore_defense", value: 30 }]
   },
-  "S31→A49": {
-    type: "combo_s31_a49",
+  "S33→A49": {
+    type: "combo_s33_a49",
     msg: "多路放电→过载放电：触发后不摧毁辅助卡",
     effects: [{ type: "modify_flag", flag: "a49_no_destroy", value: true }]
   },
@@ -162,8 +162,8 @@ const COMBO_TABLE = {
     msg: "光电效应→光电信号：A52伤害+20",
     effects: [{ type: "extra_damage", value: 20 }]
   },
-  "A32vsS10": {
-    type: "combo_a32_vs_s10",
+  "A32vsS11": {
+    type: "combo_a32_vs_s11",
     msg: "声波推力vs隔音屏障：力系额外40伤害仍生效",
     effects: [{ type: "extra_damage_ignore_block", value: 40 }]
   },

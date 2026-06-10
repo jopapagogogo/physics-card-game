@@ -181,61 +181,61 @@ describe('Combo 效果 — extra_damage', () => {
     expect(comboDmg.value).toBe(65);
   });
 
-  it('S14→A19: +25伤害（光领域）', () => {
-    const engine = createEngine(['S14', 'A19'], ['A01'], '光', '电');
-    setHand(engine, 0, ['S14', 'A19']);
+  it('S16→A19: +25伤害（光领域）', () => {
+    const engine = createEngine(['S16', 'A19'], ['A01'], '光', '电');
+    setHand(engine, 0, ['S16', 'A19']);
     
-    const results = playCardsInTurn(engine, 0, ['S14', 'A19']);
+    const results = playCardsInTurn(engine, 0, ['S16', 'A19']);
     const comboDmg = results[1].effects.find(e => e.type === 'combo_extra_dmg');
     expect(comboDmg).toBeDefined();
     expect(comboDmg.value).toBe(25);
   });
 
-  it('S23→A36: +25伤害（电领域）', () => {
-    const engine = createEngine(['S23', 'A36'], ['A01'], '电', '热');
-    setHand(engine, 0, ['S23', 'A36']);
+  it('S27→A36: +25伤害（电领域）', () => {
+    const engine = createEngine(['S27', 'A36'], ['A01'], '电', '热');
+    setHand(engine, 0, ['S27', 'A36']);
     
-    const results = playCardsInTurn(engine, 0, ['S23', 'A36']);
+    const results = playCardsInTurn(engine, 0, ['S27', 'A36']);
     const comboDmg = results[1].effects.find(e => e.type === 'combo_extra_dmg');
     expect(comboDmg).toBeDefined();
     expect(comboDmg.value).toBe(25);
   });
 
-  it('S24→A40: +20伤害（电领域）', () => {
-    const engine = createEngine(['S24', 'A40'], ['A01'], '电', '热');
-    setHand(engine, 0, ['S24', 'A40']);
+  it('S28→A40: +20伤害（电领域）', () => {
+    const engine = createEngine(['S28', 'A40'], ['A01'], '电', '热');
+    setHand(engine, 0, ['S28', 'A40']);
     
-    const results = playCardsInTurn(engine, 0, ['S24', 'A40']);
+    const results = playCardsInTurn(engine, 0, ['S28', 'A40']);
     const comboDmg = results[1].effects.find(e => e.type === 'combo_extra_dmg');
     expect(comboDmg).toBeDefined();
     expect(comboDmg.value).toBe(20);
   });
 
-  it('S06→A14: +30伤害（声领域）', () => {
-    const engine = createEngine(['S06', 'A14'], ['A01'], '声', '热');
-    setHand(engine, 0, ['S06', 'A14']);
+  it('S07→A14: +30伤害（声领域）', () => {
+    const engine = createEngine(['S07', 'A14'], ['A01'], '声', '热');
+    setHand(engine, 0, ['S07', 'A14']);
     
-    const results = playCardsInTurn(engine, 0, ['S06', 'A14']);
+    const results = playCardsInTurn(engine, 0, ['S07', 'A14']);
     const comboDmg = results[1].effects.find(e => e.type === 'combo_extra_dmg');
     expect(comboDmg).toBeDefined();
     expect(comboDmg.value).toBe(30);
   });
 
-  it('S08升→A09: +15伤害（声领域）', () => {
-    const engine = createEngine(['S08', 'A09'], ['A01'], '声', '热');
-    setHand(engine, 0, ['S08', 'A09']);
+  it('S09升→A09: +15伤害（声领域）', () => {
+    const engine = createEngine(['S09', 'A09'], ['A01'], '声', '热');
+    setHand(engine, 0, ['S09', 'A09']);
     
-    const results = playCardsInTurn(engine, 0, ['S08', 'A09']);
+    const results = playCardsInTurn(engine, 0, ['S09', 'A09']);
     const comboDmg = results[1].effects.find(e => e.type === 'combo_extra_dmg');
     expect(comboDmg).toBeDefined();
     expect(comboDmg.value).toBe(15);
   });
 
-  it('S08升→A13: +30伤害（声领域）', () => {
-    const engine = createEngine(['S08', 'A13'], ['A01'], '声', '热');
-    setHand(engine, 0, ['S08', 'A13']);
+  it('S09升→A13: +30伤害（声领域）', () => {
+    const engine = createEngine(['S09', 'A13'], ['A01'], '声', '热');
+    setHand(engine, 0, ['S09', 'A13']);
     
-    const results = playCardsInTurn(engine, 0, ['S08', 'A13']);
+    const results = playCardsInTurn(engine, 0, ['S09', 'A13']);
     const comboDmg = results[1].effects.find(e => e.type === 'combo_extra_dmg');
     expect(comboDmg).toBeDefined();
     expect(comboDmg.value).toBe(30);
@@ -301,18 +301,18 @@ describe('Combo 效果 — steal_spirit', () => {
 // ============================================================
 
 describe('Combo 效果 — modify_flag', () => {
-  it('S31→A49: 设置 a49_no_destroy 标记', () => {
-    const engine = createEngine(['S31', 'A49'], ['A01'], '电', '力');
-    setHand(engine, 0, ['S31', 'A49']);
+  it('S33→A49: 设置 a49_no_destroy 标记', () => {
+    const engine = createEngine(['S33', 'A49'], ['A01'], '电', '力');
+    setHand(engine, 0, ['S33', 'A49']);
     // A49需要3张电辅助才翻倍
-    const sCard = engine.getCardById('S23');
+    const sCard = engine.getCardById('S27');
     if (sCard) {
       for (let i = 0; i < 3; i++) {
         engine.players[0].fieldSupports.push({ card: sCard, turnsRemaining: 3 });
       }
     }
     
-    const results = playCardsInTurn(engine, 0, ['S31', 'A49']);
+    const results = playCardsInTurn(engine, 0, ['S33', 'A49']);
     const flagEffect = results[1].effects.find(e => e.type === 'combo_flag');
     expect(flagEffect).toBeDefined();
     expect(flagEffect.flag).toBe('a49_no_destroy');
@@ -355,20 +355,20 @@ describe('Combo 效果 — DOT相关', () => {
     expect(extendEffect.value).toBe(1);
   });
 
-  it('S08降→A10: DOT延续回合+2', () => {
-    const engine = createEngine(['S08', 'A10'], ['A01'], '声', '热');
-    setHand(engine, 0, ['S08', 'A10']);
-    // S08默认升模式，需手动设为降
-    // S08打出后默认设置cardForms['S08'] = 'up'
+  it('S09降→A10: DOT延续回合+2', () => {
+    const engine = createEngine(['S09', 'A10'], ['A01'], '声', '热');
+    setHand(engine, 0, ['S09', 'A10']);
+    // S09默认升模式，需手动设为降
+    // S09打出后默认设置cardForms['S09'] = 'up'
     // 需要在出牌后手动切换
     
     engine.startTurn();
     engine.startQuizPhase();
     engine.setQuizResult(0, 3);
     
-    engine.playCard(0, 'S08', 'player');
+    engine.playCard(0, 'S09', 'player');
     // 手动改为降模式
-    engine.players[0].cardForms['S08'] = 'down';
+    engine.players[0].cardForms['S09'] = 'down';
     const r2 = engine.playCard(0, 'A10', 'player');
     
     const extendEffect = r2.effects.find(e => e.type === 'combo_extend_dot');
@@ -382,11 +382,11 @@ describe('Combo 效果 — DOT相关', () => {
 // ============================================================
 
 describe('Combo 效果 — view_hand', () => {
-  it('S09→A45: 查看对方全部手牌', () => {
-    const engine = createEngine(['S09', 'A45'], ['A01'], '声', '力');
-    setHand(engine, 0, ['S09', 'A45']);
+  it('S10→A45: 查看对方全部手牌', () => {
+    const engine = createEngine(['S10', 'A45'], ['A01'], '声', '力');
+    setHand(engine, 0, ['S10', 'A45']);
     
-    const results = playCardsInTurn(engine, 0, ['S09', 'A45']);
+    const results = playCardsInTurn(engine, 0, ['S10', 'A45']);
     const viewEffect = results[1].effects.find(e => e.type === 'combo_view_hand');
     expect(viewEffect).toBeDefined();
     expect(viewEffect.count).toBe('all');
