@@ -1,0 +1,20 @@
+{
+  "name": "physics-card-game",
+  "version": "4.0.0",
+  "description": "物理卡牌对战游戏",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitee.com:jopapa/physics-card-game.git"
+  },
+  "keywords": [],
+  "author": "jopapa",
+  "license": "ISC",
+  "devDependencies": {
+    "vitest": "^4.1.8"
+  }
+}

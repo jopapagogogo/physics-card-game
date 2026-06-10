@@ -646,6 +646,14 @@ class GameEngine {
     // 记录本回合打出的卡
     this.cardsThisTurn.push(cardId);
 
+    // 组合检测（必须在卡牌效果处理之前，这样攻击卡能读到 pendingCombo）
+    const combo = this.checkCombo(card, this.cardsThisTurn, playerIdx);
+    if (combo && !this.comboThisTurn.includes(combo.type)) {
+      this.comboThisTurn.push(combo.type);
+      this.pendingCombo[playerIdx] = combo;
+      this._addLog(`[${playerIdx === 0 ? '玩家' : 'AI'}] ⚡ 组合触发：${combo.msg}`);
+    }
+
     // 按卡牌类型处理
     switch (card.type) {
       case 'attack':
@@ -663,14 +671,6 @@ class GameEngine {
       case 'phase':
         effects.push(...this._handlePhase(card, playerIdx));
         break;
-    }
-
-    // 组合检测
-    const combo = this.checkCombo(card, this.cardsThisTurn, playerIdx);
-    if (combo && !this.comboThisTurn.includes(combo.type)) {
-      this.comboThisTurn.push(combo.type);
-      this.pendingCombo[playerIdx] = combo;
-      this._addLog(`[${playerIdx === 0 ? '玩家' : 'AI'}] ⚡ 组合触发：${combo.msg}`);
     }
 
     // 电磁感应(S24)：电系卡额外+2精神力
@@ -1134,6 +1134,24 @@ class GameEngine {
     });
     effects.push({ type: 'summon', name: card.name, hp: card.effect.hp || 200 });
 
+    // 处理召唤物相关的 combo 效果（如 C03↔C04 的 modify_flag）
+    const combo = this.pendingCombo[playerIdx];
+    if (combo && combo.effects) {
+      for (const eff of combo.effects) {
+        switch (eff.type) {
+          case 'modify_flag':
+            if (eff.flag === 'c04_choose') {
+              this._c04PlayerChoose = true;
+            }
+            effects.push({ type: 'combo_flag', flag: eff.flag });
+            break;
+          default:
+            // 其他召唤相关 combo 效果待 Phase 4 实现
+            break;
+        }
+      }
+    }
+
     return effects;
   }
 
@@ -1587,9 +1605,30 @@ class GameEngine {
         prevKey = `${prevCardId}${form === 'up' ? '升' : '降'}`;
       }
 
-      const key = `${prevKey}→${cardPlayed.id}`;
-      if (COMBO_TABLE[key]) {
-        return COMBO_TABLE[key];
+      // 1. 标准方向：前卡→当前卡（方向敏感）
+      const standardKey = `${prevKey}→${cardPlayed.id}`;
+      if (COMBO_TABLE[standardKey]) {
+        return COMBO_TABLE[standardKey];
+      }
+
+      // 2. 双向对冲：A↔B 或 B↔A（方向不敏感）
+      const bidirKey1 = `${prevKey}↔${cardPlayed.id}`;
+      const bidirKey2 = `${cardPlayed.id}↔${prevKey}`;
+      if (COMBO_TABLE[bidirKey1]) {
+        return COMBO_TABLE[bidirKey1];
+      }
+      if (COMBO_TABLE[bidirKey2]) {
+        return COMBO_TABLE[bidirKey2];
+      }
+
+      // 3. 对抗：AvsB 或 BvsA（方向不敏感）
+      const vsKey1 = `${prevKey}vs${cardPlayed.id}`;
+      const vsKey2 = `${cardPlayed.id}vs${prevKey}`;
+      if (COMBO_TABLE[vsKey1]) {
+        return COMBO_TABLE[vsKey1];
+      }
+      if (COMBO_TABLE[vsKey2]) {
+        return COMBO_TABLE[vsKey2];
       }
     }
 
