@@ -96,11 +96,6 @@ const COMBO_TABLE = {
     msg: "滤光→凸透引燃：灼烧上限3→5层",
     effects: [{ type: "boost_burn_cap", value: 5 }]
   },
-  "S37→A20": {
-    type: "combo_s37_a20",
-    msg: "凸透成像→日光暴晒：清除负面状态1种→2种",
-    effects: [{ type: "boost_clear_debuff", value: 2 }]
-  },
   "S15→A16": {
     type: "combo_s15_a16",
     msg: "光谱叠加→色散分解：A16驻场4回合，未被清场则回手0费重打",
