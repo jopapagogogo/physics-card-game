@@ -233,6 +233,7 @@ class GameEngine {
     this._burnCapIncrease[pIdx] = 0;
     this._burnDmgPerLayer[pIdx] = 48;
     this._ignoreDefBonus[pIdx] = 0;
+    this.spectrumBonus[pIdx] = 0;         // Bug7修复: 光谱加成每回合重置
     this.quizResult = { correct: 0, total: 3, bonus: 0 };
     player.extraCost = 0;
 
@@ -1243,9 +1244,9 @@ class GameEngine {
     const player = this.players[playerIdx];
     const oIdx = 1 - playerIdx;
 
-    // --- 共通效果 ---
-    if (card.effect.special) {
-      const spec = card.effect.special;
+    // --- 共通效果（基于卡牌描述文本匹配）---
+    const spec = card.description || card.condition || '';
+    {
 
       // 查看手牌
       if (spec.includes('查看对方') && spec.includes('手牌')) {
@@ -1310,11 +1311,10 @@ class GameEngine {
           player.spirit = Math.min(MAX_SPIRIT, player.spirit + 15);
           effects.push({ type: 'heat_engine', spiritRestore: 15 });
         }
-        // S20 潜热释放：消耗己方2层灼烧
-        if (card.id === 'S20' && player.burnLayers >= 2) {
+        // S25 潜热释放：消耗己方2层灼烧
+        if (card.id === 'S25' && player.burnLayers >= 2) {
           player.burnLayers -= 2;
           player.hp = Math.min(MAX_HP, player.hp + 80);
-          // 清除1种负面状态
           if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
           if (player.dotEffects.length > 0) player.dotEffects.shift();
           effects.push({ type: 'latent_heat', heal: 80 });
@@ -1560,7 +1560,7 @@ class GameEngine {
       // A10次声震荡：DOT递增（含S09→A10 combo加成）
       let dmg = dot.dmg;
       if (dot.cardId === 'A10') {
-        const increment = 13 + this._dotIncrementBoost[pIdx];  // S09→A10 combo +3
+        const increment = 13 + this._dotIncrementBoost[playerIdx];  // S09→A10 combo +3
         dmg = dot.dmg + (dot.initialTurns - dot.turnsRemaining) * increment || dot.dmg;
       }
       player.hp = Math.max(0, player.hp - dmg);
@@ -1790,8 +1790,8 @@ class GameEngine {
     if (card.effect?.defense) return true;
     // 持续buff卡
     if (card.effect?.buffDmg && !card.effect?.drawCards) return true;
-    // 声场效果卡（特殊标记）
-    if (card.effect?.special?.includes('驻场')) return true;
+    // 明确定义为驻场卡
+    if (card.effect?.isFieldCard) return true;
     return false;
   }
 
@@ -1926,9 +1926,15 @@ class GameEngine {
       }
     }
 
-    // S18/S20：消耗灼烧的辅助卡
-    if ((card.id === 'S18' || card.id === 'S20') && player.burnLayers < 2) {
+    // S23热机驱动：消耗对方2层灼烧；S25潜热释放：消耗己方2层灼烧
+    if (card.id === 'S25' && player.burnLayers < 2) {
       return { can: false, reason: '自身灼烧层数不足2层。' };
+    }
+    if (card.id === 'S23') {
+      const opp = this.players[1 - playerIdx];
+      if (opp.burnLayers < 2) {
+        return { can: false, reason: '对方灼烧层数不足2层。' };
+      }
     }
 
     return { can: true, reason: '' };
