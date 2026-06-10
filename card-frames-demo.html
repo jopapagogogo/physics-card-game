@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A01 重力锤击 — 多风格卡牌设计</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a14;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#ddd;padding:24px;min-height:100vh}
+h1{text-align:center;font-size:26px;margin-bottom:6px}
+h1 .id{color:#E74C3C}
+.sub{text-align:center;font-size:13px;color:#888;margin-bottom:40px}
+
+.styles-row{display:flex;flex-wrap:wrap;gap:32px;justify-content:center;margin-bottom:50px;max-width:1400px;margin-left:auto;margin-right:auto}
+.style-group{display:flex;flex-direction:column;align-items:center;gap:12px}
+.style-label{font-size:14px;font-weight:700;color:#ccc;text-align:center}
+.style-label em{font-size:11px;color:#888;font-style:normal;display:block;margin-top:2px}
+
+/* ============================================================
+   风格一：暗黑赛博 — 当前游戏风格（精致化版）
+   ============================================================ */
+.card-cyber{width:260px;height:380px;border-radius:18px;position:relative;overflow:hidden;
+  background:linear-gradient(175deg,#1a0e0e 0%,#16162a 35%,#101020 100%);
+  border:3px solid #b03a2e;
+  box-shadow:0 0 30px rgba(231,76,60,.2),0 8px 32px rgba(0,0,0,.5);
+  transition:transform .3s, box-shadow .3s;
+}
+.card-cyber:hover{transform:translateY(-12px) scale(1.04);box-shadow:0 0 50px rgba(231,76,60,.35),0 16px 48px rgba(0,0,0,.6)}
+/* 内框 */
+.card-cyber .inner-frame{position:absolute;inset:7px;border:1px solid rgba(231,76,60,.18);border-radius:11px;pointer-events:none}
+/* 四角 */
+.card-cyber .corner{position:absolute;width:18px;height:18px;border-color:rgba(231,76,60,.5);border-style:solid}
+.card-cyber .corner.tl{top:10px;left:10px;border-width:2px 0 0 2px;border-radius:4px 0 0 0}
+.card-cyber .corner.tr{top:10px;right:10px;border-width:2px 2px 0 0;border-radius:0 4px 0 0}
+.card-cyber .corner.bl{bottom:10px;left:10px;border-width:0 0 2px 2px;border-radius:0 0 0 4px}
+.card-cyber .corner.br{bottom:10px;right:10px;border-width:0 2px 2px 0;border-radius:0 0 4px 0}
+/* 费用 */
+.card-cyber .cost{position:absolute;top:14px;left:14px;z-index:10;width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,#c0392b,#922b21);color:#fff;font-size:15px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 10px rgba(192,57,43,.5),inset 0 1px 0 rgba(255,255,255,.2)}
+/* 编号 */
+.card-cyber .card-id{position:absolute;top:18px;right:14px;z-index:10;font-size:11px;color:rgba(255,255,255,.35);font-weight:700;letter-spacing:1px}
+/* 稀有度 */
+.card-cyber .rarity{position:absolute;top:16px;right:40px;z-index:10;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#888,#aaa)}
+/* 名称 */
+.card-cyber .name{position:absolute;top:58px;left:0;right:0;text-align:center;z-index:10;font-size:19px;font-weight:900;color:#fff;
+  text-shadow:0 0 15px rgba(231,76,60,.6),0 2px 4px rgba(0,0,0,.8);letter-spacing:3px}
+/* 类型标签 */
+.card-cyber .type-tag{position:absolute;top:84px;left:50%;transform:translateX(-50%);z-index:10;
+  background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.3);border-radius:8px;
+  padding:3px 12px;font-size:10px;color:#f1948a;letter-spacing:1px}
+/* 卡图 */
+.card-cyber .art-zone{position:absolute;top:106px;left:16px;right:16px;height:110px;z-index:5;
+  background:radial-gradient(ellipse at center,rgba(231,76,60,.08) 0%,transparent 70%);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card-cyber .art-zone .bg-pattern{position:absolute;inset:0;
+  background:radial-gradient(circle at 30% 40%,rgba(231,76,60,.06) 0%,transparent 40%),
+             radial-gradient(circle at 70% 60%,rgba(231,76,60,.04) 0%,transparent 40%)}
+.card-cyber .art-icon{font-size:60px;position:relative;filter:drop-shadow(0 0 20px rgba(231,76,60,.5)) drop-shadow(0 4px 8px rgba(0,0,0,.6))}
+/* 锤击装饰 */
+.card-cyber .hammer-lines{position:absolute;top:0;left:0;right:0;bottom:0}
+.card-cyber .hammer-lines::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);
+  width:80px;height:3px;background:linear-gradient(90deg,transparent,rgba(231,76,60,.25),transparent);border-radius:2px}
+.card-cyber .hammer-lines::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(30deg);
+  width:60px;height:3px;background:linear-gradient(90deg,transparent,rgba(231,76,60,.15),transparent);border-radius:2px}
+/* 描述 */
+.card-cyber .desc{position:absolute;top:226px;left:18px;right:18px;z-index:10;font-size:10px;color:#aaa;line-height:1.55;text-align:center}
+.card-cyber .desc .keyword{color:#f1948a;font-weight:600}
+/* 数值面板 */
+.card-cyber .stats{position:absolute;top:288px;left:18px;right:18px;z-index:10;display:flex;gap:8px;justify-content:center}
+.card-cyber .stat{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;text-align:center;padding:5px 0}
+.card-cyber .stat .val{font-size:18px;font-weight:800;color:#E74C3C}
+.card-cyber .stat .lbl{font-size:9px;color:#777;margin-top:1px}
+/* 公式 */
+.card-cyber .formula{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);z-index:10;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);border-radius:5px;
+  padding:3px 14px;font-size:11px;color:#888;font-family:'Courier New',monospace;letter-spacing:2px}
+/* 稀有度底标 */
+.card-cyber .rare-bottom{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:5px}
+.card-cyber .rare-bottom .dot{width:6px;height:6px;border-radius:50%;background:#888}
+.card-cyber .rare-bottom .txt{font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px}
+
+/* ============================================================
+   风格二：古典卷轴 — 羊皮纸质感
+   ============================================================ */
+.card-scroll{width:260px;height:380px;border-radius:12px;position:relative;overflow:hidden;
+  background:linear-gradient(175deg,#3d2b1f 0%,#4a3728 30%,#3d2b1f 100%);
+  border:3px solid #8b6914;
+  box-shadow:0 8px 32px rgba(139,105,20,.3),inset 0 0 60px rgba(139,105,20,.08);
+  font-family:'STSong','Songti SC','SimSun','Noto Serif SC',serif}
+.card-scroll:hover{transform:translateY(-10px) scale(1.03);box-shadow:0 12px 40px rgba(139,105,20,.4)}
+/* 卷轴边框 */
+.card-scroll .scroll-frame{position:absolute;inset:8px;border:1px solid rgba(139,105,20,.3);border-radius:6px;pointer-events:none}
+/* 卷轴上下轴 */
+.card-scroll .scroll-rod{position:absolute;left:0;right:0;height:10px;z-index:2;
+  background:linear-gradient(180deg,#6b4c1e,#8b6914,#6b4c1e);
+  border-radius:3px;box-shadow:0 2px 4px rgba(0,0,0,.4)}
+.card-scroll .scroll-rod.top{top:20px}
+.card-scroll .scroll-rod.btm{bottom:20px}
+/* 费用 — 印章风格 */
+.card-scroll .cost{position:absolute;top:14px;left:14px;z-index:10;width:32px;height:32px;
+  background:radial-gradient(circle,#c0392b,#7b241c);color:#f5deb3;font-size:14px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;border:2px solid #8b6914;border-radius:50%;
+  box-shadow:0 2px 6px rgba(0,0,0,.5);font-family:'PingFang SC',sans-serif}
+.card-scroll .card-id{position:absolute;top:18px;right:14px;z-index:10;font-size:10px;color:rgba(245,222,179,.4);font-family:'PingFang SC',sans-serif}
+/* 上方纹饰 */
+.card-scroll .ornament-top{position:absolute;top:34px;left:50%;transform:translateX(-50%);z-index:3;color:rgba(139,105,20,.5);font-size:16px;letter-spacing:8px}
+/* 名称 */
+.card-scroll .name{position:absolute;top:56px;left:0;right:0;text-align:center;z-index:10;font-size:20px;font-weight:900;
+  color:#f5deb3;text-shadow:0 2px 4px rgba(0,0,0,.6);letter-spacing:6px}
+/* 类型 */
+.card-scroll .type-tag{position:absolute;top:84px;left:50%;transform:translateX(-50%);z-index:10;font-size:10px;color:#c4a35a;letter-spacing:2px;
+  font-family:'PingFang SC',sans-serif}
+/* 卡图 */
+.card-scroll .art-zone{position:absolute;top:100px;left:20px;right:20px;height:110px;z-index:5;
+  background:radial-gradient(ellipse at center,rgba(139,105,20,.15) 0%,transparent 70%);
+  border:1px solid rgba(139,105,20,.2);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.card-scroll .art-icon{font-size:56px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+/* 分隔线 */
+.card-scroll .sep{position:absolute;top:220px;left:24px;right:24px;height:1px;background:linear-gradient(90deg,transparent,rgba(139,105,20,.4),transparent)}
+/* 描述 */
+.card-scroll .desc{position:absolute;top:232px;left:22px;right:22px;z-index:10;font-size:10px;color:#c4a35a;line-height:1.6;text-align:center}
+.card-scroll .desc .keyword{color:#f5deb3;font-weight:700}
+/* 数值 */
+.card-scroll .stats{position:absolute;top:290px;left:22px;right:22px;z-index:10;display:flex;gap:8px;justify-content:center}
+.card-scroll .stat{flex:1;background:rgba(139,105,20,.1);border:1px solid rgba(139,105,20,.2);border-radius:4px;text-align:center;padding:5px 0}
+.card-scroll .stat .val{font-size:18px;font-weight:900;color:#f5deb3;font-family:'PingFang SC',sans-serif}
+.card-scroll .stat .lbl{font-size:9px;color:#8b7355;margin-top:1px;font-family:'PingFang SC',sans-serif}
+/* 公式 */
+.card-scroll .formula{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);z-index:10;font-size:12px;color:#8b6914;letter-spacing:2px}
+/* 底纹 */
+.card-scroll .bottom-seal{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:10;font-size:8px;color:rgba(139,105,20,.3);letter-spacing:3px}
+
+/* ============================================================
+   风格三：极简扁平 — 现代炉石/日式风格
+   ============================================================ */
+.card-flat{width:260px;height:380px;border-radius:14px;position:relative;overflow:hidden;
+  background:#1c1c28;
+  border:2px solid rgba(255,255,255,.08);
+  box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.card-flat:hover{transform:translateY(-8px) scale(1.03);box-shadow:0 16px 48px rgba(0,0,0,.6)}
+/* 顶部色条 */
+.card-flat .top-bar{position:absolute;top:0;left:0;right:0;height:6px;
+  background:linear-gradient(90deg,#c0392b,#E74C3C,#c0392b)}
+/* 费用 */
+.card-flat .cost{position:absolute;top:12px;left:12px;z-index:10;width:30px;height:30px;border-radius:6px;
+  background:#c0392b;color:#fff;font-size:14px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(192,57,43,.4)}
+.card-flat .card-id{position:absolute;top:16px;right:14px;z-index:10;font-size:10px;color:rgba(255,255,255,.3);font-weight:600}
+/* 卡图（全宽） */
+.card-flat .art-zone{position:absolute;top:48px;left:0;right:0;height:160px;z-index:5;
+  background:linear-gradient(180deg,#2a1414 0%,#1a1a2e 60%,#1c1c28 100%);
+  display:flex;align-items:center;justify-content:center}
+.card-flat .art-bg{position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 40%,rgba(231,76,60,.15) 0%,transparent 50%),
+             repeating-linear-gradient(0deg,transparent,transparent 4px,rgba(255,255,255,.01) 4px,rgba(255,255,255,.01) 5px)}
+.card-flat .art-icon{font-size:72px;position:relative;filter:drop-shadow(0 4px 16px rgba(231,76,60,.4))}
+/* 卡图覆盖信息 */
+.card-flat .art-overlay{position:absolute;bottom:0;left:0;right:0;height:48px;
+  background:linear-gradient(0deg,rgba(28,28,40,1) 0%,rgba(28,28,40,.6) 60%,transparent 100%);
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.card-flat .name{font-size:17px;font-weight:800;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.8);letter-spacing:2px}
+/* 类型标 */
+.card-flat .type-tag{position:absolute;top:52px;right:12px;z-index:10;
+  background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.15);border-radius:6px;
+  padding:2px 8px;font-size:9px;color:#ccc}
+/* 描述 */
+.card-flat .desc{position:absolute;top:216px;left:16px;right:16px;z-index:10;font-size:10px;color:#999;line-height:1.5;text-align:center}
+/* 数值面板 — 更大更突出 */
+.card-flat .stats{position:absolute;top:278px;left:16px;right:16px;z-index:10;display:flex;gap:6px;justify-content:center}
+.card-flat .stat{flex:1;text-align:center}
+.card-flat .stat .val{font-size:26px;font-weight:900;color:#E74C3C;line-height:1}
+.card-flat .stat .lbl{font-size:9px;color:#777;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+/* 公式 */
+.card-flat .formula{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:10;font-size:10px;color:#555;letter-spacing:1px}
+/* 底栏 */
+.card-flat .bottom-bar{position:absolute;bottom:0;left:0;right:0;height:32px;
+  background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.04);
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.card-flat .bottom-bar .rdot{width:6px;height:6px;border-radius:50%;background:#888}
+.card-flat .bottom-bar .rtxt{font-size:9px;color:rgba(255,255,255,.25);letter-spacing:2px}
+
+/* ============================================================
+   风格四：数据面板 — 全息科幻风
+   ============================================================ */
+.card-holo{width:260px;height:380px;border-radius:8px;position:relative;overflow:hidden;
+  background:#0d1117;
+  border:1px solid rgba(231,76,60,.4);
+  box-shadow:0 0 30px rgba(231,76,60,.15),inset 0 0 80px rgba(231,76,60,.03);
+  font-family:'Courier New','Source Code Pro',monospace}
+.card-holo:hover{transform:translateY(-10px) scale(1.03);box-shadow:0 0 50px rgba(231,76,60,.25),inset 0 0 80px rgba(231,76,60,.05)}
+/* 扫描线 */
+.card-holo .scanlines{position:absolute;inset:0;z-index:20;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.1) 2px,rgba(0,0,0,.1) 3px)}
+/* 加载角落 */
+.card-holo .corner-bracket{position:absolute;width:20px;height:20px;border-color:rgba(231,76,60,.5);border-style:solid;z-index:2}
+.card-holo .corner-bracket.tl{top:8px;left:8px;border-width:1px 0 0 1px}
+.card-holo .corner-bracket.tr{top:8px;right:8px;border-width:1px 1px 0 0}
+.card-holo .corner-bracket.bl{bottom:8px;left:8px;border-width:0 0 1px 1px}
+.card-holo .corner-bracket.br{bottom:8px;right:8px;border-width:0 1px 1px 0}
+/* 头部 — 数据行 */
+.card-holo .header{position:absolute;top:14px;left:16px;right:16px;z-index:10;display:flex;justify-content:space-between;align-items:center}
+.card-holo .header .cost{background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.5);color:#E74C3C;font-size:12px;font-weight:800;
+  padding:2px 8px;border-radius:3px}
+.card-holo .header .id-line{font-size:9px;color:rgba(231,76,60,.5);letter-spacing:1px}
+/* 标题 */
+.card-holo .title-block{position:absolute;top:44px;left:16px;right:16px;z-index:10}
+.card-holo .title-block .tag{font-size:8px;color:rgba(231,76,60,.6);text-transform:uppercase;letter-spacing:3px;margin-bottom:2px}
+.card-holo .title-block .name{font-size:15px;font-weight:800;color:#E74C3C;text-transform:uppercase;letter-spacing:1px}
+/* 分隔线 */
+.card-holo .divider{position:absolute;top:84px;left:16px;right:16px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(231,76,60,.3),transparent)}
+/* 卡图 — 简约图标 */
+.card-holo .art-zone{position:absolute;top:96px;left:16px;right:16px;height:100px;z-index:5;
+  background:rgba(231,76,60,.03);border:1px solid rgba(231,76,60,.1);display:flex;align-items:center;justify-content:center}
+.card-holo .art-grid{position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(231,76,60,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(231,76,60,.05) 1px,transparent 1px);
+  background-size:20px 20px}
+.card-holo .art-data{position:absolute;top:4px;left:6px;font-size:7px;color:rgba(231,76,60,.3)}
+.card-holo .art-icon{font-size:48px;position:relative;filter:drop-shadow(0 0 15px rgba(231,76,60,.4))}
+/* 数据表 */
+.card-holo .data-table{position:absolute;top:208px;left:16px;right:16px;z-index:10;font-size:10px}
+.card-holo .data-table .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.card-holo .data-table .row .key{color:rgba(231,76,60,.5)}
+.card-holo .data-table .row .val{color:#ccc;font-weight:600}
+/* 描述 */
+.card-holo .desc{position:absolute;top:270px;left:16px;right:16px;z-index:10;font-size:9px;color:#777;line-height:1.5}
+/* 公式 */
+.card-holo .formula{position:absolute;bottom:44px;left:16px;z-index:10;font-size:10px;color:rgba(231,76,60,.4);letter-spacing:2px}
+/* 状态栏 */
+.card-holo .status-bar{position:absolute;bottom:12px;left:16px;right:16px;z-index:10;
+  display:flex;justify-content:space-between;align-items:center;font-size:8px;color:rgba(255,255,255,.15)}
+.card-holo .status-bar .rarity{color:#888}
+
+/* 风格对比总结 */
+.comparison{max-width:1200px;margin:60px auto;background:rgba(255,255,255,.02);border-radius:16px;padding:32px}
+.comparison h2{font-size:20px;margin-bottom:20px;text-align:center}
+.comparison table{width:100%;border-collapse:collapse;font-size:13px}
+.comparison th{background:rgba(255,255,255,.05);padding:12px 14px;text-align:left;font-weight:700;border-bottom:2px solid rgba(255,255,255,.08)}
+.comparison td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.03);color:#aaa}
+.comparison td:first-child{color:#fff;font-weight:600}
+.comparison tr:hover td{background:rgba(255,255,255,.01)}
+</style>
+</head>
+<body>
+
+<h1><span class="id">A01</span> 重力锤击 — 四种视觉风格</h1>
+<p class="sub">同一张卡 · 不同设计语言 → 找到你想要的调性</p>
+
+<div class="styles-row">
+
+  <!-- 风格一：暗黑赛博 -->
+  <div class="style-group">
+    <div class="style-label">风格一：暗黑赛博<em>精致 · 力量感 · 当前游戏</em></div>
+    <div class="card-cyber">
+      <div class="inner-frame"></div>
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="cost">12</div>
+      <div class="card-id">A01</div>
+      <div class="rarity"></div>
+      <div class="name">重 力 锤 击</div>
+      <div class="type-tag">⚔️ 攻击卡</div>
+      <div class="art-zone">
+        <div class="bg-pattern"></div>
+        <div class="hammer-lines"></div>
+        <span class="art-icon">💪</span>
+      </div>
+      <div class="desc">造成<span class="keyword">75点</span>伤害。<br>原理：物体所受重力与质量成正比（<span class="keyword">G=mg</span>），质量越大重力越强。</div>
+      <div class="stats">
+        <div class="stat"><div class="val">75</div><div class="lbl">伤害</div></div>
+        <div class="stat"><div class="val">—</div><div class="lbl">持续</div></div>
+      </div>
+      <div class="formula">G = mg</div>
+      <div class="rare-bottom"><span class="dot"></span><span class="txt">COMMON</span></div>
+    </div>
+  </div>
+
+  <!-- 风格二：古典卷轴 -->
+  <div class="style-group">
+    <div class="style-label">风格二：古典卷轴<em>羊皮纸 · 典雅 · 收藏感</em></div>
+    <div class="card-scroll">
+      <div class="scroll-frame"></div>
+      <div class="scroll-rod top"></div>
+      <div class="scroll-rod btm"></div>
+      <div class="cost">12</div>
+      <div class="card-id">A01</div>
+      <div class="ornament-top">◆ ◇ ◆</div>
+      <div class="name">重 力 锤 击</div>
+      <div class="type-tag">⚔ 攻 击 卡</div>
+      <div class="art-zone">
+        <span class="art-icon">💪</span>
+      </div>
+      <div class="sep"></div>
+      <div class="desc">造成<span class="keyword">75点</span>伤害。<br>物体所受重力与质量成正比，质量越大则重力越强。</div>
+      <div class="stats">
+        <div class="stat"><div class="val">75</div><div class="lbl">伤 害</div></div>
+        <div class="stat"><div class="val">—</div><div class="lbl">持 续</div></div>
+      </div>
+      <div class="formula">G = mg</div>
+      <div class="bottom-seal">◈ COMMON ◈</div>
+    </div>
+  </div>
+
+  <!-- 风格三：极简扁平 -->
+  <div class="style-group">
+    <div class="style-label">风格三：极简扁平<em>干净 · 现代 · 炉石感</em></div>
+    <div class="card-flat">
+      <div class="top-bar"></div>
+      <div class="cost">12</div>
+      <div class="card-id">A01</div>
+      <div class="art-zone">
+        <div class="art-bg"></div>
+        <span class="art-icon">💪</span>
+        <div class="art-overlay">
+          <div class="name">重 力 锤 击</div>
+        </div>
+      </div>
+      <div class="type-tag">⚔ 攻击</div>
+      <div class="desc">造成75点伤害。原理：G=mg，质量越大重力越强。</div>
+      <div class="stats">
+        <div class="stat"><div class="val">75</div><div class="lbl">Damage</div></div>
+        <div class="stat"><div class="val">—</div><div class="lbl">Duration</div></div>
+      </div>
+      <div class="formula">G = mg</div>
+      <div class="bottom-bar">
+        <span class="rdot"></span><span class="rtxt">COMMON</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 风格四：数据面板 -->
+  <div class="style-group">
+    <div class="style-label">风格四：全息数据面板<em>科幻 · 硬核 · AR感</em></div>
+    <div class="card-holo">
+      <div class="scanlines"></div>
+      <div class="corner-bracket tl"></div><div class="corner-bracket tr"></div>
+      <div class="corner-bracket bl"></div><div class="corner-bracket br"></div>
+      <div class="header">
+        <span class="cost">COST 12</span>
+        <span class="id-line">ID:A01</span>
+      </div>
+      <div class="title-block">
+        <div class="tag">// ATTACK_CARD</div>
+        <div class="name">GRAVITY HAMMER</div>
+      </div>
+      <div class="divider"></div>
+      <div class="art-zone">
+        <div class="art-grid"></div>
+        <div class="art-data">SYS.ONLINE // DOMAIN:F</div>
+        <span class="art-icon">💪</span>
+      </div>
+      <div class="data-table">
+        <div class="row"><span class="key">DMG</span><span class="val">75</span></div>
+        <div class="row"><span class="key">TYPE</span><span class="val">PHYSICAL</span></div>
+        <div class="row"><span class="key">DOMAIN</span><span class="val">FORCE</span></div>
+        <div class="row"><span class="key">RARITY</span><span class="val">COMMON</span></div>
+      </div>
+      <div class="desc">物体所受重力与质量成正比。G=mg。质量越大，重力越强。</div>
+      <div class="formula">G = mg</div>
+      <div class="status-bar">
+        <span>v4.0.1</span>
+        <span class="rarity">◈ COMMON</span>
+        <span>ONLINE</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 对比总结 -->
+<div class="comparison">
+  <h2>📊 四种风格对比</h2>
+  <table>
+    <thead>
+      <tr><th>维度</th><th>暗黑赛博</th><th>古典卷轴</th><th>极简扁平</th><th>全息数据面板</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>调性</td><td>暗黑力量感</td><td>典雅收藏感</td><td>干净现代感</td><td>科幻硬核感</td></tr>
+      <tr><td>边框</td><td>粗实线+四角L钉</td><td>卷轴+上下轴棒</td><td>细线+顶部色条</td><td>细线+四角括号</td></tr>
+      <tr><td>背景</td><td>暗红渐变+发光</td><td>羊皮纸棕渐变</td><td>纯深色+扫描线</td><td>网格+数据叠加</td></tr>
+      <tr><td>字体</td><td>现代无衬线</td><td>宋体/衬线</td><td>现代无衬线</td><td>等宽字体</td></tr>
+      <tr><td>卡图</td><td>大图标+锤击线</td><td>图标居中+边线</td><td>全宽卡图+渐变覆盖</td><td>网格背景+数据标签</td></tr>
+      <tr><td>数值</td><td>横向卡片</td><td>横向卡片</td><td>大字独立</td><td>纵向表格</td></tr>
+      <tr><td>适合</td><td>对战沉浸感</td><td>收藏/展览</td><td>快速识别</td><td>科技感/教学</td></tr>
+      <tr><td>开发成本</td><td>中（CSS复杂）</td><td>中（细节多）</td><td>低（规范简单）</td><td>高（数据联动多）</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
