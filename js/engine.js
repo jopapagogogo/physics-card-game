@@ -1302,22 +1302,22 @@ class GameEngine {
         }
       }
 
-      // 消耗灼烧发动的辅助 (S18, S20)
-      if (spec.includes('消耗2层灼烧')) {
-        if (player.burnLayers >= 2) {
+      // 消耗灼烧发动的辅助 (S20消耗己方, S23消耗对方)
+      if (spec.includes('消耗2层灼烧') || spec.includes('消耗对方2层灼烧')) {
+        // S23 热机驱动：消耗对方2层灼烧
+        if (card.id === 'S23' && opponent.burnLayers >= 2) {
+          opponent.burnLayers -= 2;
+          player.spirit = Math.min(MAX_SPIRIT, player.spirit + 15);
+          effects.push({ type: 'heat_engine', spiritRestore: 15 });
+        }
+        // S20 潜热释放：消耗己方2层灼烧
+        if (card.id === 'S20' && player.burnLayers >= 2) {
           player.burnLayers -= 2;
-          if (card.id === 'S18') {
-            // 热机驱动：消耗2层灼烧，恢复15精神力
-            player.spirit = Math.min(MAX_SPIRIT, player.spirit + 15);
-            effects.push({ type: 'heat_engine', spiritRestore: 15 });
-          }
-          if (card.id === 'S20') {
-            player.hp = Math.min(MAX_HP, player.hp + 80);
-            // 清除1种负面状态
-            if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
-            if (player.dotEffects.length > 0) player.dotEffects.shift();
-            effects.push({ type: 'latent_heat', heal: 80 });
-          }
+          player.hp = Math.min(MAX_HP, player.hp + 80);
+          // 清除1种负面状态
+          if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
+          if (player.dotEffects.length > 0) player.dotEffects.shift();
+          effects.push({ type: 'latent_heat', heal: 80 });
         }
       }
 
