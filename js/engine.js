@@ -1284,7 +1284,7 @@ class GameEngine {
 
       // 偷取精神力 (A25, A34)
       if (spec.includes('偷取') && spec.includes('精神力')) {
-        const match = spec.match(/(\d+)/);
+        const match = spec.match(/(\d+)\s*精神力/);
         if (match) {
           const steal = parseInt(match[1]);
           const actual = Math.min(opponent.spirit, steal);
