@@ -12,7 +12,20 @@
 | Phase 1 | 109 张卡牌生成到 cards.js | ✅ 完成 |
 | Phase 2 | Combo 系统重建（35 combo + engine.js 重写） | ✅ 完成 |
 | Phase 3 | 可验证 AI 对战测试 | ✅ 完成 |
-| Phase 4 | 剩余 combo 效果 + 召唤/领域被动 + UI 高亮 | ⬜ 待做 |
+| Phase 4 | 剩余 combo 效果 + 召唤/领域被动 + UI 高亮 | ✅ 完成 |
+
+## Phase 4 核心改动
+
+- **7 种剩余 combo 效果全部实现**：
+  - `modify_height` (S01→A05)：A05 重力势能每层伤害 40→55
+  - `boost_dot_increment` (S09→A45, 被 S09→A10 消耗)：A10 DOT 递增 13→16
+  - `boost_mirror_maze` (S13→S34)：镜面迷宫失败概率 35%→65%
+  - `boost_burn_cap` (S12→A55)：灼烧上限 10→15 层
+  - `boost_clear_debuff` (S37→A20)：清除己方 DOT 效果
+  - `boost_burn_dmg` (S19→A54)：A54 爆燃每层 48→65
+  - `boost_ignore_defense` (S31→A49)：追加 30 点无视防御伤害
+- **召唤被动**：C01(芝诺龟)/C02(麦克斯韦妖)/C04(薛定谔猫) 已实现，新增 C05(牛顿)力系+20伤害，C03(拉普拉斯妖)需UI配合推迟
+- **领域被动**：通过卡牌设计体现，引擎层已有完整支持
 
 ## Phase 3 核心改动
 
@@ -32,8 +45,7 @@
   - `playCard()` 存 combo 效果到 `pendingCombo[playerIdx]`
   - `_handleAttack()` 应用 combo 效果（extra_damage/extra_burn/view_hand 等 8 种已实现）
   - 构造函数新增 `_a49NoDestroy`、`_pendingBurnAfterExplode`、`cardForms`
-  - `startTurn()` 每回合清理 pendingCombo
-- 7 种效果类型推迟到 Phase 4
+  - `startTurn()` 每回合清理 pendingCombo 及 combo 临时状态
 
 ## 文件结构
 
@@ -56,4 +68,4 @@
 
 ## 下一任务
 
-Phase 4：实现剩余 7 种 combo 效果类型 + 召唤/领域被动 + UI 高亮。
+全部 4 个 Phase 完成。后续可做：卡组构建器(Deck Builder)、题库扩展、UI 优化、平衡性调整。

@@ -19,6 +19,7 @@ const SPIRIT_PER_TURN = 10;
 const MAX_SUMMONS = 2;
 const BURN_BASE_DMG = 30;       // 灼烧每层基础伤害
 const BURN_ENHANCED_DMG = 36;   // 温度升高(S19)后每层伤害
+const MAX_BURN_DEFAULT = 10;     // 灼烧默认上限
 const PARALYSIS_DECAY = 2;      // 麻痹每回合衰减
 const PARALYSIS_COST = 2;       // 麻痹每层额外消耗精神力
 const PARALYSIS_BASE_DMG = 15;  // 麻痹每层基础附加伤害（电领域被动）
@@ -113,6 +114,12 @@ class GameEngine {
     // Combo 临时状态
     this._a49NoDestroy = false;                // S31→A49 不摧毁辅助卡
     this._pendingBurnAfterExplode = [0, 0];    // S21→A54 引爆后额外灼烧
+    this._heightBonusPerLevel = [0, 0];        // S01→A05 每层高度额外伤害
+    this._dotIncrementBoost = [0, 0];          // S09→A10 DOT递增加成
+    this._mirrorMazeBoost = [0, 0];            // S13→C03 镜面迷宫概率加成
+    this._burnCapIncrease = [0, 0];            // S17→A51 灼烧上限提升
+    this._burnDmgPerLayer = [48, 48];          // S19→A54 爆燃每层伤害（默认48）
+    this._ignoreDefBonus = [0, 0];             // S31→A49 无视防御额外伤害
 
     // 初始化：洗牌库，抽初始手牌
     for (let i = 0; i < 2; i++) {
@@ -220,6 +227,12 @@ class GameEngine {
     this.pendingCombo = [null, null];
     this._a49NoDestroy = false;
     this._pendingBurnAfterExplode[pIdx] = 0;
+    this._heightBonusPerLevel[pIdx] = 0;
+    this._dotIncrementBoost[pIdx] = 0;
+    this._mirrorMazeBoost[pIdx] = 0;
+    this._burnCapIncrease[pIdx] = 0;
+    this._burnDmgPerLayer[pIdx] = 48;
+    this._ignoreDefBonus[pIdx] = 0;
     this.quizResult = { correct: 0, total: 3, bonus: 0 };
     player.extraCost = 0;
 
@@ -254,9 +267,10 @@ class GameEngine {
     this.hightAtkTrack[pIdx]++;
     if (this.hightAtkTrack[pIdx] >= 4) {
       const bonus = this.hightBonus[pIdx] + 1;
-      const dmg = 40 + bonus * 40;
+      const perHeightDmg = 40 + this._heightBonusPerLevel[pIdx];  // S01→A05 combo加成
+      const dmg = 40 + bonus * perHeightDmg;
       opponent.hp = Math.max(0, opponent.hp - dmg);
-      this._addLog(`[重力势能] 蓄满触发！造成 ${dmg} 点伤害（高度=${bonus}）。`);
+      this._addLog(`[重力势能] 蓄满触发！造成 ${dmg} 点伤害（高度=${bonus}, 每层=${perHeightDmg}）。`);
       this.hightAtkTrack[pIdx] = 0;
       this.hightBonus[pIdx] = 0;
     }
@@ -462,9 +476,13 @@ class GameEngine {
         // 检查领域匹配
         const sDomains = s.card.domain;
         const matchesDomain = card.domain.some(d => sDomains.includes(d));
-        if (matchesDomain || s.card.effect.dmgBonus) {
+        if (matchesDomain) {
           damage += s.card.effect.dmgBonus;
         }
+      }
+      // 牛顿(C05)：力系攻击+20
+      if (s.card.id === 'C05' && s.card.effect.forceDmgBonus && card.domain.includes('力')) {
+        damage += s.card.effect.forceDmgBonus;
       }
     }
 
@@ -749,6 +767,8 @@ class GameEngine {
             break;
           case 'extra_burn':
             opponent.burnLayers += (eff.layers || 0);
+            const maxBurn = MAX_BURN_DEFAULT + this._burnCapIncrease[attackerIdx];
+            opponent.burnLayers = Math.min(opponent.burnLayers, maxBurn);
             effects.push({ type: 'combo_extra_burn', layers: eff.layers });
             break;
           case 'extra_dot':
@@ -793,18 +813,40 @@ class GameEngine {
             effects.push({ type: 'combo_return_to_hand', cardId: eff.cardId });
             break;
           case 'boost_dot_increment':
+            this._dotIncrementBoost[attackerIdx] = (eff.value || 0);
+            effects.push({ type: 'combo_dot_boost', value: eff.value });
+            break;
           case 'boost_mirror_maze':
+            this._mirrorMazeBoost[attackerIdx] = (eff.value || 0);
+            effects.push({ type: 'combo_mirror_boost', value: eff.value });
+            break;
           case 'boost_burn_cap':
+            this._burnCapIncrease[attackerIdx] = (eff.value || 0);
+            effects.push({ type: 'combo_burn_cap', value: eff.value });
+            break;
           case 'boost_clear_debuff':
+            // 清除己方 DOT 效果
+            const cleared = Math.min(eff.value || 0, attacker.dotEffects.length);
+            if (cleared > 0) {
+              attacker.dotEffects.splice(0, cleared);
+              effects.push({ type: 'combo_clear_debuff', removed: cleared });
+            }
+            break;
           case 'boost_burn_dmg':
+            this._burnDmgPerLayer[attackerIdx] = (eff.value || 48);
+            effects.push({ type: 'combo_burn_dmg', perLayer: eff.value });
+            break;
           case 'modify_height':
+            this._heightBonusPerLevel[attackerIdx] = (eff.perHeight || 0);
+            effects.push({ type: 'combo_height_bonus', perHeight: eff.perHeight });
+            break;
           case 'extra_burn_after_detonate':
-            // 延迟到 A54 爆燃后应用
             this._pendingBurnAfterExplode[attackerIdx] = (eff.layers || 0);
             break;
           case 'boost_ignore_defense':
-            // 这些效果在 _applySpecialEffects 或后续处理中实现
-            this._addLog(`[Combo::待实现] ${eff.type} (${combo.type})`);
+            damage += (eff.value || 0);
+            this._ignoreDefBonus[attackerIdx] = (eff.value || 0);
+            effects.push({ type: 'combo_ignore_def', value: eff.value });
             break;
           default:
             this._addLog(`[Combo::未识别] ${eff.type} (${combo.type})`);
@@ -886,11 +928,12 @@ class GameEngine {
     }
 
     if (card.id === 'A54') {
-      // 爆燃：引爆所有灼烧层数
-      const burnExplode = opponent.burnLayers * 48;
+      // 爆燃：引爆所有灼烧层数（默认48，S19→A54 combo可提升）
+      const perLayerDmg = this._burnDmgPerLayer[attackerIdx];
+      const burnExplode = opponent.burnLayers * perLayerDmg;
       opponent.burnLayers = 0;
       damage += burnExplode;
-      effects.push({ type: 'burn_explode', value: burnExplode });
+      effects.push({ type: 'burn_explode', value: burnExplode, perLayer: perLayerDmg });
       // Combo(S21→A54)：引爆后额外+灼烧
       if (this._pendingBurnAfterExplode[attackerIdx] > 0) {
         opponent.burnLayers += this._pendingBurnAfterExplode[attackerIdx];
@@ -1026,6 +1069,9 @@ class GameEngine {
       if (attacker.fieldDomain?.card?.id === 'D04') {
         opponent.burnLayers += 1;
       }
+      // 灼烧上限检查
+      const maxBurn = MAX_BURN_DEFAULT + this._burnCapIncrease[attackerIdx];
+      opponent.burnLayers = Math.min(opponent.burnLayers, maxBurn);
       effects.push({ type: 'burn', layers: card.effect.burnLayers });
     }
 
@@ -1511,11 +1557,11 @@ class GameEngine {
 
     for (let i = 0; i < player.dotEffects.length; i++) {
       const dot = player.dotEffects[i];
-      // A10次声震荡：DOT递增
+      // A10次声震荡：DOT递增（含S09→A10 combo加成）
       let dmg = dot.dmg;
       if (dot.cardId === 'A10') {
-        // 递增13点
-        dmg = dot.dmg + (dot.initialTurns - dot.turnsRemaining) * 13 || dot.dmg;
+        const increment = 13 + this._dotIncrementBoost[pIdx];  // S09→A10 combo +3
+        dmg = dot.dmg + (dot.initialTurns - dot.turnsRemaining) * increment || dot.dmg;
       }
       player.hp = Math.max(0, player.hp - dmg);
       this._addLog(`[DOT] ${playerIdx === 0 ? '玩家' : 'AI'} 受到 ${dmg} 点持续伤害。`);
@@ -1830,8 +1876,9 @@ class GameEngine {
       return { can: false, reason: '被影子束缚，无法出辅助卡。' };
     }
 
-    // 镜面迷宫失败概率
-    if (this.mirrorMaze[playerIdx] > 0 && Math.random() < 0.35) {
+    // 镜面迷宫失败概率（S13→C03 combo可提升概率）
+    const mazeProb = Math.max(0.35, this._mirrorMazeBoost[1 - playerIdx] || 0.35);
+    if (this.mirrorMaze[playerIdx] > 0 && Math.random() < mazeProb) {
       const refund = Math.floor(card.cost * 0.5);
       player.spirit = Math.min(MAX_SPIRIT, player.spirit + refund);
       this.mirrorMaze[playerIdx]--;
