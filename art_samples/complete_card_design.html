@@ -85,9 +85,11 @@
   .card.force .domain-rune svg{fill:var(--force-light)}
   .card.electric .domain-rune svg{fill:var(--electric-light)}
 
-  .rarity-icon{width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8em}
-  .rarity-icon.common{color:var(--common-silver)}
-  .rarity-icon.rare{color:var(--rare-gold);filter:drop-shadow(0 0 4px rgba(240,192,64,.5))}
+  .rarity-icon{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  /* Common: 空心六边形 */
+  .rarity-icon.common svg{width:18px;height:18px;fill:none;stroke:var(--common-silver);stroke-width:1.5}
+  /* Rare: 实心八角星带发光 */
+  .rarity-icon.rare svg{width:20px;height:20px;fill:var(--rare-gold);filter:drop-shadow(0 0 6px rgba(240,192,64,.6))}
 
   /* === TYPE TAG (snug under header) === */
   .type-ribbon{display:flex;justify-content:center;padding:1px 0 8px;position:relative;z-index:2}
@@ -165,7 +167,7 @@
       <div class="card-header">
         <div class="cost-gem">12</div>
         <div class="card-title-bar"><div class="card-title">重力锤击</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_cyber.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -180,7 +182,7 @@
       <div class="card-header">
         <div class="cost-gem">12</div>
         <div class="card-title-bar"><div class="card-title">重力锤击</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_anime.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -195,7 +197,7 @@
       <div class="card-header">
         <div class="cost-gem">5</div>
         <div class="card-title-bar"><div class="card-title">质量增大</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_cyber.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -210,7 +212,7 @@
       <div class="card-header">
         <div class="cost-gem">5</div>
         <div class="card-title-bar"><div class="card-title">质量增大</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_anime.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -225,7 +227,7 @@
       <div class="card-header">
         <div class="cost-gem">22</div>
         <div class="card-title-bar"><div class="card-title">牛顿</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare">★</div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_cyber.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -240,7 +242,7 @@
       <div class="card-header">
         <div class="cost-gem">22</div>
         <div class="card-title-bar"><div class="card-title">牛顿</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare">★</div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_anime.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -263,7 +265,7 @@
       <div class="card-header">
         <div class="cost-gem">10</div>
         <div class="card-title-bar"><div class="card-title">闪电劈击</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_cyber.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -278,7 +280,7 @@
       <div class="card-header">
         <div class="cost-gem">10</div>
         <div class="card-title-bar"><div class="card-title">闪电劈击</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_anime.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -293,7 +295,7 @@
       <div class="card-header">
         <div class="cost-gem">6</div>
         <div class="card-title-bar"><div class="card-title">电磁感应</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_cyber.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -308,7 +310,7 @@
       <div class="card-header">
         <div class="cost-gem">6</div>
         <div class="card-title-bar"><div class="card-title">电磁感应</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon common" title="Common">◆</div>
+        <div class="rarity-icon common" title="Common"><svg viewBox="0 0 18 18"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_anime.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -323,7 +325,7 @@
       <div class="card-header">
         <div class="cost-gem">26</div>
         <div class="card-title-bar"><div class="card-title">欧姆</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare">★</div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_cyber.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -338,7 +340,7 @@
       <div class="card-header">
         <div class="cost-gem">26</div>
         <div class="card-title-bar"><div class="card-title">欧姆</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare">★</div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_anime.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
