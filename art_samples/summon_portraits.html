@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>召唤物角色立绘预览</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a14; color:#ddd; font-family:'Noto Sans SC',system-ui,sans-serif; min-height:100vh; padding:40px 20px; }
+  h1 { text-align:center; font-size:24px; margin-bottom:8px; }
+  .subtitle { text-align:center; font-size:12px; color:#666; margin-bottom:36px; }
+
+  .gallery { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; }
+  .portrait-card {
+    width:280px; background:#111; border-radius:12px; overflow:hidden;
+    border:1px solid #222; transition:transform .25s, box-shadow .25s;
+  }
+  .portrait-card:hover { transform:translateY(-6px); box-shadow:0 12px 40px rgba(0,0,0,.6); }
+  .portrait-card img { width:100%; height:380px; object-fit:cover; display:block; }
+  .portrait-info { padding:14px; }
+  .portrait-name { font-size:16px; font-weight:800; margin-bottom:4px; }
+  .portrait-domain { font-size:11px; padding:2px 8px; border-radius:4px; display:inline-block; }
+  .portrait-desc { font-size:11px; color:#888; margin-top:8px; line-height:1.5; }
+  .portrait-stats { font-size:10px; color:#666; margin-top:6px; }
+
+  .domain-force .portrait-name { color:#E74C3C; }
+  .domain-force .portrait-domain { background:rgba(231,76,60,.15); color:#E74C3C; }
+
+  .domain-elec .portrait-name { color:#9B59B6; }
+  .domain-elec .portrait-domain { background:rgba(155,89,182,.15); color:#9B59B6; }
+</style>
+</head>
+<body>
+
+<h1>召唤物角色立绘</h1>
+<p class="subtitle">AI生成 · 全身角色图 · 低角度战场视角</p>
+
+<div class="gallery">
+
+  <!-- 牛顿 -->
+  <div class="portrait-card domain-force">
+    <img src="summons/Full_body_character_portrait_o_2026-06-11T02-48-25.png" alt="牛顿">
+    <div class="portrait-info">
+      <div class="portrait-name">牛顿</div>
+      <span class="portrait-domain">⚡ 力</span>
+      <div class="portrait-desc">力系攻击卡额外+20伤害。经典力学的奠基人。</div>
+      <div class="portrait-stats">❤️ 310/310 · 费用 22</div>
+    </div>
+  </div>
+
+  <!-- 欧姆 -->
+  <div class="portrait-card domain-elec">
+    <img src="summons/Full_body_character_portrait_o_2026-06-11T02-48-56.png" alt="欧姆">
+    <div class="portrait-info">
+      <div class="portrait-name">欧姆</div>
+      <span class="portrait-domain">⚡ 电</span>
+      <div class="portrait-desc">电系卡精神力消耗-6。电流畅通无阻。</div>
+      <div class="portrait-stats">❤️ 300/300 · 费用 26</div>
+    </div>
+  </div>
+
+  <!-- 阿基米德 -->
+  <div class="portrait-card domain-force">
+    <img src="summons/Full_body_character_portrait_o_2026-06-11T02-49-31.png" alt="阿基米德">
+    <div class="portrait-info">
+      <div class="portrait-name">阿基米德</div>
+      <span class="portrait-domain">⚡ 力</span>
+      <div class="portrait-desc">辅助卡精神力消耗-4，力系辅助卡额外-2。</div>
+      <div class="portrait-stats">❤️ 320/320 · 费用 22</div>
+    </div>
+  </div>
+
+</div>
+
+<p style="text-align:center; margin-top:40px; font-size:11px; color:#555;">
+  这些立绘用于召唤物实体化展示，替代原来的"小卡牌"形式
+</p>
+
+</body>
+</html>

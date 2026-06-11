@@ -794,8 +794,16 @@ class GameUI {
           <button id="btn-end-turn" class="btn btn-end-turn" disabled>结束回合</button>
         </div>
 
-        <!-- 日志（收缩在底部） -->
+        <!-- 日志（悬浮气泡） -->
         <div id="log-area" class="log-area"></div>
+        <div id="log-drawer-toggle" class="log-drawer-toggle" title="战斗记录">📜</div>
+        <div id="log-drawer" class="log-drawer">
+          <div class="log-drawer-header">
+            <span>战斗记录</span>
+            <span id="log-drawer-close" style="cursor:pointer;font-size:14px;">✕</span>
+          </div>
+          <div id="log-drawer-body" class="log-drawer-body"></div>
+        </div>
       </div>
     `;
 
@@ -856,7 +864,7 @@ class GameUI {
       .play-card .card-cost{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;z-index:2}
       .play-card .card-name{font-size:8px;font-weight:700;padding:18px 2px 2px;text-align:center;line-height:1.1;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .play-card .card-type{font-size:7px;color:var(--mt);text-align:center}
-      .log-area{flex-shrink:0;max-height:60px;overflow-y:auto;padding:3px 10px;background:rgba(0,0,0,.3);font-size:10px;color:var(--mt);line-height:1.4}
+      .log-area{position:fixed;bottom:16px;right:66px;z-index:250;display:flex;flex-direction:column-reverse;gap:4px;max-width:260px;pointer-events:none}
       .log-message{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.04)}
       .battle-bottom{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:4px 10px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.06)}
       .btn-end-turn{flex-shrink:0;padding:8px 20px;border-radius:8px;background:var(--grn);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer}
@@ -1214,6 +1222,19 @@ class GameUI {
     const btnEnd = document.getElementById('btn-end-turn');
     if (btnEnd) {
       btnEnd.addEventListener('click', () => this.endPlayerTurn());
+    }
+
+    // 战斗记录抽屉toggle
+    const logToggle = document.getElementById('log-drawer-toggle');
+    const logDrawer = document.getElementById('log-drawer');
+    const logDrawerClose = document.getElementById('log-drawer-close');
+    if (logToggle && logDrawer) {
+      logToggle.addEventListener('click', () => {
+        logDrawer.classList.toggle('open');
+      });
+      logDrawerClose?.addEventListener('click', () => {
+        logDrawer.classList.remove('open');
+      });
     }
 
     // 己方手牌点击（事件代理）
@@ -2016,26 +2037,37 @@ class GameUI {
 
   // ==================== 日志 ====================
 
-  addLogMessage(msg) {
+  addLogMessage(msg, cssClass = '') {
     if (!msg) return;
-    this.logMessages.push(msg);
 
-    // 限制日志数量
-    if (this.logMessages.length > 200) {
-      this.logMessages = this.logMessages.slice(-100);
-    }
-
+    // 1. Toast 气泡
+    const toast = document.createElement('div');
+    toast.className = `log-toast ${cssClass}`;
+    toast.textContent = msg;
     const logArea = document.getElementById('log-area');
     if (logArea) {
-      const div = document.createElement('div');
-      div.className = 'log-message';
-      div.textContent = msg;
-      logArea.appendChild(div);
-      logArea.scrollTop = logArea.scrollHeight;
-
-      // 限制DOM日志条目
-      while (logArea.children.length > 80) {
+      logArea.appendChild(toast);
+      // 4秒后移除
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 4000);
+      // 最多保留5个气泡
+      while (logArea.children.length > 5) {
         logArea.firstChild?.remove();
+      }
+    }
+
+    // 2. 历史抽屉
+    const drawerBody = document.getElementById('log-drawer-body');
+    if (drawerBody) {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${cssClass}`;
+      entry.textContent = msg;
+      drawerBody.appendChild(entry);
+      drawerBody.scrollTop = drawerBody.scrollHeight;
+      // 最多保留200条
+      while (drawerBody.children.length > 200) {
+        drawerBody.firstChild?.remove();
       }
     }
   }

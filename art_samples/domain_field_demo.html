@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>领域场地主题效果演示</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:#0a0a14;
+      color:#ddd;
+      font-family:system-ui,sans-serif;
+      padding:24px;
+      min-height:100vh;
+    }
+    h1 {
+      text-align:center;
+      margin-bottom:8px;
+      font-size:28px;
+      letter-spacing:2px;
+    }
+    .subtitle {
+      text-align:center;
+      color:#555;
+      margin-bottom:32px;
+      font-size:13px;
+    }
+    .grid {
+      display:flex;
+      flex-wrap:wrap;
+      gap:20px;
+      justify-content:center;
+      max-width:1640px;
+      margin:0 auto;
+    }
+    .field-card {
+      width:300px;
+      height:280px;
+      border-radius:12px;
+      overflow:hidden;
+      position:relative;
+      background:#111;
+      border:2px solid #1a1a2e;
+      transition:border-color .4s, box-shadow .4s;
+    }
+    .field-card:hover {
+      border-color:rgba(255,255,255,.15);
+      box-shadow:0 0 30px rgba(0,0,0,.5);
+    }
+    .field-card canvas {
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:3;
+    }
+    .field-bg {
+      position:absolute;
+      inset:0;
+      z-index:1;
+    }
+    .field-label {
+      position:absolute;
+      bottom:10px;
+      left:10px;
+      z-index:5;
+      font-size:13px;
+      font-weight:700;
+      padding:3px 10px;
+      border-radius:4px;
+      background:rgba(0,0,0,.65);
+      letter-spacing:1px;
+    }
+    .field-name {
+      position:absolute;
+      top:14px;
+      left:14px;
+      z-index:5;
+      font-size:20px;
+      font-weight:900;
+      opacity:.25;
+      pointer-events:none;
+    }
+    .overlay-glow {
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+    }
+
+    /* ============ 力 · Force ============ */
+    #field-force {
+      --c:#E74C3C;
+    }
+    #field-force .field-name { color:var(--c); }
+    #field-force .field-label { color:var(--c); }
+    #field-force .field-bg {
+      background:
+        radial-gradient(circle at 50% 50%, var(--c) 0%, transparent 70%),
+        #0d0d0d;
+      animation: forcePulse 2s ease-in-out infinite;
+    }
+    @keyframes forcePulse {
+      0%,100% { background-size:100% 100%, auto; opacity:.3; }
+      55% { background-size:140% 140%, auto; opacity:.6; }
+    }
+    #field-force .overlay-glow {
+      animation: forceShake .15s ease-in-out infinite;
+    }
+    @keyframes forceShake {
+      0%,100% { transform:translate(0,0); }
+      10% { transform:translate(-1.5px, 1px); }
+      20% { transform:translate(1.5px, -1px); }
+      30% { transform:translate(-1px, -.5px); }
+      40% { transform:translate(1px, 1.5px); }
+      50% { transform:translate(1.5px, -1.5px); }
+      60% { transform:translate(-.5px, 1px); }
+      70% { transform:translate(1px, .5px); }
+      80% { transform:translate(-1.5px, -.5px); }
+      90% { transform:translate(.5px, 1.5px); }
+    }
+    /* 裂纹模拟 */
+    #field-force .field-bg::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, transparent 48%, rgba(231,76,60,.15) 48%, rgba(231,76,60,.15) 52%, transparent 52%),
+        linear-gradient(225deg, transparent 48%, rgba(231,76,60,.1) 48%, rgba(231,76,60,.1) 52%, transparent 52%),
+        linear-gradient(45deg, transparent 47%, rgba(231,76,60,.08) 47%, rgba(231,76,60,.08) 53%, transparent 53%);
+      animation: crackShift 3s ease-in-out infinite;
+    }
+    @keyframes crackShift {
+      0%,100% { opacity:.5; transform:rotate(-2deg) scale(1.05); }
+      33% { opacity:.8; transform:rotate(3deg) scale(1.1); }
+      66% { opacity:.4; transform:rotate(-1deg) scale(1.02); }
+    }
+
+    /* ============ 声 · Sound ============ */
+    #field-sound {
+      --c:#3498DB;
+    }
+    #field-sound .field-name { color:var(--c); }
+    #field-sound .field-label { color:var(--c); }
+    #field-sound .field-bg {
+      background:radial-gradient(circle at 50% 50%, rgba(52,152,219,.15) 0%, transparent 60%), #0d0d12;
+    }
+    #field-sound .field-bg::before {
+      content:'';
+      position:absolute;
+      top:50%; left:50%;
+      width:20px; height:20px;
+      margin:-10px 0 0 -10px;
+      border-radius:50%;
+      background:transparent;
+      border:2px solid rgba(52,152,219,.6);
+      animation: soundWave 2.5s ease-out infinite;
+      box-shadow:0 0 0 20px rgba(52,152,219,.15), 0 0 0 40px rgba(52,152,219,.08), 0 0 0 60px rgba(52,152,219,.04);
+    }
+    @keyframes soundWave {
+      0% { transform:scale(.5); opacity:1; }
+      100% { transform:scale(4); opacity:0; }
+    }
+    #field-sound .overlay-glow {
+      animation: soundBlur .8s ease-in-out infinite alternate;
+    }
+    @keyframes soundBlur {
+      0% { filter:blur(0px); }
+      100% { filter:blur(1.5px); }
+    }
+
+    /* ============ 光 · Light ============ */
+    #field-light {
+      --c:#F1C40F;
+    }
+    #field-light .field-name { color:var(--c); }
+    #field-light .field-label { color:var(--c); }
+    #field-light .field-bg {
+      background:
+        conic-gradient(from 0deg at 50% 40%, rgba(241,196,15,.15), rgba(241,196,15,.03), rgba(241,196,15,.15), rgba(241,196,15,.03)),
+        linear-gradient(to bottom, rgba(241,196,15,.05) 0%, rgba(0,0,0,.6) 100%);
+      animation: lightRotate 8s linear infinite;
+    }
+    @keyframes lightRotate {
+      from { background-position:0 0, 0 0; }
+      to { transform:rotate(360deg); box-shadow:inset 0 0 80px rgba(241,196,15,.1); }
+    }
+    #field-light .field-bg::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(241,196,15,.12) 0%, transparent 55%),
+        linear-gradient(0deg, rgba(30,30,50,.8) 0%, transparent 45%);
+    }
+    #field-light .field-bg::after {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,
+        red, orange, yellow, green, cyan, blue, violet
+      );
+      opacity:.08;
+      animation: prismShift 4s ease-in-out infinite;
+    }
+    @keyframes prismShift {
+      0%,100% { transform:translateX(-30%); }
+      50% { transform:translateX(30%); }
+    }
+
+    /* ============ 热 · Heat ============ */
+    #field-heat {
+      --c:#E67E22;
+    }
+    #field-heat .field-name { color:var(--c); }
+    #field-heat .field-label { color:var(--c); }
+    #field-heat .field-bg {
+      background:
+        radial-gradient(ellipse at 50% 80%, rgba(230,126,34,.3) 0%, rgba(180,60,20,.1) 40%, transparent 60%),
+        linear-gradient(to top, rgba(200,60,20,.4) 0%, rgba(200,60,20,.05) 40%, transparent 70%),
+        #0d0a08;
+      background-size:100% 100%, 100% 200%, auto;
+      animation: lavaFlow 3s ease-in-out infinite;
+    }
+    @keyframes lavaFlow {
+      0%,100% { background-position:0 0, 0 0, 0 0; }
+      50% { background-position:0 0, 0 -30%, 0 0; }
+    }
+    #field-heat .field-bg::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 30% 70%, rgba(230,126,34,.4) 0%, transparent 30%),
+        radial-gradient(circle at 60% 60%, rgba(255,140,50,.3) 0%, transparent 25%),
+        radial-gradient(circle at 45% 85%, rgba(220,100,30,.35) 0%, transparent 20%);
+      animation: lavaBlob 4s ease-in-out infinite;
+    }
+    @keyframes lavaBlob {
+      0%,100% { opacity:.6; transform:translate(0,0); }
+      25% { opacity:.8; transform:translate(3px,-2px); }
+      50% { opacity:.5; transform:translate(-2px,1px); }
+      75% { opacity:.7; transform:translate(-1px,-3px); }
+    }
+    #field-heat .overlay-glow {
+      animation: heatWave 2s ease-in-out infinite;
+    }
+    @keyframes heatWave {
+      0%,100% { filter:blur(0px); }
+      50% { filter:blur(2px) contrast(1.1); }
+    }
+
+    /* ============ 电 · Electric ============ */
+    #field-electric {
+      --c:#9B59B6;
+    }
+    #field-electric .field-name { color:var(--c); }
+    #field-electric .field-label { color:var(--c); }
+    #field-electric .field-bg {
+      background:radial-gradient(ellipse at 50% 30%, rgba(155,89,182,.12) 0%, transparent 60%), #0d0a14;
+    }
+    /* 四角电弧 */
+    #field-electric .field-bg::before {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, rgba(155,89,182,.6) 0%, rgba(155,89,182,.2) 3%, transparent 15%),
+        linear-gradient(225deg, rgba(155,89,182,.5) 0%, rgba(155,89,182,.2) 3%, transparent 15%),
+        linear-gradient(45deg, rgba(155,89,182,.4) 0%, rgba(155,89,182,.15) 3%, transparent 12%),
+        linear-gradient(315deg, rgba(155,89,182,.45) 0%, rgba(155,89,182,.15) 3%, transparent 12%);
+      animation: arcPulse 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes arcPulse {
+      0% { opacity:.5; }
+      100% { opacity:1; }
+    }
+    #field-electric .overlay-glow {
+      animation: sparkBorder .5s steps(1) infinite;
+    }
+    @keyframes sparkBorder {
+      0%, 7% { box-shadow:inset 0 0 2px rgba(155,89,182,.3); }
+      8%, 15% { box-shadow:inset 0 0 8px rgba(155,89,182,.8), inset 0 0 20px rgba(155,89,182,.2); }
+      16%, 100% { box-shadow:inset 0 0 2px rgba(155,89,182,.3); }
+    }
+
+    /* ============ 响应式 ============ */
+    @media (max-width:680px) {
+      .field-card { width:100%; max-width:340px; height:240px; }
+      h1 { font-size:22px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>领域场地主题效果</h1>
+  <p class="subtitle">纯 CSS + Canvas 实现，无需外部素材</p>
+  <div class="grid" id="grid"></div>
+
+<script>
+// ============================================================
+// 领域粒子系统 — 统一管理所有领域 Canvas
+// ============================================================
+
+const DOMAINS = [
+  {
+    id: 'field-force',
+    name: '力',
+    en: 'Force',
+    color: '#E74C3C',
+    particles: [],
+    particleType: 'debris'
+  },
+  {
+    id: 'field-sound',
+    name: '声',
+    en: 'Sound',
+    color: '#3498DB',
+    particles: [],
+    particleType: 'note'
+  },
+  {
+    id: 'field-light',
+    name: '光',
+    en: 'Light',
+    color: '#F1C40F',
+    particles: [],
+    particleType: 'photon'
+  },
+  {
+    id: 'field-heat',
+    name: '热',
+    en: 'Heat',
+    color: '#E67E22',
+    particles: [],
+    particleType: 'ember'
+  },
+  {
+    id: 'field-electric',
+    name: '电',
+    en: 'Electric',
+    color: '#9B59B6',
+    particles: [],
+    particleType: 'arc'
+  }
+];
+
+// ------- 构建 DOM -------
+const grid = document.getElementById('grid');
+
+DOMAINS.forEach(d => {
+  const card = document.createElement('div');
+  card.className = 'field-card';
+  card.id = d.id;
+  card.innerHTML = `
+    <div class="field-bg"></div>
+    <canvas class="fx-canvas"></canvas>
+    <div class="overlay-glow"></div>
+    <div class="field-name">${d.en.toUpperCase()}</div>
+    <div class="field-label" style="color:${d.color};">${d.name} · ${d.en}</div>
+  `;
+  grid.appendChild(card);
+});
+
+// ------- Canvas 初始化 -------
+const canvasMap = {}; // id -> { canvas, ctx, domain }
+
+function initCanvases() {
+  DOMAINS.forEach(d => {
+    const card = document.getElementById(d.id);
+    if (!card) return;
+    const canvas = card.querySelector('canvas');
+    const rect = card.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    canvasMap[d.id] = { canvas, ctx, domain:d, w:rect.width, h:rect.height };
+  });
+}
+
+function resizeCanvases() {
+  Object.keys(canvasMap).forEach(id => {
+    const entry = canvasMap[id];
+    const card = document.getElementById(id);
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    entry.canvas.width = rect.width * dpr;
+    entry.canvas.height = rect.height * dpr;
+    entry.canvas.style.width = rect.width + 'px';
+    entry.canvas.style.height = rect.height + 'px';
+    entry.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    entry.w = rect.width;
+    entry.h = rect.height;
+  });
+}
+
+window.addEventListener('resize', resizeCanvases);
+window.addEventListener('load', () => {
+  initCanvases();
+  resizeCanvases();
+});
+
+// ------- 粒子工厂 -------
+
+function createDebris(x, y, w, h, color) {
+  return {
+    x: Math.random() < .5 ? 0 : w,
+    y: Math.random() * h,
+    vx: (Math.random() < .5 ? 1 : -1) * (Math.random() * 2 + .5),
+    vy: Math.random() * 2 + 1,
+    size: Math.random() * 4 + 1.5,
+    life: 1,
+    decay: .003 + Math.random() * .008,
+    color: color,
+    rotation: Math.random() * Math.PI * 2,
+    rotSpeed: (Math.random() - .5) * .15
+  };
+}
+
+function drawDebris(ctx, p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rotation);
+  ctx.globalAlpha = p.life;
+  ctx.fillStyle = p.color;
+  ctx.beginPath();
+  const s = p.size;
+  // 不规则碎石形状
+  ctx.moveTo(-s, 0);
+  ctx.lineTo(-s * .3, -s * .8);
+  ctx.lineTo(s * .5, -s * .3);
+  ctx.lineTo(s * .7, s * .2);
+  ctx.lineTo(s * .1, s * .6);
+  ctx.lineTo(-s * .6, s * .3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function createNote(x, y, w, h, color) {
+  const notes = ['♪', '♫', '♩', '♬', '♪'];
+  return {
+    x: Math.random() * w,
+    y: h + 20,
+    vx: (Math.random() - .5) * .6,
+    vy: -(.5 + Math.random() * 1.2),
+    char: notes[Math.floor(Math.random() * notes.length)],
+    size: 12 + Math.random() * 10,
+    life: 1,
+    decay: .002 + Math.random() * .003,
+    color: color,
+    wobble: Math.random() * Math.PI * 2
+  };
+}
+
+function drawNote(ctx, p) {
+  ctx.save();
+  ctx.globalAlpha = p.life;
+  ctx.fillStyle = p.color;
+  ctx.font = `${p.size}px serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(p.char, p.x + Math.sin(p.wobble) * 3, p.y);
+  ctx.restore();
+}
+
+function createPhoton(x, y, w, h, color) {
+  const cx = w / 2, cy = h * .35;
+  const angle = Math.random() * Math.PI * 2;
+  const speed = .8 + Math.random() * 1.5;
+  return {
+    x: cx,
+    y: cy,
+    angle: angle,
+    speed: speed,
+    size: 1.5 + Math.random() * 3,
+    life: 1,
+    decay: .004 + Math.random() * .006,
+    color: color,
+    trail: []
+  };
+}
+
+function drawPhoton(ctx, p) {
+  ctx.save();
+  ctx.globalAlpha = p.life;
+  ctx.strokeStyle = p.color;
+  ctx.lineWidth = p.size * .4;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+  ctx.fillStyle = p.color;
+  ctx.fill();
+  // 发光
+  const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+  grd.addColorStop(0, p.color);
+  grd.addColorStop(1, 'transparent');
+  ctx.fillStyle = grd;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function createEmber(x, y, w, h, color) {
+  return {
+    x: Math.random() * w,
+    y: h + 5,
+    vx: (Math.random() - .5) * 1,
+    vy: -(.8 + Math.random() * 2.5),
+    size: 1 + Math.random() * 3.5,
+    life: 1,
+    decay: .004 + Math.random() * .01,
+    color: Math.random() < .4 ? '#FFD700' : color,
+    flicker: Math.random() * .3
+  };
+}
+
+function drawEmber(ctx, p) {
+  ctx.save();
+  ctx.globalAlpha = p.life * (.7 + Math.sin(p.flicker * Date.now() * .01) * .3);
+  const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+  grd.addColorStop(0, '#FFF');
+  grd.addColorStop(.3, p.color);
+  grd.addColorStop(1, 'transparent');
+  ctx.fillStyle = grd;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function createArcParticle(x, y, w, h, color) {
+  const corners = [
+    { x:0, y:0 },
+    { x:w, y:0 },
+    { x:0, y:h },
+    { x:w, y:h }
+  ];
+  const corner = corners[Math.floor(Math.random() * corners.length)];
+  return {
+    x: corner.x,
+    y: corner.y,
+    targetX: corner.x + (Math.random() - .5) * w * .7,
+    targetY: corner.y + (Math.random() - .5) * h * .7,
+    progress: 0,
+    progressSpeed: .02 + Math.random() * .04,
+    life: 1,
+    decay: .015 + Math.random() * .03,
+    color: color,
+    points: [],
+    thickness: 1 + Math.random() * 2
+  };
+}
+
+function drawArcParticle(ctx, p) {
+  if (p.points.length < 2) return;
+  ctx.save();
+  ctx.globalAlpha = p.life;
+  ctx.strokeStyle = p.color;
+  ctx.lineWidth = p.thickness;
+  ctx.shadowColor = p.color;
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.moveTo(p.points[0].x, p.points[0].y);
+  for (let i = 1; i < p.points.length; i++) {
+    ctx.lineTo(p.points[i].x, p.points[i].y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+// ------- 更新与渲染 -------
+
+const domainCreators = {
+  debris: createDebris,
+  note: createNote,
+  photon: createPhoton,
+  ember: createEmber,
+  arc: createArcParticle
+};
+
+const domainDrawers = {
+  debris: drawDebris,
+  note: drawNote,
+  photon: drawPhoton,
+  ember: drawEmber,
+  arc: drawArcParticle
+};
+
+const domainMaxParticles = {
+  debris: 12,
+  note: 8,
+  photon: 15,
+  ember: 18,
+  arc: 5
+};
+
+let lastTime = 0;
+
+function updateParticle(p, type) {
+  switch(type) {
+    case 'debris':
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += .08;
+      p.rotation += p.rotSpeed;
+      break;
+    case 'note':
+      p.x += p.vx + Math.sin(p.wobble) * .3;
+      p.y += p.vy;
+      p.wobble += .03;
+      break;
+    case 'photon':
+      p.x += Math.cos(p.angle) * p.speed;
+      p.y += Math.sin(p.angle) * p.speed;
+      break;
+    case 'ember':
+      p.x += p.vx + Math.sin(p.y * .02) * .5;
+      p.y += p.vy;
+      break;
+    case 'arc':
+      p.progress += p.progressSpeed;
+      const px = p.x + (p.targetX - p.x) * Math.min(p.progress, 1);
+      const py = p.y + (p.targetY - p.y) * Math.min(p.progress, 1);
+      // 添加抖动模拟电弧
+      const jitterX = (Math.random() - .5) * 8;
+      const jitterY = (Math.random() - .5) * 8;
+      p.points.push({ x: px + jitterX, y: py + jitterY });
+      if (p.points.length > 20) p.points.shift();
+      break;
+  }
+  p.life -= p.decay;
+}
+
+function render(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const dt = Math.min(timestamp - lastTime, 50);
+  lastTime = timestamp;
+
+  DOMAINS.forEach(d => {
+    const entry = canvasMap[d.id];
+    if (!entry) return;
+    const { ctx, w, h } = entry;
+    const maxP = domainMaxParticles[d.particleType] || 10;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 生成新粒子
+    if (d.particles.length < maxP && Math.random() < .3) {
+      const creator = domainCreators[d.particleType];
+      d.particles.push(creator(0, 0, w, h, d.color));
+    }
+
+    // 更新与绘制
+    d.particles = d.particles.filter(p => {
+      updateParticle(p, d.particleType);
+      // 屏幕外判定
+      const margin = 30;
+      if (p.x < -margin || p.x > w + margin || p.y < -margin || p.y > h + margin) return false;
+      if (p.life <= 0) return false;
+      const drawer = domainDrawers[d.particleType];
+      drawer(ctx, p);
+      return true;
+    });
+
+    // 清理超出上限的粒子
+    while (d.particles.length > maxP) {
+      d.particles.shift();
+    }
+  });
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+
+// 初始延迟初始化 canvas
+setTimeout(() => {
+  if (Object.keys(canvasMap).length === 0) {
+    initCanvases();
+  }
+}, 100);
+</script>
+
+</body>
+</html>

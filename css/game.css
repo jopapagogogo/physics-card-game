@@ -269,19 +269,67 @@ body {
 .quiz-option.correct { background:#d4efdf; border-color:var(--scs); color:var(--scs); animation:correctPulse .6s ease; }
 .quiz-option.wrong { background:#fadbd8; border-color:var(--red); color:var(--red); animation:shake .4s ease; }
 
-/* ---- 战斗日志 ---- */
+/* ---- 战斗日志：悬浮气泡 ---- */
 .log-area {
-  max-height:120px; overflow-y:auto; padding:8px 12px; background:rgba(0,0,0,.35);
-  border-top:1px solid var(--bd); font-size:12px; color:var(--mt); line-height:1.6;
-  user-select:text; -webkit-user-select:text; flex-shrink:0;
+  position:fixed; bottom:16px; right:16px; z-index:250;
+  display:flex; flex-direction:column-reverse; gap:6px;
+  max-width:300px; pointer-events:none;
 }
-.log-area .log-entry { padding:2px 0; border-bottom:1px solid rgba(255,255,255,.04); }
-.log-area .log-entry:last-child { border-bottom:none; }
-.log-entry.damage { color:var(--red); }
-.log-entry.heal   { color:var(--scs); }
-.log-entry.domain { color:var(--ylw); }
-.log-entry.system { color:var(--mt); }
-.log-entry.summon { color:var(--blu); }
+.log-toast {
+  background:rgba(10,15,25,.92); border-left:3px solid var(--mt);
+  border-radius:6px; padding:6px 10px; font-size:11px; color:#ccc;
+  line-height:1.5; pointer-events:auto;
+  animation: toastIn .3s ease, toastOut .5s ease 3.2s forwards;
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+}
+.log-toast.damage { border-left-color:var(--red); }
+.log-toast.heal   { border-left-color:var(--scs); }
+.log-toast.domain { border-left-color:var(--ylw); }
+.log-toast.system { border-left-color:var(--mt); }
+.log-toast.summon { border-left-color:var(--blu); }
+.log-toast.combo  { border-left-color:#e84393; background:rgba(15,10,25,.95); font-weight:700; font-size:12px; }
+
+@keyframes toastIn {
+  0% { opacity:0; transform:translateX(40px); }
+  100% { opacity:1; transform:translateX(0); }
+}
+@keyframes toastOut {
+  0% { opacity:1; transform:translateX(0); }
+  100% { opacity:0; transform:translateX(20px); }
+}
+
+/* 历史日志抽屉 */
+.log-drawer-toggle {
+  position:fixed; bottom:16px; right:16px; z-index:251;
+  width:36px; height:36px; border-radius:50%; background:rgba(10,15,25,.85);
+  border:1px solid var(--bd); color:var(--mt); font-size:16px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all .2s; pointer-events:auto;
+}
+.log-drawer-toggle:hover { color:#fff; border-color:#fff; }
+.log-drawer-toggle.has-new { animation: badgePulse 1s ease infinite; }
+
+.log-drawer {
+  position:fixed; bottom:60px; right:16px; z-index:249;
+  width:320px; max-height:50vh; background:rgba(10,15,25,.95);
+  border:1px solid var(--bd); border-radius:10px; overflow:hidden;
+  display:none; flex-direction:column; box-shadow:0 8px 32px rgba(0,0,0,.6);
+}
+.log-drawer.open { display:flex; animation:drawerSlide .25s ease; }
+@keyframes drawerSlide {
+  0% { opacity:0; transform:translateY(12px); }
+  100% { opacity:1; transform:translateY(0); }
+}
+.log-drawer-header {
+  padding:10px 14px; font-size:13px; font-weight:700; color:#ccc;
+  border-bottom:1px solid var(--bd); display:flex; justify-content:space-between;
+}
+.log-drawer-body {
+  flex:1; overflow-y:auto; padding:8px 14px; font-size:11px; color:var(--mt);
+  line-height:1.6; max-height:calc(50vh - 44px);
+}
+.log-drawer-body .log-entry { padding:3px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.log-drawer-body .log-entry.combo { color:#e84393; font-weight:700; }
 
 /* ---- 弃牌弹窗 ---- */
 .discard-overlay {
