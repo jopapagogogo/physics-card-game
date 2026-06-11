@@ -28,348 +28,165 @@
     --summon-hp: #4ecdc4;
     --attack-red: #e06050;
     --support-green: #3cb371;
-    /* Anime skin palette */
     --anime-card-bg: #23182e;
     --anime-card-bg-light: #2e2240;
   }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    background: var(--bg);
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);
     background-image:
       radial-gradient(ellipse at 20% 0%, rgba(231,76,60,0.04) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 0%, rgba(155,89,182,0.04) 0%, transparent 60%);
     color:var(--text);
-    font-family: 'Segoe UI','Noto Sans SC',sans-serif;
-    min-height:100vh;
+    font-family:'Segoe UI','Noto Sans SC',sans-serif;min-height:100vh;
   }
+  .hero{text-align:center;padding:36px 20px 16px}
+  .hero h1{font-size:1.8em;letter-spacing:3px;text-transform:uppercase}
+  .hero h1 span{background:linear-gradient(135deg,var(--force),var(--electric));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--text-dim);font-size:.88em;margin-top:4px}
 
-  .hero { text-align:center; padding:36px 20px 16px; }
-  .hero h1 { font-size:1.8em; letter-spacing:3px; text-transform:uppercase; }
-  .hero h1 span { background:linear-gradient(135deg, var(--force), var(--electric)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .hero p { color:var(--text-dim); font-size:0.88em; margin-top:4px; }
+  .domain-tabs{display:flex;justify-content:center;gap:16px;margin:16px 0 28px;position:sticky;top:10px;z-index:100}
+  .domain-tab{padding:10px 36px;border-radius:6px;border:1.5px solid #2a2a3a;background:#12141c;color:var(--text-dim);cursor:pointer;font-size:.92em;font-weight:700;letter-spacing:2px;transition:all .3s;text-transform:uppercase}
+  .domain-tab:hover{border-color:#444;color:#ccc}
+  .tab-force.active{border-color:var(--force);color:var(--force-light);box-shadow:0 0 20px rgba(231,76,60,.3),inset 0 0 20px rgba(231,76,60,.05)}
+  .tab-electric.active{border-color:var(--electric);color:var(--electric-light);box-shadow:0 0 20px rgba(155,89,182,.3),inset 0 0 20px rgba(155,89,182,.05)}
 
-  .domain-tabs {
-    display:flex; justify-content:center; gap:16px; margin:16px 0 28px;
-    position:sticky; top:10px; z-index:100;
-  }
-  .domain-tab {
-    padding:10px 36px; border-radius:6px; border:1.5px solid #2a2a3a;
-    background:#12141c; color:var(--text-dim); cursor:pointer;
-    font-size:0.92em; font-weight:700; letter-spacing:2px;
-    transition:all 0.3s; text-transform:uppercase;
-  }
-  .domain-tab:hover { border-color:#444; color:#ccc; }
-  .tab-force.active {
-    border-color:var(--force); color:var(--force-light);
-    box-shadow:0 0 20px rgba(231,76,60,0.3), inset 0 0 20px rgba(231,76,60,0.05);
-  }
-  .tab-electric.active {
-    border-color:var(--electric); color:var(--electric-light);
-    box-shadow:0 0 20px rgba(155,89,182,0.3), inset 0 0 20px rgba(155,89,182,0.05);
-  }
+  .domain-section{display:none;max-width:1400px;margin:0 auto;padding:0 20px 60px}
+  .domain-section.active{display:block}
+  .domain-section h2{text-align:center;font-size:1.25em;margin-bottom:28px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
 
-  .domain-section { display:none; max-width:1400px; margin:0 auto; padding:0 20px 60px; }
-  .domain-section.active { display:block; }
-  .domain-section h2 {
-    text-align:center; font-size:1.25em; margin-bottom:28px; color:var(--text-dim);
-    letter-spacing:2px; text-transform:uppercase;
-  }
+  .cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:50px 36px;justify-items:center}
 
-  .cards-grid {
-    display:grid; grid-template-columns:repeat(3,1fr); gap:50px 36px;
-    justify-items:center;
-  }
-
-  /* ===== SKIN BADGE ===== */
-  .card-set { text-align:center; }
-  .skin-badge {
-    display:inline-block; padding:5px 20px; border-radius:20px;
-    font-size:0.72em; font-weight:700; letter-spacing:2px; margin-bottom:14px;
-    text-transform:uppercase;
-  }
-  .skin-badge.cyber { background:rgba(0,229,255,0.1); color:var(--cyber-accent); border:1px solid rgba(0,229,255,0.35); }
-  .skin-badge.anime { background:rgba(255,107,157,0.1); color:var(--anime-accent); border:1px solid rgba(255,107,157,0.35); }
+  .card-set{text-align:center}
+  .skin-badge{display:inline-block;padding:5px 20px;border-radius:20px;font-size:.72em;font-weight:700;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase}
+  .skin-badge.cyber{background:rgba(0,229,255,.1);color:var(--cyber-accent);border:1px solid rgba(0,229,255,.35)}
+  .skin-badge.anime{background:rgba(255,107,157,.1);color:var(--anime-accent);border:1px solid rgba(255,107,157,.35)}
 
   /* ===== THE CARD ===== */
-  .card {
-    width:300px; border-radius:16px;
-    background:var(--card-inner);
-    position:relative; text-align:left;
-    box-shadow:0 16px 48px rgba(0,0,0,0.55);
-    transition:transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
-               box-shadow 0.4s ease,
-               border-color 0.4s ease;
-    border:2.5px solid transparent;
-    background-clip:padding-box;
+  .card{
+    width:300px;border-radius:16px;background:var(--card-inner);
+    position:relative;text-align:left;
+    box-shadow:0 16px 48px rgba(0,0,0,.55);
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .4s ease,border-color .4s ease;
+    border:2.5px solid transparent;background-clip:padding-box;
   }
-  .card::before {
-    content:''; position:absolute; inset:-4px; border-radius:19px;
-    z-index:-1; transition:opacity 0.4s ease;
-  }
-  .card:hover { transform:translateY(-6px); }
-  .card:active { transform:translateY(-2px); }
+  .card::before{content:'';position:absolute;inset:-4px;border-radius:19px;z-index:-1;transition:opacity .4s ease}
+  .card:hover{transform:translateY(-6px)}
+  .card:active{transform:translateY(-2px)}
 
-  /* Force domain border */
-  .card.force {
-    border-color:var(--force-dark);
-    box-shadow:
-      0 0 2px var(--force),
-      inset 0 0 0 1px rgba(231,76,60,0.12),
-      0 16px 48px rgba(0,0,0,0.55);
-  }
-  .card.force::before {
-    background:linear-gradient(135deg, var(--force-dark), var(--force), var(--force-light), var(--force), var(--force-dark));
-    opacity:0.6;
-  }
-  .card.force:hover::before { opacity:0.9; }
-  .card.force:hover { 
-    box-shadow:0 0 36px rgba(231,76,60,0.35), 0 0 80px rgba(231,76,60,0.1), 0 20px 56px rgba(0,0,0,0.6); 
-  }
+  .card.force{border-color:var(--force-dark);box-shadow:0 0 2px var(--force),inset 0 0 0 1px rgba(231,76,60,.12),0 16px 48px rgba(0,0,0,.55)}
+  .card.force::before{background:linear-gradient(135deg,var(--force-dark),var(--force),var(--force-light),var(--force),var(--force-dark));opacity:.6}
+  .card.force:hover::before{opacity:.9}
+  .card.force:hover{box-shadow:0 0 36px rgba(231,76,60,.35),0 0 80px rgba(231,76,60,.1),0 20px 56px rgba(0,0,0,.6)}
 
-  /* Electric domain border */
-  .card.electric {
-    border-color:var(--electric-dark);
-    box-shadow:
-      0 0 2px var(--electric),
-      inset 0 0 0 1px rgba(155,89,182,0.12),
-      0 16px 48px rgba(0,0,0,0.55);
-  }
-  .card.electric::before {
-    background:linear-gradient(135deg, var(--electric-dark), var(--electric), var(--electric-light), var(--electric), var(--electric-dark));
-    opacity:0.6;
-  }
-  .card.electric:hover::before { opacity:0.9; }
-  .card.electric:hover { 
-    box-shadow:0 0 36px rgba(155,89,182,0.35), 0 0 80px rgba(155,89,182,0.1), 0 20px 56px rgba(0,0,0,0.6); 
-  }
+  .card.electric{border-color:var(--electric-dark);box-shadow:0 0 2px var(--electric),inset 0 0 0 1px rgba(155,89,182,.12),0 16px 48px rgba(0,0,0,.55)}
+  .card.electric::before{background:linear-gradient(135deg,var(--electric-dark),var(--electric),var(--electric-light),var(--electric),var(--electric-dark));opacity:.6}
+  .card.electric:hover::before{opacity:.9}
+  .card.electric:hover{box-shadow:0 0 36px rgba(155,89,182,.35),0 0 80px rgba(155,89,182,.1),0 20px 56px rgba(0,0,0,.6)}
 
-  /* ===== ANIME SKIN: lighter card background ===== */
-  .card.anime {
-    background:linear-gradient(175deg, #2a1e3c 0%, #211630 25%, #1f142e 50%, #231832 100%);
-  }
-  .card.anime::after {
-    content:''; position:absolute; inset:6px; border-radius:12px;
-    border:1px solid rgba(255,107,157,0.08);
-    pointer-events:none; z-index:1;
-  }
-  /* Subtle warm glow for anime */
-  .card.anime.force::before {
-    background:linear-gradient(135deg, #8b1a3a, #E74C3C, #ff8c7a, #E74C3C, #8b1a3a);
-    opacity:0.6;
-  }
-  .card.anime.electric::before {
-    background:linear-gradient(135deg, #4a1d6e, #9B59B6, #e8a0f0, #9B59B6, #4a1d6e);
-    opacity:0.6;
-  }
-  .card.anime:hover::before { opacity:0.9; }
+  .card.anime{background:linear-gradient(175deg,#2a1e3c 0%,#211630 25%,#1f142e 50%,#231832 100%)}
+  .card.anime::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,107,157,.08);pointer-events:none;z-index:1}
+  .card.anime.force::before{background:linear-gradient(135deg,#8b1a3a,#E74C3C,#ff8c7a,#E74C3C,#8b1a3a);opacity:.6}
+  .card.anime.electric::before{background:linear-gradient(135deg,#4a1d6e,#9B59B6,#e8a0f0,#9B59B6,#4a1d6e);opacity:.6}
+  .card.anime:hover::before{opacity:.9}
 
-  /* ===== CYBER SKIN: corner scanlines ===== */
-  .card.cyber::after {
-    content:''; position:absolute; inset:6px; border-radius:12px;
-    border:1px solid rgba(255,255,255,0.06);
-    pointer-events:none; z-index:1;
-  }
+  .card.cyber::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,255,255,.06);pointer-events:none;z-index:1}
 
-  /* ===== TOP ROW: Cost + Rarity ===== */
-  .card-top {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:14px 16px 4px; position:relative; z-index:2;
+  /* ===== TOP ROW: Cost · Domain · Rarity ===== */
+  .card-top{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 16px 2px;position:relative;z-index:2;
   }
-  .cost-gem {
-    width:44px; height:44px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-weight:900; font-size:1.25em; position:relative;
-    background:radial-gradient(circle at 35% 35%, #1a1a2e, #0a0a14);
-    box-shadow:inset 0 0 8px rgba(0,0,0,0.6);
+  .cost-gem{
+    width:40px;height:40px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:1.15em;position:relative;
+    background:radial-gradient(circle at 35% 35%,#1a1a2e,#0a0a14);
+    box-shadow:inset 0 0 8px rgba(0,0,0,.6);
   }
-  .cost-gem::before {
-    content:''; position:absolute; inset:-3px; border-radius:50%;
-    background:conic-gradient(from 0deg, var(--gold-dark), var(--gold-bright), var(--gold), var(--gold-bright), var(--gold-dark));
-    z-index:-1;
-  }
-  .cost-gem::after {
-    content:''; position:absolute; inset:-1px; border-radius:50%;
-    background:transparent; border:1.5px solid var(--gold-dark);
-  }
-  .card.force .cost-gem { color:var(--force-light); }
-  .card.electric .cost-gem { color:var(--electric-light); }
+  .cost-gem::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(from 0deg,var(--gold-dark),var(--gold-bright),var(--gold),var(--gold-bright),var(--gold-dark));z-index:-1}
+  .cost-gem::after{content:'';position:absolute;inset:-1px;border-radius:50%;background:transparent;border:1.5px solid var(--gold-dark)}
+  .card.force .cost-gem{color:var(--force-light)}
+  .card.electric .cost-gem{color:var(--electric-light)}
 
-  /* Rarity icon */
-  .rarity-icon {
-    width:28px; height:28px; position:relative;
-    display:flex; align-items:center; justify-content:center;
-    font-size:0.85em;
+  .domain-glyph{
+    font-size:1.1em;opacity:.35;
+    filter:drop-shadow(0 0 2px currentColor);
   }
-  .rarity-icon.common { color:var(--common-silver); }
-  .rarity-icon.rare {
-    color:var(--rare-gold);
-    filter:drop-shadow(0 0 4px rgba(240,192,64,0.5));
+  .card.force .domain-glyph{color:var(--force-light)}
+  .card.electric .domain-glyph{color:var(--electric-light)}
+
+  .rarity-icon{
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.8em;
   }
+  .rarity-icon.common{color:var(--common-silver)}
+  .rarity-icon.rare{color:var(--rare-gold);filter:drop-shadow(0 0 4px rgba(240,192,64,.5))}
 
   /* ===== CARD NAME ===== */
-  .card-name-plate {
-    position:relative; z-index:2;
-    margin:0 16px 3px; padding:4px 0;
-    border-top:1px solid rgba(255,255,255,0.08);
-    border-bottom:1px solid rgba(255,255,255,0.08);
+  .card-name-plate{
+    position:relative;z-index:2;margin:0 16px 3px;padding:3px 0;
+    border-top:1px solid rgba(255,255,255,.08);
+    border-bottom:1px solid rgba(255,255,255,.08);
   }
-  .card-name {
-    font-size:1.1em; font-weight:800; letter-spacing:2px; text-align:center;
-  }
-  .card.force .card-name { color:var(--force-light); }
-  .card.electric .card-name { color:var(--electric-light); }
+  .card-name{font-size:1.05em;font-weight:800;letter-spacing:3px;text-align:center}
+  .card.force .card-name{color:var(--force-light)}
+  .card.electric .card-name{color:var(--electric-light)}
 
   /* ===== TYPE RIBBON ===== */
-  .type-ribbon {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    padding:2px 0 8px; position:relative; z-index:2;
-  }
-  .type-pip {
-    padding:2px 10px; border-radius:3px; font-size:0.68em; font-weight:700;
-    letter-spacing:1px; text-transform:uppercase;
-  }
-  .type-pip.attack { background:rgba(224,96,80,0.2); color:var(--attack-red); border:1px solid rgba(224,96,80,0.3); }
-  .type-pip.support { background:rgba(60,179,113,0.2); color:var(--support-green); border:1px solid rgba(60,179,113,0.3); }
-  .type-pip.summon { background:rgba(240,192,64,0.2); color:var(--rare-gold); border:1px solid rgba(240,192,64,0.3); }
-  .domain-pip { font-size:0.7em; color:var(--text-dim); }
+  .type-ribbon{display:flex;align-items:center;justify-content:center;gap:8px;padding:2px 0 6px;position:relative;z-index:2}
+  .type-pip{padding:2px 10px;border-radius:3px;font-size:.66em;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .type-pip.attack{background:rgba(224,96,80,.2);color:var(--attack-red);border:1px solid rgba(224,96,80,.3)}
+  .type-pip.support{background:rgba(60,179,113,.2);color:var(--support-green);border:1px solid rgba(60,179,113,.3)}
+  .type-pip.summon{background:rgba(240,192,64,.2);color:var(--rare-gold);border:1px solid rgba(240,192,64,.3)}
 
-  /* ===== ART FRAME — full-width, tall, contain for full image ===== */
-  .art-frame {
-    margin:0; position:relative; z-index:2;
-    height:360px; overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-    /* Default dark bg behind the image */
-    background:radial-gradient(ellipse at 50% 40%, #1a1d28 0%, #0d0e16 100%);
-  }
-  .art-frame img { 
-    width:calc(100% - 16px); height:calc(100% - 16px); 
-    object-fit:cover; 
-    object-position:50% 20%;
-    display:block;
-    border-radius:2px;
-  }
-  /* art-frame uses flex centering → img auto-centered, corners align to img edges */
-  /* Anime art frame: warm background to match card */
-  .card.anime .art-frame {
-    background:radial-gradient(ellipse at 50% 40%, #2a1e35 0%, #1a1025 100%);
-  }
+  /* ===== ART FRAME ===== */
+  .art-frame{margin:0;position:relative;z-index:2;height:350px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#1a1d28 0%,#0d0e16 100%)}
+  .art-frame img{width:calc(100% - 16px);height:calc(100% - 16px);object-fit:cover;object-position:50% 20%;display:block;border-radius:2px}
+  .card.anime .art-frame{background:radial-gradient(ellipse at 50% 40%,#2a1e35 0%,#1a1025 100%)}
 
-  /* Corner decorations on art frame */
-  .art-corner {
-    position:absolute; width:18px; height:18px; z-index:3; pointer-events:none;
-    border-color:rgba(212,168,83,0.5);
-  }
-  .art-corner.tl { top:8px; left:8px; border-top:2px solid; border-left:2px solid; }
-  .art-corner.tr { top:8px; right:8px; border-top:2px solid; border-right:2px solid; }
-  .art-corner.bl { bottom:8px; left:8px; border-bottom:2px solid; border-left:2px solid; }
-  .art-corner.br { bottom:8px; right:8px; border-bottom:2px solid; border-right:2px solid; }
+  .art-corner{position:absolute;width:16px;height:16px;z-index:3;pointer-events:none;border-color:rgba(212,168,83,.45)}
+  .art-corner.tl{top:8px;left:8px;border-top:2px solid;border-left:2px solid}
+  .art-corner.tr{top:8px;right:8px;border-top:2px solid;border-right:2px solid}
+  .art-corner.bl{bottom:8px;left:8px;border-bottom:2px solid;border-left:2px solid}
+  .art-corner.br{bottom:8px;right:8px;border-bottom:2px solid;border-right:2px solid}
 
-  /* Skin overlay on art frame */
-  .card.cyber .art-frame::after {
-    content:''; position:absolute; inset:0; pointer-events:none; z-index:4;
-    background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.04) 2px, rgba(0,229,255,0.04) 4px);
-  }
-  .card.anime .art-frame::after {
-    content:''; position:absolute; inset:0; pointer-events:none; z-index:4;
-    background:
-      radial-gradient(ellipse at 50% 25%, rgba(255,107,157,0.05) 0%, transparent 55%),
-      radial-gradient(ellipse at 30% 70%, rgba(255,184,140,0.04) 0%, transparent 50%);
-  }
+  .card.cyber .art-frame::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.04) 2px,rgba(0,229,255,.04) 4px)}
+  .card.anime .art-frame::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;background:radial-gradient(ellipse at 50% 25%,rgba(255,107,157,.05),transparent 55%),radial-gradient(ellipse at 30% 70%,rgba(255,184,140,.04),transparent 50%)}
 
   /* ===== ORNATE DIVIDER ===== */
-  .ornate-divider {
-    display:flex; align-items:center; gap:6px;
-    padding:10px 20px 4px; position:relative; z-index:2;
-  }
-  .ornate-divider .line { flex:1; height:1px; }
-  .card.force .ornate-divider .line { background:linear-gradient(90deg, transparent, var(--force-dark), var(--force), var(--force-dark), transparent); }
-  .card.electric .ornate-divider .line { background:linear-gradient(90deg, transparent, var(--electric-dark), var(--electric), var(--electric-dark), transparent); }
-  .ornate-divider .gem {
-    width:6px; height:6px; border-radius:1px; transform:rotate(45deg);
-  }
-  .card.force .ornate-divider .gem { background:var(--force); box-shadow:0 0 6px var(--force); }
-  .card.electric .ornate-divider .gem { background:var(--electric); box-shadow:0 0 6px var(--electric); }
+  .ornate-divider{display:flex;align-items:center;gap:6px;padding:8px 20px 2px;position:relative;z-index:2}
+  .ornate-divider .line{flex:1;height:1px}
+  .card.force .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--force-dark),var(--force),var(--force-dark),transparent)}
+  .card.electric .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--electric-dark),var(--electric),var(--electric-dark),transparent)}
+  .ornate-divider .gem{width:6px;height:6px;border-radius:1px;transform:rotate(45deg)}
+  .card.force .ornate-divider .gem{background:var(--force);box-shadow:0 0 6px var(--force)}
+  .card.electric .ornate-divider .gem{background:var(--electric);box-shadow:0 0 6px var(--electric)}
 
-  /* ===== STATS AREA ===== */
-  .card-stats {
-    padding:0 20px 8px; position:relative; z-index:2;
-    display:flex; align-items:center; gap:10px;
-  }
-  .main-stat {
-    display:flex; align-items:baseline; gap:6px;
-  }
-  .main-stat .stat-num {
-    font-size:1.6em; font-weight:900; line-height:1;
-    font-family:'Segoe UI', sans-serif;
-  }
-  .card.force .main-stat .stat-num { color:var(--force); text-shadow:0 0 10px rgba(231,76,60,0.4); }
-  .card.electric .main-stat .stat-num { color:var(--electric); text-shadow:0 0 10px rgba(155,89,182,0.4); }
-  .main-stat .stat-unit { font-size:0.7em; color:var(--text-dim); }
+  /* ===== STATS ===== */
+  .card-stats{padding:0 20px 6px;position:relative;z-index:2;display:flex;align-items:center;gap:10px}
+  .main-stat{display:flex;align-items:baseline;gap:6px}
+  .main-stat .stat-num{font-size:1.5em;font-weight:900;line-height:1;font-family:'Segoe UI',sans-serif}
+  .card.force .main-stat .stat-num{color:var(--force);text-shadow:0 0 10px rgba(231,76,60,.4)}
+  .card.electric .main-stat .stat-num{color:var(--electric);text-shadow:0 0 10px rgba(155,89,182,.4)}
+  .main-stat .stat-unit{font-size:.68em;color:var(--text-dim)}
+  .hp-stat{margin-left:auto;display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2)}
+  .hp-stat .hp-num{font-weight:800;font-size:.9em;color:var(--summon-hp)}
 
-  .hp-stat {
-    margin-left:auto; display:flex; align-items:center; gap:4px;
-    padding:4px 10px; border-radius:4px;
-    background:rgba(78,205,196,0.08); border:1px solid rgba(78,205,196,0.2);
-  }
-  .hp-stat .hp-num { font-weight:800; font-size:0.95em; color:var(--summon-hp); }
+  /* ===== DESCRIPTION + PRINCIPLE ===== */
+  .card-desc-box{margin:0 20px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);border-left:2px solid}
+  .card.force .card-desc-box{border-left-color:rgba(231,76,60,.4)}
+  .card.electric .card-desc-box{border-left-color:rgba(155,89,182,.4)}
+  .card.anime .card-desc-box{background:rgba(255,255,255,.03)}
+  .card-desc{font-size:.72em;color:#bcc0cc;line-height:1.65;margin-bottom:6px}
+  .card-principle{font-family:'Consolas','Courier New',monospace;font-size:.7em;font-weight:700;letter-spacing:.5px;padding:3px 6px;border-radius:3px;display:inline-block}
+  .card.force .card-principle{background:rgba(231,76,60,.12);color:var(--force-light);border:1px solid rgba(231,76,60,.2)}
+  .card.electric .card-principle{background:rgba(155,89,182,.12);color:var(--electric-light);border:1px solid rgba(155,89,182,.2)}
+  .card.anime.force .card-principle{background:rgba(231,76,60,.18)}
+  .card.anime.electric .card-principle{background:rgba(155,89,182,.18)}
 
-  /* ===== DESCRIPTION ===== */
-  .card-desc-box {
-    margin:0 20px 8px; padding:8px 10px; position:relative; z-index:2;
-    border-radius:4px;
-    background:rgba(0,0,0,0.25);
-    border:1px solid rgba(255,255,255,0.05);
-    border-left:2px solid;
-  }
-  .card.force .card-desc-box { border-left-color:rgba(231,76,60,0.4); }
-  .card.electric .card-desc-box { border-left-color:rgba(155,89,182,0.4); }
-  /* Anime: slightly lighter desc background */
-  .card.anime .card-desc-box { background:rgba(255,255,255,0.03); }
-  .card-desc {
-    font-size:0.73em; color:var(--text-dim); line-height:1.6;
-  }
-
-  /* ===== FOOTER ===== */
-  .card-footer {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:6px 20px 14px; position:relative; z-index:2;
-    border-top:1px solid rgba(255,255,255,0.06);
-  }
-  .formula-badge {
-    font-family:'Consolas','Courier New',monospace;
-    font-size:0.72em; font-weight:700; letter-spacing:1px;
-    padding:3px 8px; border-radius:3px;
-  }
-  .card.force .formula-badge {
-    background:rgba(231,76,60,0.12); color:var(--force-light);
-    border:1px solid rgba(231,76,60,0.25);
-  }
-  .card.electric .formula-badge {
-    background:rgba(155,89,182,0.12); color:var(--electric-light);
-    border:1px solid rgba(155,89,182,0.25);
-  }
-  /* Anime: brighter formula badge */
-  .card.anime.force .formula-badge { background:rgba(231,76,60,0.18); }
-  .card.anime.electric .formula-badge { background:rgba(155,89,182,0.18); }
-  .principle-text { font-size:0.68em; color:var(--text-dim); font-style:italic; }
-
-  /* ===== SKIN TAG MINI ===== */
-  .skin-tag-mini {
-    position:absolute; bottom:10px; right:10px; z-index:5;
-    font-size:0.6em; font-weight:700; letter-spacing:1.5px;
-    padding:2px 8px; border-radius:3px; text-transform:uppercase;
-    pointer-events:none;
-  }
-  .skin-tag-mini.cyber { background:rgba(0,229,255,0.12); color:var(--cyber-accent); border:1px solid rgba(0,229,255,0.2); }
-  .skin-tag-mini.anime { background:rgba(255,107,157,0.12); color:var(--anime-accent); border:1px solid rgba(255,107,157,0.2); }
-
-  /* Responsive */
-  @media (max-width:1050px) { .cards-grid { grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:680px) {
-    .cards-grid { grid-template-columns:1fr; }
-    .card { width:100%; max-width:360px; }
-  }
+  @media(max-width:1050px){.cards-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:680px){.cards-grid{grid-template-columns:1fr}.card{width:100%;max-width:360px}}
 </style>
 </head>
 <body>
@@ -380,8 +197,8 @@
 </div>
 
 <div class="domain-tabs">
-  <button class="domain-tab tab-force active" onclick="switchDomain('force')">⚡ 力领域</button>
-  <button class="domain-tab tab-electric" onclick="switchDomain('electric')">🔮 电领域</button>
+  <button class="domain-tab tab-force active" onclick="switchDomain('force')">力领域</button>
+  <button class="domain-tab tab-electric" onclick="switchDomain('electric')">电领域</button>
 </div>
 
 <!-- ============ 力领域 ============ -->
@@ -390,192 +207,76 @@
   <div class="cards-grid">
 
     <!-- A01 重力锤击 · Cyber -->
-    <div class="card-set">
-      <span class="skin-badge cyber">Cyberpunk</span>
-      <div class="card force cyber">
-        <div class="card-top">
-          <div class="cost-gem">12</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">重力锤击</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip attack">攻击</span>
-          <span class="domain-pip">力</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/a01_zhonglichuiji_cyber.png" alt="重力锤击">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">造成75点伤害。物体所受重力与质量成正比（G=mg），质量越大重力越强。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">G = mg</span>
-          <span class="principle-text">引力原理</span>
-        </div>
-        <div class="skin-tag-mini cyber">CYBER</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card force cyber">
+      <div class="card-top"><div class="cost-gem">12</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">重力锤击</div></div>
+      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_cyber.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">造成 75 点伤害。物体所受重力与质量成正比——质量越大，锤击力道越猛，冲击力呈指数级增长。</div><span class="card-principle">G = mg · 引力原理</span></div>
+    </div></div>
 
     <!-- A01 重力锤击 · Anime -->
-    <div class="card-set">
-      <span class="skin-badge anime">Anime Illusion</span>
-      <div class="card force anime">
-        <div class="card-top">
-          <div class="cost-gem">12</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">重力锤击</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip attack">攻击</span>
-          <span class="domain-pip">力</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/a01_zhonglichuiji_anime.png" alt="重力锤击">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">造成75点伤害。物体所受重力与质量成正比（G=mg），质量越大重力越强。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">G = mg</span>
-          <span class="principle-text">引力原理</span>
-        </div>
-        <div class="skin-tag-mini anime">ANIME</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
+    <div class="card force anime">
+      <div class="card-top"><div class="cost-gem">12</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">重力锤击</div></div>
+      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_anime.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">造成 75 点伤害。物体所受重力与质量成正比——质量越大，锤击力道越猛，冲击力呈指数级增长。</div><span class="card-principle">G = mg · 引力原理</span></div>
+    </div></div>
 
     <!-- S01 质量增大 · Cyber -->
-    <div class="card-set">
-      <span class="skin-badge cyber">Cyberpunk</span>
-      <div class="card force cyber">
-        <div class="card-top">
-          <div class="cost-gem">5</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">质量增大</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip support">辅助</span>
-          <span class="domain-pip">力</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/s01_zhiliangzengda_cyber.png" alt="质量增大">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系伤害</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">己方下次力系攻击+10伤害。质量是惯性的唯一量度——质量越大冲击越强。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">G = mg</span>
-          <span class="principle-text">惯性原理</span>
-        </div>
-        <div class="skin-tag-mini cyber">CYBER</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card force cyber">
+      <div class="card-top"><div class="cost-gem">5</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">质量增大</div></div>
+      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_cyber.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系攻击</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">己方下次力系攻击 +10 伤害。质量是惯性的唯一量度，增大质量即增强冲击势能。</div><span class="card-principle">惯性定律 · G = mg</span></div>
+    </div></div>
 
     <!-- S01 质量增大 · Anime -->
-    <div class="card-set">
-      <span class="skin-badge anime">Anime Illusion</span>
-      <div class="card force anime">
-        <div class="card-top">
-          <div class="cost-gem">5</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">质量增大</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip support">辅助</span>
-          <span class="domain-pip">力</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/s01_zhiliangzengda_anime.png" alt="质量增大">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系伤害</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">己方下次力系攻击+10伤害。质量是惯性的唯一量度——质量越大冲击越强。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">G = mg</span>
-          <span class="principle-text">惯性原理</span>
-        </div>
-        <div class="skin-tag-mini anime">ANIME</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
+    <div class="card force anime">
+      <div class="card-top"><div class="cost-gem">5</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">质量增大</div></div>
+      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_anime.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系攻击</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">己方下次力系攻击 +10 伤害。质量是惯性的唯一量度，增大质量即增强冲击势能。</div><span class="card-principle">惯性定律 · G = mg</span></div>
+    </div></div>
 
     <!-- C05 牛顿 · Cyber -->
-    <div class="card-set">
-      <span class="skin-badge cyber">Cyberpunk</span>
-      <div class="card force cyber">
-        <div class="card-top">
-          <div class="cost-gem">22</div>
-          <div class="rarity-icon rare" title="Rare">★</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">牛顿</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip summon">召唤</span>
-          <span class="domain-pip">力</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/c05_niudun_cyber.png" alt="牛顿">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div>
-          <div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">力系攻击卡额外+20伤害。经典力学的奠基人——F=ma，力越大效果越猛。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">F = ma</span>
-          <span class="principle-text">经典力学</span>
-        </div>
-        <div class="skin-tag-mini cyber">CYBER</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card force cyber">
+      <div class="card-top"><div class="cost-gem">22</div><span class="domain-glyph">⚡</span><div class="rarity-icon rare" title="Rare">★</div></div>
+      <div class="card-name-plate"><div class="card-name">牛顿</div></div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_cyber.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">力系攻击卡额外 +20 伤害。经典力学奠基人——力等于质量乘加速度，力越大效果越震撼。</div><span class="card-principle">F = ma · 牛顿第二定律</span></div>
+    </div></div>
 
     <!-- C05 牛顿 · Anime -->
-    <div class="card-set">
-      <span class="skin-badge anime">Anime Illusion</span>
-      <div class="card force anime">
-        <div class="card-top">
-          <div class="cost-gem">22</div>
-          <div class="rarity-icon rare" title="Rare">★</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">牛顿</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip summon">召唤</span>
-          <span class="domain-pip">力</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/c05_niudun_anime.png" alt="牛顿">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div>
-          <div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">力系攻击卡额外+20伤害。经典力学的奠基人——F=ma，力越大效果越猛。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">F = ma</span>
-          <span class="principle-text">经典力学</span>
-        </div>
-        <div class="skin-tag-mini anime">ANIME</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
+    <div class="card force anime">
+      <div class="card-top"><div class="cost-gem">22</div><span class="domain-glyph">⚡</span><div class="rarity-icon rare" title="Rare">★</div></div>
+      <div class="card-name-plate"><div class="card-name">牛顿</div></div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_anime.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">力系攻击卡额外 +20 伤害。经典力学奠基人——力等于质量乘加速度，力越大效果越震撼。</div><span class="card-principle">F = ma · 牛顿第二定律</span></div>
+    </div></div>
 
   </div>
 </div>
@@ -586,204 +287,87 @@
   <div class="cards-grid">
 
     <!-- A27 闪电劈击 · Cyber -->
-    <div class="card-set">
-      <span class="skin-badge cyber">Cyberpunk</span>
-      <div class="card electric cyber">
-        <div class="card-top">
-          <div class="cost-gem">10</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">闪电劈击</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip attack">攻击</span>
-          <span class="domain-pip">电</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/a27_gaoyadianji_cyber.png" alt="闪电劈击">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">造成30点伤害。场上电系辅助卡≥2张时触发：无视20防御+额外20伤害——高压击穿。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">高压击穿</span>
-          <span class="principle-text">介质击穿</span>
-        </div>
-        <div class="skin-tag-mini cyber">CYBER</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card electric cyber">
+      <div class="card-top"><div class="cost-gem">10</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">闪电劈击</div></div>
+      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_cyber.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">造成 30 点伤害。场上电系辅助 ≥2 张时触发高压击穿：无视 20 防御 + 额外 20 伤害。</div><span class="card-principle">介质击穿 · 高压放电</span></div>
+    </div></div>
 
     <!-- A27 闪电劈击 · Anime -->
-    <div class="card-set">
-      <span class="skin-badge anime">Anime Illusion</span>
-      <div class="card electric anime">
-        <div class="card-top">
-          <div class="cost-gem">10</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">闪电劈击</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip attack">攻击</span>
-          <span class="domain-pip">电</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/a27_gaoyadianji_anime.png" alt="闪电劈击">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">造成30点伤害。场上电系辅助卡≥2张时触发：无视20防御+额外20伤害——高压击穿。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">高压击穿</span>
-          <span class="principle-text">介质击穿</span>
-        </div>
-        <div class="skin-tag-mini anime">ANIME</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
+    <div class="card electric anime">
+      <div class="card-top"><div class="cost-gem">10</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">闪电劈击</div></div>
+      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_anime.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">造成 30 点伤害。场上电系辅助 ≥2 张时触发高压击穿：无视 20 防御 + 额外 20 伤害。</div><span class="card-principle">介质击穿 · 高压放电</span></div>
+    </div></div>
 
     <!-- S28 电磁感应 · Cyber -->
-    <div class="card-set">
-      <span class="skin-badge cyber">Cyberpunk</span>
-      <div class="card electric cyber">
-        <div class="card-top">
-          <div class="cost-gem">6</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">电磁感应</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip support">辅助</span>
-          <span class="domain-pip">电</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/s28_dianciganying_cyber.png" alt="电磁感应">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">持续3回合。每回合+2精神力；场上期间每打出1张电系卡再+2精神力——磁能化作电能。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">电磁感应</span>
-          <span class="principle-text">法拉第定律</span>
-        </div>
-        <div class="skin-tag-mini cyber">CYBER</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card electric cyber">
+      <div class="card-top"><div class="cost-gem">6</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">电磁感应</div></div>
+      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_cyber.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">持续 3 回合。每回合 +2 精神力；场上期间每打出 1 张电系卡额外 +2 精神力——磁能化作电能。</div><span class="card-principle">法拉第定律 · 电磁感应</span></div>
+    </div></div>
 
     <!-- S28 电磁感应 · Anime -->
-    <div class="card-set">
-      <span class="skin-badge anime">Anime Illusion</span>
-      <div class="card electric anime">
-        <div class="card-top">
-          <div class="cost-gem">6</div>
-          <div class="rarity-icon common" title="Common">◆</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">电磁感应</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip support">辅助</span>
-          <span class="domain-pip">电</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/s28_dianciganying_anime.png" alt="电磁感应">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">持续3回合。每回合+2精神力；场上期间每打出1张电系卡再+2精神力——磁能化作电能。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">电磁感应</span>
-          <span class="principle-text">法拉第定律</span>
-        </div>
-        <div class="skin-tag-mini anime">ANIME</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
+    <div class="card electric anime">
+      <div class="card-top"><div class="cost-gem">6</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
+      <div class="card-name-plate"><div class="card-name">电磁感应</div></div>
+      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_anime.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">持续 3 回合。每回合 +2 精神力；场上期间每打出 1 张电系卡额外 +2 精神力——磁能化作电能。</div><span class="card-principle">法拉第定律 · 电磁感应</span></div>
+    </div></div>
 
     <!-- C07 欧姆 · Cyber -->
-    <div class="card-set">
-      <span class="skin-badge cyber">Cyberpunk</span>
-      <div class="card electric cyber">
-        <div class="card-top">
-          <div class="cost-gem">26</div>
-          <div class="rarity-icon rare" title="Rare">★</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">欧姆</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip summon">召唤</span>
-          <span class="domain-pip">电</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/c07_oumu_cyber.png" alt="欧姆">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div>
-          <div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗-6。欧姆定律I=U/R——降低电阻即降低消耗，电流畅通无阻。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">I = U/R</span>
-          <span class="principle-text">欧姆定律</span>
-        </div>
-        <div class="skin-tag-mini cyber">CYBER</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card electric cyber">
+      <div class="card-top"><div class="cost-gem">26</div><span class="domain-glyph">🔮</span><div class="rarity-icon rare" title="Rare">★</div></div>
+      <div class="card-name-plate"><div class="card-name">欧姆</div></div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_cyber.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗 -6。欧姆定律 I=U/R——降低电阻即降低消耗，电流畅通无阻。</div><span class="card-principle">I = U/R · 欧姆定律</span></div>
+    </div></div>
 
     <!-- C07 欧姆 · Anime -->
-    <div class="card-set">
-      <span class="skin-badge anime">Anime Illusion</span>
-      <div class="card electric anime">
-        <div class="card-top">
-          <div class="cost-gem">26</div>
-          <div class="rarity-icon rare" title="Rare">★</div>
-        </div>
-        <div class="card-name-plate"><div class="card-name">欧姆</div></div>
-        <div class="type-ribbon">
-          <span class="type-pip summon">召唤</span>
-          <span class="domain-pip">电</span>
-        </div>
-        <div class="art-frame" style="position:relative;">
-          <img src="card_art/c07_oumu_anime.png" alt="欧姆">
-          <div class="art-corner tl"></div><div class="art-corner tr"></div>
-          <div class="art-corner bl"></div><div class="art-corner br"></div>
-        </div>
-        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-        <div class="card-stats">
-          <div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div>
-          <div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div>
-        </div>
-        <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗-6。欧姆定律I=U/R——降低电阻即降低消耗，电流畅通无阻。</div></div>
-        <div class="card-footer">
-          <span class="formula-badge">I = U/R</span>
-          <span class="principle-text">欧姆定律</span>
-        </div>
-        <div class="skin-tag-mini anime">ANIME</div>
-      </div>
-    </div>
+    <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
+    <div class="card electric anime">
+      <div class="card-top"><div class="cost-gem">26</div><span class="domain-glyph">🔮</span><div class="rarity-icon rare" title="Rare">★</div></div>
+      <div class="card-name-plate"><div class="card-name">欧姆</div></div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_anime.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗 -6。欧姆定律 I=U/R——降低电阻即降低消耗，电流畅通无阻。</div><span class="card-principle">I = U/R · 欧姆定律</span></div>
+    </div></div>
 
   </div>
 </div>
 
 <script>
-function switchDomain(domain) {
-  document.getElementById('force-section').classList.toggle('active', domain === 'force');
-  document.getElementById('electric-section').classList.toggle('active', domain === 'electric');
-  document.querySelectorAll('.domain-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(domain === 'force' ? '.tab-force' : '.tab-electric').classList.add('active');
+function switchDomain(d) {
+  document.getElementById('force-section').classList.toggle('active', d==='force');
+  document.getElementById('electric-section').classList.toggle('active', d==='electric');
+  document.querySelectorAll('.domain-tab').forEach(t=>t.classList.remove('active'));
+  (d==='force'?document.querySelector('.tab-force'):document.querySelector('.tab-electric')).classList.add('active');
 }
 </script>
-
 </body>
 </html>
