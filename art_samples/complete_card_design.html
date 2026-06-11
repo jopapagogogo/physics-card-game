@@ -85,11 +85,25 @@
   .card.force .domain-rune svg{fill:var(--force-light)}
   .card.electric .domain-rune svg{fill:var(--electric-light)}
 
+  /* ===== RARITY ICONS (5 levels) ===== */
   .rarity-icon{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-  /* Common: 空心六边形 */
+  /* Common: 空心六边形 — 银色描边 */
   .rarity-icon.common svg{width:18px;height:18px;fill:none;stroke:var(--common-silver);stroke-width:1.5}
-  /* Rare: 实心八角星带发光 */
-  .rarity-icon.rare svg{width:20px;height:20px;fill:var(--rare-gold);filter:drop-shadow(0 0 6px rgba(240,192,64,.6))}
+  /* Rare: 实心菱形 — 金色微光 */
+  .rarity-icon.rare svg{width:20px;height:20px;fill:var(--rare-gold);filter:drop-shadow(0 0 5px rgba(240,192,64,.5))}
+  /* Epic: 四角放射星 — 紫金强光 */
+  .rarity-icon.epic svg{width:22px;height:22px;fill:#c070e0;filter:drop-shadow(0 0 8px rgba(192,112,224,.7))}
+  /* Legendary: 八角双层星 — 橙金耀光 */
+  .rarity-icon.legendary svg{width:22px;height:22px;filter:drop-shadow(0 0 12px rgba(255,140,66,.8))}
+  .rarity-icon.legendary .star-a{fill:#ff8c42}
+  .rarity-icon.legendary .star-b{fill:#ffa066;transform-origin:center;transform:rotate(22.5deg)}
+  /* Mythic: 十二角星+中心圆 — 虹彩脉冲 */
+  .rarity-icon.mythic{width:28px;height:28px}
+  .rarity-icon.mythic svg{width:24px;height:24px;
+    filter:drop-shadow(0 0 14px rgba(255,180,255,.8)) drop-shadow(0 0 28px rgba(100,200,255,.5));
+    animation:mythic-pulse 2s ease-in-out infinite;
+  }
+  @keyframes mythic-pulse{0%,100%{filter:drop-shadow(0 0 14px rgba(255,180,255,.8));}50%{filter:drop-shadow(0 0 22px rgba(255,180,255,1)) drop-shadow(0 0 40px rgba(100,200,255,.7));}}
 
   /* === TYPE TAG (snug under header) === */
   .type-ribbon{display:flex;justify-content:center;padding:1px 0 8px;position:relative;z-index:2}
@@ -147,7 +161,27 @@
 <div class="hero">
   <h1><span>物理卡牌对战</span></h1>
   <p>2领域 × 3卡牌 × 2风格 — 12张完整卡牌设计</p>
+  <div class="rarity-legend">
+    <span class="rleg-item"><svg viewBox="0 0 18 18" class="rleg-icon common"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg> 普通</span>
+    <span class="rleg-item"><svg viewBox="0 0 18 18" class="rleg-icon rare"><polygon points="9,1 17,9 9,17 1,9"/></svg> 稀有</span>
+    <span class="rleg-item"><svg viewBox="0 0 24 24" class="rleg-icon epic"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg> 史诗</span>
+    <span class="rleg-item"><svg viewBox="0 0 24 24" class="rleg-icon legendary"><path class="star-a" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path class="star-b" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg> 传说</span>
+    <span class="rleg-item mythic"><svg viewBox="0 0 30 30" class="rleg-icon mythic"><defs><linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff6bff"/><stop offset="50%" stop-color="#ffb070"/><stop offset="100%" stop-color="#70d0ff"/></linearGradient></defs><path d="M15 0l1.8 6L23 5l-4 4.5 6 2-6 2.5L23 18l-6-1.5-1.2 5.5L15 16l-1.2 6L12.5 16l-5.8 1.5L10.5 13l-6-2.5 5.7-2L5.5 4l6 2L13 1z" fill="url(#mg)"/><circle cx="15" cy="13" r="3.5" fill="#fff" opacity=".8"/></svg> 神话</span>
+  </div>
 </div>
+
+<style>
+  .rarity-legend{display:flex;justify-content:center;gap:24px;margin-top:14px;flex-wrap:wrap}
+  .rleg-item{display:flex;align-items:center;gap:5px;font-size:.65em;color:var(--text-dim);letter-spacing:1px}
+  .rleg-item.mythic{color:#e0c0ff}
+  .rleg-icon.common{width:16px;height:16px;fill:none;stroke:var(--common-silver);stroke-width:2}
+  .rleg-icon.rare{width:16px;height:16px;fill:var(--rare-gold)}
+  .rleg-icon.epic{width:18px;height:18px;fill:#c070e0}
+  .rleg-icon.legendary{width:18px;height:18px}
+  .rleg-icon.legendary .star-a{fill:#ff8c42}
+  .rleg-icon.legendary .star-b{fill:#ffa066;transform-origin:center;transform:rotate(22.5deg)}
+  .rleg-icon.mythic{width:20px;height:20px;animation:mythic-pulse 2s ease-in-out infinite}
+</style>
 
 <div class="domain-tabs">
   <button class="domain-tab tab-force active" onclick="switchDomain('force')">力领域</button>
@@ -227,7 +261,7 @@
       <div class="card-header">
         <div class="cost-gem">22</div>
         <div class="card-title-bar"><div class="card-title">牛顿</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 18 18"><polygon points="9,1 17,9 9,17 1,9"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_cyber.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -242,7 +276,7 @@
       <div class="card-header">
         <div class="cost-gem">22</div>
         <div class="card-title-bar"><div class="card-title">牛顿</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 18 18"><polygon points="9,1 17,9 9,17 1,9"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_anime.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -325,7 +359,7 @@
       <div class="card-header">
         <div class="cost-gem">26</div>
         <div class="card-title-bar"><div class="card-title">欧姆</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 18 18"><polygon points="9,1 17,9 9,17 1,9"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_cyber.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -340,7 +374,7 @@
       <div class="card-header">
         <div class="cost-gem">26</div>
         <div class="card-title-bar"><div class="card-title">欧姆</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
-        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 24 24"><path d="M12 1l3 7.5 8 .5-6 5 2 8-7-4-7 4 2-8-6-5 8-.5z"/></svg></div>
+        <div class="rarity-icon rare" title="Rare"><svg viewBox="0 0 18 18"><polygon points="9,1 17,9 9,17 1,9"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_anime.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
