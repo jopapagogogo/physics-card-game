@@ -125,19 +125,23 @@
   .rarity-icon.common svg{width:18px;height:18px;fill:none;stroke:var(--common-silver);stroke-width:1.5}
   /* Rare: 实心菱形 — 金色微光 */
   .rarity-icon.rare svg{width:20px;height:20px;fill:var(--rare-gold);filter:drop-shadow(0 0 5px rgba(240,192,64,.5))}
-  /* Epic: 四角放射星 — 紫金强光 */
-  .rarity-icon.epic svg{width:22px;height:22px;fill:#c070e0;filter:drop-shadow(0 0 8px rgba(192,112,224,.7))}
-  /* Legendary: 八角双层星 — 橙金耀光 */
+  /* Epic: 四角星 — 紫金双层 */
+  .rarity-icon.epic svg{width:22px;height:22px;filter:drop-shadow(0 0 8px rgba(192,112,224,.7))}
+  /* Legendary: 菱形双叠八角星 — 橙金耀光 */
   .rarity-icon.legendary svg{width:22px;height:22px;filter:drop-shadow(0 0 12px rgba(255,140,66,.8))}
-  .rarity-icon.legendary .star-a{fill:#ff8c42}
-  .rarity-icon.legendary .star-b{fill:#ffa066;transform-origin:center;transform:rotate(22.5deg)}
-  /* Mythic: 十二角星+中心圆 — 虹彩脉冲 */
-  .rarity-icon.mythic{width:28px;height:28px}
+  .rarity-icon.legendary .lg-star1{fill:#ff8c42}
+  .rarity-icon.legendary .lg-star2{fill:#ffb070;opacity:.7}
+  /* Mythic: 六边双叠十二角星+中心圆 — 虹彩脉冲 */
+  .rarity-icon.mythic{width:28px;height:28px;position:relative}
   .rarity-icon.mythic svg{width:24px;height:24px;
-    filter:drop-shadow(0 0 14px rgba(255,180,255,.8)) drop-shadow(0 0 28px rgba(100,200,255,.5));
-    animation:mythic-pulse 2s ease-in-out infinite;
+    filter:drop-shadow(0 0 12px rgba(255,180,255,.7)) drop-shadow(0 0 22px rgba(100,200,255,.4));
   }
-  @keyframes mythic-pulse{0%,100%{filter:drop-shadow(0 0 14px rgba(255,180,255,.8));}50%{filter:drop-shadow(0 0 22px rgba(255,180,255,1)) drop-shadow(0 0 40px rgba(100,200,255,.7));}}
+  .rarity-icon.mythic::after{
+    content:'';position:absolute;inset:-4px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,180,255,.5),transparent 65%);
+    animation:mythic-glow 2s ease-in-out infinite;pointer-events:none;
+  }
+  @keyframes mythic-glow{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:.9;transform:scale(1.3)}}
 
   /* === TYPE TAG (snug under header) === */
   .type-ribbon{display:flex;justify-content:center;padding:1px 0 8px;position:relative;z-index:2}
@@ -216,9 +220,9 @@
   <div class="rarity-legend">
     <span class="rleg-item"><svg viewBox="0 0 18 18" class="rleg-icon common"><polygon points="9,3 15,6.5 15,11.5 9,15 3,11.5 3,6.5"/></svg> 普通</span>
     <span class="rleg-item"><svg viewBox="0 0 18 18" class="rleg-icon rare"><polygon points="9,1 17,9 9,17 1,9"/></svg> 稀有</span>
-    <span class="rleg-item"><svg viewBox="0 0 24 24" class="rleg-icon epic"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg> 史诗</span>
-    <span class="rleg-item"><svg viewBox="0 0 24 24" class="rleg-icon legendary"><path class="star-a" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path class="star-b" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg> 传说</span>
-    <span class="rleg-item mythic"><svg viewBox="0 0 30 30" class="rleg-icon mythic"><defs><linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff6bff"/><stop offset="50%" stop-color="#ffb070"/><stop offset="100%" stop-color="#70d0ff"/></linearGradient></defs><path d="M15 0l1.8 6L23 5l-4 4.5 6 2-6 2.5L23 18l-6-1.5-1.2 5.5L15 16l-1.2 6L12.5 16l-5.8 1.5L10.5 13l-6-2.5 5.7-2L5.5 4l6 2L13 1z" fill="url(#mg)"/><circle cx="15" cy="13" r="3.5" fill="#fff" opacity=".8"/></svg> 神话</span>
+    <span class="rleg-item"><svg viewBox="0 0 24 24" class="rleg-icon epic"><path d="M12 0l4 7 7 4-7 4-4 7-4-7-7-4 7-4z" fill="#c070e0"/><path d="M12 3l2.5 5 5 2.5-5 2.5-2.5 5-2.5-5-5-2.5 5-2.5z" fill="#f0c040"/></svg> 史诗</span>
+    <span class="rleg-item"><svg viewBox="0 0 24 24" class="rleg-icon legendary"><polygon points="12,1 23,12 12,23 1,12" fill="#ff8c42"/><polygon points="12,1 23,12 12,23 1,12" fill="#ffb070" opacity=".7" transform="rotate(45 12 12)"/></svg> 传说</span>
+    <span class="rleg-item mythic"><svg viewBox="0 0 30 30" class="rleg-icon mythic"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6bff"/><stop offset="40%" stop-color="#ffb070"/><stop offset="100%" stop-color="#70d0ff"/></linearGradient></defs><polygon points="15,3 25,9 25,21 15,27 5,21 5,9" fill="url(#mg)"/><polygon points="15,3 25,9 25,21 15,27 5,21 5,9" fill="url(#mg)" opacity=".5" transform="rotate(30 15 15)"/><circle cx="15" cy="15" r="4" fill="#fff" opacity=".9"/></svg> 神话</span>
   </div>
 </div>
 
@@ -228,11 +232,10 @@
   .rleg-item.mythic{color:#e0c0ff}
   .rleg-icon.common{width:16px;height:16px;fill:none;stroke:var(--common-silver);stroke-width:2}
   .rleg-icon.rare{width:16px;height:16px;fill:var(--rare-gold)}
-  .rleg-icon.epic{width:18px;height:18px;fill:#c070e0}
+  .rleg-icon.epic{width:18px;height:18px}
   .rleg-icon.legendary{width:18px;height:18px}
-  .rleg-icon.legendary .star-a{fill:#ff8c42}
-  .rleg-icon.legendary .star-b{fill:#ffa066;transform-origin:center;transform:rotate(22.5deg)}
-  .rleg-icon.mythic{width:20px;height:20px;animation:mythic-pulse 2s ease-in-out infinite}
+  .rleg-icon.mythic{width:22px;height:22px;position:relative}
+  .rleg-icon.mythic{animation:mythic-glow 2s ease-in-out infinite}
 </style>
 
 <div class="domain-tabs">
@@ -450,7 +453,7 @@
       <div class="card-header">
         <div class="cost-gem">8</div>
         <div class="card-title-bar"><div class="card-title">声波共振</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M5 9h4l5-5v16l-5-5H5z"/><path d="M16 7a6 6.5 0 010 10" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></div></div>
-        <div class="rarity-icon epic" title="Epic"><svg viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg></div>
+        <div class="rarity-icon epic" title="Epic"><svg viewBox="0 0 24 24"><path d="M12 0l4 7 7 4-7 4-4 7-4-7-7-4 7-4z" fill="#c070e0"/><path d="M12 3l2.5 5 5 2.5-5 2.5-2.5 5-2.5-5-5-2.5 5-2.5z" fill="#f0c040"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
       <div class="art-frame" style="position:relative;background:radial-gradient(ellipse at 50% 40%,#0d2e26 0%,#051210 100%)">
@@ -468,7 +471,7 @@
       <div class="card-header">
         <div class="cost-gem">14</div>
         <div class="card-title-bar"><div class="card-title">光的折射</div><div class="domain-rune"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><g stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="23"/><line x1="1" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="23" y2="12"/><line x1="4" y1="4" x2="8" y2="8"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="4" y1="20" x2="8" y2="16"/><line x1="16" y1="8" x2="20" y2="4"/></g></svg></div></div>
-        <div class="rarity-icon legendary" title="Legendary"><svg viewBox="0 0 24 24"><path class="star-a" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path class="star-b" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg></div>
+        <div class="rarity-icon legendary" title="Legendary"><svg viewBox="0 0 24 24"><polygon points="12,1 23,12 12,23 1,12" class="lg-star1"/><polygon points="12,1 23,12 12,23 1,12" class="lg-star2" transform="rotate(45 12 12)"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
       <div class="art-frame" style="position:relative;background:radial-gradient(ellipse at 50% 30%,#2a1f08 0%,#0a0800 100%)">
@@ -486,7 +489,7 @@
       <div class="card-header">
         <div class="cost-gem">30</div>
         <div class="card-title-bar"><div class="card-title">热力学之怒</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 23c-6-3-7-8-3-13l2-6v6h2v-5c5 2 5 9 1 13"/><path d="M9 16c0-3 2-5 3-5s3 2 3 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div></div>
-        <div class="rarity-icon mythic" title="Mythic"><svg viewBox="0 0 30 30"><defs><linearGradient id="mg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6bff"/><stop offset="50%" stop-color="#ffb070"/><stop offset="100%" stop-color="#70d0ff"/></linearGradient></defs><path d="M15 0l1.8 6L23 5l-4 4.5 6 2-6 2.5L23 18l-6-1.5-1.2 5.5L15 16l-1.2 6L12.5 16l-5.8 1.5L10.5 13l-6-2.5 5.7-2L5.5 4l6 2L13 1z" fill="url(#mg2)"/><circle cx="15" cy="13" r="3.5" fill="#fff" opacity=".8"/></svg></div>
+        <div class="rarity-icon mythic" title="Mythic"><svg viewBox="0 0 30 30"><defs><linearGradient id="mg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6bff"/><stop offset="40%" stop-color="#ffb070"/><stop offset="100%" stop-color="#70d0ff"/></linearGradient></defs><polygon points="15,3 25,9 25,21 15,27 5,21 5,9" fill="url(#mg2)"/><polygon points="15,3 25,9 25,21 15,27 5,21 5,9" fill="url(#mg2)" opacity=".5" transform="rotate(30 15 15)"/><circle cx="15" cy="15" r="4" fill="#fff" opacity=".9"/></svg></div>
       </div>
       <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
       <div class="art-frame" style="position:relative;background:radial-gradient(ellipse at 50% 60%,#3a1a08 0%,#0a0300 100%)">
