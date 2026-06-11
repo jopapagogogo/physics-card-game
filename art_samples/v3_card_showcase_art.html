@@ -19,94 +19,190 @@
   .label { text-align:center; font-size:10px; color:#555; margin-top:6px; font-family:monospace; }
 
   /* ---- V3 Card Base ---- */
-  .card-v3.domain-force  { --dm:#E74C3C; --dm-bg:rgba(231,76,60,.1); --dm-glow:rgba(231,76,60,.35); }
-  .card-v3.domain-elec   { --dm:#9B59B6; --dm-bg:rgba(155,89,182,.1); --dm-glow:rgba(155,89,182,.35); }
+  .card-v3.domain-force  { --dm:#E74C3C; --dm-dark:#8B1A1A; --dm-light:#F1948A; --dm-bg:rgba(231,76,60,.08); --dm-glow:rgba(231,76,60,.4); --frame-light:rgba(231,76,60,.2); }
+  .card-v3.domain-elec   { --dm:#9B59B6; --dm-dark:#4A1A6B; --dm-light:#D2B4DE; --dm-bg:rgba(155,89,182,.08); --dm-glow:rgba(155,89,182,.4); --frame-light:rgba(155,89,182,.2); }
 
   .card-v3 {
-    width:220px; min-height:370px; border:2px solid var(--dm); border-radius:14px;
-    background:#1a1a2e; position:relative; overflow:hidden;
+    width:234px; min-height:390px;
+    background:#14141e;
+    position:relative;
     display:flex; flex-direction:column;
     transition:transform .3s, box-shadow .3s;
+
+    /* 三层边框：外暗 → 主色 → 内亮 */
+    border:3px solid var(--dm-dark);
+    outline:2px solid var(--dm);
+    outline-offset:1px;
+    box-shadow:
+      0 0 0 5px #0a0a14,        /* 最外暗底 */
+      0 0 0 6px var(--dm-dark),  /* 暗色外框 */
+      0 0 0 8px var(--dm),       /* 主色中框 */
+      0 0 20px var(--dm-glow),   /* 发光 */
+      0 8px 32px rgba(0,0,0,.7); /* 投影 */
+    border-radius:8px;
   }
+
+  /* 四角铆钉装饰 */
+  .card-v3::before,
+  .card-v3::after {
+    content:''; position:absolute; z-index:50; pointer-events:none;
+    width:14px; height:14px;
+    border:2px solid var(--dm-light);
+    background:var(--dm-dark);
+    transform:rotate(45deg);
+  }
+  .card-v3::before { top:-9px; left:-9px; }
+  .card-v3::after  { top:-9px; right:-9px; }
+  /* 底角用内嵌元素实现，通过额外伪元素 */
+  .card-v3 .v3-corner-bot {
+    position:absolute; bottom:-9px; z-index:50; pointer-events:none;
+    width:14px; height:14px;
+    border:2px solid var(--dm-light);
+    background:var(--dm-dark);
+    transform:rotate(45deg);
+  }
+  .card-v3 .v3-corner-bot.l { left:-9px; }
+  .card-v3 .v3-corner-bot.r { right:-9px; }
+
+  /* 费用徽章 — 嵌在主色圆环中 */
   .card-v3 .v3-cost {
-    position:absolute; top:8px; left:8px; z-index:20;
-    width:34px; height:34px; border-radius:50%;
+    position:absolute; top:10px; left:10px; z-index:20;
+    width:40px; height:40px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-size:15px; font-weight:900; color:#fff;
-    background:var(--dm); box-shadow:0 2px 8px rgba(0,0,0,.5);
+    font-size:15px; font-weight:900; color:#fff; font-family:'Segoe UI',monospace;
+    background:radial-gradient(circle at 40% 40%, var(--dm-light), var(--dm-dark));
+    border:2px solid var(--dm-light);
+    box-shadow:
+      0 0 0 3px var(--dm-dark),
+      0 0 10px var(--dm-glow),
+      0 3px 8px rgba(0,0,0,.6);
   }
+
+  /* 名称横幅 */
   .card-v3 .v3-name {
     position:relative; z-index:15;
-    padding:10px 10px 4px 50px; min-height:38px;
-    font-size:17px; font-weight:800; color:var(--dm); line-height:1.2;
+    margin:12px 10px 0 56px; padding:5px 10px;
+    font-size:16px; font-weight:800; color:#fff; line-height:1.2;
+    background:linear-gradient(135deg, var(--dm-dark), var(--dm));
+    border-radius:4px;
+    text-align:center;
+    letter-spacing:1px;
+    box-shadow:0 2px 6px rgba(0,0,0,.4);
+    border:1px solid var(--dm-light);
   }
+
+  /* 插画区 — 浮雕画框 */
   .card-v3 .v3-art {
-    position:relative; z-index:5; margin:0 8px; border-radius:6px; overflow:hidden;
-    background:linear-gradient(135deg, #1e1e32, #151528);
+    position:relative; z-index:5; margin:6px 10px; border-radius:4px; overflow:hidden;
+    background:#0d0d16;
     display:flex; align-items:center; justify-content:center;
-    box-shadow:inset 0 0 20px rgba(0,0,0,.3);
+    /* 内陷画框：四边阴影营造嵌入感 */
+    box-shadow:
+      inset 0 0 0 2px rgba(0,0,0,.9),
+      inset 0 0 0 3px var(--dm-dark),
+      0 0 0 1px var(--dm-light),
+      0 3px 10px rgba(0,0,0,.5);
   }
   .card-v3 .v3-art::after {
-    content:''; position:absolute; top:0; left:0; right:0; height:3px;
-    background:linear-gradient(90deg, transparent, var(--dm), transparent);
-    opacity:.5; z-index:6; pointer-events:none;
+    content:''; position:absolute; inset:0; z-index:6; pointer-events:none;
+    /* 上下聚光渐变，模拟画框玻璃反光 */
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.06) 0%, transparent 30%, transparent 70%, rgba(0,0,0,.15) 100%);
   }
   .card-v3 .v3-art img {
     width:100%; height:100%; object-fit:cover; display:block;
   }
-  .card-v3 .v3-type { position:relative; z-index:15; text-align:center; padding:6px 0 0; }
+
+  /* 类型标签 */
+  .card-v3 .v3-type { position:relative; z-index:15; text-align:center; padding:2px 0 0; }
   .card-v3 .v3-type span {
-    display:inline-block; padding:2px 12px; border-radius:8px;
-    font-size:10px; font-weight:700; letter-spacing:1px;
-    color:var(--dm); background:var(--dm-bg);
+    display:inline-block; padding:3px 14px; border-radius:3px;
+    font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--dm-light); background:var(--dm-dark);
+    border:1px solid var(--dm);
+    box-shadow:0 1px 4px rgba(0,0,0,.4);
   }
-  .card-v3 .v3-desc-effect { padding:4px 10px 2px; font-size:11px; color:#bbb; line-height:1.5; flex:1; }
+
+  .card-v3 .v3-desc-effect { padding:6px 12px 2px; font-size:11.5px; color:#ccc; line-height:1.5; flex:1; }
   .card-v3 .v3-desc-principle {
-    padding:2px 10px 0; font-size:9.5px; color:#777; line-height:1.4;
-    border-top:1px solid rgba(255,255,255,.06); margin:4px 8px 0;
+    padding:4px 12px 0; font-size:9.5px; color:#888; line-height:1.4;
+    border-top:1px solid rgba(255,255,255,.06); margin:4px 10px 0;
   }
-  .card-v3 .v3-desc-principle .lbl { color:#666; font-weight:600; }
-  .card-v3 .v3-formula { padding:2px 10px 6px; font-size:11px; font-style:italic; color:var(--dm); opacity:.45; text-align:right; }
-  .card-v3 .v3-rarity-bar { height:3px; background:linear-gradient(90deg, var(--dm), var(--dm-glow), var(--dm)); opacity:.35; margin-top:auto; }
-  .card-v3 .skin-badge {
-    position:absolute; bottom:5px; right:8px; z-index:20;
-    font-size:8px; padding:1px 6px; border-radius:3px;
-    color:var(--dm); background:var(--dm-bg);
+  .card-v3 .v3-desc-principle .lbl { color:#777; font-weight:600; }
+  .card-v3 .v3-formula {
+    padding:4px 12px 8px; font-size:11px; font-style:italic;
+    color:var(--dm-light); opacity:.6; text-align:right;
+    font-family:'Courier New',monospace;
   }
 
-  /* === Skin: 赛博朋克 === */
-  .skin-cyber { box-shadow:0 0 16px var(--dm-glow), 0 4px 24px rgba(0,0,0,.5); }
-  .skin-cyber::before {
-    content:''; position:absolute; inset:0; pointer-events:none; z-index:10; opacity:.035;
-    background:repeating-linear-gradient(0deg, transparent, transparent 2px, var(--dm) 2px, var(--dm) 4px);
-  }
-  .skin-cyber .v3-cost { border:2px solid var(--dm); font-family:monospace; }
-  .skin-cyber .v3-name { text-shadow:0 0 8px var(--dm-glow); }
-
-  /* === Skin: 二次元幻境 === */
-  .skin-anime {
-    border-radius:18px;
-    box-shadow:0 0 20px var(--dm-glow), inset 0 0 24px rgba(0,0,0,.2);
-  }
-  .skin-anime::before {
-    content:''; position:absolute; inset:0; pointer-events:none; z-index:10;
-    box-shadow:inset 0 0 30px var(--dm-glow); opacity:.06;
-    border-radius:18px;
-  }
-  .skin-anime::after {
-    content:''; position:absolute; top:6px; right:10px; z-index:22;
-    width:8px; height:8px; border-radius:50%;
-    background:var(--dm); opacity:.35;
+  /* 稀有度条 — 金属质感 */
+  .card-v3 .v3-rarity-bar {
+    height:4px; margin:0 10px 4px;
+    background:linear-gradient(90deg,
+      transparent 0%,
+      var(--dm-dark) 10%,
+      var(--dm-light) 25%,
+      var(--dm) 50%,
+      var(--dm-light) 75%,
+      var(--dm-dark) 90%,
+      transparent 100%
+    );
+    border-radius:2px;
     box-shadow:0 0 6px var(--dm-glow);
   }
-  .skin-anime .v3-cost { box-shadow:0 0 12px var(--dm-glow); }
-  .skin-anime .v3-name { text-shadow:0 0 6px var(--dm-glow); letter-spacing:.5px; }
-  .skin-anime .v3-rarity-bar {
-    background:linear-gradient(90deg, transparent, var(--dm), var(--dm-glow), var(--dm), transparent);
-    opacity:.6;
+  .card-v3 .skin-badge {
+    position:absolute; bottom:5px; right:8px; z-index:20;
+    font-size:7px; padding:2px 6px; border-radius:2px;
+    color:var(--dm-light); background:var(--dm-dark);
+    border:1px solid var(--dm);
   }
 
-  .card-v3:hover { transform:translateY(-8px) scale(1.03); box-shadow:0 0 28px var(--dm-glow), 0 12px 40px rgba(0,0,0,.6); z-index:30; }
+  /* === Skin A: 赛博朋克 === */
+  .skin-cyber { border-radius:4px; }
+  .skin-cyber::before,
+  .skin-cyber::after { border-radius:2px; }
+  .skin-cyber .v3-name {
+    background:linear-gradient(135deg, #000, var(--dm-dark) 30%, var(--dm) 70%, #000);
+    box-shadow:0 0 12px var(--dm-glow), 0 2px 6px rgba(0,0,0,.4);
+    border-color:var(--dm-light);
+    font-family:'Consolas','Courier New',monospace;
+  }
+  /* 赛博扫描线覆盖 */
+  .skin-cyber .v3-art::before {
+    content:''; position:absolute; inset:0; z-index:7; pointer-events:none; opacity:.04;
+    background:repeating-linear-gradient(0deg, transparent, transparent 2px, var(--dm) 2px, var(--dm) 4px);
+  }
+
+  /* === Skin B: 二次元幻境 === */
+  .skin-anime { border-radius:10px; }
+  .skin-anime::before,
+  .skin-anime::after { border-radius:3px; }
+  .skin-anime .v3-name {
+    background:linear-gradient(135deg, var(--dm-dark) 0%, var(--dm) 40%, var(--dm-light) 60%, var(--dm-dark) 100%);
+    box-shadow:0 0 16px var(--dm-glow), 0 2px 8px rgba(0,0,0,.3);
+    border-color:rgba(255,255,255,.3);
+    border-radius:8px;
+  }
+  /* 二次元星点装饰 */
+  .skin-anime .v3-art::before {
+    content:'✦ ✦ ✦ ✦ ✦';
+    position:absolute; bottom:6px; left:50%; transform:translateX(-50%); z-index:7;
+    font-size:9px; color:var(--dm-light); opacity:.3;
+    text-shadow:0 0 6px var(--dm-glow);
+    letter-spacing:6px;
+    white-space:nowrap;
+  }
+
+  .card-v3:hover {
+    transform:translateY(-10px) scale(1.04);
+    box-shadow:
+      0 0 0 5px #0a0a14,
+      0 0 0 6px var(--dm-dark),
+      0 0 0 8px var(--dm),
+      0 0 32px var(--dm-glow),
+      0 16px 48px rgba(0,0,0,.8);
+    z-index:30;
+  }
 
   /* Legend */
   .legend { max-width:960px; margin:0 auto 40px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
@@ -145,7 +241,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>物体所受重力与质量成正比</div>
         <div class="v3-formula">G=mg</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">赛博朋克</span>
+        <span class="skin-badge">赛博朋克</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">A01 · common <span style="color:#2ECC71">● 新生成</span></div>
     </div>
@@ -163,7 +259,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>物体质量越大，重力越大</div>
         <div class="v3-formula">G=mg</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">赛博朋克</span>
+        <span class="skin-badge">赛博朋克</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">S01 · common <span style="color:#F39C12">● 同领域复用</span></div>
     </div>
@@ -181,7 +277,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>F=ma——经典力学的奠基人</div>
         <div class="v3-formula">F=ma</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">赛博朋克</span>
+        <span class="skin-badge">赛博朋克</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">C05 · rare · ❤310 <span style="color:#3498DB">● 已有素材</span></div>
     </div>
@@ -207,7 +303,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>物体所受重力与质量成正比</div>
         <div class="v3-formula">G=mg</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">二次元幻境</span>
+        <span class="skin-badge">二次元幻境</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">A01 · common <span style="color:#2ECC71">● 新生成</span></div>
     </div>
@@ -224,7 +320,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>物体质量越大，重力越大</div>
         <div class="v3-formula">G=mg</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">二次元幻境</span>
+        <span class="skin-badge">二次元幻境</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">S01 · common <span style="color:#F39C12">● 同领域复用</span></div>
     </div>
@@ -241,7 +337,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>F=ma——经典力学的奠基人</div>
         <div class="v3-formula">F=ma</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">二次元幻境</span>
+        <span class="skin-badge">二次元幻境</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">C05 · rare · ❤310 <span style="color:#3498DB">● 已有素材</span></div>
     </div>
@@ -267,7 +363,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>电压足够高时可击穿绝缘层</div>
         <div class="v3-formula">高压击穿</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">赛博朋克</span>
+        <span class="skin-badge">赛博朋克</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">A27 · common <span style="color:#2ECC71">● 新生成</span></div>
     </div>
@@ -285,7 +381,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>放电沿最低阻抗路径传导</div>
         <div class="v3-formula">链式放电</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">赛博朋克</span>
+        <span class="skin-badge">赛博朋克</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">A28 · common <span style="color:#F39C12">● 同领域复用</span></div>
     </div>
@@ -303,7 +399,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>欧姆定律I=U/R——降低电阻=降低消耗</div>
         <div class="v3-formula">欧姆定律</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">赛博朋克</span>
+        <span class="skin-badge">赛博朋克</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">C07 · rare · ❤300 <span style="color:#3498DB">● 已有素材</span></div>
     </div>
@@ -329,7 +425,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>电压足够高时可击穿绝缘层</div>
         <div class="v3-formula">高压击穿</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">二次元幻境</span>
+        <span class="skin-badge">二次元幻境</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">A27 · common <span style="color:#2ECC71">● 新生成</span></div>
     </div>
@@ -346,7 +442,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>放电沿最低阻抗路径传导</div>
         <div class="v3-formula">链式放电</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">二次元幻境</span>
+        <span class="skin-badge">二次元幻境</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">A28 · common <span style="color:#F39C12">● 同领域复用</span></div>
     </div>
@@ -363,7 +459,7 @@
         <div class="v3-desc-principle"><span class="lbl">原理：</span>欧姆定律I=U/R——降低电阻=降低消耗</div>
         <div class="v3-formula">欧姆定律</div>
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">二次元幻境</span>
+        <span class="skin-badge">二次元幻境</span><div class="v3-corner-bot l"></div><div class="v3-corner-bot r"></div>
       </div>
       <div class="label">C07 · rare · ❤300 <span style="color:#3498DB">● 已有素材</span></div>
     </div>
