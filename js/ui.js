@@ -2055,6 +2055,14 @@ class GameUI {
     return styles[d] || { color: '#999', bg: '#999' };
   }
 
+  /** V3 领域 class：domain-force/domain-sound/... */
+  _domainClass(domain) {
+    if (!domain) return 'domain-force';
+    const d = Array.isArray(domain) ? domain[0] : domain;
+    const map = { '力':'domain-force','声':'domain-sound','光':'domain-light','热':'domain-heat','电':'domain-elec' };
+    return map[d] || 'domain-force';
+  }
+
   getTypeLabel(type) {
     const labels = {
       attack: '攻击',
@@ -2287,32 +2295,41 @@ class GameUI {
       canPlayIt = cpResult.can;
     }
 
+    // 分割描述：效果 vs 原理
+    const descRaw = String(cardData.description || '暂无描述');
+    const principleIdx = descRaw.indexOf('原理：');
+    const summary = principleIdx > 0
+      ? descRaw.substring(0, principleIdx).replace(/。/g, '。<br>')
+      : descRaw.replace(/。/g, '。<br>');
+    const principle = principleIdx > 0
+      ? descRaw.substring(principleIdx + 3).replace(/。/g, '')
+      : null;
+    const formula = cardData.formula && cardData.formula !== '-'
+      ? cardData.formula : null;
+
     const overlay = document.createElement('div');
     overlay.className = 'card-zoom-overlay';
 
     const hpText = cardData.hp !== undefined
-      ? `<span style="margin-left:auto;">❤️ ${cardData.hp}/${cardData.maxHp}</span>` : '';
+      ? `❤️ ${cardData.hp}/${cardData.maxHp}` : '';
 
     overlay.innerHTML = `
-      <div class="card-zoom-dialog" style="background: linear-gradient(135deg, #1a1a2e 0%, rgba(${style.color === '#E74C3C' ? '231,76,60' : style.color === '#3498DB' ? '52,152,219' : style.color === '#F1C40F' ? '241,196,15' : style.color === '#E67E22' ? '230,126,34' : style.color === '#9B59B6' ? '155,89,182' : '255,255,255'},.15) 100%); border-left: 4px solid ${style.color};">
-        <div class="card-zoom-header">
-          <span class="domain-badge-lg" style="background:${style.color}">${domainLabel}</span>
-          <span class="card-zoom-cost" style="background:${style.bg}">${cardData.cost ?? '-'}</span>
-          <span class="card-zoom-name" style="color:${style.color}">${this._escapeHtml(cardData.name)}</span>
-          ${hpText}
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:280px; min-height:auto; height:auto; display:flex; flex-direction:column; margin:auto;">
+        <div class="v3-cost">${cardData.cost ?? '-'}</div>
+        <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
+        <div class="v3-art" style="height:160px;">
+          ${cardData._artUrl ? `<img src="${this._escapeAttr(cardData._artUrl)}" alt="${this._escapeAttr(cardData.name)}">` : `<span style="font-size:36px; opacity:.1;">⚛</span>`}
         </div>
-        <div class="card-zoom-body">
-          <div class="card-zoom-desc">${this._escapeHtml(String(cardData.description || '暂无描述'))}</div>
-          <div class="card-zoom-meta">
-            <span>${emoji} ${typeLabel}</span>
-            <span>领域: ${domainLabel}</span>
-            ${cardData.turns ? `<span>剩余 ${cardData.turns} 回合</span>` : ''}
-            ${cardData.atk ? `<span>⚔️ 攻击: ${cardData.atk}</span>` : ''}
-          </div>
-        </div>
-        <div class="card-zoom-actions">
-          <button class="btn btn-close" id="btn-zoom-close">✕ 关闭</button>
-          ${canPlayIt ? `<button class="btn btn-play" id="btn-zoom-play">⚔️ 打出此卡</button>` : ''}
+        <div class="v3-type"><span>${emoji} ${typeLabel}</span></div>
+        <div class="v3-desc-effect">${summary}</div>
+        ${principle ? `<div class="v3-desc-principle"><span class="lbl">原理：</span>${principle}</div>` : ''}
+        ${formula ? `<div class="v3-formula">${formula}</div>` : ''}
+        ${hpText ? `<div style="padding:2px 8px 4px; font-size:10px; color:#aaa;">${hpText}</div>` : ''}
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">赛博朋克</span>
+        <div style="padding:6px 8px; display:flex; gap:8px; border-top:1px solid rgba(255,255,255,.06);">
+          <button class="btn btn-close" id="btn-zoom-close" style="flex:1; font-size:12px; padding:6px;">✕ 关闭</button>
+          ${canPlayIt ? `<button class="btn btn-play" id="btn-zoom-play" style="flex:1; font-size:12px; padding:6px;">⚔️ 打出此卡</button>` : ''}
         </div>
       </div>
     `;

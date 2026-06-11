@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡牌模板 V2 | 物理卡牌对战</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #0d0d1a; color:#eee;
+    font-family: -apple-system, 'Noto Sans SC', sans-serif;
+    min-height:100vh; padding:30px 20px;
+  }
+  h1 { text-align:center; font-size:1.5em; margin-bottom:4px; }
+  .subtitle { text-align:center; color:#888; font-size:0.85em; margin-bottom:8px; }
+
+  .section { margin-bottom:40px; }
+  .section h2 { font-size:.95em; color:#555; text-align:center; margin-bottom:16px; letter-spacing:2px; }
+  .cards-row { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; max-width:1000px; margin:0 auto; }
+
+  /* ============================================
+     基础卡牌尺寸
+     ============================================ */
+  .card-tcg {
+    width:230px; min-height:370px; height:auto;
+    border-radius:14px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    cursor:default;
+    transition: transform .25s, box-shadow .25s;
+    font-size:13px;
+  }
+  .card-tcg:hover { transform:translateY(-6px) scale(1.02); }
+
+  /* ============================================
+     费用徽章
+     ============================================ */
+  .cost-badge {
+    position:absolute; top:8px; left:8px; z-index:20;
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:900; color:#fff;
+    box-shadow:0 2px 10px rgba(0,0,0,.5);
+  }
+
+  /* ============================================
+     卡名区
+     ============================================ */
+  .name-bar {
+    position:relative; z-index:15;
+    padding:10px 12px 4px 50px; min-height:42px;
+    font-size:16px; font-weight:800; line-height:1.2;
+  }
+
+  /* ============================================
+     插画区
+     ============================================ */
+  .art-zone {
+    position:relative; z-index:5;
+    margin:2px 10px 0; border-radius:8px; overflow:hidden;
+    flex:none; height:170px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .art-zone img { width:100%; height:100%; object-fit:cover; }
+  .art-placeholder { font-size:38px; opacity:.12; }
+
+  /* ============================================
+     类型标签
+     ============================================ */
+  .type-tag {
+    position:relative; z-index:15; text-align:center; padding:6px 0 2px;
+  }
+  .type-tag span {
+    display:inline-block; padding:2px 14px; border-radius:10px;
+    font-size:10px; font-weight:700; letter-spacing:1px; color:#fff;
+  }
+
+  /* ============================================
+     描述区（可展开）
+     ============================================ */
+  .desc-zone {
+    position:relative; z-index:15;
+    padding:4px 12px 6px; flex:1;
+  }
+  .desc-effect {
+    font-size:12px; line-height:1.5; color:#ccc;
+  }
+  .desc-principle {
+    margin-top:4px; padding-top:4px;
+    font-size:10px; line-height:1.5; color:#888;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .desc-principle .label { color:#777; font-weight:600; }
+  /* 溢出截断 */
+  .desc-zone.truncated .desc-principle {
+    max-height:30px; overflow:hidden; position:relative;
+  }
+  .desc-zone.truncated .desc-principle::after {
+    content:'...展开'; position:absolute; bottom:0; right:0;
+    background:inherit; padding-left:8px; color:#666; font-size:10px; cursor:pointer;
+  }
+  .desc-zone.expanded .desc-principle { max-height:none; }
+
+  /* 公式行 */
+  .formula-line {
+    margin-top:3px; font-size:12px; font-style:italic; opacity:.5;
+  }
+
+  /* 底部条 */
+  .rarity-bar { height:3px; margin-top:auto; }
+
+  /* ============================================
+     ─── 皮肤1: 赛博朋克 ───
+     ============================================ */
+  .skin-cyber {
+    background:linear-gradient(180deg, #0c1220 0%, #121a2f 30%, #0f1625 100%);
+    border:2px solid rgba(0,240,255,.35);
+    box-shadow:0 0 20px rgba(0,240,255,.08), 0 8px 32px rgba(0,0,0,.6);
+  }
+  .skin-cyber::before {
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:2;
+    background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,.02) 2px, rgba(0,240,255,.02) 4px);
+  }
+  .skin-cyber .cost-badge {
+    background: linear-gradient(135deg, #00f0ff, #0068a5);
+    border:2px solid rgba(0,240,255,.6);
+    box-shadow:0 0 12px rgba(0,240,255,.4);
+  }
+  .skin-cyber .name-bar {
+    color:#00e5ff;
+    text-shadow:0 0 8px rgba(0,240,255,.4);
+  }
+  .skin-cyber .art-zone {
+    border:1px solid rgba(0,240,255,.15);
+    background:linear-gradient(135deg, #06101e, #0c1a30, #06101e);
+  }
+  .skin-cyber .art-placeholder { color:#00f0ff; font-size:14px; opacity:.5; }
+  .skin-cyber .type-tag span { background:rgba(0,240,255,.2); border:1px solid rgba(0,240,255,.2); }
+  .skin-cyber .rarity-bar { background:linear-gradient(90deg, transparent, #00f0ff, transparent); }
+
+  /* ============================================
+     ─── 皮肤2: 二次元 ───
+     ============================================ */
+  .skin-anime {
+    background:linear-gradient(180deg, #1a0a20 0%, #2d1240 30%, #1a0a20 100%);
+    border:2px solid rgba(255,107,157,.4);
+    box-shadow:0 0 24px rgba(255,107,157,.06), 0 8px 28px rgba(0,0,0,.5);
+    border-radius:18px;
+  }
+  .skin-anime .cost-badge {
+    background: linear-gradient(135deg, #ff6b9d, #c74b8a);
+    border:2px solid rgba(255,159,191,.5);
+    box-shadow:0 0 10px rgba(255,107,157,.25);
+    border-radius:50%;
+  }
+  .skin-anime .name-bar {
+    color:#ff8cb3;
+    text-shadow:0 0 6px rgba(255,107,157,.3);
+    font-weight:900;
+  }
+  .skin-anime .art-zone {
+    border:1px solid rgba(255,107,157,.15);
+    background:linear-gradient(135deg, #1e0a30, #2a1050, #1e0a30);
+    border-radius:6px;
+  }
+  .skin-anime .art-placeholder { color:#ff6b9d; font-size:14px; opacity:.5; }
+  .skin-anime .type-tag span { background:rgba(255,107,157,.2); border:1px solid rgba(255,107,157,.2); border-radius:20px; }
+  .skin-anime .rarity-bar { background:linear-gradient(90deg, transparent, #ff6b9d, #ff9ec5, #ff6b9d, transparent); }
+
+  /* ============================================
+     ─── 皮肤3: 极简科研 ───
+     ============================================ */
+  .skin-minimal {
+    background:linear-gradient(180deg, #fafafa 0%, #f0f0f0 30%, #fafafa 100%);
+    border:2px solid #333;
+    box-shadow:0 2px 12px rgba(0,0,0,.15);
+    border-radius:8px;
+    font-family: 'Courier New', 'Noto Sans SC', monospace;
+  }
+  .skin-minimal .cost-badge {
+    background:#222; border:2px solid #555; box-shadow:none;
+    font-family: 'Courier New', monospace;
+  }
+  .skin-minimal .name-bar { color:#111; text-shadow:none; font-family: 'Courier New', monospace; }
+  .skin-minimal .art-zone {
+    border:1px solid #ccc;
+    background:linear-gradient(135deg, #eee, #f8f8f8, #eee);
+  }
+  .skin-minimal .art-placeholder { color:#333; font-size:24px; opacity:.15; font-family: 'Courier New', monospace; }
+  .skin-minimal .type-tag span { background:#333; border:none; border-radius:1px; color:#fff; }
+  .skin-minimal .desc-effect { color:#333; }
+  .skin-minimal .desc-principle { color:#777; border-top:1px solid #ddd; }
+  .skin-minimal .desc-principle .label { color:#999; }
+  .skin-minimal .rarity-bar { background:#333; }
+  .skin-minimal .formula-line { opacity:.7; color:#555; }
+
+  /* ============================================
+     标注
+     ============================================ */
+  .skin-badge {
+    position:absolute; bottom:5px; right:8px; z-index:20;
+    font-size:8px; padding:1px 6px; border-radius:4px;
+  }
+  .skin-cyber .skin-badge  { background:rgba(0,240,255,.15); color:#00f0ff; }
+  .skin-anime .skin-badge  { background:rgba(255,107,157,.15); color:#ff6b9d; }
+  .skin-minimal .skin-badge { background:rgba(0,0,0,.1); color:#555; }
+
+  /* 说明块 */
+  .annotations {
+    max-width:700px; margin:20px auto 0; background:#111; border-radius:8px;
+    padding:16px 20px; font-size:12px; color:#888; line-height:1.8;
+  }
+  .annotations b { color:#ddd; }
+
+  @media (max-width:600px) {
+    .card-tcg { width:150px; min-height:280px; }
+    .art-zone { height:110px; }
+    .name-bar { font-size:13px; padding-left:38px; min-height:34px; }
+    .cost-badge { width:26px; height:26px; font-size:12px; top:6px; left:6px; }
+    .desc-effect { font-size:10px; }
+    .desc-principle { font-size:9px; }
+  }
+</style>
+</head>
+<body>
+<h1>🎴 卡牌模板 V2</h1>
+<p class="subtitle">同一张卡 · 三套完整皮肤（不只是插画，是整体风格）</p>
+
+<div class="section">
+  <h2>—— 皮肤 1：赛博朋克 ——</h2>
+  <p style="text-align:center; color:#00f0ff; font-size:12px; margin-bottom:12px;">霓虹边框 · 扫描线 · 电路感 · 全息HUD</p>
+  <div class="cards-row">
+    <div class="card-tcg skin-cyber">
+      <div class="cost-badge">10</div>
+      <div class="name-bar">EMP电磁脉冲</div>
+      <div class="art-zone"><span class="art-placeholder">🌩 EMP</span></div>
+      <div class="type-tag"><span>攻击</span></div>
+      <div class="desc-zone truncated" onclick="this.classList.toggle('expanded');this.classList.toggle('truncated')">
+        <div class="desc-effect">造成30点伤害。<br>场上电系辅助卡≥2张时触发：消灭对方一张驻场卡 + 额外15伤害</div>
+        <div class="desc-principle"><span class="label">原理：</span>EMP电磁脉冲能干扰和瘫痪运行中的电子系统。</div>
+        <div class="formula-line">电磁脉冲</div>
+      </div>
+      <div class="rarity-bar"></div>
+      <span class="skin-badge">赛博朋克</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>—— 皮肤 2：二次元 ——</h2>
+  <p style="text-align:center; color:#ff6b9d; font-size:12px; margin-bottom:12px;">柔光边框 · 圆角 · 樱花色调 · 立绘风</p>
+  <div class="cards-row">
+    <div class="card-tcg skin-anime">
+      <div class="cost-badge">10</div>
+      <div class="name-bar">EMP电磁脉冲</div>
+      <div class="art-zone"><span class="art-placeholder">🌸 EMP</span></div>
+      <div class="type-tag"><span>攻击</span></div>
+      <div class="desc-zone truncated" onclick="this.classList.toggle('expanded');this.classList.toggle('truncated')">
+        <div class="desc-effect">造成30点伤害。<br>场上电系辅助卡≥2张时触发：消灭对方一张驻场卡 + 额外15伤害</div>
+        <div class="desc-principle"><span class="label">原理：</span>EMP电磁脉冲能干扰和瘫痪运行中的电子系统。</div>
+        <div class="formula-line">电磁脉冲</div>
+      </div>
+      <div class="rarity-bar"></div>
+      <span class="skin-badge">二次元</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>—— 皮肤 3：极简科研 ——</h2>
+  <p style="text-align:center; color:#888; font-size:12px; margin-bottom:12px;">白底黑字 · 等宽字体 · 公式至上 · 实验报告风</p>
+  <div class="cards-row">
+    <div class="card-tcg skin-minimal">
+      <div class="cost-badge">10</div>
+      <div class="name-bar">EMP电磁脉冲</div>
+      <div class="art-zone"><span class="art-placeholder">EMP</span></div>
+      <div class="type-tag"><span>攻击</span></div>
+      <div class="desc-zone truncated" onclick="this.classList.toggle('expanded');this.classList.toggle('truncated')">
+        <div class="desc-effect">造成30点伤害。<br>场上电系辅助卡≥2张时触发：消灭对方一张驻场卡 + 额外15伤害</div>
+        <div class="desc-principle"><span class="label">原理：</span>EMP电磁脉冲能干扰和瘫痪运行中的电子系统。</div>
+        <div class="formula-line">电磁脉冲</div>
+      </div>
+      <div class="rarity-bar"></div>
+      <span class="skin-badge">极简科研</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>对比：长描述卡（带原理公式）</h2>
+  <div class="cards-row">
+    <div class="card-tcg skin-cyber">
+      <div class="cost-badge">15</div>
+      <div class="name-bar">摩擦生热</div>
+      <div class="art-zone"><span class="art-placeholder">🔥 Q=fs</span></div>
+      <div class="type-tag"><span>攻击</span></div>
+      <div class="desc-zone truncated" onclick="this.classList.toggle('expanded');this.classList.toggle('truncated')">
+        <div class="desc-effect">造成60点伤害 + 为对方附加1层灼烧 + 偷取对方20精神力。</div>
+        <div class="desc-principle"><span class="label">原理：</span>摩擦力做功产生热量Q=fs，做功越多热量越大——既灼伤对方又消耗其能量。</div>
+        <div class="formula-line">Q=fs</div>
+      </div>
+      <div class="rarity-bar"></div>
+      <span class="skin-badge">赛博朋克</span>
+    </div>
+
+    <div class="card-tcg skin-anime">
+      <div class="cost-badge">15</div>
+      <div class="name-bar">摩擦生热</div>
+      <div class="art-zone"><span class="art-placeholder">🔥 Q=fs</span></div>
+      <div class="type-tag"><span>攻击</span></div>
+      <div class="desc-zone truncated" onclick="this.classList.toggle('expanded');this.classList.toggle('truncated')">
+        <div class="desc-effect">造成60点伤害 + 为对方附加1层灼烧 + 偷取对方20精神力。</div>
+        <div class="desc-principle"><span class="label">原理：</span>摩擦力做功产生热量Q=fs，做功越多热量越大——既灼伤对方又消耗其能量。</div>
+        <div class="formula-line">Q=fs</div>
+      </div>
+      <div class="rarity-bar"></div>
+      <span class="skin-badge">二次元</span>
+    </div>
+
+    <div class="card-tcg skin-minimal">
+      <div class="cost-badge">15</div>
+      <div class="name-bar">摩擦生热</div>
+      <div class="art-zone"><span class="art-placeholder">Q=fs</span></div>
+      <div class="type-tag"><span>攻击</span></div>
+      <div class="desc-zone truncated" onclick="this.classList.toggle('expanded');this.classList.toggle('truncated')">
+        <div class="desc-effect">造成60点伤害 + 为对方附加1层灼烧 + 偷取对方20精神力。</div>
+        <div class="desc-principle"><span class="label">原理：</span>摩擦力做功产生热量Q=fs，做功越多热量越大——既灼伤对方又消耗其能量。</div>
+        <div class="formula-line">Q=fs</div>
+      </div>
+      <div class="rarity-bar"></div>
+      <span class="skin-badge">极简科研</span>
+    </div>
+  </div>
+</div>
+
+<div class="annotations">
+  <b>描述区方案：</b>效果摘要始终展示（2行上限），物理原理区可点击展开/收起，公式独立一行。<br>
+  <b>皮肤系统：</b>三套皮肤覆盖：卡背底纹、边框效果、费用徽章样式、文字配色、插画区背景、圆角风格、阴影/光晕——不只是换插画，是整套视觉切换。<br>
+  <b>CSS实现：</b>每套皮肤用一个顶层 class（.skin-cyber / .skin-anime / .skin-minimal），下面所有子元素自动配色。
+</div>
+</body>
+</html>

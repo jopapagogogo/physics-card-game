@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡牌模板设计 | 物理卡牌对战</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #0d0d1a; color: #eee;
+    font-family: -apple-system, 'Noto Sans SC', sans-serif;
+    min-height: 100vh;
+    padding: 30px 20px;
+  }
+  h1 { text-align:center; font-size:1.6em; margin-bottom:6px; }
+  .subtitle { text-align:center; color:#888; font-size:0.9em; margin-bottom:30px; }
+
+  /* === 布局区 === */
+  .section { margin-bottom:40px; }
+  .section h2 {
+    font-size:1em; color:#666; text-align:center;
+    margin-bottom:16px; letter-spacing:2px; text-transform:uppercase;
+  }
+  .cards-row {
+    display:flex; flex-wrap:wrap; gap:24px;
+    justify-content:center; max-width:1100px; margin:0 auto;
+  }
+
+  /* ========================================
+     卡牌模板
+     ======================================== */
+  .card-tcg {
+    width: 220px; height: 340px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    /* 暗底 + 领域渐变 */
+    background: #1a1a2e;
+    border: 2px solid #333;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    cursor: default;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display:flex; flex-direction:column;
+  }
+  .card-tcg:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  }
+
+  /* 领域色边框描边 */
+  .card-tcg.force  { border-color:#E74C3C; }
+  .card-tcg.sound  { border-color:#3498DB; }
+  .card-tcg.light  { border-color:#F1C40F; }
+  .card-tcg.heat   { border-color:#E67E22; }
+  .card-tcg.elec   { border-color:#9B59B6; }
+
+  /* 卡面顶部渐变装饰 */
+  .card-tcg::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:140px;
+    opacity:0.15; pointer-events:none; z-index:1;
+  }
+  .card-tcg.force::before  { background:linear-gradient(180deg, #E74C3C, transparent); }
+  .card-tcg.sound::before  { background:linear-gradient(180deg, #3498DB, transparent); }
+  .card-tcg.light::before  { background:linear-gradient(180deg, #F1C40F, transparent); }
+  .card-tcg.heat::before   { background:linear-gradient(180deg, #E67E22, transparent); }
+  .card-tcg.elec::before   { background:linear-gradient(180deg, #9B59B6, transparent); }
+
+  /* === 费用徽章 === */
+  .card-cost-badge {
+    position:absolute; top:8px; left:8px; z-index:10;
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:900; color:#fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .force .card-cost-badge  { background:#C0392B; }
+  .sound .card-cost-badge  { background:#2980B9; }
+  .light .card-cost-badge  { background:#D4AC0D; }
+  .heat .card-cost-badge   { background:#D35400; }
+  .elec .card-cost-badge   { background:#8E44AD; }
+
+  /* === 卡名区 === */
+  .card-name-bar {
+    position:relative; z-index:10;
+    padding: 8px 10px 4px 48px;
+    font-size:15px; font-weight:800;
+    line-height:1.2; min-height:38px;
+    display:flex; align-items:flex-end;
+  }
+  .force .card-name-bar  { color:#E74C3C; }
+  .sound .card-name-bar  { color:#3498DB; }
+  .light .card-name-bar  { color:#F1C40F; }
+  .heat .card-name-bar   { color:#E67E22; }
+  .elec .card-name-bar   { color:#9B59B6; }
+
+  /* === 插画区 === */
+  .card-art {
+    position:relative; z-index:5;
+    flex:1; margin:0 10px; border-radius:6px;
+    overflow:hidden;
+    background: linear-gradient(135deg, #2a2a3e 0%, #1a1a2e 50%, #2a2a3e 100%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card-art img {
+    width:100%; height:100%; object-fit:cover;
+  }
+  .card-art-placeholder {
+    font-size:40px; opacity:0.15;
+  }
+
+  /* 插画顶部叠加的领域标记线 */
+  .card-art::after {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:3px;
+  }
+  .force .card-art::after  { background:#E74C3C; }
+  .sound .card-art::after  { background:#3498DB; }
+  .light .card-art::after  { background:#F1C40F; }
+  .heat .card-art::after   { background:#E67E22; }
+  .elec .card-art::after   { background:#9B59B6; }
+
+  /* === 类型标签 === */
+  .card-type-tag {
+    position:relative; z-index:10;
+    text-align:center; padding:4px 0 0;
+  }
+  .card-type-tag span {
+    display:inline-block; padding:2px 12px; border-radius:10px;
+    font-size:10px; font-weight:600; letter-spacing:1px;
+    text-transform:uppercase; color:#fff;
+  }
+  .force .card-type-tag span  { background:rgba(231,76,60,0.3); }
+  .sound .card-type-tag span  { background:rgba(52,152,219,0.3); }
+  .light .card-type-tag span  { background:rgba(241,196,15,0.3); }
+  .heat .card-type-tag span   { background:rgba(230,126,34,0.3); }
+  .elec .card-type-tag span   { background:rgba(155,89,182,0.3); }
+
+  /* === 描述区 === */
+  .card-desc-area {
+    position:relative; z-index:10;
+    padding:4px 10px 10px;
+    font-size:10px; color:#aaa; line-height:1.4;
+    text-align:center; min-height:52px;
+  }
+
+  /* === 底部稀有度条 === */
+  .card-rarity-bar {
+    height:3px;
+  }
+  .force .card-rarity-bar  { background: linear-gradient(90deg, transparent, #E74C3C, transparent); }
+  .sound .card-rarity-bar  { background: linear-gradient(90deg, transparent, #3498DB, transparent); }
+  .light .card-rarity-bar  { background: linear-gradient(90deg, transparent, #F1C40F, transparent); }
+  .heat .card-rarity-bar   { background: linear-gradient(90deg, transparent, #E67E22, transparent); }
+  .elec .card-rarity-bar   { background: linear-gradient(90deg, transparent, #9B59B6, transparent); }
+
+  /* ========================================
+     皮肤变体展示
+     ======================================== */
+  .card-art.cyber {
+    background: linear-gradient(135deg, #0a1628, #16213e, #0a1628);
+  }
+  .card-art.cyber .card-art-placeholder { color:#00f0ff; font-size:14px; opacity:0.6; }
+
+  /* 选择指示 */
+  .skin-label {
+    position:absolute; bottom:4px; right:6px; z-index:20;
+    font-size:8px; color:rgba(255,255,255,0.4);
+  }
+
+  /* === 图例 === */
+  .legend {
+    display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin:20px 0 0;
+  }
+  .legend-item {
+    display:flex; align-items:center; gap:6px; font-size:12px; color:#888;
+  }
+  .legend-dot {
+    width:12px; height:12px; border-radius:50%;
+  }
+
+  /* === 标注注释 === */
+  .annotations {
+    max-width:700px; margin:20px auto 0;
+    background:#111; border-radius:8px; padding:16px 20px;
+    font-size:12px; color:#888; line-height:1.8;
+  }
+  .annotations span { color:#ddd; font-weight:600; }
+
+  @media (max-width:600px) {
+    .card-tcg { width:160px; height:260px; }
+    .card-cost-badge { width:26px; height:26px; font-size:12px; top:6px; left:6px; }
+    .card-name-bar { font-size:12px; padding-left:38px; min-height:30px; }
+    .card-desc-area { font-size:9px; min-height:44px; }
+  }
+</style>
+</head>
+<body>
+<h1>🎴 统一卡牌模板</h1>
+<p class="subtitle">五领域 × 三种皮肤变体</p>
+
+<!-- 5领域展示 -->
+<div class="section">
+  <h2>五大领域卡框</h2>
+  <div class="cards-row">
+    <!-- 力 -->
+    <div class="card-tcg force">
+      <div class="card-cost-badge">15</div>
+      <div class="card-name-bar">牛顿定律</div>
+      <div class="card-art">
+        <span class="card-art-placeholder">⚡ F=ma</span>
+      </div>
+      <div class="card-type-tag"><span>攻击</span></div>
+      <div class="card-desc-area">造成65点伤害，若对方有召唤物则额外造成20伤害</div>
+      <div class="card-rarity-bar"></div>
+    </div>
+
+    <!-- 声 -->
+    <div class="card-tcg sound">
+      <div class="card-cost-badge">12</div>
+      <div class="card-name-bar">回声消声</div>
+      <div class="card-art">
+        <span class="card-art-placeholder">🔊 ~</span>
+      </div>
+      <div class="card-type-tag"><span>攻击</span></div>
+      <div class="card-desc-area">造成45伤害，回响10点伤害（下回合触发）</div>
+      <div class="card-rarity-bar"></div>
+    </div>
+
+    <!-- 光 -->
+    <div class="card-tcg light">
+      <div class="card-cost-badge">10</div>
+      <div class="card-name-bar">光速传播</div>
+      <div class="card-art">
+        <span class="card-art-placeholder">💫 c</span>
+      </div>
+      <div class="card-type-tag"><span>Domain</span></div>
+      <div class="card-desc-area">光之力·先手：每当对方出牌时，你可抢先用一张光系卡</div>
+      <div class="card-rarity-bar"></div>
+    </div>
+
+    <!-- 热 -->
+    <div class="card-tcg heat">
+      <div class="card-cost-badge">18</div>
+      <div class="card-name-bar">蒸发消散</div>
+      <div class="card-art">
+        <span class="card-art-placeholder">🔥 Q</span>
+      </div>
+      <div class="card-type-tag"><span>攻击</span></div>
+      <div class="card-desc-area">造成65伤害+灼烧1层，偷取对方15精神力</div>
+      <div class="card-rarity-bar"></div>
+    </div>
+
+    <!-- 电 -->
+    <div class="card-tcg elec">
+      <div class="card-cost-badge">20</div>
+      <div class="card-name-bar">电磁感应</div>
+      <div class="card-art">
+        <span class="card-art-placeholder">⚡ ∇×E</span>
+      </div>
+      <div class="card-type-tag"><span>攻击</span></div>
+      <div class="card-desc-area">造成75伤害，50%使对方麻痹（下回合无法攻击）</div>
+      <div class="card-rarity-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 皮肤变体展示 -->
+<div class="section">
+  <h2>同一张卡 · 皮肤系统</h2>
+  <div class="cards-row">
+    <!-- 牛顿定律 - 赛博 -->
+    <div class="card-tcg force">
+      <div class="card-cost-badge">15</div>
+      <div class="card-name-bar">牛顿定律</div>
+      <div class="card-art cyber">
+        <span class="card-art-placeholder">🌃 赛博朋克版</span>
+      </div>
+      <div class="card-type-tag"><span>攻击</span></div>
+      <div class="card-desc-area">造成65点伤害 · 额外20对召唤物</div>
+      <div class="card-rarity-bar"></div>
+      <span class="skin-label">赛博 · 默认</span>
+    </div>
+
+    <!-- 牛顿定律 - 二次元 -->
+    <div class="card-tcg force">
+      <div class="card-cost-badge">15</div>
+      <div class="card-name-bar">牛顿定律</div>
+      <div class="card-art" style="background:linear-gradient(135deg, #2d1b4e, #1a0533, #2d1b4e);">
+        <span class="card-art-placeholder" style="color:#ff6b9d; font-size:14px; opacity:0.6;">🎭 二次元版</span>
+      </div>
+      <div class="card-type-tag"><span>攻击</span></div>
+      <div class="card-desc-area">造成65点伤害 · 额外20对召唤物</div>
+      <div class="card-rarity-bar"></div>
+      <span class="skin-label">二次元 · 限定</span>
+    </div>
+
+    <!-- 牛顿定律 - 极简 -->
+    <div class="card-tcg force">
+      <div class="card-cost-badge">15</div>
+      <div class="card-name-bar">牛顿定律</div>
+      <div class="card-art" style="background:linear-gradient(135deg, #1a1a1a, #0a0a0a, #1a1a1a);">
+        <span class="card-art-placeholder" style="color:#fff; font-size:24px; opacity:0.3;">F=ma</span>
+      </div>
+      <div class="card-type-tag"><span>攻击</span></div>
+      <div class="card-desc-area">造成65点伤害 · 额外20对召唤物</div>
+      <div class="card-rarity-bar"></div>
+      <span class="skin-label">极简 · 传说</span>
+    </div>
+  </div>
+</div>
+
+<!-- 图例 -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#E74C3C"></div>力领域</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3498DB"></div>声领域</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#F1C40F"></div>光领域</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#E67E22"></div>热领域</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9B59B6"></div>电领域</div>
+</div>
+
+<div class="annotations">
+  <span>模板结构：</span>费用徽章(左上) → 卡名(顶) → 插画区(中) → 类型标签(下) → 描述(底) → 领域色条(底边)<br>
+  <span>皮肤系统：</span>插画区为独立 &lt;img&gt; 槽位，同一张卡可替换不同风格插画，卡框完全不变<br>
+  <span>稀有度：</span>底部渐变色条标识（可扩展为铜/银/金/虹色）
+</div>
+</body>
+</html>

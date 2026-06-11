@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡牌风格参考图 | 物理卡牌对战</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { 
+    background: #1a1a2e; color:#eee; font-family: -apple-system, system-ui, sans-serif;
+    padding: 20px; min-height: 100vh;
+  }
+  h1 { text-align:center; margin-bottom:8px; font-size:1.4em; }
+  .subtitle { text-align:center; color:#888; margin-bottom:30px; font-size:0.9em; }
+  .grid { 
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:30px;
+    max-width: 1100px; margin:0 auto;
+  }
+  .card-group {
+    background: #16213e; border-radius:12px; padding:16px;
+    text-align:center;
+  }
+  .card-group h2 { font-size:1.1em; margin-bottom:12px; }
+  .card-group .label { 
+    display:inline-block; padding:4px 12px; border-radius:20px;
+    font-size:0.8em; margin-bottom:14px; font-weight:600;
+  }
+  .cyber { border:1px solid #00f0ff; }
+  .cyber .label { background:#00f0ff22; color:#00f0ff; }
+  .anime { border:1px solid #ff6b9d; }
+  .anime .label { background:#ff6b9d22; color:#ff6b9d; }
+  .card-group img { 
+    width:100%; max-width:400px; border-radius:8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .card-group p { color:#aaa; font-size:0.85em; margin-top:10px; }
+  @media (max-width:768px) {
+    .grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<h1>卡牌美术风格参考图</h1>
+<p class="subtitle">两张卡 × 两种风格，帮助确定方向</p>
+
+<div class="grid">
+  <div class="card-group cyber">
+    <h2>牛顿定律 (S01) — 力领域</h2>
+    <span class="label">赛博朋克科技风</span>
+    <img src="Trading_card_game_card_illustr_2026-06-10T08-36-54.png" alt="牛顿定律-赛博朋克">
+    <p>霓虹光效 · 全息公式 · 未来都市背景</p>
+  </div>
+
+  <div class="card-group anime">
+    <h2>牛顿定律 (S01) — 力领域</h2>
+    <span class="label">二次元拟人风</span>
+    <img src="Japanese_anime_style_trading_c_2026-06-10T08-37-40.png" alt="牛顿定律-二次元">
+    <p>角色拟人 · 魔法学院 · F=ma 公式发光</p>
+  </div>
+
+  <div class="card-group cyber">
+    <h2>镜面迷宫 (S19) — 光领域</h2>
+    <span class="label">赛博朋克科技风</span>
+    <img src="Trading_card_game_illustration_2026-06-10T08-37-41.png" alt="镜面迷宫-赛博朋克">
+    <p>无限反射 · 激光阵列 · 棱镜扭曲空间</p>
+  </div>
+
+  <div class="card-group anime">
+    <h2>镜面迷宫 (S19) — 光领域</h2>
+    <span class="label">二次元拟人风</span>
+    <img src="Japanese_anime_style_trading_c_2026-06-10T08-37-41.png" alt="镜面迷宫-二次元">
+    <p>镜中少女 · 分身术 · 金色光晕</p>
+  </div>
+</div>
+</body>
+</html>
