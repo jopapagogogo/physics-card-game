@@ -11,6 +11,9 @@
     --gold: #d4a853; --gold-bright: #f0d070; --gold-dark: #8b6914;
     --force: #E74C3C; --force-light: #f06050; --force-dark: #8b1a1a;
     --electric: #9B59B6; --electric-light: #b870d8; --electric-dark: #4a1d6e;
+    --sound: #16A085; --sound-light: #1de0b5; --sound-dark: #0a5c4a;
+    --light: #F39C12; --light-color: #ffc04d; --light-dark: #8b5a00;
+    --heat: #E67E22; --heat-light: #f0a04d; --heat-dark: #8a3d0a;
     --cyber-accent: #00e5ff; --anime-accent: #ff6b9d;
     --rare-gold: #f0c040; --common-silver: #7eb8da;
     --summon-hp: #4ecdc4; --attack-red: #e06050; --support-green: #3cb371;
@@ -31,6 +34,7 @@
   .domain-tab:hover{border-color:#444;color:#ccc}
   .tab-force.active{border-color:var(--force);color:var(--force-light);box-shadow:0 0 20px rgba(231,76,60,.3),inset 0 0 20px rgba(231,76,60,.05)}
   .tab-electric.active{border-color:var(--electric);color:var(--electric-light);box-shadow:0 0 20px rgba(155,89,182,.3),inset 0 0 20px rgba(155,89,182,.05)}
+  .tab-showcase.active{border-color:#f0c040;color:#f0c040;box-shadow:0 0 20px rgba(240,192,64,.3),inset 0 0 20px rgba(240,192,64,.05)}
 
   .domain-section{display:none;max-width:1400px;margin:0 auto;padding:0 20px 60px}
   .domain-section.active{display:block}
@@ -61,6 +65,27 @@
   .card.electric::before{background:linear-gradient(135deg,var(--electric-dark),var(--electric),var(--electric-light),var(--electric),var(--electric-dark));opacity:.6}
   .card.electric:hover::before{opacity:.9}
   .card.electric:hover{box-shadow:0 0 36px rgba(155,89,182,.35),0 0 80px rgba(155,89,182,.1),0 20px 56px rgba(0,0,0,.6)}
+
+  /* Sound domain */
+  .card.sound{border-color:var(--sound-dark);box-shadow:0 0 2px var(--sound),inset 0 0 0 1px rgba(22,160,133,.12),0 16px 48px rgba(0,0,0,.55)}
+  .card.sound::before{background:linear-gradient(135deg,var(--sound-dark),var(--sound),var(--sound-light),var(--sound),var(--sound-dark));opacity:.6}
+  .card.sound:hover::before{opacity:.9}
+  .card.sound:hover{box-shadow:0 0 36px rgba(22,160,133,.35),0 0 80px rgba(22,160,133,.1),0 20px 56px rgba(0,0,0,.6)}
+  .card.anime.sound::before{background:linear-gradient(135deg,#0a5c4a,#16A085,#1de0b5,#16A085,#0a5c4a);opacity:.6}
+
+  /* Light domain */
+  .card.light-domain{border-color:var(--light-dark);box-shadow:0 0 2px var(--light-color),inset 0 0 0 1px rgba(243,156,18,.12),0 16px 48px rgba(0,0,0,.55)}
+  .card.light-domain::before{background:linear-gradient(135deg,var(--light-dark),var(--light-color),#fff3a0,var(--light-color),var(--light-dark));opacity:.6}
+  .card.light-domain:hover::before{opacity:.9}
+  .card.light-domain:hover{box-shadow:0 0 36px rgba(243,156,18,.35),0 0 80px rgba(243,156,18,.1),0 20px 56px rgba(0,0,0,.6)}
+  .card.anime.light-domain::before{background:linear-gradient(135deg,#8b5a00,#F39C12,#fff3a0,#F39C12,#8b5a00);opacity:.6}
+
+  /* Heat domain */
+  .card.heat{border-color:var(--heat-dark);box-shadow:0 0 2px var(--heat),inset 0 0 0 1px rgba(230,126,34,.12),0 16px 48px rgba(0,0,0,.55)}
+  .card.heat::before{background:linear-gradient(135deg,var(--heat-dark),var(--heat),var(--heat-light),var(--heat),var(--heat-dark));opacity:.6}
+  .card.heat:hover::before{opacity:.9}
+  .card.heat:hover{box-shadow:0 0 36px rgba(230,126,34,.35),0 0 80px rgba(230,126,34,.1),0 20px 56px rgba(0,0,0,.6)}
+  .card.anime.heat::before{background:linear-gradient(135deg,#8a3d0a,#E67E22,#f0a04d,#E67E22,#8a3d0a);opacity:.6}
   .card.anime{background:linear-gradient(175deg,#2a1e3c 0%,#211630 25%,#1f142e 50%,#231832 100%)}
   .card.anime::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,107,157,.08);pointer-events:none;z-index:1}
   .card.anime.force::before{background:linear-gradient(135deg,#8b1a3a,#E74C3C,#ff8c7a,#E74C3C,#8b1a3a);opacity:.6}
@@ -74,16 +99,25 @@
   .cost-gem::before{content:'';position:absolute;inset:-2.5px;border-radius:50%;background:conic-gradient(from 0deg,var(--gold-dark),var(--gold-bright),var(--gold),var(--gold-bright),var(--gold-dark));z-index:-1;-webkit-mask:radial-gradient(circle,transparent 19px,#000 19.5px);mask:radial-gradient(circle,transparent 19px,#000 19.5px)}
   .card.force .cost-gem{color:var(--force-light)}
   .card.electric .cost-gem{color:var(--electric-light)}
+  .card.sound .cost-gem{color:var(--sound-light)}
+  .card.light-domain .cost-gem{color:var(--light-color)}
+  .card.heat .cost-gem{color:var(--heat-light)}
 
   .card-title-bar{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
   .card-title{font-size:1.05em;font-weight:800;letter-spacing:3px;white-space:nowrap;padding:2px 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)}
   .card.force .card-title{color:var(--force-light)}
   .card.electric .card-title{color:var(--electric-light)}
+  .card.sound .card-title{color:var(--sound-light)}
+  .card.light-domain .card-title{color:var(--light-color)}
+  .card.heat .card-title{color:var(--heat-light)}
 
   .domain-rune{width:18px;height:18px;flex-shrink:0;opacity:.5;display:flex;align-items:center}
   .domain-rune svg{width:16px;height:16px}
   .card.force .domain-rune svg{fill:var(--force-light)}
   .card.electric .domain-rune svg{fill:var(--electric-light)}
+  .card.sound .domain-rune svg{fill:var(--sound-light)}
+  .card.light-domain .domain-rune svg{fill:var(--light-color)}
+  .card.heat .domain-rune svg{fill:var(--heat-light)}
 
   /* ===== RARITY ICONS (5 levels) ===== */
   .rarity-icon{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
@@ -131,12 +165,21 @@
   .ornate-divider .gem{width:6px;height:6px;border-radius:1px;transform:rotate(45deg)}
   .card.force .ornate-divider .gem{background:var(--force);box-shadow:0 0 6px var(--force)}
   .card.electric .ornate-divider .gem{background:var(--electric);box-shadow:0 0 6px var(--electric)}
+  .card.sound .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--sound-dark),var(--sound),var(--sound-dark),transparent)}
+  .card.sound .ornate-divider .gem{background:var(--sound);box-shadow:0 0 6px var(--sound)}
+  .card.light-domain .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--light-dark),var(--light-color),var(--light-dark),transparent)}
+  .card.light-domain .ornate-divider .gem{background:var(--light-color);box-shadow:0 0 6px var(--light-color)}
+  .card.heat .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--heat-dark),var(--heat),var(--heat-dark),transparent)}
+  .card.heat .ornate-divider .gem{background:var(--heat);box-shadow:0 0 6px var(--heat)}
 
   .card-stats{padding:0 20px 4px;position:relative;z-index:2;display:flex;align-items:center;gap:10px}
   .main-stat{display:flex;align-items:baseline;gap:6px}
   .main-stat .stat-num{font-size:1.5em;font-weight:900;line-height:1;font-family:'Segoe UI',sans-serif}
   .card.force .main-stat .stat-num{color:var(--force);text-shadow:0 0 10px rgba(231,76,60,.4)}
   .card.electric .main-stat .stat-num{color:var(--electric);text-shadow:0 0 10px rgba(155,89,182,.4)}
+  .card.sound .main-stat .stat-num{color:var(--sound);text-shadow:0 0 10px rgba(22,160,133,.4)}
+  .card.light-domain .main-stat .stat-num{color:var(--light-color);text-shadow:0 0 10px rgba(243,156,18,.4)}
+  .card.heat .main-stat .stat-num{color:var(--heat);text-shadow:0 0 10px rgba(230,126,34,.4)}
   .main-stat .stat-unit{font-size:.68em;color:var(--text-dim)}
   .hp-stat{margin-left:auto;display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2)}
   .hp-stat .hp-num{font-weight:800;font-size:.9em;color:var(--summon-hp)}
@@ -144,13 +187,22 @@
   .card-desc-box{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);border-left:2px solid}
   .card.force .card-desc-box{border-left-color:rgba(231,76,60,.4)}
   .card.electric .card-desc-box{border-left-color:rgba(155,89,182,.4)}
+  .card.sound .card-desc-box{border-left-color:rgba(22,160,133,.4)}
+  .card.light-domain .card-desc-box{border-left-color:rgba(243,156,18,.4)}
+  .card.heat .card-desc-box{border-left-color:rgba(230,126,34,.4)}
   .card.anime .card-desc-box{background:rgba(255,255,255,.03)}
   .card-desc{font-size:.72em;color:#bcc0cc;line-height:1.65;margin-bottom:6px}
   .card-principle{font-family:'Consolas','Courier New',monospace;font-size:.7em;font-weight:700;letter-spacing:.5px;padding:3px 6px;border-radius:3px;display:inline-block}
   .card.force .card-principle{background:rgba(231,76,60,.12);color:var(--force-light);border:1px solid rgba(231,76,60,.2)}
   .card.electric .card-principle{background:rgba(155,89,182,.12);color:var(--electric-light);border:1px solid rgba(155,89,182,.2)}
+  .card.sound .card-principle{background:rgba(22,160,133,.12);color:var(--sound-light);border:1px solid rgba(22,160,133,.2)}
+  .card.light-domain .card-principle{background:rgba(243,156,18,.12);color:var(--light-color);border:1px solid rgba(243,156,18,.2)}
+  .card.heat .card-principle{background:rgba(230,126,34,.12);color:var(--heat-light);border:1px solid rgba(230,126,34,.2)}
   .card.anime.force .card-principle{background:rgba(231,76,60,.18)}
   .card.anime.electric .card-principle{background:rgba(155,89,182,.18)}
+  .card.anime.sound .card-principle{background:rgba(22,160,133,.18)}
+  .card.anime.light-domain .card-principle{background:rgba(243,156,18,.18)}
+  .card.anime.heat .card-principle{background:rgba(230,126,34,.18)}
 
   @media(max-width:1050px){.cards-grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:680px){.cards-grid{grid-template-columns:1fr}.card{width:100%;max-width:360px}}
@@ -184,8 +236,9 @@
 </style>
 
 <div class="domain-tabs">
-  <button class="domain-tab tab-force active" onclick="switchDomain('force')">力领域</button>
-  <button class="domain-tab tab-electric" onclick="switchDomain('electric')">电领域</button>
+  <button class="domain-tab tab-force active" onclick="switchDomain('force')">力</button>
+  <button class="domain-tab tab-electric" onclick="switchDomain('electric')">电</button>
+  <button class="domain-tab tab-showcase" onclick="switchDomain('showcase')">符文+稀有度</button>
 </div>
 
 <!-- ============ 力领域 ============ -->
@@ -386,12 +439,75 @@
   </div>
 </div>
 
+<!-- ============ 领域符文 + 高级稀有度 展示 ============ -->
+<div class="domain-section active" id="showcase-section">
+  <h2>Rune Showcase · 声 / 光 / 热 + Epic / Legendary / Mythic</h2>
+  <div class="cards-grid">
+
+    <!-- 声 · 声波共振 · Epic -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk · 史诗</span>
+    <div class="card sound cyber">
+      <div class="card-header">
+        <div class="cost-gem">8</div>
+        <div class="card-title-bar"><div class="card-title">声波共振</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M5 9h4l5-5v16l-5-5H5z"/><path d="M16 7a6 6.5 0 010 10" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></div></div>
+        <div class="rarity-icon epic" title="Epic"><svg viewBox="0 0 24 24"><path d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+      <div class="art-frame" style="position:relative;background:radial-gradient(ellipse at 50% 40%,#0d2e26 0%,#051210 100%)">
+        <svg viewBox="0 0 300 360" style="position:absolute;inset:0;opacity:.12;width:100%;height:100%"><circle cx="150" cy="170" r="40" fill="none" stroke="#1de0b5" stroke-width="1.5"/><circle cx="150" cy="170" r="80" fill="none" stroke="#1de0b5" stroke-width="1"/><circle cx="150" cy="170" r="120" fill="none" stroke="#1de0b5" stroke-width=".7"/><path d="M120 170 Q135 150 150 170 T180 170" fill="none" stroke="#1de0b5" stroke-width="1.2" opacity=".6"/></svg>
+        <div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div>
+      </div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+8</span><span class="stat-unit">振幅加成</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">声波在介质中以纵波传播。共振频率下振幅激增——声音也能粉碎一切。</div><span class="card-principle">v = fλ · 波动方程</span></div>
+    </div></div>
+
+    <!-- 光 · 光的折射 · Legendary -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk · 传说</span>
+    <div class="card light-domain cyber">
+      <div class="card-header">
+        <div class="cost-gem">14</div>
+        <div class="card-title-bar"><div class="card-title">光的折射</div><div class="domain-rune"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><g stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="23"/><line x1="1" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="23" y2="12"/><line x1="4" y1="4" x2="8" y2="8"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="4" y1="20" x2="8" y2="16"/><line x1="16" y1="8" x2="20" y2="4"/></g></svg></div></div>
+        <div class="rarity-icon legendary" title="Legendary"><svg viewBox="0 0 24 24"><path class="star-a" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path class="star-b" d="M12 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/></svg></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+      <div class="art-frame" style="position:relative;background:radial-gradient(ellipse at 50% 30%,#2a1f08 0%,#0a0800 100%)">
+        <svg viewBox="0 0 300 360" style="position:absolute;inset:0;opacity:.1;width:100%;height:100%"><line x1="150" y1="15" x2="150" y2="200" stroke="#ffc04d" stroke-width="1"/><line x1="60" y1="50" x2="180" y2="200" stroke="#ffc04d" stroke-width=".8"/><line x1="240" y1="50" x2="120" y2="200" stroke="#ffc04d" stroke-width=".8"/><line x1="150" y1="200" x2="200" y2="340" stroke="#ffc04d" stroke-width=".6"/><line x1="150" y1="200" x2="100" y2="340" stroke="#ffc04d" stroke-width=".6"/><circle cx="150" cy="200" r="6" fill="#ffc04d" opacity=".5"/></svg>
+        <div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div>
+      </div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">55</span><span class="stat-unit">伤害</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">光从一种介质射入另一种时改变方向。折射角度由斯涅尔定律决定——精准一击。</div><span class="card-principle">n₁sinθ₁ = n₂sinθ₂</span></div>
+    </div></div>
+
+    <!-- 热 · 热力学之怒 · Mythic -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk · 神话</span>
+    <div class="card heat cyber">
+      <div class="card-header">
+        <div class="cost-gem">30</div>
+        <div class="card-title-bar"><div class="card-title">热力学之怒</div><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 23c-6-3-7-8-3-13l2-6v6h2v-5c5 2 5 9 1 13"/><path d="M9 16c0-3 2-5 3-5s3 2 3 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div></div>
+        <div class="rarity-icon mythic" title="Mythic"><svg viewBox="0 0 30 30"><defs><linearGradient id="mg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff6bff"/><stop offset="50%" stop-color="#ffb070"/><stop offset="100%" stop-color="#70d0ff"/></linearGradient></defs><path d="M15 0l1.8 6L23 5l-4 4.5 6 2-6 2.5L23 18l-6-1.5-1.2 5.5L15 16l-1.2 6L12.5 16l-5.8 1.5L10.5 13l-6-2.5 5.7-2L5.5 4l6 2L13 1z" fill="url(#mg2)"/><circle cx="15" cy="13" r="3.5" fill="#fff" opacity=".8"/></svg></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative;background:radial-gradient(ellipse at 50% 60%,#3a1a08 0%,#0a0300 100%)">
+        <svg viewBox="0 0 300 360" style="position:absolute;inset:0;opacity:.15;width:100%;height:100%"><path d="M130 360 Q120 260 135 200 T145 140 T155 80 L165 80 Q160 140 T160 200 T170 260 T170 360Z" fill="#f0a04d"/><ellipse cx="150" cy="360" rx="80" ry="16" fill="#E67E22" opacity=".1"/></svg>
+        <div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div>
+      </div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+15</span><span class="stat-unit">热系全卡</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">420</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">熵增不可逆——热力学第二定律的终极武器。场上所有热系效果翻倍，附带持续灼烧。</div><span class="card-principle">ΔS ≥ 0 · 熵增定律</span></div>
+    </div></div>
+
+  </div>
+</div>
+
 <script>
 function switchDomain(d) {
   document.getElementById('force-section').classList.toggle('active', d==='force');
   document.getElementById('electric-section').classList.toggle('active', d==='electric');
+  document.getElementById('showcase-section').classList.toggle('active', d==='showcase');
   document.querySelectorAll('.domain-tab').forEach(t=>t.classList.remove('active'));
-  (d==='force'?document.querySelector('.tab-force'):document.querySelector('.tab-electric')).classList.add('active');
+  (d==='force'?document.querySelector('.tab-force'):d==='electric'?document.querySelector('.tab-electric'):document.querySelector('.tab-showcase')).classList.add('active');
 }
 </script>
 </body>
