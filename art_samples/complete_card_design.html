@@ -6,40 +6,20 @@
 <title>完整卡牌设计 | 物理卡牌对战</title>
 <style>
   :root {
-    --bg: #0a0a12;
-    --card-inner: #14161e;
-    --text: #e8ecf1;
-    --text-dim: #8890a4;
-    --gold: #d4a853;
-    --gold-bright: #f0d070;
-    --gold-dark: #8b6914;
-    --silver: #bcc6d0;
-    --force: #E74C3C;
-    --force-light: #f06050;
-    --force-dark: #8b1a1a;
-    --electric: #9B59B6;
-    --electric-light: #b870d8;
-    --electric-dark: #4a1d6e;
-    --cyber-accent: #00e5ff;
-    --anime-accent: #ff6b9d;
-    --anime-warm: #ffb88c;
-    --rare-gold: #f0c040;
-    --common-silver: #7eb8da;
-    --summon-hp: #4ecdc4;
-    --attack-red: #e06050;
-    --support-green: #3cb371;
-    --anime-card-bg: #23182e;
-    --anime-card-bg-light: #2e2240;
+    --bg: #0a0a12; --card-inner: #14161e;
+    --text: #e8ecf1; --text-dim: #8890a4;
+    --gold: #d4a853; --gold-bright: #f0d070; --gold-dark: #8b6914;
+    --force: #E74C3C; --force-light: #f06050; --force-dark: #8b1a1a;
+    --electric: #9B59B6; --electric-light: #b870d8; --electric-dark: #4a1d6e;
+    --cyber-accent: #00e5ff; --anime-accent: #ff6b9d;
+    --rare-gold: #f0c040; --common-silver: #7eb8da;
+    --summon-hp: #4ecdc4; --attack-red: #e06050; --support-green: #3cb371;
   }
-
   *{margin:0;padding:0;box-sizing:border-box}
   body{
     background:var(--bg);
-    background-image:
-      radial-gradient(ellipse at 20% 0%, rgba(231,76,60,0.04) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 0%, rgba(155,89,182,0.04) 0%, transparent 60%);
-    color:var(--text);
-    font-family:'Segoe UI','Noto Sans SC',sans-serif;min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%, rgba(231,76,60,.04), transparent 60%),radial-gradient(ellipse at 80% 0%, rgba(155,89,182,.04), transparent 60%);
+    color:var(--text);font-family:'Segoe UI','Noto Sans SC',sans-serif;min-height:100vh;
   }
   .hero{text-align:center;padding:36px 20px 16px}
   .hero h1{font-size:1.8em;letter-spacing:3px;text-transform:uppercase}
@@ -55,7 +35,6 @@
   .domain-section{display:none;max-width:1400px;margin:0 auto;padding:0 20px 60px}
   .domain-section.active{display:block}
   .domain-section h2{text-align:center;font-size:1.25em;margin-bottom:28px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
-
   .cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:50px 36px;justify-items:center}
 
   .card-set{text-align:center}
@@ -68,7 +47,7 @@
     width:300px;border-radius:16px;background:var(--card-inner);
     position:relative;text-align:left;
     box-shadow:0 16px 48px rgba(0,0,0,.55);
-    transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .4s ease,border-color .4s ease;
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .4s ease;
     border:2.5px solid transparent;background-clip:padding-box;
   }
   .card::before{content:'';position:absolute;inset:-4px;border-radius:19px;z-index:-1;transition:opacity .4s ease}
@@ -79,7 +58,6 @@
   .card.force::before{background:linear-gradient(135deg,var(--force-dark),var(--force),var(--force-light),var(--force),var(--force-dark));opacity:.6}
   .card.force:hover::before{opacity:.9}
   .card.force:hover{box-shadow:0 0 36px rgba(231,76,60,.35),0 0 80px rgba(231,76,60,.1),0 20px 56px rgba(0,0,0,.6)}
-
   .card.electric{border-color:var(--electric-dark);box-shadow:0 0 2px var(--electric),inset 0 0 0 1px rgba(155,89,182,.12),0 16px 48px rgba(0,0,0,.55)}
   .card.electric::before{background:linear-gradient(135deg,var(--electric-dark),var(--electric),var(--electric-light),var(--electric),var(--electric-dark));opacity:.6}
   .card.electric:hover::before{opacity:.9}
@@ -90,72 +68,74 @@
   .card.anime.force::before{background:linear-gradient(135deg,#8b1a3a,#E74C3C,#ff8c7a,#E74C3C,#8b1a3a);opacity:.6}
   .card.anime.electric::before{background:linear-gradient(135deg,#4a1d6e,#9B59B6,#e8a0f0,#9B59B6,#4a1d6e);opacity:.6}
   .card.anime:hover::before{opacity:.9}
-
   .card.cyber::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,255,255,.06);pointer-events:none;z-index:1}
 
-  /* ===== TOP ROW: Cost · Domain · Rarity ===== */
-  .card-top{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:12px 16px 2px;position:relative;z-index:2;
+  /* ===== TOP HEADER: Cost · Name · Rarity ===== */
+  .card-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 16px 8px;gap:8px;position:relative;z-index:2;
   }
   .cost-gem{
-    width:40px;height:40px;border-radius:50%;
+    width:40px;height:40px;border-radius:50%;flex-shrink:0;
     display:flex;align-items:center;justify-content:center;
     font-weight:900;font-size:1.15em;position:relative;
     background:radial-gradient(circle at 35% 35%,#1a1a2e,#0a0a14);
     box-shadow:inset 0 0 8px rgba(0,0,0,.6);
   }
   .cost-gem::before{content:'';position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(from 0deg,var(--gold-dark),var(--gold-bright),var(--gold),var(--gold-bright),var(--gold-dark));z-index:-1}
-  .cost-gem::after{content:'';position:absolute;inset:-1px;border-radius:50%;background:transparent;border:1.5px solid var(--gold-dark)}
+  .cost-gem::after{content:'';position:absolute;inset:-1px;border-radius:50%;border:1.5px solid var(--gold-dark)}
   .card.force .cost-gem{color:var(--force-light)}
   .card.electric .cost-gem{color:var(--electric-light)}
 
-  .domain-glyph{
-    font-size:1.1em;opacity:.35;
-    filter:drop-shadow(0 0 2px currentColor);
+  /* Card name inside header */
+  .card-title-bar{flex:1;text-align:center;min-width:0}
+  .card-title{
+    font-size:1.05em;font-weight:800;letter-spacing:3px;white-space:nowrap;
+    padding:2px 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);
   }
-  .card.force .domain-glyph{color:var(--force-light)}
-  .card.electric .domain-glyph{color:var(--electric-light)}
+  .card.force .card-title{color:var(--force-light)}
+  .card.electric .card-title{color:var(--electric-light)}
 
   .rarity-icon{
-    width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.8em;
+    width:24px;height:24px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:.8em;
   }
   .rarity-icon.common{color:var(--common-silver)}
   .rarity-icon.rare{color:var(--rare-gold);filter:drop-shadow(0 0 4px rgba(240,192,64,.5))}
 
-  /* ===== CARD NAME ===== */
-  .card-name-plate{
-    position:relative;z-index:2;margin:0 16px 3px;padding:3px 0;
-    border-top:1px solid rgba(255,255,255,.08);
-    border-bottom:1px solid rgba(255,255,255,.08);
+  /* ===== DOMAIN RUNE (below header) ===== */
+  .domain-rune-row{
+    display:flex;justify-content:center;padding:0 0 4px;position:relative;z-index:2;
   }
-  .card-name{font-size:1.05em;font-weight:800;letter-spacing:3px;text-align:center}
-  .card.force .card-name{color:var(--force-light)}
-  .card.electric .card-name{color:var(--electric-light)}
+  .domain-rune{
+    width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+    opacity:.45;
+  }
+  .domain-rune svg{width:20px;height:20px}
+  .card.force .domain-rune svg{fill:var(--force-light)}
+  .card.electric .domain-rune svg{fill:var(--electric-light)}
 
   /* ===== TYPE RIBBON ===== */
-  .type-ribbon{display:flex;align-items:center;justify-content:center;gap:8px;padding:2px 0 6px;position:relative;z-index:2}
+  .type-ribbon{display:flex;justify-content:center;padding:2px 0 8px;position:relative;z-index:2}
   .type-pip{padding:2px 10px;border-radius:3px;font-size:.66em;font-weight:700;letter-spacing:1px;text-transform:uppercase}
   .type-pip.attack{background:rgba(224,96,80,.2);color:var(--attack-red);border:1px solid rgba(224,96,80,.3)}
   .type-pip.support{background:rgba(60,179,113,.2);color:var(--support-green);border:1px solid rgba(60,179,113,.3)}
   .type-pip.summon{background:rgba(240,192,64,.2);color:var(--rare-gold);border:1px solid rgba(240,192,64,.3)}
 
   /* ===== ART FRAME ===== */
-  .art-frame{margin:0;position:relative;z-index:2;height:350px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#1a1d28 0%,#0d0e16 100%)}
+  .art-frame{margin:0;position:relative;z-index:2;height:340px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#1a1d28 0%,#0d0e16 100%)}
   .art-frame img{width:calc(100% - 16px);height:calc(100% - 16px);object-fit:cover;object-position:50% 20%;display:block;border-radius:2px}
   .card.anime .art-frame{background:radial-gradient(ellipse at 50% 40%,#2a1e35 0%,#1a1025 100%)}
-
   .art-corner{position:absolute;width:16px;height:16px;z-index:3;pointer-events:none;border-color:rgba(212,168,83,.45)}
   .art-corner.tl{top:8px;left:8px;border-top:2px solid;border-left:2px solid}
   .art-corner.tr{top:8px;right:8px;border-top:2px solid;border-right:2px solid}
   .art-corner.bl{bottom:8px;left:8px;border-bottom:2px solid;border-left:2px solid}
   .art-corner.br{bottom:8px;right:8px;border-bottom:2px solid;border-right:2px solid}
-
   .card.cyber .art-frame::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.04) 2px,rgba(0,229,255,.04) 4px)}
   .card.anime .art-frame::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;background:radial-gradient(ellipse at 50% 25%,rgba(255,107,157,.05),transparent 55%),radial-gradient(ellipse at 30% 70%,rgba(255,184,140,.04),transparent 50%)}
 
   /* ===== ORNATE DIVIDER ===== */
-  .ornate-divider{display:flex;align-items:center;gap:6px;padding:8px 20px 2px;position:relative;z-index:2}
+  .ornate-divider{display:flex;align-items:center;gap:6px;padding:6px 20px 2px;position:relative;z-index:2}
   .ornate-divider .line{flex:1;height:1px}
   .card.force .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--force-dark),var(--force),var(--force-dark),transparent)}
   .card.electric .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--electric-dark),var(--electric),var(--electric-dark),transparent)}
@@ -164,7 +144,7 @@
   .card.electric .ornate-divider .gem{background:var(--electric);box-shadow:0 0 6px var(--electric)}
 
   /* ===== STATS ===== */
-  .card-stats{padding:0 20px 6px;position:relative;z-index:2;display:flex;align-items:center;gap:10px}
+  .card-stats{padding:0 20px 4px;position:relative;z-index:2;display:flex;align-items:center;gap:10px}
   .main-stat{display:flex;align-items:baseline;gap:6px}
   .main-stat .stat-num{font-size:1.5em;font-weight:900;line-height:1;font-family:'Segoe UI',sans-serif}
   .card.force .main-stat .stat-num{color:var(--force);text-shadow:0 0 10px rgba(231,76,60,.4)}
@@ -174,7 +154,7 @@
   .hp-stat .hp-num{font-weight:800;font-size:.9em;color:var(--summon-hp)}
 
   /* ===== DESCRIPTION + PRINCIPLE ===== */
-  .card-desc-box{margin:0 20px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);border-left:2px solid}
+  .card-desc-box{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);border-left:2px solid}
   .card.force .card-desc-box{border-left-color:rgba(231,76,60,.4)}
   .card.electric .card-desc-box{border-left-color:rgba(155,89,182,.4)}
   .card.anime .card-desc-box{background:rgba(255,255,255,.03)}
@@ -208,75 +188,105 @@
 
     <!-- A01 重力锤击 · Cyber -->
     <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card force cyber">
-      <div class="card-top"><div class="cost-gem">12</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">重力锤击</div></div>
-      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_cyber.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">造成 75 点伤害。物体所受重力与质量成正比——质量越大，锤击力道越猛，冲击力呈指数级增长。</div><span class="card-principle">G = mg · 引力原理</span></div>
-    </div></div>
+      <div class="card force cyber">
+        <div class="card-header">
+          <div class="cost-gem">12</div>
+          <div class="card-title-bar"><div class="card-title">重力锤击</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_cyber.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">造成 75 点伤害。物体所受重力与质量成正比——质量越大，锤击力道越猛。</div><span class="card-principle">G = mg · 引力原理</span></div>
+      </div>
+    </div>
 
     <!-- A01 重力锤击 · Anime -->
     <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
-    <div class="card force anime">
-      <div class="card-top"><div class="cost-gem">12</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">重力锤击</div></div>
-      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_anime.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">造成 75 点伤害。物体所受重力与质量成正比——质量越大，锤击力道越猛，冲击力呈指数级增长。</div><span class="card-principle">G = mg · 引力原理</span></div>
-    </div></div>
+      <div class="card force anime">
+        <div class="card-header">
+          <div class="cost-gem">12</div>
+          <div class="card-title-bar"><div class="card-title">重力锤击</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/a01_zhonglichuiji_anime.png" alt="重力锤击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">75</span><span class="stat-unit">伤害</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">造成 75 点伤害。物体所受重力与质量成正比——质量越大，锤击力道越猛。</div><span class="card-principle">G = mg · 引力原理</span></div>
+      </div>
+    </div>
 
     <!-- S01 质量增大 · Cyber -->
     <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card force cyber">
-      <div class="card-top"><div class="cost-gem">5</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">质量增大</div></div>
-      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_cyber.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系攻击</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">己方下次力系攻击 +10 伤害。质量是惯性的唯一量度，增大质量即增强冲击势能。</div><span class="card-principle">惯性定律 · G = mg</span></div>
-    </div></div>
+      <div class="card force cyber">
+        <div class="card-header">
+          <div class="cost-gem">5</div>
+          <div class="card-title-bar"><div class="card-title">质量增大</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_cyber.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系攻击</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">己方下次力系攻击 +10 伤害。质量是惯性的唯一量度，增大质量即增强冲击势能。</div><span class="card-principle">惯性定律 · G = mg</span></div>
+      </div>
+    </div>
 
     <!-- S01 质量增大 · Anime -->
     <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
-    <div class="card force anime">
-      <div class="card-top"><div class="cost-gem">5</div><span class="domain-glyph">⚡</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">质量增大</div></div>
-      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_anime.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系攻击</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">己方下次力系攻击 +10 伤害。质量是惯性的唯一量度，增大质量即增强冲击势能。</div><span class="card-principle">惯性定律 · G = mg</span></div>
-    </div></div>
+      <div class="card force anime">
+        <div class="card-header">
+          <div class="cost-gem">5</div>
+          <div class="card-title-bar"><div class="card-title">质量增大</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/s01_zhiliangzengda_anime.png" alt="质量增大"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">+10</span><span class="stat-unit">次力系攻击</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">己方下次力系攻击 +10 伤害。质量是惯性的唯一量度，增大质量即增强冲击势能。</div><span class="card-principle">惯性定律 · G = mg</span></div>
+      </div>
+    </div>
 
     <!-- C05 牛顿 · Cyber -->
     <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card force cyber">
-      <div class="card-top"><div class="cost-gem">22</div><span class="domain-glyph">⚡</span><div class="rarity-icon rare" title="Rare">★</div></div>
-      <div class="card-name-plate"><div class="card-name">牛顿</div></div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_cyber.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">力系攻击卡额外 +20 伤害。经典力学奠基人——力等于质量乘加速度，力越大效果越震撼。</div><span class="card-principle">F = ma · 牛顿第二定律</span></div>
-    </div></div>
+      <div class="card force cyber">
+        <div class="card-header">
+          <div class="cost-gem">22</div>
+          <div class="card-title-bar"><div class="card-title">牛顿</div></div>
+          <div class="rarity-icon rare" title="Rare">★</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_cyber.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">力系攻击卡额外 +20 伤害。经典力学奠基人——力等于质量乘加速度，力越大效果越撼。</div><span class="card-principle">F = ma · 牛顿第二定律</span></div>
+      </div>
+    </div>
 
     <!-- C05 牛顿 · Anime -->
     <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
-    <div class="card force anime">
-      <div class="card-top"><div class="cost-gem">22</div><span class="domain-glyph">⚡</span><div class="rarity-icon rare" title="Rare">★</div></div>
-      <div class="card-name-plate"><div class="card-name">牛顿</div></div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_anime.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">力系攻击卡额外 +20 伤害。经典力学奠基人——力等于质量乘加速度，力越大效果越震撼。</div><span class="card-principle">F = ma · 牛顿第二定律</span></div>
-    </div></div>
+      <div class="card force anime">
+        <div class="card-header">
+          <div class="cost-gem">22</div>
+          <div class="card-title-bar"><div class="card-title">牛顿</div></div>
+          <div class="rarity-icon rare" title="Rare">★</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M12 2l-2 10h4l-1 10-6-14h4L9 2h3z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/c05_niudun_anime.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">+20</span><span class="stat-unit">力系加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">力系攻击卡额外 +20 伤害。经典力学奠基人——力等于质量乘加速度，力越大效果越撼。</div><span class="card-principle">F = ma · 牛顿第二定律</span></div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -288,75 +298,105 @@
 
     <!-- A27 闪电劈击 · Cyber -->
     <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card electric cyber">
-      <div class="card-top"><div class="cost-gem">10</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">闪电劈击</div></div>
-      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_cyber.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">造成 30 点伤害。场上电系辅助 ≥2 张时触发高压击穿：无视 20 防御 + 额外 20 伤害。</div><span class="card-principle">介质击穿 · 高压放电</span></div>
-    </div></div>
+      <div class="card electric cyber">
+        <div class="card-header">
+          <div class="cost-gem">10</div>
+          <div class="card-title-bar"><div class="card-title">闪电劈击</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_cyber.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">造成 30 点伤害。场上电系辅助 ≥2 张时触发高压击穿：无视 20 防御 + 额外 20 伤害。</div><span class="card-principle">介质击穿 · 高压放电</span></div>
+      </div>
+    </div>
 
     <!-- A27 闪电劈击 · Anime -->
     <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
-    <div class="card electric anime">
-      <div class="card-top"><div class="cost-gem">10</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">闪电劈击</div></div>
-      <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_anime.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">造成 30 点伤害。场上电系辅助 ≥2 张时触发高压击穿：无视 20 防御 + 额外 20 伤害。</div><span class="card-principle">介质击穿 · 高压放电</span></div>
-    </div></div>
+      <div class="card electric anime">
+        <div class="card-header">
+          <div class="cost-gem">10</div>
+          <div class="card-title-bar"><div class="card-title">闪电劈击</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip attack">攻击</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/a27_gaoyadianji_anime.png" alt="闪电劈击"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">30</span><span class="stat-unit">伤害</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">造成 30 点伤害。场上电系辅助 ≥2 张时触发高压击穿：无视 20 防御 + 额外 20 伤害。</div><span class="card-principle">介质击穿 · 高压放电</span></div>
+      </div>
+    </div>
 
     <!-- S28 电磁感应 · Cyber -->
     <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card electric cyber">
-      <div class="card-top"><div class="cost-gem">6</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">电磁感应</div></div>
-      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_cyber.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">持续 3 回合。每回合 +2 精神力；场上期间每打出 1 张电系卡额外 +2 精神力——磁能化作电能。</div><span class="card-principle">法拉第定律 · 电磁感应</span></div>
-    </div></div>
+      <div class="card electric cyber">
+        <div class="card-header">
+          <div class="cost-gem">6</div>
+          <div class="card-title-bar"><div class="card-title">电磁感应</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_cyber.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">持续 3 回合。每回合 +2 精神力；场上期间每打出 1 张电系卡额外 +2 精神力——磁能化作电能。</div><span class="card-principle">法拉第定律 · 电磁感应</span></div>
+      </div>
+    </div>
 
     <!-- S28 电磁感应 · Anime -->
     <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
-    <div class="card electric anime">
-      <div class="card-top"><div class="cost-gem">6</div><span class="domain-glyph">🔮</span><div class="rarity-icon common" title="Common">◆</div></div>
-      <div class="card-name-plate"><div class="card-name">电磁感应</div></div>
-      <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_anime.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">持续 3 回合。每回合 +2 精神力；场上期间每打出 1 张电系卡额外 +2 精神力——磁能化作电能。</div><span class="card-principle">法拉第定律 · 电磁感应</span></div>
-    </div></div>
+      <div class="card electric anime">
+        <div class="card-header">
+          <div class="cost-gem">6</div>
+          <div class="card-title-bar"><div class="card-title">电磁感应</div></div>
+          <div class="rarity-icon common" title="Common">◆</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip support">辅助</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/s28_dianciganying_anime.png" alt="电磁感应"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">+2</span><span class="stat-unit">每回合精神力</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">持续 3 回合。每回合 +2 精神力；场上期间每打出 1 张电系卡额外 +2 精神力——磁能化作电能。</div><span class="card-principle">法拉第定律 · 电磁感应</span></div>
+      </div>
+    </div>
 
     <!-- C07 欧姆 · Cyber -->
     <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card electric cyber">
-      <div class="card-top"><div class="cost-gem">26</div><span class="domain-glyph">🔮</span><div class="rarity-icon rare" title="Rare">★</div></div>
-      <div class="card-name-plate"><div class="card-name">欧姆</div></div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_cyber.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗 -6。欧姆定律 I=U/R——降低电阻即降低消耗，电流畅通无阻。</div><span class="card-principle">I = U/R · 欧姆定律</span></div>
-    </div></div>
+      <div class="card electric cyber">
+        <div class="card-header">
+          <div class="cost-gem">26</div>
+          <div class="card-title-bar"><div class="card-title">欧姆</div></div>
+          <div class="rarity-icon rare" title="Rare">★</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_cyber.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗 -6。欧姆定律 I=U/R——降低电阻即降低消耗，电流畅通无阻。</div><span class="card-principle">I = U/R · 欧姆定律</span></div>
+      </div>
+    </div>
 
     <!-- C07 欧姆 · Anime -->
     <div class="card-set"><span class="skin-badge anime">Anime Illusion</span>
-    <div class="card electric anime">
-      <div class="card-top"><div class="cost-gem">26</div><span class="domain-glyph">🔮</span><div class="rarity-icon rare" title="Rare">★</div></div>
-      <div class="card-name-plate"><div class="card-name">欧姆</div></div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_anime.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗 -6。欧姆定律 I=U/R——降低电阻即降低消耗，电流畅通无阻。</div><span class="card-principle">I = U/R · 欧姆定律</span></div>
-    </div></div>
+      <div class="card electric anime">
+        <div class="card-header">
+          <div class="cost-gem">26</div>
+          <div class="card-title-bar"><div class="card-title">欧姆</div></div>
+          <div class="rarity-icon rare" title="Rare">★</div>
+        </div>
+        <div class="domain-rune-row"><div class="domain-rune"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h5L10 22l1-9H6l8-11z"/></svg></div></div>
+        <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+        <div class="art-frame" style="position:relative"><img src="card_art/c07_oumu_anime.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+        <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="card-stats"><div class="main-stat"><span class="stat-num">-6</span><span class="stat-unit">电系消耗</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
+        <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗 -6。欧姆定律 I=U/R——降低电阻即降低消耗，电流畅通无阻。</div><span class="card-principle">I = U/R · 欧姆定律</span></div>
+      </div>
+    </div>
 
   </div>
 </div>
