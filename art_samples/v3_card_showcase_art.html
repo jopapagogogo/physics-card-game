@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V3 卡牌模板展示（含美术插画）— 力·电 双领域</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a14; color:#ddd; font-family:'Noto Sans SC',system-ui,sans-serif; min-height:100vh; padding:40px 20px; }
+  h1 { text-align:center; font-size:26px; margin-bottom:6px; color:#fff; }
+  .subtitle { text-align:center; font-size:13px; color:#777; margin-bottom:40px; }
+  .subtitle em { color:var(--h, #E74C3C); font-style:normal; }
+
+  .section { max-width:960px; margin:0 auto 52px; }
+  .section h2 { font-size:19px; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+  .section .desc { font-size:12px; color:#555; margin-bottom:22px; }
+
+  .card-row { display:flex; gap:22px; justify-content:center; flex-wrap:wrap; margin-bottom:24px; }
+  .label { text-align:center; font-size:10px; color:#555; margin-top:6px; font-family:monospace; }
+
+  /* ---- V3 Card Base ---- */
+  .card-v3.domain-force  { --dm:#E74C3C; --dm-bg:rgba(231,76,60,.1); --dm-glow:rgba(231,76,60,.35); }
+  .card-v3.domain-elec   { --dm:#9B59B6; --dm-bg:rgba(155,89,182,.1); --dm-glow:rgba(155,89,182,.35); }
+
+  .card-v3 {
+    width:220px; min-height:370px; border:2px solid var(--dm); border-radius:14px;
+    background:#1a1a2e; position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    transition:transform .3s, box-shadow .3s;
+  }
+  .card-v3 .v3-cost {
+    position:absolute; top:8px; left:8px; z-index:20;
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:900; color:#fff;
+    background:var(--dm); box-shadow:0 2px 8px rgba(0,0,0,.5);
+  }
+  .card-v3 .v3-name {
+    position:relative; z-index:15;
+    padding:10px 10px 4px 50px; min-height:38px;
+    font-size:17px; font-weight:800; color:var(--dm); line-height:1.2;
+  }
+  .card-v3 .v3-art {
+    position:relative; z-index:5; margin:0 8px; border-radius:6px; overflow:hidden;
+    background:linear-gradient(135deg, #1e1e32, #151528);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:inset 0 0 20px rgba(0,0,0,.3);
+  }
+  .card-v3 .v3-art::after {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, transparent, var(--dm), transparent);
+    opacity:.5; z-index:6; pointer-events:none;
+  }
+  .card-v3 .v3-art img {
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .card-v3 .v3-type { position:relative; z-index:15; text-align:center; padding:6px 0 0; }
+  .card-v3 .v3-type span {
+    display:inline-block; padding:2px 12px; border-radius:8px;
+    font-size:10px; font-weight:700; letter-spacing:1px;
+    color:var(--dm); background:var(--dm-bg);
+  }
+  .card-v3 .v3-desc-effect { padding:4px 10px 2px; font-size:11px; color:#bbb; line-height:1.5; flex:1; }
+  .card-v3 .v3-desc-principle {
+    padding:2px 10px 0; font-size:9.5px; color:#777; line-height:1.4;
+    border-top:1px solid rgba(255,255,255,.06); margin:4px 8px 0;
+  }
+  .card-v3 .v3-desc-principle .lbl { color:#666; font-weight:600; }
+  .card-v3 .v3-formula { padding:2px 10px 6px; font-size:11px; font-style:italic; color:var(--dm); opacity:.45; text-align:right; }
+  .card-v3 .v3-rarity-bar { height:3px; background:linear-gradient(90deg, var(--dm), var(--dm-glow), var(--dm)); opacity:.35; margin-top:auto; }
+  .card-v3 .skin-badge {
+    position:absolute; bottom:5px; right:8px; z-index:20;
+    font-size:8px; padding:1px 6px; border-radius:3px;
+    color:var(--dm); background:var(--dm-bg);
+  }
+
+  /* === Skin: 赛博朋克 === */
+  .skin-cyber { box-shadow:0 0 16px var(--dm-glow), 0 4px 24px rgba(0,0,0,.5); }
+  .skin-cyber::before {
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:10; opacity:.035;
+    background:repeating-linear-gradient(0deg, transparent, transparent 2px, var(--dm) 2px, var(--dm) 4px);
+  }
+  .skin-cyber .v3-cost { border:2px solid var(--dm); font-family:monospace; }
+  .skin-cyber .v3-name { text-shadow:0 0 8px var(--dm-glow); }
+
+  /* === Skin: 二次元幻境 === */
+  .skin-anime {
+    border-radius:18px;
+    box-shadow:0 0 20px var(--dm-glow), inset 0 0 24px rgba(0,0,0,.2);
+  }
+  .skin-anime::before {
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:10;
+    box-shadow:inset 0 0 30px var(--dm-glow); opacity:.06;
+    border-radius:18px;
+  }
+  .skin-anime::after {
+    content:''; position:absolute; top:6px; right:10px; z-index:22;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--dm); opacity:.35;
+    box-shadow:0 0 6px var(--dm-glow);
+  }
+  .skin-anime .v3-cost { box-shadow:0 0 12px var(--dm-glow); }
+  .skin-anime .v3-name { text-shadow:0 0 6px var(--dm-glow); letter-spacing:.5px; }
+  .skin-anime .v3-rarity-bar {
+    background:linear-gradient(90deg, transparent, var(--dm), var(--dm-glow), var(--dm), transparent);
+    opacity:.6;
+  }
+
+  .card-v3:hover { transform:translateY(-8px) scale(1.03); box-shadow:0 0 28px var(--dm-glow), 0 12px 40px rgba(0,0,0,.6); z-index:30; }
+
+  /* Legend */
+  .legend { max-width:960px; margin:0 auto 40px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:#888; }
+  .legend-dot { width:10px; height:10px; border-radius:3px; }
+  .legend-dot.fresh { background:#2ECC71; }
+  .legend-dot.reuse { background:#F39C12; }
+  .legend-dot.exist { background:#3498DB; }
+</style>
+</head>
+<body>
+
+<h1>V3 卡牌模板 — 完整美术插画版</h1>
+<p class="subtitle">力（<em style="--h:#E74C3C">红色系</em>）· 电（<em style="--h:#9B59B6">紫色系</em>） × 赛博朋克 · 二次元幻境 — 12 张 | 
+  <span style="color:#2ECC71">●</span> 本次新生成 &nbsp;
+  <span style="color:#F39C12">●</span> 同领域复用 &nbsp;
+  <span style="color:#3498DB">●</span> 已有素材
+</p>
+
+<!-- ======================== 力 · 赛博朋克 ======================== -->
+<div class="section">
+  <h2 style="color:#E74C3C">🔴 力 · 赛博朋克</h2>
+  <p class="desc">扫描线+霓虹光+monospace费用。机械重锤砸出重力波，粗粝硬核科幻感。</p>
+  <div class="card-row">
+
+    <!-- A01 重力锤击 · 赛博朋克 -->
+    <div>
+      <div class="card-v3 domain-force skin-cyber">
+        <div class="v3-cost">12</div>
+        <div class="v3-name">重力锤击</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a01_zhonglichuiji_cyber.png" alt="重力锤击·赛博朋克">
+        </div>
+        <div class="v3-type"><span>⚔️ 攻击</span></div>
+        <div class="v3-desc-effect">造成75点伤害</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>物体所受重力与质量成正比</div>
+        <div class="v3-formula">G=mg</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">赛博朋克</span>
+      </div>
+      <div class="label">A01 · common <span style="color:#2ECC71">● 新生成</span></div>
+    </div>
+
+    <!-- S01 质量增大 · 赛博朋克（复用A01插画） -->
+    <div>
+      <div class="card-v3 domain-force skin-cyber">
+        <div class="v3-cost">5</div>
+        <div class="v3-name">质量增大</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a01_zhonglichuiji_cyber.png" alt="质量增大·赛博朋克">
+        </div>
+        <div class="v3-type"><span>✨ 辅助</span></div>
+        <div class="v3-desc-effect">己方下次力系攻击+10伤害</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>物体质量越大，重力越大</div>
+        <div class="v3-formula">G=mg</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">赛博朋克</span>
+      </div>
+      <div class="label">S01 · common <span style="color:#F39C12">● 同领域复用</span></div>
+    </div>
+
+    <!-- C05 牛顿 · 赛博朋克（使用已有牛顿立绘） -->
+    <div>
+      <div class="card-v3 domain-force skin-cyber">
+        <div class="v3-cost">22</div>
+        <div class="v3-name">牛顿</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="../Trading_card_game_card_illustr_2026-06-10T08-36-54.png" alt="牛顿·赛博朋克">
+        </div>
+        <div class="v3-type"><span>👾 召唤</span></div>
+        <div class="v3-desc-effect">力系攻击卡额外+20伤害</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>F=ma——经典力学的奠基人</div>
+        <div class="v3-formula">F=ma</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">赛博朋克</span>
+      </div>
+      <div class="label">C05 · rare · ❤310 <span style="color:#3498DB">● 已有素材</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== 力 · 二次元 ======================== -->
+<div class="section">
+  <h2 style="color:#E74C3C">🌸 力 · 二次元幻境</h2>
+  <p class="desc">柔光渐变+星点装饰+圆角。魔法重锤在樱花瓣中落下，温暖的幻想感。</p>
+  <div class="card-row">
+
+    <div>
+      <div class="card-v3 domain-force skin-anime">
+        <div class="v3-cost">12</div>
+        <div class="v3-name">重力锤击</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a01_zhonglichuiji_anime.png" alt="重力锤击·二次元">
+        </div>
+        <div class="v3-type"><span>⚔️ 攻击</span></div>
+        <div class="v3-desc-effect">造成75点伤害</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>物体所受重力与质量成正比</div>
+        <div class="v3-formula">G=mg</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">二次元幻境</span>
+      </div>
+      <div class="label">A01 · common <span style="color:#2ECC71">● 新生成</span></div>
+    </div>
+
+    <div>
+      <div class="card-v3 domain-force skin-anime">
+        <div class="v3-cost">5</div>
+        <div class="v3-name">质量增大</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a01_zhonglichuiji_anime.png" alt="质量增大·二次元">
+        </div>
+        <div class="v3-type"><span>✨ 辅助</span></div>
+        <div class="v3-desc-effect">己方下次力系攻击+10伤害</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>物体质量越大，重力越大</div>
+        <div class="v3-formula">G=mg</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">二次元幻境</span>
+      </div>
+      <div class="label">S01 · common <span style="color:#F39C12">● 同领域复用</span></div>
+    </div>
+
+    <div>
+      <div class="card-v3 domain-force skin-anime">
+        <div class="v3-cost">22</div>
+        <div class="v3-name">牛顿</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="../Japanese_anime_style_trading_c_2026-06-10T08-37-40.png" alt="牛顿·二次元">
+        </div>
+        <div class="v3-type"><span>👾 召唤</span></div>
+        <div class="v3-desc-effect">力系攻击卡额外+20伤害</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>F=ma——经典力学的奠基人</div>
+        <div class="v3-formula">F=ma</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">二次元幻境</span>
+      </div>
+      <div class="label">C05 · rare · ❤310 <span style="color:#3498DB">● 已有素材</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== 电 · 赛博朋克 ======================== -->
+<div class="section">
+  <h2 style="color:#9B59B6">🟣 电 · 赛博朋克</h2>
+  <p class="desc">紫色霓虹扫描线+尖端放电感。工业电网中炸裂的电弧，充满危险的科技感。</p>
+  <div class="card-row">
+
+    <div>
+      <div class="card-v3 domain-elec skin-cyber">
+        <div class="v3-cost">10</div>
+        <div class="v3-name">高压电击</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a27_gaoyadianji_cyber.png" alt="高压电击·赛博朋克">
+        </div>
+        <div class="v3-type"><span>⚔️ 攻击</span></div>
+        <div class="v3-desc-effect">造成30点伤害。电系辅助卡≥2张：无视20防御+额外20</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>电压足够高时可击穿绝缘层</div>
+        <div class="v3-formula">高压击穿</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">赛博朋克</span>
+      </div>
+      <div class="label">A27 · common <span style="color:#2ECC71">● 新生成</span></div>
+    </div>
+
+    <!-- A28 雷暴链击 · 赛博朋克（复用A27插画） -->
+    <div>
+      <div class="card-v3 domain-elec skin-cyber">
+        <div class="v3-cost">9</div>
+        <div class="v3-name">雷暴链击</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a27_gaoyadianji_cyber.png" alt="雷暴链击·赛博朋克">
+        </div>
+        <div class="v3-type"><span>⚔️ 攻击</span></div>
+        <div class="v3-desc-effect">造成30点伤害。对方每有1张辅助卡+15</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>放电沿最低阻抗路径传导</div>
+        <div class="v3-formula">链式放电</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">赛博朋克</span>
+      </div>
+      <div class="label">A28 · common <span style="color:#F39C12">● 同领域复用</span></div>
+    </div>
+
+    <!-- C07 欧姆 · 赛博朋克（使用已有欧姆立绘） -->
+    <div>
+      <div class="card-v3 domain-elec skin-cyber">
+        <div class="v3-cost">26</div>
+        <div class="v3-name">欧姆</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="../summons/Full_body_character_portrait_o_2026-06-11T02-48-56.png" alt="欧姆·赛博朋克">
+        </div>
+        <div class="v3-type"><span>👾 召唤</span></div>
+        <div class="v3-desc-effect">电系卡精神力消耗-6</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>欧姆定律I=U/R——降低电阻=降低消耗</div>
+        <div class="v3-formula">欧姆定律</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">赛博朋克</span>
+      </div>
+      <div class="label">C07 · rare · ❤300 <span style="color:#3498DB">● 已有素材</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== 电 · 二次元 ======================== -->
+<div class="section">
+  <h2 style="color:#9B59B6">🌙 电 · 二次元幻境</h2>
+  <p class="desc">紫罗兰柔光+星点魔法感。闪雷法师从手中放出紫色闪电，梦幻夜空氛围。</p>
+  <div class="card-row">
+
+    <div>
+      <div class="card-v3 domain-elec skin-anime">
+        <div class="v3-cost">10</div>
+        <div class="v3-name">高压电击</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a27_gaoyadianji_anime.png" alt="高压电击·二次元">
+        </div>
+        <div class="v3-type"><span>⚔️ 攻击</span></div>
+        <div class="v3-desc-effect">造成30点伤害。电系辅助卡≥2张：无视20防御+额外20</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>电压足够高时可击穿绝缘层</div>
+        <div class="v3-formula">高压击穿</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">二次元幻境</span>
+      </div>
+      <div class="label">A27 · common <span style="color:#2ECC71">● 新生成</span></div>
+    </div>
+
+    <div>
+      <div class="card-v3 domain-elec skin-anime">
+        <div class="v3-cost">9</div>
+        <div class="v3-name">雷暴链击</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="card_art/a27_gaoyadianji_anime.png" alt="雷暴链击·二次元">
+        </div>
+        <div class="v3-type"><span>⚔️ 攻击</span></div>
+        <div class="v3-desc-effect">造成30点伤害。对方每有1张辅助卡+15</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>放电沿最低阻抗路径传导</div>
+        <div class="v3-formula">链式放电</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">二次元幻境</span>
+      </div>
+      <div class="label">A28 · common <span style="color:#F39C12">● 同领域复用</span></div>
+    </div>
+
+    <div>
+      <div class="card-v3 domain-elec skin-anime">
+        <div class="v3-cost">26</div>
+        <div class="v3-name">欧姆</div>
+        <div class="v3-art" style="height:145px;">
+          <img src="../summons/Full_body_character_portrait_o_2026-06-11T02-48-56.png" alt="欧姆·二次元">
+        </div>
+        <div class="v3-type"><span>👾 召唤</span></div>
+        <div class="v3-desc-effect">电系卡精神力消耗-6</div>
+        <div class="v3-desc-principle"><span class="lbl">原理：</span>欧姆定律I=U/R——降低电阻=降低消耗</div>
+        <div class="v3-formula">欧姆定律</div>
+        <div class="v3-rarity-bar"></div>
+        <span class="skin-badge">二次元幻境</span>
+      </div>
+      <div class="label">C07 · rare · ❤300 <span style="color:#3498DB">● 已有素材</span></div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
