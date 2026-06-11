@@ -22,11 +22,15 @@
     --electric-dark: #4a1d6e;
     --cyber-accent: #00e5ff;
     --anime-accent: #ff6b9d;
+    --anime-warm: #ffb88c;
     --rare-gold: #f0c040;
     --common-silver: #7eb8da;
     --summon-hp: #4ecdc4;
     --attack-red: #e06050;
     --support-green: #3cb371;
+    /* Anime skin palette */
+    --anime-card-bg: #23182e;
+    --anime-card-bg-light: #2e2240;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -65,7 +69,7 @@
     box-shadow:0 0 20px rgba(155,89,182,0.3), inset 0 0 20px rgba(155,89,182,0.05);
   }
 
-  .domain-section { display:none; max-width:1350px; margin:0 auto; padding:0 20px 60px; }
+  .domain-section { display:none; max-width:1400px; margin:0 auto; padding:0 20px 60px; }
   .domain-section.active { display:block; }
   .domain-section h2 {
     text-align:center; font-size:1.25em; margin-bottom:28px; color:var(--text-dim);
@@ -73,11 +77,11 @@
   }
 
   .cards-grid {
-    display:grid; grid-template-columns:repeat(3,1fr); gap:40px 28px;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:50px 36px;
     justify-items:center;
   }
 
-  /* ===== CARD WRAPPER ===== */
+  /* ===== SKIN BADGE ===== */
   .card-set { text-align:center; }
   .skin-badge {
     display:inline-block; padding:5px 20px; border-radius:20px;
@@ -89,53 +93,79 @@
 
   /* ===== THE CARD ===== */
   .card {
-    width:290px; border-radius:16px;
+    width:300px; border-radius:16px;
     background:var(--card-inner);
-    position:relative;
-    text-align:left;
+    position:relative; text-align:left;
     box-shadow:0 16px 48px rgba(0,0,0,0.55);
-    transition:transform 0.35s, box-shadow 0.35s;
-    /* Multi-layer border via box-shadow */
+    transition:transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+               box-shadow 0.4s ease,
+               border-color 0.4s ease;
     border:2.5px solid transparent;
     background-clip:padding-box;
   }
   .card::before {
-    content:''; position:absolute; inset:-3px; border-radius:18px;
-    z-index:-1;
+    content:''; position:absolute; inset:-4px; border-radius:19px;
+    z-index:-1; transition:opacity 0.4s ease;
   }
-  .card:hover { transform:translateY(-8px); }
+  .card:hover { transform:translateY(-6px); }
   .card:active { transform:translateY(-2px); }
 
   /* Force domain border */
   .card.force {
     border-color:var(--force-dark);
     box-shadow:
-      0 0 1px var(--force),
-      inset 0 0 0 1px rgba(231,76,60,0.15),
+      0 0 2px var(--force),
+      inset 0 0 0 1px rgba(231,76,60,0.12),
       0 16px 48px rgba(0,0,0,0.55);
   }
   .card.force::before {
     background:linear-gradient(135deg, var(--force-dark), var(--force), var(--force-light), var(--force), var(--force-dark));
-    opacity:0.7;
+    opacity:0.6;
   }
-  .card.force:hover { box-shadow:0 0 28px rgba(231,76,60,0.4), 0 20px 56px rgba(0,0,0,0.6); }
+  .card.force:hover::before { opacity:0.9; }
+  .card.force:hover { 
+    box-shadow:0 0 36px rgba(231,76,60,0.35), 0 0 80px rgba(231,76,60,0.1), 0 20px 56px rgba(0,0,0,0.6); 
+  }
 
   /* Electric domain border */
   .card.electric {
     border-color:var(--electric-dark);
     box-shadow:
-      0 0 1px var(--electric),
-      inset 0 0 0 1px rgba(155,89,182,0.15),
+      0 0 2px var(--electric),
+      inset 0 0 0 1px rgba(155,89,182,0.12),
       0 16px 48px rgba(0,0,0,0.55);
   }
   .card.electric::before {
     background:linear-gradient(135deg, var(--electric-dark), var(--electric), var(--electric-light), var(--electric), var(--electric-dark));
-    opacity:0.7;
+    opacity:0.6;
   }
-  .card.electric:hover { box-shadow:0 0 28px rgba(155,89,182,0.4), 0 20px 56px rgba(0,0,0,0.6); }
+  .card.electric:hover::before { opacity:0.9; }
+  .card.electric:hover { 
+    box-shadow:0 0 36px rgba(155,89,182,0.35), 0 0 80px rgba(155,89,182,0.1), 0 20px 56px rgba(0,0,0,0.6); 
+  }
 
-  /* Corner ornaments */
-  .card::after {
+  /* ===== ANIME SKIN: lighter card background ===== */
+  .card.anime {
+    background:linear-gradient(175deg, #2a1e3c 0%, #211630 25%, #1f142e 50%, #231832 100%);
+  }
+  .card.anime::after {
+    content:''; position:absolute; inset:6px; border-radius:12px;
+    border:1px solid rgba(255,107,157,0.08);
+    pointer-events:none; z-index:1;
+  }
+  /* Subtle warm glow for anime */
+  .card.anime.force::before {
+    background:linear-gradient(135deg, #8b1a3a, #E74C3C, #ff8c7a, #E74C3C, #8b1a3a);
+    opacity:0.6;
+  }
+  .card.anime.electric::before {
+    background:linear-gradient(135deg, #4a1d6e, #9B59B6, #e8a0f0, #9B59B6, #4a1d6e);
+    opacity:0.6;
+  }
+  .card.anime:hover::before { opacity:0.9; }
+
+  /* ===== CYBER SKIN: corner scanlines ===== */
+  .card.cyber::after {
     content:''; position:absolute; inset:6px; border-radius:12px;
     border:1px solid rgba(255,255,255,0.06);
     pointer-events:none; z-index:1;
@@ -144,10 +174,8 @@
   /* ===== TOP ROW: Cost + Rarity ===== */
   .card-top {
     display:flex; justify-content:space-between; align-items:center;
-    padding:14px 16px 6px; position:relative; z-index:2;
+    padding:14px 16px 4px; position:relative; z-index:2;
   }
-
-  /* Cost gem */
   .cost-gem {
     width:44px; height:44px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
@@ -178,21 +206,16 @@
     color:var(--rare-gold);
     filter:drop-shadow(0 0 4px rgba(240,192,64,0.5));
   }
-  .rarity-icon.legendary {
-    color:#ff6b35;
-    filter:drop-shadow(0 0 6px rgba(255,107,53,0.5));
-  }
 
   /* ===== CARD NAME ===== */
   .card-name-plate {
     position:relative; z-index:2;
-    margin:0 16px 4px; padding:6px 0;
+    margin:0 16px 3px; padding:4px 0;
     border-top:1px solid rgba(255,255,255,0.08);
     border-bottom:1px solid rgba(255,255,255,0.08);
   }
   .card-name {
-    font-size:1.1em; font-weight:800; letter-spacing:2px;
-    text-align:center;
+    font-size:1.1em; font-weight:800; letter-spacing:2px; text-align:center;
   }
   .card.force .card-name { color:var(--force-light); }
   .card.electric .card-name { color:var(--electric-light); }
@@ -200,7 +223,7 @@
   /* ===== TYPE RIBBON ===== */
   .type-ribbon {
     display:flex; align-items:center; justify-content:center; gap:8px;
-    padding:3px 0 8px; position:relative; z-index:2;
+    padding:2px 0 8px; position:relative; z-index:2;
   }
   .type-pip {
     padding:2px 10px; border-radius:3px; font-size:0.68em; font-weight:700;
@@ -211,59 +234,50 @@
   .type-pip.summon { background:rgba(240,192,64,0.2); color:var(--rare-gold); border:1px solid rgba(240,192,64,0.3); }
   .domain-pip { font-size:0.7em; color:var(--text-dim); }
 
-  /* ===== ART FRAME ===== */
+  /* ===== ART FRAME — full-width, tall, contain for full image ===== */
   .art-frame {
-    position:relative; z-index:2;
-    margin:0 10px; height:235px; overflow:hidden; border-radius:6px;
-    /* Beveled inner edge */
-    box-shadow:
-      inset 0 0 0 1.5px rgba(212,168,83,0.3),
-      inset 0 0 0 4px rgba(0,0,0,0.5),
-      inset 0 -30px 30px rgba(0,0,0,0.4),
-      inset 0 2px 4px rgba(255,255,255,0.04);
+    margin:0; position:relative; z-index:2;
+    height:360px; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    /* Default dark bg behind the image */
+    background:radial-gradient(ellipse at 50% 40%, #1a1d28 0%, #0d0e16 100%);
   }
-  .card.force .art-frame {
-    box-shadow:
-      inset 0 0 0 1.5px rgba(231,76,60,0.35),
-      inset 0 0 0 4px rgba(0,0,0,0.5),
-      inset 0 -30px 30px rgba(231,76,60,0.15),
-      inset 0 2px 4px rgba(255,255,255,0.04);
+  .art-frame img { 
+    width:100%; height:100%; 
+    object-fit:contain; 
+    display:block;
   }
-  .card.electric .art-frame {
-    box-shadow:
-      inset 0 0 0 1.5px rgba(155,89,182,0.35),
-      inset 0 0 0 4px rgba(0,0,0,0.5),
-      inset 0 -30px 30px rgba(155,89,182,0.15),
-      inset 0 2px 4px rgba(255,255,255,0.04);
+  /* Anime art frame: warm background to match card */
+  .card.anime .art-frame {
+    background:radial-gradient(ellipse at 50% 40%, #2a1e35 0%, #1a1025 100%);
   }
-  .art-frame img { width:100%; height:100%; object-fit:cover; display:block; }
 
   /* Corner decorations on art frame */
   .art-corner {
     position:absolute; width:18px; height:18px; z-index:3; pointer-events:none;
     border-color:rgba(212,168,83,0.5);
   }
-  .art-corner.tl { top:12px; left:12px; border-top:2px solid; border-left:2px solid; }
-  .art-corner.tr { top:12px; right:12px; border-top:2px solid; border-right:2px solid; }
-  .art-corner.bl { bottom:12px; left:12px; border-bottom:2px solid; border-left:2px solid; }
-  .art-corner.br { bottom:12px; right:12px; border-bottom:2px solid; border-right:2px solid; }
+  .art-corner.tl { top:8px; left:8px; border-top:2px solid; border-left:2px solid; }
+  .art-corner.tr { top:8px; right:8px; border-top:2px solid; border-right:2px solid; }
+  .art-corner.bl { bottom:8px; left:8px; border-bottom:2px solid; border-left:2px solid; }
+  .art-corner.br { bottom:8px; right:8px; border-bottom:2px solid; border-right:2px solid; }
 
-  /* Skin overlay */
+  /* Skin overlay on art frame */
   .card.cyber .art-frame::after {
     content:''; position:absolute; inset:0; pointer-events:none; z-index:4;
-    background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.05) 2px, rgba(0,229,255,0.05) 4px);
-    border-radius:6px;
+    background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.04) 2px, rgba(0,229,255,0.04) 4px);
   }
   .card.anime .art-frame::after {
     content:''; position:absolute; inset:0; pointer-events:none; z-index:4;
-    background:radial-gradient(ellipse at 50% 30%, transparent 45%, rgba(255,107,157,0.08) 100%);
-    border-radius:6px;
+    background:
+      radial-gradient(ellipse at 50% 25%, rgba(255,107,157,0.05) 0%, transparent 55%),
+      radial-gradient(ellipse at 30% 70%, rgba(255,184,140,0.04) 0%, transparent 50%);
   }
 
   /* ===== ORNATE DIVIDER ===== */
   .ornate-divider {
     display:flex; align-items:center; gap:6px;
-    padding:12px 20px 6px; position:relative; z-index:2;
+    padding:10px 20px 4px; position:relative; z-index:2;
   }
   .ornate-divider .line { flex:1; height:1px; }
   .card.force .ornate-divider .line { background:linear-gradient(90deg, transparent, var(--force-dark), var(--force), var(--force-dark), transparent); }
@@ -276,7 +290,7 @@
 
   /* ===== STATS AREA ===== */
   .card-stats {
-    padding:0 20px 10px; position:relative; z-index:2;
+    padding:0 20px 8px; position:relative; z-index:2;
     display:flex; align-items:center; gap:10px;
   }
   .main-stat {
@@ -299,7 +313,7 @@
 
   /* ===== DESCRIPTION ===== */
   .card-desc-box {
-    margin:0 20px 10px; padding:8px 10px; position:relative; z-index:2;
+    margin:0 20px 8px; padding:8px 10px; position:relative; z-index:2;
     border-radius:4px;
     background:rgba(0,0,0,0.25);
     border:1px solid rgba(255,255,255,0.05);
@@ -307,6 +321,8 @@
   }
   .card.force .card-desc-box { border-left-color:rgba(231,76,60,0.4); }
   .card.electric .card-desc-box { border-left-color:rgba(155,89,182,0.4); }
+  /* Anime: slightly lighter desc background */
+  .card.anime .card-desc-box { background:rgba(255,255,255,0.03); }
   .card-desc {
     font-size:0.73em; color:var(--text-dim); line-height:1.6;
   }
@@ -314,7 +330,7 @@
   /* ===== FOOTER ===== */
   .card-footer {
     display:flex; justify-content:space-between; align-items:center;
-    padding:8px 20px 14px; position:relative; z-index:2;
+    padding:6px 20px 14px; position:relative; z-index:2;
     border-top:1px solid rgba(255,255,255,0.06);
   }
   .formula-badge {
@@ -330,9 +346,12 @@
     background:rgba(155,89,182,0.12); color:var(--electric-light);
     border:1px solid rgba(155,89,182,0.25);
   }
+  /* Anime: brighter formula badge */
+  .card.anime.force .formula-badge { background:rgba(231,76,60,0.18); }
+  .card.anime.electric .formula-badge { background:rgba(155,89,182,0.18); }
   .principle-text { font-size:0.68em; color:var(--text-dim); font-style:italic; }
 
-  /* ===== SKIN TAG ===== */
+  /* ===== SKIN TAG MINI ===== */
   .skin-tag-mini {
     position:absolute; bottom:10px; right:10px; z-index:5;
     font-size:0.6em; font-weight:700; letter-spacing:1.5px;
@@ -343,12 +362,10 @@
   .skin-tag-mini.anime { background:rgba(255,107,157,0.12); color:var(--anime-accent); border:1px solid rgba(255,107,157,0.2); }
 
   /* Responsive */
-  @media (max-width:1000px) {
-    .cards-grid { grid-template-columns:repeat(2,1fr); }
-  }
-  @media (max-width:640px) {
+  @media (max-width:1050px) { .cards-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:680px) {
     .cards-grid { grid-template-columns:1fr; }
-    .card { width:100%; max-width:340px; }
+    .card { width:100%; max-width:360px; }
   }
 </style>
 </head>
@@ -396,6 +413,7 @@
           <span class="formula-badge">G = mg</span>
           <span class="principle-text">引力原理</span>
         </div>
+        <div class="skin-tag-mini cyber">CYBER</div>
       </div>
     </div>
 
@@ -426,6 +444,7 @@
           <span class="formula-badge">G = mg</span>
           <span class="principle-text">引力原理</span>
         </div>
+        <div class="skin-tag-mini anime">ANIME</div>
       </div>
     </div>
 
@@ -456,6 +475,7 @@
           <span class="formula-badge">G = mg</span>
           <span class="principle-text">惯性原理</span>
         </div>
+        <div class="skin-tag-mini cyber">CYBER</div>
       </div>
     </div>
 
@@ -486,6 +506,7 @@
           <span class="formula-badge">G = mg</span>
           <span class="principle-text">惯性原理</span>
         </div>
+        <div class="skin-tag-mini anime">ANIME</div>
       </div>
     </div>
 
@@ -503,7 +524,7 @@
           <span class="domain-pip">力</span>
         </div>
         <div class="art-frame" style="position:relative;">
-          <img src="Trading_card_game_card_illustr_2026-06-10T08-36-54.png" alt="牛顿">
+          <img src="card_art/c05_niudun_cyber.png" alt="牛顿">
           <div class="art-corner tl"></div><div class="art-corner tr"></div>
           <div class="art-corner bl"></div><div class="art-corner br"></div>
         </div>
@@ -517,6 +538,7 @@
           <span class="formula-badge">F = ma</span>
           <span class="principle-text">经典力学</span>
         </div>
+        <div class="skin-tag-mini cyber">CYBER</div>
       </div>
     </div>
 
@@ -534,7 +556,7 @@
           <span class="domain-pip">力</span>
         </div>
         <div class="art-frame" style="position:relative;">
-          <img src="Japanese_anime_style_trading_c_2026-06-10T08-37-40.png" alt="牛顿">
+          <img src="card_art/c05_niudun_anime.png" alt="牛顿">
           <div class="art-corner tl"></div><div class="art-corner tr"></div>
           <div class="art-corner bl"></div><div class="art-corner br"></div>
         </div>
@@ -548,6 +570,7 @@
           <span class="formula-badge">F = ma</span>
           <span class="principle-text">经典力学</span>
         </div>
+        <div class="skin-tag-mini anime">ANIME</div>
       </div>
     </div>
 
@@ -586,6 +609,7 @@
           <span class="formula-badge">高压击穿</span>
           <span class="principle-text">介质击穿</span>
         </div>
+        <div class="skin-tag-mini cyber">CYBER</div>
       </div>
     </div>
 
@@ -616,6 +640,7 @@
           <span class="formula-badge">高压击穿</span>
           <span class="principle-text">介质击穿</span>
         </div>
+        <div class="skin-tag-mini anime">ANIME</div>
       </div>
     </div>
 
@@ -646,6 +671,7 @@
           <span class="formula-badge">电磁感应</span>
           <span class="principle-text">法拉第定律</span>
         </div>
+        <div class="skin-tag-mini cyber">CYBER</div>
       </div>
     </div>
 
@@ -676,6 +702,7 @@
           <span class="formula-badge">电磁感应</span>
           <span class="principle-text">法拉第定律</span>
         </div>
+        <div class="skin-tag-mini anime">ANIME</div>
       </div>
     </div>
 
@@ -707,6 +734,7 @@
           <span class="formula-badge">I = U/R</span>
           <span class="principle-text">欧姆定律</span>
         </div>
+        <div class="skin-tag-mini cyber">CYBER</div>
       </div>
     </div>
 
@@ -738,6 +766,7 @@
           <span class="formula-badge">I = U/R</span>
           <span class="principle-text">欧姆定律</span>
         </div>
+        <div class="skin-tag-mini anime">ANIME</div>
       </div>
     </div>
 
