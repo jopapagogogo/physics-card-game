@@ -658,7 +658,7 @@ const CARDS = [
     type: "support",
     domain: ["声"],
     cost: 10,
-    description: "己方盲选查看对方2张手牌 + 选择清除己方1种负面状态。原理：回声定位产生反相声波，主动降噪（ANC）抵消有害效果。",
+    description: "己方盲选查看对方2张手牌 + 选择清除己方1种负面状态。原理：回声定位产生反相声波，主动降噪抵消有害效果。",
     formula: "主动降噪",
     rarity: "rare",
     effect: {"viewHand":2,"clearDebuff":1}
@@ -823,7 +823,7 @@ const CARDS = [
     type: "support",
     domain: ["热"],
     cost: 14,
-    description: "3个己方回合内免疫灼烧伤害（灼烧仍可附加且正常衰减层数，但每层灼烧不造成伤害）。原理：比热容c大使温度变化ΔT小，灼烧无效。",
+    description: "3个己方回合内免疫灼烧伤害（灼烧仍可附加且正常衰减层数，但每层灼烧不造成伤害）。原理：质量相同时，比热容大的物体升温慢，灼烧难以奏效。",
     formula: "比热容",
     rarity: "rare",
     effect: {"burnImmune":true,"turns":3}
