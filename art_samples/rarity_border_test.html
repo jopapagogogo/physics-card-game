@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>文字颜色对比</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#14161c;font-family:system-ui,sans-serif;padding:40px 20px}
+h2{text-align:center;color:#888;font-size:.85em;letter-spacing:3px;margin:30px 0 16px}
+.row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.card{width:264px;border-radius:14px;background:linear-gradient(175deg,#1e2130,#181a26);position:relative;box-shadow:0 12px 40px rgba(0,0,0,.55);border:2.5px solid transparent;background-clip:padding-box;padding:18px 14px;transition:transform .3s ease}
+.card:hover{transform:translateY(-6px)}
+.card::before{content:'';position:absolute;inset:-3px;border-radius:16px;z-index:-1}
+
+.mid.common{border-color:#5a6675}.mid.common::before{background:#5a6675;opacity:.4}
+.mid.rare{border-color:#c47a38}.mid.rare::before{opacity:.47;background:linear-gradient(135deg,#6b3a0a,#c47a38,#e0a858,#c47a38,#6b3a0a)}
+.mid.epic{border-color:#8868a8}.mid.epic::before{opacity:.51;background:linear-gradient(135deg,#3a1a6a,#8868a8,#c8a0e8,#8868a8,#3a1a6a)}
+.mid.legendary{border-color:#d49030}.mid.legendary::before{opacity:.55;background:linear-gradient(135deg,#5a2a00,#d49030,#ffe080,#d49030,#5a2a00)}
+@property --m{syntax:'<angle>';initial-value:0deg;inherits:false}@keyframes s{to{--m:360deg}}
+.mid.mythic{border-color:#ff6bff}.mid.mythic::before{opacity:.6;animation:s 4s linear infinite;background:conic-gradient(from var(--m),#ff6bff,#ffb070,#70d0ff,#90ff90,#ff6bff)}
+
+.card-title{font-size:1em;font-weight:800;margin-bottom:6px}
+.card-desc{font-size:.7em;line-height:1.4}
+.label{font-size:.65em;color:#666;letter-spacing:2px}
+.wrapper{display:flex;flex-direction:column;align-items:center;gap:8px}
+
+/* 四种文字颜色 */
+.c0 .card-title,.c0 .card-desc{color:#ccc}
+.c1 .card-title,.c1 .card-desc{color:#e8e8e8}
+.c2 .card-title,.c2 .card-desc{color:#fff}
+.c3 .card-title{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.c3 .card-desc{color:#e0e0e0;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+</style></head><body>
+
+<h2>#ccc — 当前默认</h2><div class="row">
+<div class="wrapper"><div class="card mid common c0"><div class="card-title">普通 重力锤击</div><div class="card-desc">造成75点伤害。重力与质量成正比——质量越大，锤击力道越沉</div></div><div class="label">Common</div></div>
+<div class="wrapper"><div class="card mid rare c0"><div class="card-title">稀有 牛顿</div><div class="card-desc">力系攻击卡额外+20伤害。经典力学奠基人——力等于质量乘以加速度</div></div><div class="label">Rare</div></div>
+<div class="wrapper"><div class="card mid mythic c0"><div class="card-title">神话 热力学之怒</div><div class="card-desc">熵增不可逆——热力学第二定律的终极武器。场上所有热系效果翻倍</div></div><div class="label">Mythic</div></div>
+</div>
+
+<h2>#e8e8e8 — 偏亮灰</h2><div class="row">
+<div class="wrapper"><div class="card mid common c1"><div class="card-title">普通 重力锤击</div><div class="card-desc">造成75点伤害。重力与质量成正比——质量越大，锤击力道越沉</div></div><div class="label">Common</div></div>
+<div class="wrapper"><div class="card mid rare c1"><div class="card-title">稀有 牛顿</div><div class="card-desc">力系攻击卡额外+20伤害。经典力学奠基人——力等于质量乘以加速度</div></div><div class="label">Rare</div></div>
+<div class="wrapper"><div class="card mid mythic c1"><div class="card-title">神话 热力学之怒</div><div class="card-desc">熵增不可逆——热力学第二定律的终极武器。场上所有热系效果翻倍</div></div><div class="label">Mythic</div></div>
+</div>
+
+<h2>#fff — 纯白</h2><div class="row">
+<div class="wrapper"><div class="card mid common c2"><div class="card-title">普通 重力锤击</div><div class="card-desc">造成75点伤害。重力与质量成正比——质量越大，锤击力道越沉</div></div><div class="label">Common</div></div>
+<div class="wrapper"><div class="card mid rare c2"><div class="card-title">稀有 牛顿</div><div class="card-desc">力系攻击卡额外+20伤害。经典力学奠基人——力等于质量乘以加速度</div></div><div class="label">Rare</div></div>
+<div class="wrapper"><div class="card mid mythic c2"><div class="card-title">神话 热力学之怒</div><div class="card-desc">熵增不可逆——热力学第二定律的终极武器。场上所有热系效果翻倍</div></div><div class="label">Mythic</div></div>
+</div>
+
+<h2>#fff + text-shadow — 纯白+阴影</h2><div class="row">
+<div class="wrapper"><div class="card mid common c3"><div class="card-title">普通 重力锤击</div><div class="card-desc">造成75点伤害。重力与质量成正比——质量越大，锤击力道越沉</div></div><div class="label">Common</div></div>
+<div class="wrapper"><div class="card mid rare c3"><div class="card-title">稀有 牛顿</div><div class="card-desc">力系攻击卡额外+20伤害。经典力学奠基人——力等于质量乘以加速度</div></div><div class="label">Rare</div></div>
+<div class="wrapper"><div class="card mid mythic c3"><div class="card-title">神话 热力学之怒</div><div class="card-desc">熵增不可逆——热力学第二定律的终极武器。场上所有热系效果翻倍</div></div><div class="label">Mythic</div></div>
+</div>
+
+</body></html>
