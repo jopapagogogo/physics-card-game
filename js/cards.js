@@ -230,7 +230,7 @@ const CARDS = [
     cost: 12,
     description: "造成38点伤害 + 己方场上每有一张辅助卡，为对方附加1层灼烧（上限3层）。原理：凸透镜将平行光聚焦于一点，焦点处温度极高足以引燃物体。辅助卡=透镜，越多透镜聚焦越强。",
     formula: "凸透镜聚焦",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":38,"perSupportBurn":1,"maxBurn":3}
   },
   {
@@ -836,7 +836,7 @@ const CARDS = [
     cost: 0,
     description: "消耗2层灼烧，立即恢复15点精神力。原理：内能转化为机械能，消耗灼烧能量驱动热机做功。",
     formula: "热机",
-    rarity: "rare",
+    rarity: "common",
     condition: "消耗对方2层灼烧",
     effect: {"consumeBurn":2,"spiritRestore":15}
   },
@@ -848,7 +848,7 @@ const CARDS = [
     cost: 6,
     description: "灼烧每层伤害从30提升至36，持续3个己方回合（期间新附加的灼烧同样受增幅）。原理：温度T升高使灼烧更猛烈；已热物体再加热升温更快。",
     formula: "温度升高",
-    rarity: "rare",
+    rarity: "common",
     effect: {"burnEnhancePerDmg":36,"turns":3}
   },
   {
