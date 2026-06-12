@@ -107,10 +107,10 @@ const CARDS = [
     type: "attack",
     domain: ["声"],
     cost: 18,
-    description: "造成25点伤害。驻场2个己方回合。每个己方回合结束时，若对方本回合未打出声系卡，为对方叠加1层声压。2回合结束时引爆所有声压层数：造成(40+声压层数×30)点伤害，此卡离场。原理：声反馈啸叫——话筒靠近音箱产生正反馈循环，声音逐圈放大，若不及时处理最终会爆发巨大噪音。",
+    description: "造成25点伤害并驻场。打出时叠加1层声压，每个己方回合开始时叠加1层声压（上限3层）。对方每有1层声压，受到声系伤害+10。叠满3层时引爆：造成60点伤害，此卡离场。可被清场效果清除。原理：声反馈啸叫——话筒靠近音箱产生正反馈循环，声音逐圈放大，叠满后爆发出巨大噪音。",
     formula: "声反馈",
     rarity: "epic",
-    effect: {"dmg":25, "duration":2, "soundPressurePerTurn":1, "burstBase":40, "burstPerStack":30}
+    effect: {"dmg":25,"applyOnCast":1,"applyPerTurn":1,"maxStacks":3,"sonicDmgPerStack":10,"detonateDmg":60}
   },
   {
     id: "A13",
