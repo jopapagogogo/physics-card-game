@@ -106,11 +106,11 @@ const CARDS = [
     name: "啸叫",
     type: "attack",
     domain: ["声"],
-    cost: 14,
-    description: "造成20点即时伤害。打出后驻场5回合，每回合递增伤害：20→30→40→50→60。视为驻场卡，可被清场效果清除。原理：声反馈啸叫——话筒靠近音箱产生正反馈循环，声音逐圈放大。",
+    cost: 18,
+    description: "造成25点伤害。驻场2个己方回合。每个己方回合结束时，若对方本回合未打出声系卡，为对方叠加1层声压。2回合结束时引爆所有声压层数：造成(40+声压层数×30)点伤害，此卡离场。原理：声反馈啸叫——话筒靠近音箱产生正反馈循环，声音逐圈放大，若不及时处理最终会爆发巨大噪音。",
     formula: "声反馈",
-    rarity: "rare",
-    effect: {"dmg":20,"dotSequence":[20,30,40,50,60],"isFieldCard":true}
+    rarity: "epic",
+    effect: {"dmg":25, "duration":2, "soundPressurePerTurn":1, "burstBase":40, "burstPerStack":30}
   },
   {
     id: "A13",
@@ -319,7 +319,7 @@ const CARDS = [
     cost: 12,
     description: "造成40点伤害 + 引爆对方所有灼烧层数，每层引爆造成50点伤害，引爆后灼烧层数归零。原理：气体受热急剧膨胀可引发爆炸，将累积的热能瞬间释放。",
     formula: "热膨胀",
-    rarity: "rare",
+    rarity: "epic",
     effect: {"dmg":40,"detonateBurn":true,"perBurnDmg":50}
   },
   {
@@ -407,7 +407,7 @@ const CARDS = [
     cost: 20,
     description: "造成50点伤害 + 对方场上每有一张卡额外造成55伤害。原理：共振是受迫振动达到固有频率时振幅最大的现象——对方场上卡越多=共振面越多=破坏力越强。",
     formula: "共振",
-    rarity: "rare",
+    rarity: "epic",
     effect: {"dmg":50,"perOppFieldCard":55}
   },
   {
@@ -418,7 +418,7 @@ const CARDS = [
     cost: 15,
     description: "造成80点伤害，若场上有力领域则额外造成40伤害。原理：声波是机械波，本质是介质中质点的振动——振动传递力的作用，有力领域加持则推力更强。",
     formula: "声波是机械波",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":80,"forceDomainBonus":40}
   },
   {
@@ -429,7 +429,7 @@ const CARDS = [
     cost: 19,
     description: "造成100点伤害 + 对方下回合每张卡精神力消耗+3。原理：冲击波是剧烈的声波，波前推动空气产生巨大压力，使对方行动迟缓（消耗增加）。",
     formula: "冲击波",
-    rarity: "rare",
+    rarity: "epic",
     effect: {"dmg":100,"opponentExtraCost":3}
   },
   {
@@ -451,7 +451,7 @@ const CARDS = [
     cost: 13,
     description: "造成41点伤害 + 为对方附加1层灼烧 + 对方下回合每张卡精神力消耗+5。原理：活塞对气体做功，压缩使气体温度升高——做功转化为内能，温度升高产生灼烧和压制。",
     formula: "压缩升温",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":41,"burn":1,"opponentExtraCost":5}
   },
   {
@@ -484,7 +484,7 @@ const CARDS = [
     cost: 14,
     description: "造成44点伤害 + 为对方附加1层灼烧。原理：漏电使电流持续通过非预期路径释放能量，电能转化为热能造成灼伤。",
     formula: "漏电发热",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":44,"burn":1}
   },
   {
@@ -572,7 +572,7 @@ const CARDS = [
     cost: 16,
     description: "造成70点伤害，对方每有1层灼烧，己方下次声系攻击+6伤害。原理：声速v=331+0.6t，温度越高声速越快——灼烧代表高温，声速因此激增，下次声系攻击更强。",
     formula: "v=331+0.6t",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":70,"perBurnNextSound":6}
   },
   {
@@ -583,7 +583,7 @@ const CARDS = [
     cost: 18,
     description: "造成70点伤害 + 本回合声系和光系攻击卡+10伤害。原理：声波的回声和光的镜面反射本质都是波的反射现象——声光同源，能量叠加。",
     formula: "波的反射",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":70,"soundLightBonus":10}
   },
   {
@@ -627,7 +627,7 @@ const CARDS = [
     cost: 12,
     description: "对方力系攻击卡伤害-25（持续2个己方回合）。原理：摩擦力阻碍相对运动，是物体运动的主要阻力。",
     formula: "摩擦力",
-    rarity: "rare",
+    rarity: "common",
     effect: {"forceDefense":25,"turns":2}
   },
   {
@@ -680,9 +680,9 @@ const CARDS = [
     type: "support",
     domain: ["声"],
     cost: 5,
-    description: "选择一种：升高则下张声系卡+10伤害；降低则下张声系卡+10伤害（次声震荡持续回合+2）。原理：频率f升高则超声能量集中；f降低则次声与人体共振。",
+    description: "升高：下张声系卡+10伤害。降低：下张声系卡+10伤害，且己方场上次声震荡持续回合+2。原理：频率升高使超声波能量集中；频率降低使次声波与人体共振更持久。",
     formula: "频率调节",
-    rarity: "rare",
+    rarity: "common",
     effect: {"choice":{"high":{"soundBonus":10},"low":{"soundBonus":10,"extendTurns":2}}}
   },
   {
@@ -814,7 +814,7 @@ const CARDS = [
     cost: 12,
     description: "选择对手上一回合打出的一张攻击卡或辅助卡。实像（倒立放大）：将所选攻击卡造成的伤害转化为己方HP恢复，恢复量=该伤害×150%；虚像（正立放大）：复制该卡效果打出，伤害×120%，需额外支付该卡原精神力消耗的50%。原理：凸透镜成像——实像倒立放大使伤害反转增幅；虚像正立放大使复制效果增幅。",
     formula: "凸透镜成像",
-    rarity: "rare",
+    rarity: "epic",
     effect: {"convexLens":{"realImage":{"restoreHp":1.5},"virtualImage":{"copyEffect":1.2,"extraCost":0.5}}}
   },
   {
@@ -882,7 +882,7 @@ const CARDS = [
     cost: 10,
     description: "受到的电系伤害-20（持续3个己方回合）。原理：电阻R升高使电流I降低（欧姆定律I=U/R），减伤效果更持久。",
     formula: "欧姆定律",
-    rarity: "rare",
+    rarity: "common",
     effect: {"electricDefense":20,"turns":3}
   },
   {
@@ -1079,7 +1079,7 @@ const CARDS = [
     hp: 310,
     maxHp: 310,
     formula: "F=ma",
-    rarity: "legendary",
+    rarity: "epic",
     effect: {"forceDmgBonus":20}
   },
   {
@@ -1131,7 +1131,7 @@ const CARDS = [
     hp: 280,
     maxHp: 280,
     formula: "望远镜",
-    rarity: "legendary",
+    rarity: "epic",
     effect: {"lightDmgBonus":8,"perSupportLightBonus":3}
   },
   {
