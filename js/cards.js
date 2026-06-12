@@ -823,7 +823,7 @@ const CARDS = [
     type: "support",
     domain: ["热"],
     cost: 14,
-    description: "3个己方回合内免疫灼烧伤害（灼烧仍可附加且正常衰减层数，但每层灼烧不造成伤害）。原理：质量相同时，比热容大的物体升温慢，灼烧难以奏效。",
+    description: "3个己方回合内免疫灼烧伤害（灼烧仍可附加且正常衰减层数，但每层灼烧不造成伤害）。原理：比热容大的物体升温慢，灼烧难以奏效。",
     formula: "比热容",
     rarity: "rare",
     effect: {"burnImmune":true,"turns":3}
