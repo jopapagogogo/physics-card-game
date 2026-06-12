@@ -471,10 +471,10 @@ const CARDS = [
     type: "attack",
     domain: ["热","电"],
     cost: 18,
-    description: "造成57点伤害 + 为对方附加1层灼烧 + 对方下2回合精神力恢复-3（叠加最低到0）。原理：焦耳定律Q=I²Rt，电流通过电阻产生热量——持续灼烧并压制恢复。",
+    description: "造成57点伤害。对方每有1层麻痹，为其附加1层灼烧。对方每有1层灼烧，麻痹每层额外造成15点伤害（不消耗麻痹层数）。原理：焦耳定律Q=I²Rt——电流热效应与麻痹互相强化，热使电击更痛，电使灼烧更烈。",
     formula: "Q=I²Rt",
     rarity: "rare",
-    effect: {"dmg":57,"burn":1,"spiritDebuff":-3,"debuffTurns":2}
+    effect: {"dmg":57,"burnPerParalyze":1,"paralyzeExtraPerBurn":15}
   },
   {
     id: "A37",
