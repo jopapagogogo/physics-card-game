@@ -680,10 +680,10 @@ const CARDS = [
     type: "support",
     domain: ["声"],
     cost: 5,
-    description: "升高：下张声系卡+10伤害。降低：下张声系卡+10伤害，且己方场上次声震荡持续回合+2。原理：频率升高使超声波能量集中；频率降低使次声波与人体共振更持久。",
+    description: "升高：下张声系卡+20伤害。降低：本回合所有声系攻击+5伤害，且己方场上次声震荡持续回合+2。原理：频率升高使超声波能量高度集中，单点突破；频率降低使次声波蔓延，全局共振更持久。",
     formula: "频率调节",
     rarity: "common",
-    effect: {"choice":{"high":{"soundBonus":10},"low":{"soundBonus":10,"extendTurns":2}}}
+    effect: {"choice":{"high":{"soundBonus":20},"low":{"allSoundBonus":5,"extendTurns":2}}}
   },
   {
     id: "S10",
