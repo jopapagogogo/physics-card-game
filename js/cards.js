@@ -296,7 +296,7 @@ const CARDS = [
     cost: 0,
     description: "消耗对方2层灼烧，造成60点伤害，对方下回合无法出牌。原理：凝固是放热过程，消耗灼烧能量转化为封锁力。",
     formula: "凝固放热",
-    rarity: "rare",
+    rarity: "epic",
     condition: "消耗对方2层灼烧",
     effect: {"dmg":60,"consumeBurn":2,"turnBlock":true}
   },
@@ -352,7 +352,7 @@ const CARDS = [
     cost: 9,
     description: "造成30点伤害。场上电系辅助卡≥1张时触发：额外造成20点灼烧伤害。原理：电流热效应Q=I²Rt，大电流通过空气产生高温电弧。",
     formula: "Q=I²Rt",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":30,"triggerElectric1":{"bonusDmg":20}}
   },
   {
@@ -385,7 +385,7 @@ const CARDS = [
     cost: 8,
     description: "造成30点伤害。若本回合对方已受到过电系伤害，额外+25伤害。原理：静电积累到阈值后突然放电——前面已有电流导通，后续爆发更强。",
     formula: "静电放电",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":30,"afterElectricDmg":25}
   },
   {
@@ -396,7 +396,7 @@ const CARDS = [
     cost: 10,
     description: "造成30点伤害。场上电系辅助卡≥3张时触发：本次基础伤害翻倍（30→60），触发后摧毁己方1张电系辅助卡。原理：超额定电压运行导致过载输出，元件因过热而损坏。",
     formula: "过载原理",
-    rarity: "rare",
+    rarity: "common",
     effect: {"dmg":30,"triggerElectric3":{"doubleDmg":true,"destroyElectricSupport":1}}
   },
   {
@@ -462,7 +462,7 @@ const CARDS = [
     cost: 20,
     description: "消灭对方一张召唤物（无视HP直接击杀）；若对方无召唤物则造成80伤害。原理：短路时电流剧增，热效应Q=I²Rt使导体瞬间熔化——物理性摧毁。",
     formula: "Q=I²Rt短路",
-    rarity: "rare",
+    rarity: "epic",
     effect: {"dmg":80,"destroySummon":true}
   },
   {
@@ -627,7 +627,7 @@ const CARDS = [
     cost: 12,
     description: "对方力系攻击卡伤害-25（持续2个己方回合）。原理：摩擦力阻碍相对运动，是物体运动的主要阻力。",
     formula: "摩擦力",
-    rarity: "common",
+    rarity: "rare",
     effect: {"forceDefense":25,"turns":2}
   },
   {
@@ -660,7 +660,7 @@ const CARDS = [
     cost: 10,
     description: "己方盲选查看对方2张手牌 + 选择清除己方1种负面状态。原理：回声定位产生反相声波，主动降噪（ANC）抵消有害效果。",
     formula: "主动降噪",
-    rarity: "common",
+    rarity: "rare",
     effect: {"viewHand":2,"clearDebuff":1}
   },
   {
@@ -682,7 +682,7 @@ const CARDS = [
     cost: 5,
     description: "选择一种：升高则下张声系卡+10伤害；降低则下张声系卡+10伤害（次声震荡持续回合+2）。原理：频率f升高则超声能量集中；f降低则次声与人体共振。",
     formula: "频率调节",
-    rarity: "common",
+    rarity: "rare",
     effect: {"choice":{"high":{"soundBonus":10},"low":{"soundBonus":10,"extendTurns":2}}}
   },
   {
@@ -704,7 +704,7 @@ const CARDS = [
     cost: 16,
     description: "声系攻击伤害-35（持续2个己方回合）。原理：隔音材料吸收大部分声波能量，阻断声音传播。",
     formula: "隔音",
-    rarity: "common",
+    rarity: "rare",
     effect: {"soundDefense":35,"turns":2}
   },
   {
@@ -792,7 +792,7 @@ const CARDS = [
     cost: 16,
     description: "对方接下来3次出牌（仅出牌阶段），每次35%概率失败。失败时卡牌失效（效果不触发，卡牌进入弃牌堆，精神力消耗返还50%）。3次机会用完后此卡从场上消失。原理：平面镜多次反射使无数虚像与实物交织，受迷宫干扰无法精准发动。",
     formula: "平面镜反射",
-    rarity: "rare",
+    rarity: "epic",
     effect: {"mirrorMaze":true,"tries":3,"failChance":0.35,"isFieldCard":true}
   },
   {
@@ -825,7 +825,7 @@ const CARDS = [
     cost: 14,
     description: "3个己方回合内免疫灼烧伤害（灼烧仍可附加且正常衰减层数，但每层灼烧不造成伤害）。原理：比热容c大使温度变化ΔT小，灼烧无效。",
     formula: "比热容",
-    rarity: "common",
+    rarity: "rare",
     effect: {"burnImmune":true,"turns":3}
   },
   {
@@ -859,7 +859,7 @@ const CARDS = [
     cost: 0,
     description: "消耗2层灼烧，恢复80HP + 选择清除己方1种负面状态。原理：相变潜热吸收热能——偷灼烧能量恢复+净化。",
     formula: "潜热",
-    rarity: "rare",
+    rarity: "epic",
     condition: "消耗对方2层灼烧",
     effect: {"consumeBurn":2,"heal":80,"clearDebuff":1}
   },
@@ -882,7 +882,7 @@ const CARDS = [
     cost: 10,
     description: "受到的电系伤害-20（持续3个己方回合）。原理：电阻R升高使电流I降低（欧姆定律I=U/R），减伤效果更持久。",
     formula: "欧姆定律",
-    rarity: "common",
+    rarity: "rare",
     effect: {"electricDefense":20,"turns":3}
   },
   {
@@ -959,7 +959,7 @@ const CARDS = [
     cost: 3,
     description: "将一张手牌放回牌库顶部，从牌库抽一张新牌（通用卡，不受任何领域加成）。原理：控制变量法——替换不合实验条件的变量。",
     formula: "控制变量法",
-    rarity: "common",
+    rarity: "rare",
     effect: {"replaceHand":true}
   },
   {
@@ -970,7 +970,7 @@ const CARDS = [
     cost: 20,
     description: "力系攻击卡即时伤害+25，延续伤害+5，持续3个己方回合。原理：引力场无处不在——质量越大力场越强，力系效果全面增幅。",
     formula: "引力场",
-    rarity: "epic",
+    rarity: "rare",
     effect: {"forceDmgBonus":25,"forceDotBonus":5,"turns":3}
   },
   {
@@ -981,7 +981,7 @@ const CARDS = [
     cost: 20,
     description: "场上每有一张持续生效的声系卡（含声场效果），声系攻击伤害+8，持续4个己方回合。原理：共鸣腔放大声音——场上声系卡越多即共振面越多，增幅越大。",
     formula: "共鸣",
-    rarity: "epic",
+    rarity: "rare",
     effect: {"perSoundFieldBonus":8,"turns":4}
   },
   {
@@ -992,7 +992,7 @@ const CARDS = [
     cost: 20,
     description: "对方每张卡20%概率失效（效果不触发，精神力消耗返还50%），持续3个己方回合。原理：棱镜使光产生多次折射和反射——光路被持续干扰，出牌也可能落空。",
     formula: "棱镜折射",
-    rarity: "epic",
+    rarity: "rare",
     effect: {"opponentFailChance":0.2,"turns":3}
   },
   {
@@ -1003,7 +1003,7 @@ const CARDS = [
     cost: 20,
     description: "对方每有1层灼烧，热系攻击伤害+4；当D04在场时，热系攻击卡附加的灼烧层数额外+1，持续3个己方回合。原理：熵增不可逆——灼烧越多无序度越高攻击越猛烈，形成正反馈。",
     formula: "熵增",
-    rarity: "epic",
+    rarity: "rare",
     effect: {"perBurnBonus":4,"extraBurn":1,"turns":3}
   },
   {
@@ -1014,7 +1014,7 @@ const CARDS = [
     cost: 20,
     description: "麻痹在对方回合开始时，每点强度额外造成25伤害（叠加基础15伤害，共40/层），持续3个己方回合。原理：电磁场增强——麻痹放电更猛烈，电击伤害大幅提升。",
     formula: "电磁场",
-    rarity: "epic",
+    rarity: "rare",
     effect: {"paralysisBonusDmg":25,"turns":3}
   },
   {
@@ -1170,7 +1170,7 @@ const CARDS = [
     hp: 290,
     maxHp: 290,
     formula: "频率",
-    rarity: "legendary",
+    rarity: "epic",
     effect: {"soundDmgBonus":8,"soundSupportExtend":1}
   },
   {
@@ -1183,7 +1183,7 @@ const CARDS = [
     hp: 280,
     maxHp: 280,
     formula: "功率",
-    rarity: "legendary",
+    rarity: "epic",
     effect: {"heatDmgBonus":8,"perBurnBonus":3}
   },
   {
@@ -1196,7 +1196,7 @@ const CARDS = [
     hp: 280,
     maxHp: 280,
     formula: "电流",
-    rarity: "legendary",
+    rarity: "epic",
     effect: {"electricDmgBonus":8,"perParalysisBonus":2}
   },
   {
