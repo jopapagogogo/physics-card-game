@@ -127,6 +127,25 @@ class GameEngine {
     this._burnDmgPerLayer = [50, 50];          // S24→A54 爆燃每层伤害（默认50，对齐cards.js）
     this._ignoreDefBonus = [0, 0];             // S33→A49 无视防御额外伤害
 
+    // ========== P2 新增效果 ==========
+    // A11 啸叫声压
+    this.soundPressure = [0, 0];               // 每个玩家的声压层数
+    // S01/S02/S03/S12 下次攻击加成
+    this.nextBonus = [{}, {}];                 // { force, sound, any, antiBarrier }
+    // S05 力的合成本回合力攻击计数
+    this._forceStackCount = [0, 0];
+    // S06 弹性储能
+    this.energyStore = [{ stored: 0 }, { stored: 0 }];
+    // S09 频率调节—本回合全体声波加成
+    this._turnAllSoundBonus = [0, 0];
+    // S14 滤光领域 + 减费
+    this._filterDomain = [null, null];         // 选定的领域
+    this._filterDomainReduction = [0, 0];      // 减费量
+    // S21 凸透成像—对手上回合打出的最后一张卡
+    this._lastTurnCard = [null, null];         // 对手上回合最后打出的卡 {card, damage(dealt)}
+    // S32 低压启动—目标电系卡引用
+    this._reduceElectricTarget = [{ cardRef: null, costReduction: 0 }, { cardRef: null, costReduction: 0 }];
+
     // 初始化：洗牌库，抽初始手牌
     for (let i = 0; i < 2; i++) {
       this.players[i].deck = this.shuffleDeck([...this.players[i].deck]);
@@ -254,6 +273,52 @@ class GameEngine {
 
     // 清除偏振限制
     this.polarizeRestriction[pIdx] = null;
+
+    // P2: 重置每回合效果
+    this._forceStackCount[pIdx] = 0;
+    this._turnAllSoundBonus[pIdx] = 0;
+    this._filterDomain[pIdx] = null;
+    this._filterDomainReduction[pIdx] = 0;
+    this._reduceElectricTarget[pIdx] = { cardRef: null, costReduction: 0 };
+
+    // A11 啸叫：每回合声压叠加
+    const a11OnField = player.fieldSupports.find(s => s.card?.id === 'A11');
+    if (a11OnField) {
+      const applyPerTurn = a11OnField.card.effect.applyPerTurn || 1;
+      const maxStacks = a11OnField.card.effect.maxStacks || 3;
+      this.soundPressure[oIdx] = Math.min(maxStacks, this.soundPressure[oIdx] + applyPerTurn);
+      this._addLog(`[啸叫] 声压叠加至 ${this.soundPressure[oIdx]} 层。`);
+      // 检查是否引爆
+      if (this.soundPressure[oIdx] >= maxStacks) {
+        const detonateDmg = a11OnField.card.effect.detonateDmg || 60;
+        opponent.hp = Math.max(0, opponent.hp - detonateDmg);
+        this._addLog(`[啸叫引爆] 声压达到 ${maxStacks} 层，造成 ${detonateDmg} 点伤害！`);
+        this.soundPressure[oIdx] = 0;
+        // 移除 A11
+        const a11Idx = player.fieldSupports.indexOf(a11OnField);
+        if (a11Idx !== -1) {
+          player.fieldSupports.splice(a11Idx, 1);
+          player.discardPile.push(a11OnField.card);
+        }
+        if (this.checkWinCondition()) return;
+      }
+    }
+
+    // C03 拉普拉斯妖：每回合预览对方牌库顶5张
+    const c03 = player.fieldSummons.find(s => s.card.id === 'C03');
+    if (c03 && opponent.deck.length > 0) {
+      const scryCount = Math.min(c03.card.effect.scryOpponent || 5, opponent.deck.length);
+      const topCards = opponent.deck.slice(-scryCount).reverse();
+      const cardNames = topCards.map(c => c.name).join('、');
+      this._addLog(`[拉普拉斯妖] 预览对方牌库顶 ${scryCount} 张：${cardNames}`);
+    }
+
+    // C10 贝尔：每回合查看对方1张手牌
+    const c10 = player.fieldSummons.find(s => s.card.id === 'C10');
+    if (c10 && opponent.hand.length > 0) {
+      const rIdx = Math.floor(Math.random() * opponent.hand.length);
+      this._addLog(`[贝尔] 查看到对方手牌「${opponent.hand[rIdx].name}」。`);
+    }
 
     // 检查凝固封锁
     if (player.turnBlocked) {
@@ -455,6 +520,19 @@ class GameEngine {
     // 重置临界突破标记
     this.criticalBreak[this.currentPlayer] = false;
 
+    // P2: S21 凸透成像 — 保存当前玩家最后打出的攻击/辅助卡供对手使用
+    const lastAttackOrSupport = [...this.cardsThisTurn].reverse().find(cid => {
+      const c = this.getCardById(cid);
+      return c && (c.type === 'attack' || c.type === 'support');
+    });
+    if (lastAttackOrSupport) {
+      const c = this.getCardById(lastAttackOrSupport);
+      this._lastTurnCard[1 - this.currentPlayer] = {
+        card: c,
+        damage: c.effect?.dmg || 0
+      };
+    }
+
     // 切换回合
     this.currentPlayer = 1 - this.currentPlayer;
     this.turnNumber++;
@@ -642,6 +720,46 @@ class GameEngine {
         damage += 10;
     }
 
+    // P2: A11 声压—对方有声压时声系攻击加伤
+    if (card.domain.includes('声') && this.soundPressure[defenderIdx] > 0) {
+      const a11Card = attacker.fieldSupports.find(s => s.card?.id === 'A11');
+      const sonicDmgPerStack = a11Card?.card?.effect?.sonicDmgPerStack || 10;
+      damage += this.soundPressure[defenderIdx] * sonicDmgPerStack;
+    }
+
+    // P2: S01/S02/S03/S12/S09 — 下次攻击加成
+    const nb = this.nextBonus[attackerIdx];
+    if (nb.force && card.domain.includes('力')) {
+      damage += nb.force;
+      delete nb.force;
+    }
+    if (nb.sound && card.domain.includes('声')) {
+      damage += nb.sound;
+      // S12 反屏障额外伤害
+      if (nb.antiBarrier && defender.fieldSupports.some(s => s.card.effect.soundDefense)) {
+        damage += nb.antiBarrier;
+        delete nb.antiBarrier;
+      }
+      delete nb.sound;
+    }
+    if (nb.any) {
+      damage += nb.any;
+      delete nb.any;
+    }
+
+    // P2: S05 力的合成—本回合力攻击叠伤
+    if (card.domain.includes('力') && card.type === 'attack') {
+      const s05 = attacker.fieldSupports.find(s => s.card?.id === 'S05');
+      if (s05) {
+        const stackingPer = s05.card.effect.stackingForceDmg || 10;
+        const maxStack = s05.card.effect.maxStacking || 30;
+        damage += Math.min(this._forceStackCount[attackerIdx] * stackingPer, maxStack);
+      }
+    }
+
+    // P2: S09 频率调节 low 模式—全体声波+5
+    damage += this._turnAllSoundBonus[attackerIdx];
+
     // 6. 防御减伤
     let totalDefense = 0;
     const cardDomains = card.domain;
@@ -718,7 +836,20 @@ class GameEngine {
     let cost = card.cost + player.extraCost;
     // 麻痹：每卡额外消耗麻痹强度×2精神力
     cost += player.paralysis * PARALYSIS_COST;
-    player.spirit = Math.max(0, player.spirit - cost);
+    // 多路放电(S33)电攻减费
+    if (this.multiDischarge[playerIdx] && card.domain.includes('电') && card.type === 'attack') {
+      cost -= 2;
+    }
+    // S14 滤光领域减费
+    if (this._filterDomain[playerIdx] && card.domain.includes(this._filterDomain[playerIdx])) {
+      cost -= this._filterDomainReduction[playerIdx];
+    }
+    // S32 低压启动减费
+    const eTgt = this._reduceElectricTarget[playerIdx];
+    if (eTgt && eTgt.costReduction > 0 && card === eTgt.cardRef) {
+      cost -= eTgt.costReduction;
+    }
+    player.spirit = Math.max(0, player.spirit - Math.max(0, cost));
 
     // 从手牌移除
     player.hand.splice(handIdx, 1);
@@ -1173,6 +1304,81 @@ class GameEngine {
       effects.push({ type: 'burn', layers: card.effect.burn });
     }
 
+    // P2: A11 啸叫 — 叠加声压 + 驻场
+    if (card.id === 'A11') {
+      const sc = card.effect.applyOnCast || 1;
+      this.soundPressure[oIdx] += sc;
+      this._addLog(`[啸叫] 叠加 ${sc} 层声压（当前 ${this.soundPressure[oIdx]} 层）。`);
+      // 检查是否立即引爆
+      const maxStacks = card.effect.maxStacks || 3;
+      if (this.soundPressure[oIdx] >= maxStacks) {
+        const detonateDmg = card.effect.detonateDmg || 60;
+        opponent.hp = Math.max(0, opponent.hp - detonateDmg);
+        this._addLog(`[啸叫引爆] 声压达到 ${maxStacks} 层，造成 ${detonateDmg} 点伤害！`);
+        this.soundPressure[oIdx] = 0;
+        effects.push({ type: 'sonic_detonate', dmg: detonateDmg });
+      }
+      // A11 驻场
+      const existingA11 = attacker.fieldSupports.find(s => s.card.id === 'A11');
+      if (!existingA11) {
+        attacker.fieldSupports.push({ card, turnsRemaining: 999 });
+        effects.push({ type: 'field_card', name: card.name });
+      }
+    }
+
+    // P2: A36 焦耳热击 — 麻痹转灼烧 + 对偶加伤
+    if (card.id === 'A36') {
+      if (card.effect.burnPerParalyze) {
+        const pLayers = opponent.paralysis || 0;
+        opponent.burnLayers += pLayers * card.effect.burnPerParalyze;
+        effects.push({ type: 'burn_from_paralyze', layers: pLayers });
+      }
+      if (card.effect.bonusDmgPerPair) {
+        const pairs = (opponent.paralysis || 0) * opponent.burnLayers;
+        const bonus = pairs * card.effect.bonusDmgPerPair;
+        damage += bonus;
+        effects.push({ type: 'pair_bonus', value: bonus });
+      }
+    }
+
+    // P2: A39 光电效应 — 光系驻场卡变光电双属性
+    if (card.id === 'A39') {
+      const lightField = attacker.fieldSupports.find(
+        s => s.card.domain.includes('光') && !s.card.domain.includes('电')
+      );
+      if (lightField) {
+        lightField.card.domain = [...lightField.card.domain, '电'];
+        this._addLog(`[光电效应]「${lightField.card.name}」获得电属性。`);
+        effects.push({ type: 'dual_domain', name: lightField.card.name });
+      }
+    }
+
+    // P2: S05 力的合成 — 力攻击计数递增
+    if (card.domain.includes('力') && card.type === 'attack') {
+      this._forceStackCount[attackerIdx]++;
+    }
+
+    // P2: S06 弹性储能 — 力攻击伤害存储
+    const s06Field = attacker.fieldSupports.find(s => s.card?.id === 'S06');
+    if (s06Field && card.domain.includes('力') && card.type === 'attack') {
+      const energyStoreEffect = s06Field.card.effect;
+      const storeRatio = energyStoreEffect.energyStore || 0.3;
+      const maxStore = energyStoreEffect.maxStore || 300;
+      const releaseRatio = energyStoreEffect.releaseRatio || 0.5;
+      const toStore = Math.floor(damage * storeRatio);
+      this.energyStore[attackerIdx].stored = Math.min(maxStore, (this.energyStore[attackerIdx].stored || 0) + toStore);
+      this._addLog(`[弹性储能] 存储 ${toStore} 点能量（已存储 ${this.energyStore[attackerIdx].stored}/${maxStore}）。`);
+      effects.push({ type: 'energy_stored', value: toStore, total: this.energyStore[attackerIdx].stored });
+      // 满能量立即释放
+      if (this.energyStore[attackerIdx].stored >= maxStore) {
+        const releaseDmg = Math.floor(this.energyStore[attackerIdx].stored * releaseRatio);
+        opponent.hp = Math.max(0, opponent.hp - releaseDmg);
+        this.energyStore[attackerIdx].stored = 0;
+        this._addLog(`[弹性储能释放] 已达上限，释放 ${releaseDmg} 点伤害！`);
+        effects.push({ type: 'energy_released', dmg: releaseDmg });
+      }
+    }
+
     // 处理特殊效果（文本-based）
     this._applySpecialEffects(card, attackerIdx, opponent, effects);
 
@@ -1237,10 +1443,162 @@ class GameEngine {
     // 特殊效果处理
     this._applySpecialEffects(card, attackerIdx, opponent, effects);
 
-    // S09频率调节：跟踪形态（默认'up'=升高；Phase 4补UI选择）
+    // ========== P2: 支援卡特殊效果 ==========
+
+    // S01 质量增大 / S02 能量蓄积 — 下次力系攻击加成
+    if (card.effect.nextForceBonus) {
+      this.nextBonus[attackerIdx].force = (this.nextBonus[attackerIdx].force || 0) + card.effect.nextForceBonus;
+      effects.push({ type: 'next_force_bonus', value: card.effect.nextForceBonus });
+    }
+
+    // S03 受力面积缩小 — 下次攻击加成
+    if (card.effect.nextAtkBonus) {
+      this.nextBonus[attackerIdx].any = (this.nextBonus[attackerIdx].any || 0) + card.effect.nextAtkBonus;
+      effects.push({ type: 'next_atk_bonus', value: card.effect.nextAtkBonus });
+    }
+
+    // S12 聚焦声束 — 下次声系加成 + 反屏障
+    if (card.effect.nextSoundBonus) {
+      this.nextBonus[attackerIdx].sound = (this.nextBonus[attackerIdx].sound || 0) + card.effect.nextSoundBonus;
+      if (card.effect.antiBarrier) {
+        this.nextBonus[attackerIdx].antiBarrier = (this.nextBonus[attackerIdx].antiBarrier || 0) + card.effect.antiBarrier;
+      }
+      effects.push({ type: 'next_sound_bonus', value: card.effect.nextSoundBonus,
+        antiBarrier: card.effect.antiBarrier || 0 });
+    }
+
+    // S05 力的合成 — 初始化力攻击计数
+    if (card.effect.stackingForceDmg) {
+      this._forceStackCount[attackerIdx] = 0;
+      // S05 也作为本回合驻场（非持久）
+      attacker.fieldSupports.push({ card, turnsRemaining: 1 });
+      effects.push({ type: 'stacking_force', perStack: card.effect.stackingForceDmg, max: card.effect.maxStacking });
+    }
+
+    // S06 弹性储能 — 激活储能
+    if (card.effect.energyStore) {
+      this.energyStore[attackerIdx].stored = 0;
+      // 作为驻场卡
+      attacker.fieldSupports.push({
+        card,
+        turnsRemaining: card.effect.maxTurns || 4
+      });
+      effects.push({ type: 'energy_store', max: card.effect.maxStore, ratio: card.effect.releaseRatio });
+    }
+
+    // S09 频率调节 — 双模式
     if (card.id === 'S09') {
-      attacker.cardForms['S09'] = 'up'; // 默认升高
-      effects.push({ type: 'set_frequency_form', form: 'up', msg: '频率调节：升高模式' });
+      // AI 决策：如果有 A10 (次声震荡) 在场，选择 low 模式
+      const hasA10Field = attacker.fieldSupports.some(s => s.card.id === 'A10') ||
+        opponent.dotEffects.some(d => d.cardId === 'A10');
+      if (hasA10Field) {
+        // Low 模式：全体声波+5 + 延长回合
+        attacker.cardForms['S09'] = 'down';
+        this._turnAllSoundBonus[attackerIdx] += 5;
+        // 延长 A10 DOT 2回合
+        for (const dot of opponent.dotEffects) {
+          if (dot.cardId === 'A10') {
+            dot.turnsRemaining += 2;
+          }
+        }
+        effects.push({ type: 'set_frequency_form', form: 'down', msg: '频率调节：降低模式（全体声波+5，延长次声震荡+2回合）' });
+      } else {
+        // High 模式：下次声系+20
+        attacker.cardForms['S09'] = 'up';
+        this.nextBonus[attackerIdx].sound = (this.nextBonus[attackerIdx].sound || 0) + 20;
+        effects.push({ type: 'set_frequency_form', form: 'up', msg: '频率调节：升高模式（下次声系+20）' });
+      }
+    }
+
+    // S14 滤光 — 选择领域减费
+    if (card.effect.filterDomain) {
+      // AI：挑选手中卡牌最多的领域
+      const domainCount = {};
+      for (const hc of attacker.hand) {
+        for (const d of hc.domain) {
+          domainCount[d] = (domainCount[d] || 0) + 1;
+        }
+      }
+      let bestDomain = null;
+      let bestCount = 0;
+      for (const [d, c] of Object.entries(domainCount)) {
+        if (c > bestCount) { bestCount = c; bestDomain = d; }
+      }
+      if (bestDomain) {
+        this._filterDomain[attackerIdx] = bestDomain;
+        this._filterDomainReduction[attackerIdx] = card.effect.costReduction || 3;
+        this._addLog(`[滤光] 选择「${bestDomain}」领域，该领域卡牌费用-${this._filterDomainReduction[attackerIdx]}。`);
+        effects.push({ type: 'filter_domain', domain: bestDomain, reduction: this._filterDomainReduction[attackerIdx] });
+      }
+    }
+
+    // S21 凸透成像 — 复现上回合卡牌效果
+    if (card.effect.convexLens) {
+      const lastCard = this._lastTurnCard[attackerIdx]; // 对手上一回合打出的最后一张攻击/辅助卡
+      const lensEff = card.effect.convexLens;
+      if (lastCard) {
+        // 随机选择实像/虚像
+        const isReal = Math.random() < 0.5;
+        if (isReal && lastCard.damage) {
+          // 实像：恢复 HP = 伤害 × 150%
+          const heal = Math.floor(lastCard.damage * (lensEff.realImage.restoreHp || 1.5));
+          const actualHeal = Math.min(MAX_HP - attacker.hp, heal);
+          attacker.hp += actualHeal;
+          effects.push({ type: 'convex_real', heal: actualHeal });
+          this._addLog(`[凸透成像·实像] 恢复 ${actualHeal} 点HP。`);
+        } else if (!isReal && lastCard.damage) {
+          // 虚像：复制伤害 × 120%
+          const copyDmg = Math.floor(lastCard.damage * (lensEff.virtualImage.copyEffect || 1.2));
+          // 额外费用
+          const extraCost = Math.ceil((lastCard.card?.cost || 0) * (lensEff.virtualImage.extraCost || 0.5));
+          attacker.spirit = Math.max(0, attacker.spirit - extraCost);
+          opponent.hp = Math.max(0, opponent.hp - copyDmg);
+          effects.push({ type: 'convex_virtual', dmg: copyDmg, extraCost });
+          this._addLog(`[凸透成像·虚像] 造成 ${copyDmg} 点伤害（额外消耗 ${extraCost} 精神力）。`);
+        }
+      } else {
+        this._addLog(`[凸透成像] 无上回合卡牌可复现。`);
+      }
+    }
+
+    // S32 低压启动 — 选一张手中电系卡减费
+    if (card.effect.reduceElectricCost) {
+      const electricInHand = attacker.hand.filter(c => c.domain.includes('电'));
+      if (electricInHand.length > 0) {
+        const pick = electricInHand[Math.floor(Math.random() * electricInHand.length)];
+        this._reduceElectricTarget[attackerIdx] = {
+          cardRef: pick,  // 存储卡牌对象引用
+          costReduction: card.effect.reduceElectricCost,
+          cardId: pick.id
+        };
+        effects.push({ type: 'reduce_electric_cost', card: pick.name, reduction: card.effect.reduceElectricCost });
+        this._addLog(`[低压启动]「${pick.name}」费用-${card.effect.reduceElectricCost}。`);
+      }
+    }
+
+    // S34 置换卡 — 手牌换抽
+    if (card.effect.replaceHand) {
+      if (attacker.hand.length > 0) {
+        const rIdx = Math.floor(Math.random() * attacker.hand.length);
+        const returned = attacker.hand.splice(rIdx, 1)[0];
+        attacker.deck.push(returned); // 放回牌库顶
+        this._addLog(`[置换卡] 将「${returned.name}」放回牌库顶部。`);
+        this.drawCards(attackerIdx, 1);
+        effects.push({ type: 'replace_hand', returned: returned.name });
+      }
+    }
+
+    // C12 赫兹 — 声系辅助卡+1持续回合
+    const c12Field = attacker.fieldSummons.find(s => s.card.id === 'C12');
+    if (c12Field && card.domain.includes('声') && card.type === 'support') {
+      // 检查刚打的这张卡是否是驻场卡
+      const justAdded = attacker.fieldSupports.find(s => s.card === card);
+      if (justAdded && justAdded.turnsRemaining !== undefined) {
+        const extendTurns = c12Field.card.effect.soundSupportExtend || 1;
+        justAdded.turnsRemaining += extendTurns;
+        effects.push({ type: 'c12_extend', name: card.name, extra: extendTurns });
+        this._addLog(`[赫兹] 延长「${card.name}」持续时间 +${extendTurns} 回合。`);
+      }
     }
 
     return effects;
@@ -1724,6 +2082,18 @@ class GameEngine {
         this.players[1].burnEnhanced = false;
         this._addLog(`[系统] 灼烧增强效果结束，双方灼烧伤害恢复正常。`);
       }
+      // P2: S06 弹性储能过期 — 释放存储能量
+      if (removed.card.id === 'S06') {
+        const stored = this.energyStore[playerIdx].stored || 0;
+        if (stored > 0) {
+          const releaseRatio = removed.card.effect.releaseRatio || 0.5;
+          const releaseDmg = Math.floor(stored * releaseRatio);
+          const opponent = this.players[1 - playerIdx];
+          opponent.hp = Math.max(0, opponent.hp - releaseDmg);
+          this._addLog(`[弹性储能释放] 持续结束，释放 ${releaseDmg} 点伤害！`);
+          this.energyStore[playerIdx].stored = 0;
+        }
+      }
       if (removed.card.effect.defense || removed.card.effect.buffDmg) {
         this._addLog(`[${playerIdx === 0 ? '玩家' : 'AI'}] 驻场卡「${removed.card.name}」效果结束。`);
       }
@@ -1906,6 +2276,8 @@ class GameEngine {
     if (card.effect?.buffDmg && !card.effect?.draw && !card.effect?.drawCards) return true;
     // 明确定义为驻场卡
     if (card.effect?.isFieldCard) return true;
+    // P2: 声压驻场卡 (A11啸叫)
+    if (card.effect?.applyOnCast && card.effect?.applyPerTurn) return true;
     return false;
   }
 
@@ -1971,6 +2343,17 @@ class GameEngine {
 
     // 光速传播在对方回合出牌费用+3（通过playInOpponentTurn的extraCost实现，此处不再重复计算）
     // 注意: canAfford中不再额外+3，避免与playInOpponentTurn的extraCost重复
+
+    // P2: S14 滤光 — 选定领域卡费用减
+    if (this._filterDomain[playerIdx] && card.domain.includes(this._filterDomain[playerIdx])) {
+      cost -= this._filterDomainReduction[playerIdx];
+    }
+
+    // P2: S32 低压启动 — 选定电系卡费用减
+    const eTarget = this._reduceElectricTarget[playerIdx];
+    if (eTarget && eTarget.costReduction > 0 && card === eTarget.cardRef) {
+      cost -= eTarget.costReduction;
+    }
 
     return player.spirit >= cost;
   }
