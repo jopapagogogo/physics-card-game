@@ -466,8 +466,9 @@ class GameEngine {
     // D01 力之领域：力系攻击+25
     if (attacker.fieldDomain) {
       const dCard = attacker.fieldDomain.card;
-      if (dCard.effect.bonusDmg && card.domain.some(d => dCard.domain.includes(d))) {
-        damage += dCard.effect.bonusDmg;
+      const dmgBonus = dCard.effect.bonusDmg || dCard.effect.forceDmgBonus;
+      if (dmgBonus && card.domain.some(d => dCard.domain.includes(d))) {
+        damage += dmgBonus;
       }
     }
 
@@ -479,6 +480,13 @@ class GameEngine {
         const matchesDomain = card.domain.some(d => sDomains.includes(d));
         if (matchesDomain) {
           damage += s.card.effect.dmgBonus;
+        }
+      }
+      // 领域特定伤害加成
+      const bonusKeys = {力:'forceDmgBonus',热:'heatDmgBonus',光:'lightDmgBonus',声:'soundDmgBonus',电:'electricDmgBonus'};
+      for (const [domain, key] of Object.entries(bonusKeys)) {
+        if (s.card.effect[key] && card.domain.includes(domain)) {
+          damage += s.card.effect[key];
         }
       }
       // 牛顿(C05)：力系攻击+20
@@ -598,12 +606,12 @@ class GameEngine {
     // 注：领域卡D01-D05不直接提供防御减伤
     // 防御减伤主要来自防御型辅助卡
 
-    // 辅助卡防御
+    // 辅助卡防御 - 检查领域特定防御效果
+    const defKeys = {力:'forceDefense', 声:'soundDefense', 电:'electricDefense', 光:'lightDefense', 热:'heatDefense'};
     for (const s of defender.fieldSupports) {
-      if (s.card.effect.defense) {
-        const def = s.card.effect.defense;
-        if (cardDomains.some(d => def.domain === d)) {
-          totalDefense += def.value;
+      for (const [domain, key] of Object.entries(defKeys)) {
+        if (s.card.effect[key] && cardDomains.includes(domain)) {
+          totalDefense += s.card.effect[key];
         }
       }
     }
@@ -732,7 +740,7 @@ class GameEngine {
 
     // 计算伤害（无视防御的卡使用不扣防御的公式）
     let damage;
-    if (card.effect.ignoreDef) {
+    if (card.effect.ignoreDefense) {
       damage = this._calcRawDamage(card, attackerIdx, oIdx);
     } else {
       damage = this.calculateDamage(card, attackerIdx, oIdx, 0);
@@ -985,7 +993,7 @@ class GameEngine {
     }
 
     // 处理特定攻击的消灭/弹回效果
-    const destroyCards = ['A07', 'A09', 'A18', 'A25'];
+    const destroyCards = ['A09', 'A18', 'A25'];
     const bounceCards = ['A38', 'A46'];
     const destroySummons = ['A35'];
 
@@ -1053,19 +1061,37 @@ class GameEngine {
     }
 
     // 应用DOT效果
-    if (card.effect.dot) {
+    if (card.effect.dotDmg) {
+      opponent.dotEffects.push({
+        dmg: card.effect.dotDmg,
+        turnsRemaining: card.effect.dotTurns,
+        initialTurns: card.effect.dotTurns,
+        cardId: card.id
+      });
+      effects.push({ type: 'dot', dmg: card.effect.dotDmg, turns: card.effect.dotTurns });
+    } else if (card.effect.dot) {
       opponent.dotEffects.push({
         dmg: card.effect.dot.perTurn,
         turnsRemaining: card.effect.dot.turns,
-        initialTurns: card.effect.dot.turns,  // 记录初始回合数（用于A10递增）
+        initialTurns: card.effect.dot.turns,
         cardId: card.id
       });
       effects.push({ type: 'dot', dmg: card.effect.dot.perTurn, turns: card.effect.dot.turns });
+    } else if (card.effect.dotSequence) {
+      const seq = card.effect.dotSequence;
+      opponent.dotEffects.push({
+        dmg: seq[0],
+        turnsRemaining: seq.length,
+        initialTurns: seq.length,
+        cardId: card.id,
+        dotSequence: seq
+      });
+      effects.push({ type: 'dot', dmg: seq[0], turns: seq.length, sequence: seq });
     }
 
     // 应用灼烧
-    if (card.effect.burnLayers) {
-      opponent.burnLayers += card.effect.burnLayers;
+    if (card.effect.burn) {
+      opponent.burnLayers += card.effect.burn;
       // 热之领域(D04)：额外+1层
       if (attacker.fieldDomain?.card?.id === 'D04') {
         opponent.burnLayers += 1;
@@ -1073,7 +1099,7 @@ class GameEngine {
       // 灼烧上限检查
       const maxBurn = MAX_BURN_DEFAULT + this._burnCapIncrease[attackerIdx];
       opponent.burnLayers = Math.min(opponent.burnLayers, maxBurn);
-      effects.push({ type: 'burn', layers: card.effect.burnLayers });
+      effects.push({ type: 'burn', layers: card.effect.burn });
     }
 
     // 处理特殊效果（文本-based）
@@ -1114,7 +1140,7 @@ class GameEngine {
     }
 
     // 增伤buff效果（驻场）
-    if (card.effect.buffDmg && !card.effect.defense && !card.effect.drawCards) {
+    if (card.effect.buffDmg && !card.effect.defense && !card.effect.draw && !card.effect.drawCards) {
       const existing = attacker.fieldSupports.find(s => s.card.id === card.id);
       if (existing) {
         existing.turnsRemaining = 2; // 默认2回合
@@ -1386,7 +1412,9 @@ class GameEngine {
       if (card.id === 'S15') {
         // 对方下回合只能出攻击卡或辅助卡
         opponent.extraCost = 0; // 不影响费用，限制类型
-        this.polarizeRestriction[oIdx] = card.effect.special.includes('攻击或辅助') ? 'restricted' : null;
+        if (card.effect.polarize) {
+          this.polarizeRestriction[oIdx] = 'restricted';
+        }
         effects.push({ type: 'polarize', msg: '对方下回合只能出一种类型的卡' });
       }
 
@@ -1472,16 +1500,16 @@ class GameEngine {
       }
 
       // 抽卡效果 (S29静电吸附)
-      if (card.effect.drawCards && card.id === 'S29') {
+      if (card.effect.draw && card.id === 'S29') {
         // 需要先弃1张（由UI处理）
         effects.push({ type: 'need_discard', msg: '需先弃1张手牌' });
-        this.drawCards(playerIdx, card.effect.drawCards);
+        this.drawCards(playerIdx, card.effect.draw);
         // 清除负面
         const p = this.players[playerIdx];
         if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
         if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
         if (p.dotEffects.length > 0) p.dotEffects.shift();
-        effects.push({ type: 'draw', count: card.effect.drawCards });
+        effects.push({ type: 'draw', count: card.effect.draw });
       }
     }
   }
@@ -1789,7 +1817,7 @@ class GameEngine {
     if (card.type === 'summon') return true;
     if (card.effect?.defense) return true;
     // 持续buff卡
-    if (card.effect?.buffDmg && !card.effect?.drawCards) return true;
+    if (card.effect?.buffDmg && !card.effect?.draw && !card.effect?.drawCards) return true;
     // 明确定义为驻场卡
     if (card.effect?.isFieldCard) return true;
     return false;
@@ -1887,8 +1915,8 @@ class GameEngine {
 
     // 光领域棱镜界(D03)失败概率
     const oppDomain = opponent.fieldDomain;
-    if (oppDomain?.card?.id === 'D03' && oppDomain.card.effect.failRate) {
-      if (Math.random() * 100 < oppDomain.card.effect.failRate) {
+    if (oppDomain?.card?.id === 'D03' && oppDomain.card.effect.opponentFailChance) {
+      if (Math.random() * 100 < oppDomain.card.effect.opponentFailChance) {
         return { can: false, reason: '棱镜界：出牌有20%概率失效。' };
       }
     }
@@ -2059,8 +2087,9 @@ class GameEngine {
     // 领域加成
     if (attacker.fieldDomain) {
       const dCard = attacker.fieldDomain.card;
-      if (dCard.effect.bonusDmg && card.domain.some(d => dCard.domain.includes(d))) {
-        damage += dCard.effect.bonusDmg;
+      const dmgBonus = dCard.effect.bonusDmg || dCard.effect.forceDmgBonus;
+      if (dmgBonus && card.domain.some(d => dCard.domain.includes(d))) {
+        damage += dmgBonus;
       }
     }
 
