@@ -108,6 +108,12 @@ class GameEngine {
     // A02惯性冲锋：本回合的力系伤害（用于下回合延续）
     this.forceDamageThisTurn = [0, 0];
 
+    // A05重力势能：对手累计造成伤害追踪
+    this._a05DmgReceived = [0, 0];
+
+    // C04 薛定谔的猫：C03↔C04 combo 玩家选择标记
+    this._c04PlayerChoose = false;
+
     // A10次声震荡DOT递增基准
     this.a10DotBaseTurns = [null, null];
 
@@ -118,7 +124,7 @@ class GameEngine {
     this._dotIncrementBoost = [0, 0];          // S08→A10 DOT递增加成
     this._mirrorMazeBoost = [0, 0];            // S15→S19 镜面迷宫概率加成
     this._burnCapIncrease = [0, 0];            // S14→A55 灼烧上限提升
-    this._burnDmgPerLayer = [48, 48];          // S24→A54 爆燃每层伤害（默认48）
+    this._burnDmgPerLayer = [50, 50];          // S24→A54 爆燃每层伤害（默认50，对齐cards.js）
     this._ignoreDefBonus = [0, 0];             // S33→A49 无视防御额外伤害
 
     // 初始化：洗牌库，抽初始手牌
@@ -231,7 +237,7 @@ class GameEngine {
     this._dotIncrementBoost[pIdx] = 0;
     this._mirrorMazeBoost[pIdx] = 0;
     this._burnCapIncrease[pIdx] = 0;
-    this._burnDmgPerLayer[pIdx] = 48;
+    this._burnDmgPerLayer[pIdx] = 50;
     this._ignoreDefBonus[pIdx] = 0;
     this.spectrumBonus[pIdx] = 0;         // Bug7修复: 光谱加成每回合重置
     this.quizResult = { correct: 0, total: 3, bonus: 0 };
@@ -266,14 +272,21 @@ class GameEngine {
 
     // 重力势能(A05)处理
     this.hightAtkTrack[pIdx]++;
-    if (this.hightAtkTrack[pIdx] >= 4) {
+    const a05Card = player.fieldSupports.find(f => f.card?.id === 'A05');
+    const triggerThreshold = a05Card?.card?.effect?.triggerThreshold || 200;
+    const shouldTrigger = this.hightAtkTrack[pIdx] >= 4 ||
+        (this._a05DmgReceived[pIdx] >= triggerThreshold);
+    if (shouldTrigger) {
+      const reason = this._a05DmgReceived[pIdx] >= triggerThreshold ?
+        `敌方累计伤害达标(${this._a05DmgReceived[pIdx]}≥${triggerThreshold})` : '蓄满4回合';
       const bonus = this.hightBonus[pIdx] + 1;
       const perHeightDmg = 40 + this._heightBonusPerLevel[pIdx];  // S01→A05 combo加成
       const dmg = 40 + bonus * perHeightDmg;
       opponent.hp = Math.max(0, opponent.hp - dmg);
-      this._addLog(`[重力势能] 蓄满触发！造成 ${dmg} 点伤害（高度=${bonus}, 每层=${perHeightDmg}）。`);
+      this._addLog(`[重力势能] ${reason}触发！造成 ${dmg} 点伤害（高度=${bonus}, 每层=${perHeightDmg}）。`);
       this.hightAtkTrack[pIdx] = 0;
       this.hightBonus[pIdx] = 0;
+      this._a05DmgReceived[pIdx] = 0;
     }
 
     // 抽牌
@@ -348,7 +361,9 @@ class GameEngine {
     const player = this.players[this.currentPlayer];
     for (const s of player.fieldSummons) {
       if (s.card.id === 'C04') {
-        if (Math.random() < 0.5) {
+        // C03↔C04 combo: 可让玩家选择伤害或治疗（当前：随机50/50，TODO: UI交互）
+        const isDamage = Math.random() < 0.5;
+        if (isDamage) {
           const opponent = this.players[1 - this.currentPlayer];
           opponent.hp = Math.max(0, opponent.hp - 100);
           this._addLog(`[薛定谔的猫] 造成 100 点伤害！`);
@@ -363,6 +378,7 @@ class GameEngine {
           }
         }
         if (this.checkWinCondition()) return;
+        this._c04PlayerChoose = false; // 重置标记
       }
     }
 
@@ -594,6 +610,38 @@ class GameEngine {
     const quizBonus = this.quizResult.bonus || 0;
     damage = Math.floor(damage * (1 + quizBonus));
 
+    // 5.5. 卡牌效果条件加成（从 cards.js 读取平属性）
+    if (card.effect.perSupportBonus) {
+        const supportCount = attacker.fieldSupports.length;
+        damage += card.effect.perSupportBonus * supportCount;
+    }
+    if (card.effect.perBurnBonus) {
+        damage += card.effect.perBurnBonus * defender.burnLayers;
+    }
+    if (card.effect.perOppFieldCard) {
+        const oppFieldCount = defender.fieldSummons.length +
+            (defender.fieldDomain ? 1 : 0) + defender.fieldSupports.length;
+        damage += card.effect.perOppFieldCard * oppFieldCount;
+    }
+    if (card.effect.perSoundFieldBonus) {
+        const soundFields = attacker.fieldSupports.filter(
+            f => f.card?.domain?.includes('声')
+        ).length;
+        damage += card.effect.perSoundFieldBonus * soundFields;
+    }
+    if (card.effect.forceDomainBonus && attacker.fieldDomain?.card?.id === 'D01') {
+        damage += card.effect.forceDomainBonus;
+    }
+    if (card.effect.domainBonus && attacker.fieldDomain) {
+        damage += card.effect.domainBonus;
+    }
+
+    // A53 镜面回声: +10 to sound and light attacks
+    const echoEffect = attacker.fieldSupports?.find(f => f.type === 'mirror_echo');
+    if (echoEffect && (card.domain.includes('声') || card.domain.includes('光'))) {
+        damage += 10;
+    }
+
     // 6. 防御减伤
     let totalDefense = 0;
     const cardDomains = card.domain;
@@ -607,9 +655,15 @@ class GameEngine {
     // 防御减伤主要来自防御型辅助卡
 
     // 辅助卡防御 - 检查领域特定防御效果
+    // S31 高压击穿: 电系攻击无视电领域防御
+    const hvpActive = this.highVoltagePierce && this.highVoltagePierce[attackerIdx] > 0 &&
+        cardDomains.includes('电');
     const defKeys = {力:'forceDefense', 声:'soundDefense', 电:'electricDefense', 光:'lightDefense', 热:'heatDefense'};
     for (const s of defender.fieldSupports) {
       for (const [domain, key] of Object.entries(defKeys)) {
+        if (hvpActive && domain === '电') {
+          continue; // S31 高压击穿: 跳过电领域防御
+        }
         if (s.card.effect[key] && cardDomains.includes(domain)) {
           totalDefense += s.card.effect[key];
         }
@@ -842,7 +896,7 @@ class GameEngine {
             }
             break;
           case 'boost_burn_dmg':
-            this._burnDmgPerLayer[attackerIdx] = (eff.value || 48);
+            this._burnDmgPerLayer[attackerIdx] = (eff.value || 50);
             effects.push({ type: 'combo_burn_dmg', perLayer: eff.value });
             break;
           case 'modify_height':
@@ -869,6 +923,11 @@ class GameEngine {
       const extra = Math.floor(this.lastTurnDamage[attackerIdx] * 0.5);
       damage += extra;
       effects.push({ type: 'inertia_extra', value: extra });
+      // 标记：本回合A02最终伤害需保存用于 nextCarryRatio
+      if (card.effect.nextCarryRatio) {
+        if (!this._inertiaNextTurn) this._inertiaNextTurn = {};
+        this._inertiaNextTurn[attackerIdx] = { pending: true, ratio: card.effect.nextCarryRatio, damage: 0 };
+      }
     }
 
     if (card.id === 'A03') {
@@ -1052,12 +1111,24 @@ class GameEngine {
         opponent.hp = Math.max(0, opponent.hp - damage);
         this._addLog(`[攻击] 造成 ${damage} 点伤害。${oIdx === 0 ? '玩家' : 'AI'} HP: ${opponent.hp}/${MAX_HP}`);
         effects.push({ type: 'damage', value: damage, target: 'player' });
+
+        // A05重力势能：追踪对方对己方造成的累计伤害
+        if (this._a05DmgReceived && this.hightAtkTrack[oIdx] > 0) {
+          this._a05DmgReceived[oIdx] += damage;
+        }
       }
     }
 
     // 记录力系伤害
     if (card.domain.includes('力')) {
       attacker.totalForceDmg += damage;
+    }
+
+    // A02惯性冲锋：保存本回合最终伤害用于下回合 nextCarryRatio
+    if (this._inertiaNextTurn?.[attackerIdx]?.pending && card.id === 'A02') {
+      this._inertiaNextTurn[attackerIdx].damage = damage;
+      this._inertiaNextTurn[attackerIdx].pending = false;
+      this.lastTurnDamage[attackerIdx] = damage; // 覆盖保存最终伤害值
     }
 
     // 应用DOT效果
@@ -1143,11 +1214,24 @@ class GameEngine {
     if (card.effect.buffDmg && !card.effect.defense && !card.effect.draw && !card.effect.drawCards) {
       const existing = attacker.fieldSupports.find(s => s.card.id === card.id);
       if (existing) {
-        existing.turnsRemaining = 2; // 默认2回合
+        existing.turnsRemaining = card.effect.turns || 2;
       } else {
-        attacker.fieldSupports.push({ card, turnsRemaining: 2 });
+        attacker.fieldSupports.push({ card, turnsRemaining: card.effect.turns || 2 });
       }
       effects.push({ type: 'buff', value: card.effect.buffDmg });
+    }
+
+    // 持续效果辅助卡（如S28电磁感应：有turns且属于持续生效类）
+    if (card.effect.turns && !card.effect.defense && !card.effect.buffDmg
+        && !card.effect.draw && !card.effect.drawCards
+        && (card.effect.spiritPerTurn || card.effect.perElectricCard)) {
+      const existing = attacker.fieldSupports.find(s => s.card.id === card.id);
+      if (existing) {
+        existing.turnsRemaining = card.effect.turns;
+      } else {
+        attacker.fieldSupports.push({ card, turnsRemaining: card.effect.turns });
+      }
+      effects.push({ type: 'continuous_support', name: card.name, turns: card.effect.turns });
     }
 
     // 特殊效果处理
@@ -1376,8 +1460,8 @@ class GameEngine {
       // 光速传播 (S16)
       if (card.id === 'S16') {
         this.lightSpeedActive[playerIdx] = true;
-        this.lightSpeedTurns[playerIdx] = 4;
-        effects.push({ type: 'light_speed', turns: 4 });
+        this.lightSpeedTurns[playerIdx] = card.effect.turns || 4;
+        effects.push({ type: 'light_speed', turns: card.effect.turns || 4 });
       }
 
       // 恢复HP (A47)
@@ -1547,7 +1631,9 @@ class GameEngine {
 
     // 热领域(D04)加成：每层+3
     if (player.fieldDomain?.card?.id === 'D04') {
-      const extraDmg = player.burnLayers * 3;
+      const d04 = player.fieldDomain.card;
+      const perBurnBonus = (d04?.effect?.perBurnBonus) || 4;
+      const extraDmg = player.burnLayers * perBurnBonus;
       player.hp = Math.max(0, player.hp - totalDmg - extraDmg);
     } else {
       player.hp = Math.max(0, player.hp - totalDmg);
