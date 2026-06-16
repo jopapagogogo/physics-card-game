@@ -35,6 +35,7 @@ class GameUI {
     this._attackTargeting = false;
     this.playZoneSelf = []; // 己方出牌展示区
     this.playZoneAi = [];   // AI出牌展示区
+    this.customDeck = null; // 玩家自定义卡组
   }
 
   // ==================== 初始化 ====================
@@ -122,11 +123,17 @@ class GameUI {
         </div>
 
         <div class="start-footer">
-          <button id="btn-start-game" class="btn btn-start" disabled>
-            <span>开始战斗</span>
-            <span class="btn-arrow">→</span>
-          </button>
+          <div class="start-actions">
+            <button id="btn-deck-builder" class="btn btn-deck-builder" disabled>
+              <span>🃏 自定义卡组</span>
+            </button>
+            <button id="btn-start-game" class="btn btn-start" disabled>
+              <span>开始战斗</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
           <p id="start-hint" class="start-hint">请先选择主领域和副领域</p>
+          <div id="deck-summary" class="deck-summary" style="display:none"></div>
         </div>
       </div>
     `;
@@ -231,6 +238,16 @@ class GameUI {
       .btn-start:hover:not(:disabled) .btn-arrow { transform:translateX(4px); }
       .start-hint { font-size:12px; color:var(--mt); margin-top:8px; }
       .sub-grid .btn-domain-sub { aspect-ratio:1; }
+      .start-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+      .btn-deck-builder {
+        padding:12px 20px; font-size:15px; font-weight:700;
+        background:rgba(147,51,234,.15); color:#c084fc;
+        border:1.5px solid rgba(147,51,234,.35); border-radius:var(--r12);
+        cursor:pointer; transition:all .3s;
+      }
+      .btn-deck-builder:hover:not(:disabled) { background:rgba(147,51,234,.25); }
+      .btn-deck-builder:disabled { opacity:.4; cursor:not-allowed; }
+      .deck-summary { font-size:13px; color:#c084fc; margin-top:8px; }
     `;
     document.head.appendChild(style);
   }
@@ -261,6 +278,13 @@ class GameUI {
         btn.classList.add('active');
         this.difficulty = btn.dataset.diff;
       });
+    });
+
+    // 自定义卡组按钮
+    document.getElementById('btn-deck-builder').addEventListener('click', () => {
+      if (this.mainDomain && this.subDomain) {
+        this.showDeckBuilder();
+      }
     });
 
     // 开始按钮
@@ -308,16 +332,193 @@ class GameUI {
 
   _updateStartButton() {
     const btn = document.getElementById('btn-start-game');
+    const btnDeck = document.getElementById('btn-deck-builder');
     const hint = document.getElementById('start-hint');
     if (!btn || !hint) return;
 
     const ready = !!(this.mainDomain && this.subDomain);
     btn.disabled = !ready;
+    if (btnDeck) btnDeck.disabled = !ready;
+    
+    // 显示自定义卡组摘要
+    if (this.customDeck && this.customDeck.length > 0) {
+      const deckSummary = document.getElementById('deck-summary');
+      if (deckSummary) {
+        deckSummary.style.display = 'block';
+        deckSummary.innerHTML = '🃏 自定义卡组：' + this.customDeck.length + ' 张（点击自定义卡组可修改）';
+      }
+    }
+    
     hint.textContent = ready
       ? `主领域「${this.mainDomain}」+ 副领域「${this.subDomain}」· 难度: ${this._diffLabel(this.difficulty)}`
       : this.mainDomain
         ? '请继续选择副领域'
         : '请先选择主领域和副领域';
+  }
+
+  /** 卡组构建器 — 全屏选牌界面 */
+  showDeckBuilder() {
+    // 初始化选中卡组
+    let selected = new Set(this.customDeck || []);
+    const allCards = CARDS;
+    let filterDomain = 'all';
+    let filterType = 'all';
+    let filterRarity = 'all';
+
+    // 构建 UI
+    const overlay = document.createElement('div');
+    overlay.className = 'deck-builder-overlay';
+    overlay.innerHTML = `
+      <div class="db-topbar">
+        <h2>🃏 卡组构建器</h2>
+        <div class="db-count"><span id="db-count">${selected.size}</span>/30 张</div>
+        <button id="db-save" class="db-btn-save" ${selected.size < 20 ? 'disabled' : ''}>💾 保存卡组</button>
+        <button id="db-auto" class="db-btn-auto">🤖 快速自动组牌</button>
+        <button id="db-clear" class="db-btn-clear">🗑 清空</button>
+        <button id="db-cancel" class="db-btn-cancel">← 返回</button>
+      </div>
+      <div class="db-filters">
+        <select id="db-filter-type"><option value="all">全部类型</option><option value="attack">攻击卡</option><option value="support">辅助卡</option><option value="summon">召唤卡</option><option value="domain">领域卡</option><option value="phase">相变卡</option></select>
+        <select id="db-filter-rarity"><option value="all">全部稀有度</option><option value="common">普通</option><option value="rare">稀有</option><option value="epic">史诗</option><option value="legendary">传说</option><option value="mythic">神话</option></select>
+        <input id="db-search" type="text" placeholder="🔍 搜索卡牌名称..." class="db-search">
+      </div>
+      <div class="db-main">
+        <div class="db-card-list" id="db-card-list"></div>
+        <div class="db-deck-panel" id="db-deck-panel">
+          <h3>我的卡组</h3>
+          <div id="db-selected-list" class="db-selected-list"></div>
+          <div class="db-stats" id="db-stats"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const MAX_CARDS = 30;
+    const MIN_CARDS = 20;
+    const colorMap = { '力':'#E74C3C','声':'#3498DB','光':'#F1C40F','热':'#E67E22','电':'#9B59B6' };
+
+    function getDomainColor(card) {
+      const d = Array.isArray(card.domain) ? card.domain[0] : '力';
+      return colorMap[d] || '#888';
+    }
+
+    // 渲染卡牌列表
+    const cardList = overlay.querySelector('#db-card-list');
+    function renderCards() {
+      const searchText = (overlay.querySelector('#db-search').value || '').toLowerCase();
+      let filtered = allCards.filter(c => {
+        if (filterType !== 'all' && c.type !== filterType) return false;
+        if (filterRarity !== 'all' && c.rarity !== filterRarity) return false;
+        if (searchText && !c.name.toLowerCase().includes(searchText)) return false;
+        return true;
+      });
+
+      cardList.innerHTML = filtered.map(c => {
+        const isSelected = selected.has(c.id);
+        const domainColor = getDomainColor(c);
+        const dmg = c.effect?.dmg || '';
+        return `<div class="db-card ${isSelected ? 'selected' : ''}" data-id="${c.id}" style="border-left:3px solid ${domainColor}">
+          <span class="db-card-cost">${c.cost || 0}</span>
+          <span class="db-card-name" style="color:${domainColor}">${c.name}</span>
+          <span class="db-card-type">${c.type === 'attack' ? '攻击' : c.type === 'support' ? '辅助' : c.type === 'summon' ? '召唤' : c.type === 'domain' ? '领域' : c.type === 'phase' ? '相变' : c.type}</span>
+          ${dmg ? '<span class="db-card-dmg">⚔' + dmg + '</span>' : ''}
+          <span class="db-card-rarity">${c.rarity}</span>
+        </div>`;
+      }).join('');
+
+      // 绑定点击事件
+      cardList.querySelectorAll('.db-card').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.dataset.id;
+          if (selected.has(id)) {
+            selected.delete(id);
+          } else if (selected.size < MAX_CARDS) {
+            selected.add(id);
+          }
+          renderCards();
+          renderDeckPanel();
+          updateCount();
+        });
+      });
+    }
+
+    // 渲染右侧卡组面板
+    const selectedList = overlay.querySelector('#db-selected-list');
+    function renderDeckPanel() {
+      const ids = [...selected];
+      selectedList.innerHTML = ids.map((id, idx) => {
+        const c = allCards.find(card => card.id === id);
+        if (!c) return '';
+        const domainColor = getDomainColor(c);
+        return `<div class="db-selected-item" style="border-left:3px solid ${domainColor}">
+          <span class="db-sel-idx">${idx + 1}</span>
+          <span class="db-sel-name" style="color:${domainColor}">${c.name}</span>
+          <span class="db-sel-cost">${c.cost || 0}费</span>
+          <button class="db-sel-remove" data-id="${c.id}">✕</button>
+        </div>`;
+      }).join('');
+
+      // 绑定移除按钮
+      selectedList.querySelectorAll('.db-sel-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selected.delete(btn.dataset.id);
+          renderCards();
+          renderDeckPanel();
+          updateCount();
+        });
+      });
+
+      // 统计
+      const stats = {};
+      let totalDmg = 0;
+      for (const id of selected) {
+        const c = allCards.find(card => card.id === id);
+        if (!c) continue;
+        const d = Array.isArray(c.domain) ? c.domain[0] : '力';
+        stats[d] = (stats[d] || 0) + 1;
+        totalDmg += c.effect?.dmg || 0;
+      }
+      const statHTML = Object.entries(stats).map(([d, c]) =>
+        `<span style="color:${colorMap[d] || '#888'}">${d}×${c}</span>`
+      ).join(' ');
+      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}`;
+    }
+
+    function updateCount() {
+      const count = overlay.querySelector('#db-count');
+      count.textContent = selected.size;
+      count.style.color = selected.size >= MIN_CARDS ? '#4CAF50' : selected.size > 0 ? '#FFA500' : '#f44336';
+      const saveBtn = overlay.querySelector('#db-save');
+      saveBtn.disabled = selected.size < MIN_CARDS;
+      saveBtn.textContent = selected.size >= MIN_CARDS ? '💾 保存卡组' : `还需${MIN_CARDS - selected.size}张`;
+    }
+
+    // 事件绑定
+    overlay.querySelector('#db-cancel').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('#db-search').addEventListener('input', renderCards);
+    overlay.querySelector('#db-filter-type').addEventListener('change', (e) => { filterType = e.target.value; renderCards(); });
+    overlay.querySelector('#db-filter-rarity').addEventListener('change', (e) => { filterRarity = e.target.value; renderCards(); });
+    overlay.querySelector('#db-clear').addEventListener('click', () => { selected.clear(); renderCards(); renderDeckPanel(); updateCount(); });
+
+    overlay.querySelector('#db-auto').addEventListener('click', () => {
+      selected = new Set(this.generateDeck(this.mainDomain, this.subDomain));
+      renderCards();
+      renderDeckPanel();
+      updateCount();
+    });
+
+    overlay.querySelector('#db-save').addEventListener('click', () => {
+      if (selected.size < MIN_CARDS) return;
+      this.customDeck = [...selected];
+      this._updateStartButton();
+      overlay.remove();
+    });
+
+    // 初始渲染
+    renderCards();
+    renderDeckPanel();
+    updateCount();
   }
 
   _diffLabel(diff) {
@@ -328,7 +529,9 @@ class GameUI {
   // ==================== 游戏开始 / 卡组生成 ====================
 
   startGame() {
-    const playerDeck = this.generateDeck(this.mainDomain, this.subDomain);
+    const playerDeck = this.customDeck && this.customDeck.length >= 20
+      ? this.customDeck
+      : this.generateDeck(this.mainDomain, this.subDomain);
 
     // AI使用不同的主领域（优先选择与玩家不同的领域）
     const allDomains = ['力', '声', '光', '热', '电'];
