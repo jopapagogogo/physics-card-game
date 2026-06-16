@@ -146,6 +146,10 @@ class GameEngine {
     // S32 低压启动—目标电系卡引用
     this._reduceElectricTarget = [{ cardRef: null, costReduction: 0 }, { cardRef: null, costReduction: 0 }];
 
+    // P2: 知识减费/加费 — 答题结果影响出牌费用
+    this.quizCostReduction = [0, 0];    // 知识减费剩余次数
+    this.quizCostPenalty = [0, 0];      // 知识惩罚（答错惩罚费用）
+
     // 初始化：洗牌库，抽初始手牌
     for (let i = 0; i < 2; i++) {
       this.players[i].deck = this.shuffleDeck([...this.players[i].deck]);
@@ -261,6 +265,8 @@ class GameEngine {
     this.spectrumBonus[pIdx] = 0;         // Bug7修复: 光谱加成每回合重置
     this.quizResult = { correct: 0, total: 3, bonus: 0 };
     player.extraCost = 0;
+    this.quizCostReduction[pIdx] = 0;
+    this.quizCostPenalty[pIdx] = 0;
 
     // 重置偏转首次攻击标记
     this.mirageFirstAtk[pIdx] = false;
@@ -415,6 +421,15 @@ class GameEngine {
     const quizSpiritBonus = Math.floor(bonus * 100);
     const player = this.players[this.currentPlayer];
     player.spirit = Math.min(MAX_SPIRIT, player.spirit + quizSpiritBonus);
+
+    // 知识减费/加费：答对减费，答错加费
+    const wrongCount = total - correct;
+    this.quizCostReduction[this.currentPlayer] = correct;    // 答对N题=N次减费
+    this.quizCostPenalty[this.currentPlayer] = wrongCount;   // 答错N题=每卡+N费
+    if (correct > 0 || wrongCount > 0) {
+      this._addLog(`[知识之力] 答题结果影响出牌费用：减费${correct}次 加费+${wrongCount}。`);
+    }
+
     this._addLog(`[答题] ${correct}/${total} 正确，攻击增益 ${(bonus * 100).toFixed(0)}%，精神力+${quizSpiritBonus}。`);
     this.startPlayPhase();
   }
@@ -865,6 +880,17 @@ class GameEngine {
     let cost = card.cost + player.extraCost;
     // 麻痹：每卡额外消耗麻痹强度×2精神力
     cost += player.paralysis * PARALYSIS_COST;
+    // 知识减费
+    if (this.quizCostReduction[playerIdx] > 0) {
+      cost = Math.max(0, cost - 1);
+      this.quizCostReduction[playerIdx]--;
+      this._addLog(`[知识减费] 答对奖励：本卡费用-1（剩余${this.quizCostReduction[playerIdx]}次）。`);
+    }
+    // 答错惩罚
+    if (this.quizCostPenalty[playerIdx] > 0) {
+      cost += this.quizCostPenalty[playerIdx];
+      this._addLog(`[知识惩罚] 答错惩罚：本卡额外+${this.quizCostPenalty[playerIdx]}费。`);
+    }
     // 多路放电(S33)电攻减费
     if (this.multiDischarge[playerIdx] && card.domain.includes('电') && card.type === 'attack') {
       cost -= 2;
@@ -1269,7 +1295,9 @@ class GameEngine {
         effects.push(...this._attackSummon(opponent, summonIdx, damage));
       } else {
         opponent.hp = Math.max(0, opponent.hp - damage);
-        this._addLog(`[攻击] 造成 ${damage} 点伤害。${oIdx === 0 ? '玩家' : 'AI'} HP: ${opponent.hp}/${MAX_HP}`);
+        const quizBonusPct = this.quizResult.bonus || 0;
+        const quizTag = quizBonusPct > 0 ? ` [知识之力 +${(quizBonusPct * 100).toFixed(0)}%]` : '';
+        this._addLog(`[攻击]${quizTag} 造成 ${damage} 点伤害。${oIdx === 0 ? '玩家' : 'AI'} HP: ${opponent.hp}/${MAX_HP}`);
         effects.push({ type: 'damage', value: damage, target: 'player' });
 
         // A05重力势能：追踪对方对己方造成的累计伤害
@@ -2382,6 +2410,14 @@ class GameEngine {
     const eTarget = this._reduceElectricTarget[playerIdx];
     if (eTarget && eTarget.costReduction > 0 && card === eTarget.cardRef) {
       cost -= eTarget.costReduction;
+    }
+
+    // P2: 知识减费/加费 — 答题结果影响出牌费用
+    if (this.quizCostReduction && this.quizCostReduction[playerIdx] > 0) {
+      cost = Math.max(0, cost - 1);
+    }
+    if (this.quizCostPenalty && this.quizCostPenalty[playerIdx] > 0) {
+      cost += this.quizCostPenalty[playerIdx];
     }
 
     return player.spirit >= cost;

@@ -1163,6 +1163,14 @@ class GameUI {
       @keyframes fadeIn{from{opacity:0}to{opacity:1}}
       @keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
       @keyframes playCardIn{from{opacity:0;transform:translateY(-40px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
+      /* Combo physics highlight */
+      .combo-physics{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 4px;padding:8px 16px;background:rgba(46,204,113,.08);border-radius:12px;border:1px solid rgba(46,204,113,.2)}
+      .physics-from,.physics-to{font-size:22px;font-weight:900;color:#2ecc71;text-shadow:0 0 12px rgba(46,204,113,.5);letter-spacing:1px}
+      .physics-arrow{font-size:16px;color:rgba(46,204,113,.6)}
+      .combo-effect-text{font-size:14px;color:#bdc3c7;margin-top:4px;text-align:center}
+      .quiz-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;animation:fadeIn .3s ease}
+      .quiz-badge.knowledge-reduce{background:rgba(46,204,113,.15);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
+      .quiz-badge.knowledge-penalty{background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
       .quiz-progress{text-align:center;font-size:13px;color:var(--mt);margin-bottom:12px}
       .domain-card{padding:4px 8px;border-radius:5px;font-size:10px;font-weight:700;border:2px solid;flex-shrink:0}
       .domain-label{font-size:7px;opacity:.7}
@@ -1831,6 +1839,9 @@ class GameUI {
     // 先刷新UI使play zone DOM就绪
     this.updateAllDisplay();
 
+    // 知识减费/加费视觉反馈
+    this._showQuizCostFeedback();
+
     // 卡牌飞行动画（手牌→出牌区）
     if (cardRect) {
       const playZoneEl = document.querySelector('#self-play-zone .play-card:last-child');
@@ -1964,7 +1975,7 @@ class GameUI {
     setTimeout(() => el.remove(), 1200);
   }
 
-  /** 显示 Combo 触发特效 */
+  /** 显示 Combo 触发特效 — 物理原理突出展示 */
   _showComboEffect(comboType, comboMsg) {
     // 屏幕闪烁背景
     const flashBg = document.createElement('div');
@@ -1972,15 +1983,53 @@ class GameUI {
     document.body.appendChild(flashBg);
     setTimeout(() => flashBg.remove(), 700);
 
+    // 解析物理概念
+    const parts = this._parseComboMsg(comboMsg);
+
     // Combo 文字
     const comboEl = document.createElement('div');
     comboEl.className = 'combo-flash';
     comboEl.innerHTML = `
-      <div class="combo-name">⚡ ${this._escapeHtml(comboType || 'Combo')}</div>
-      <div class="combo-sub">${this._escapeHtml(comboMsg || '组合技触发！')}</div>
+      <div class="combo-name">⚡ COMBO 触发</div>
+      <div class="combo-physics">
+        <span class="physics-from">${this._escapeHtml(parts.from)}</span>
+        <span class="physics-arrow">${this._escapeHtml(parts.arrow)}</span>
+        <span class="physics-to">${this._escapeHtml(parts.to)}</span>
+      </div>
+      <div class="combo-effect-text">${this._escapeHtml(parts.effect)}</div>
     `;
     document.body.appendChild(comboEl);
-    setTimeout(() => comboEl.remove(), 1700);
+    setTimeout(() => comboEl.remove(), 2200);
+  }
+
+  /** 解析 Combo msg 中物理概念和效果 */
+  _parseComboMsg(msg) {
+    if (!msg) return { from: '', arrow: '→', to: '', effect: '' };
+    // 格式: "概念A→概念B：效果描述" 或 "概念A↔概念B：效果描述" 或 "概念Avs概念B：效果描述"
+    const effectSplit = msg.split('：');
+    const effect = effectSplit.length > 1 ? effectSplit.slice(1).join('：') : '';
+    const physicsPart = effectSplit[0] || '';
+
+    // 检测分隔符
+    let arrow = '→';
+    let parts = [];
+    if (physicsPart.includes('→')) {
+      arrow = '→';
+      parts = physicsPart.split('→');
+    } else if (physicsPart.includes('↔')) {
+      arrow = '↔';
+      parts = physicsPart.split('↔');
+    } else if (physicsPart.includes('vs')) {
+      arrow = 'vs';
+      parts = physicsPart.split('vs');
+    }
+
+    return {
+      from: parts[0] || '',
+      arrow: arrow,
+      to: parts[1] || '',
+      effect: effect
+    };
   }
 
   /** 显示回合切换过渡动画 */
@@ -2074,6 +2123,43 @@ class GameUI {
         this._showDamageNumber(value, x, y, type);
       }
     }
+  }
+
+  /** 知识减费/加费视觉反馈 — 在手牌区显示提示徽章 */
+  _showQuizCostFeedback() {
+    if (!this.engine) return;
+    // 检查最近的引擎日志是否包含知识减费/加费
+    const recentLogs = (this.engine.log || []).slice(-5);
+    let hasReduce = false, hasPenalty = false;
+    for (const l of recentLogs) {
+      if (l.msg && l.msg.includes('[知识减费]')) hasReduce = true;
+      if (l.msg && l.msg.includes('[知识惩罚]')) hasPenalty = true;
+    }
+    if (!hasReduce && !hasPenalty) return;
+
+    const selfHand = document.getElementById('self-hand');
+    if (!selfHand) return;
+
+    // 移除旧反馈
+    const existing = selfHand.querySelector('.quiz-cost-feedback');
+    if (existing) existing.remove();
+
+    const badge = document.createElement('div');
+    badge.className = 'quiz-cost-feedback';
+    if (hasReduce && hasPenalty) {
+      badge.innerHTML = '<span class="quiz-badge knowledge-reduce">📚 知识减费 -1</span><span class="quiz-badge knowledge-penalty">⚠️ 答错加费</span>';
+    } else if (hasReduce) {
+      badge.innerHTML = '<span class="quiz-badge knowledge-reduce">📚 知识减费 -1</span>';
+    } else if (hasPenalty) {
+      badge.innerHTML = '<span class="quiz-badge knowledge-penalty">⚠️ 答错加费</span>';
+    }
+    badge.style.cssText = 'display:flex;gap:6px;justify-content:center;padding:4px 0;animation:fadeIn .3s ease';
+    selfHand.appendChild(badge);
+
+    // 2秒后自动移除
+    setTimeout(() => {
+      if (badge.parentNode) badge.remove();
+    }, 2500);
   }
 
   _clearAutoPlayTimeout() {
