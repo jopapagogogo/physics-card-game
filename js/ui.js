@@ -1331,8 +1331,9 @@ class GameUI {
         html += '<div class="play-zone-cards">';
         for (const card of this.playZoneSelf) {
           const style = this.getDomainStyle(card.domain);
+          const typeClass = `card-type-${card.type}`;
           html += `
-            <div class="card play-card small" style="border-left-color:${style.color}">
+            <div class="card play-card small ${typeClass}" style="border-left-color:${style.color}">
               <span class="card-cost" style="background:${style.bg}">${card.cost ?? '?'}</span>
               <span class="card-name">${this._escapeHtml(card.name)}</span>
               <span class="card-type">${this.getTypeLabel(card.type)}</span>
@@ -1355,8 +1356,9 @@ class GameUI {
         html += '<div class="play-zone-cards">';
         for (const card of this.playZoneAi) {
           const style = this.getDomainStyle(card.domain);
+          const typeClass = `card-type-${card.type}`;
           html += `
-            <div class="card play-card small" style="border-left-color:${style.color}">
+            <div class="card play-card small ${typeClass}" style="border-left-color:${style.color}">
               <span class="card-cost" style="background:${style.bg}">${card.cost ?? '?'}</span>
               <span class="card-name">${this._escapeHtml(card.name)}</span>
               <span class="card-type">${this.getTypeLabel(card.type)}</span>
@@ -1802,6 +1804,10 @@ class GameUI {
 
     this._clearAutoPlayTimeout();
 
+    // 动画准备：保存手牌元素引用（在引擎移除前获取DOM位置）
+    const cardEl = document.querySelector(`#self-hand .card[data-card-id="${this._escapeAttr(card.id)}"]`);
+    const cardRect = cardEl ? cardEl.getBoundingClientRect() : null;
+
     const result = this.engine.playCard(0, this.selectedCard.id, target);
     if (!result || !result.success) {
       this.addLogMessage('出牌失败: ' + (result?.msg || '未知错误'));
@@ -1814,7 +1820,6 @@ class GameUI {
     this.lastPlayedCard = this.selectedCard.id;
 
     // 添加到出牌展示区
-    console.log('[playSelectedCard] adding to playZoneSelf:', this.selectedCard.name, this.selectedCard.id);
     this.playZoneSelf.push({
       id: this.selectedCard.id,
       name: this.selectedCard.name,
@@ -1823,20 +1828,251 @@ class GameUI {
       cost: this.selectedCard.cost
     });
 
-    // 显示效果日志
+    // 先刷新UI使play zone DOM就绪
+    this.updateAllDisplay();
+
+    // 卡牌飞行动画（手牌→出牌区）
+    if (cardRect) {
+      const playZoneEl = document.querySelector('#self-play-zone .play-card:last-child');
+      if (playZoneEl) {
+        const targetRect = playZoneEl.getBoundingClientRect();
+        this._animateCardFly(card, cardRect, targetRect);
+      }
+    }
+
+    // 显示效果日志 & 视觉特效
     if (result.effects && Array.isArray(result.effects)) {
       const msgs = this._formatEffects(result.effects);
       for (const msg of msgs) {
         this.addLogMessage(msg);
       }
+      // 伤害/治疗数字弹出
+      this._processEffectAnimations(result.effects, card.type);
+    }
+
+    // Combo 触发特效
+    if (this.engine.pendingCombo && this.engine.pendingCombo[0]) {
+      const combo = this.engine.pendingCombo[0];
+      this._showComboEffect(combo.type, combo.msg);
     }
 
     this.selectedCard = null;
-    this.updateAllDisplay();
 
     // 检查游戏是否结束
     if (this.engine.isGameOver && this.engine.isGameOver()) {
-      this.showGameOver();
+      setTimeout(() => this.showGameOver(), 600);
+    }
+  }
+
+  /** 卡牌飞行动画（手牌→出牌区） */
+  _animateCardFly(card, sourceRect, targetRect) {
+    const clone = document.createElement('div');
+    clone.className = 'card play-card small card-fly-clone';
+    clone.style.cssText = `
+      left:${sourceRect.left}px; top:${sourceRect.top}px;
+      width:${sourceRect.width}px; height:${sourceRect.height}px;
+      border-left-color:${this.getDomainStyle(card.domain).color};
+    `;
+
+    // 构建微缩卡牌内容
+    const style = this.getDomainStyle(card.domain);
+    clone.innerHTML = `
+      <span class="card-cost" style="background:${style.bg}">${card.cost ?? '?'}</span>
+      <span class="card-name">${this._escapeHtml(card.name)}</span>
+      <span class="card-type">${this.getTypeLabel(card.type)}</span>
+    `;
+
+    document.body.appendChild(clone);
+
+    // 攻击卡弧线飞行
+    if (card.type === 'attack') {
+      clone.classList.add('attack');
+      const dx = targetRect.left - sourceRect.left;
+      const dy = targetRect.top - sourceRect.top;
+      const midX = sourceRect.left + dx * 0.6 + (Math.random() - 0.5) * 60;
+      const midY = Math.min(sourceRect.top, targetRect.top) - 80;
+      clone.style.transform = `translate(${midX - sourceRect.left}px, ${midY - sourceRect.top}px) scale(1.3)`;
+      clone.style.opacity = '0.85';
+      // 两段动画模拟弧线
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          clone.style.transitionDelay = '0.2s';
+          clone.style.transform = `translate(${targetRect.left - sourceRect.left}px, ${targetRect.top - sourceRect.top}px) scale(${targetRect.width / sourceRect.width})`;
+          clone.style.opacity = '1';
+        });
+      });
+    } else {
+      // 辅助/领域/召唤卡直飞
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          clone.style.transform = `translate(${targetRect.left - sourceRect.left}px, ${targetRect.top - sourceRect.top}px) scale(${targetRect.width / sourceRect.width})`;
+          clone.style.opacity = '1';
+        });
+      });
+    }
+
+    // 动画结束移除
+    setTimeout(() => {
+      clone.style.opacity = '0';
+      setTimeout(() => clone.remove(), 200);
+    }, card.type === 'attack' ? 650 : 450);
+  }
+
+  /** 处理效果动画（伤害数字弹出） */
+  _processEffectAnimations(effects, cardType) {
+    for (const eff of (effects || [])) {
+      if (!eff || typeof eff !== 'object') continue;
+
+      let value = null, type = 'dmg';
+      if (eff.type === 'damage' && eff.target === 'player') {
+        value = eff.value;
+        type = (eff.value > 100) ? 'crit' : 'dmg';
+      } else if (eff.type === 'heal' || eff.type === 'combo_heal_hp') {
+        value = eff.value;
+        type = 'heal';
+      } else if (eff.type === 'summon_damage') {
+        value = eff.value;
+        type = 'dmg';
+      } else if (eff.type === 'combo_extra_dmg' || eff.type === 'combo_force_dmg' || eff.type === 'combo_ignore_block') {
+        value = eff.value;
+        type = 'combo-dmg';
+      }
+      // 0伤害不显示（但特殊情况如combo 0伤害也要显示）
+      if (value === null || (value === 0 && type === 'dmg')) continue;
+
+      // 目标位置：对方玩家区域
+      const targetEl = document.getElementById('opponent-area');
+      if (targetEl) {
+        const rect = targetEl.getBoundingClientRect();
+        const x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 60;
+        const y = rect.top + rect.height / 2;
+        this._showDamageNumber(value, x, y, type);
+      }
+    }
+  }
+
+  /** 显示单个伤害/治疗数字 */
+  _showDamageNumber(value, x, y, type = 'dmg') {
+    const el = document.createElement('div');
+    el.className = `damage-pop ${type}`;
+    el.textContent = (type === 'heal' ? '+' : '-') + Math.abs(Math.floor(value));
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    document.body.appendChild(el);
+
+    // 动画结束后移除
+    setTimeout(() => el.remove(), 1200);
+  }
+
+  /** 显示 Combo 触发特效 */
+  _showComboEffect(comboType, comboMsg) {
+    // 屏幕闪烁背景
+    const flashBg = document.createElement('div');
+    flashBg.className = 'combo-screen-flash';
+    document.body.appendChild(flashBg);
+    setTimeout(() => flashBg.remove(), 700);
+
+    // Combo 文字
+    const comboEl = document.createElement('div');
+    comboEl.className = 'combo-flash';
+    comboEl.innerHTML = `
+      <div class="combo-name">⚡ ${this._escapeHtml(comboType || 'Combo')}</div>
+      <div class="combo-sub">${this._escapeHtml(comboMsg || '组合技触发！')}</div>
+    `;
+    document.body.appendChild(comboEl);
+    setTimeout(() => comboEl.remove(), 1700);
+  }
+
+  /** 显示回合切换过渡动画 */
+  _showTurnTransition(text, className) {
+    const el = document.createElement('div');
+    el.className = `turn-transition ${className}`;
+    el.innerHTML = `<div class="turn-banner">${text}</div>`;
+    document.body.appendChild(el);
+
+    // 半透明遮罩
+    const overlay = document.createElement('div');
+    overlay.className = 'turn-overlay';
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 600);
+
+    setTimeout(() => el.remove(), 900);
+  }
+
+  /** AI卡牌飞行动画（从对手手牌→AI出牌区） */
+  _animateAICardFly(aiCard) {
+    if (!aiCard) return;
+    const oppHandEl = document.getElementById('opp-hand');
+    const playZoneEl = document.querySelector('#opp-play-zone .play-card:last-child');
+    if (!oppHandEl || !playZoneEl) return;
+
+    const srcRect = oppHandEl.getBoundingClientRect();
+    const tgtRect = playZoneEl.getBoundingClientRect();
+
+    const clone = document.createElement('div');
+    clone.className = 'card play-card small card-fly-clone';
+    const style = this.getDomainStyle(aiCard.domain);
+    clone.style.cssText = `
+      left:${srcRect.left + srcRect.width / 2}px;
+      top:${srcRect.top + srcRect.height / 2}px;
+      width:50px; height:62px;
+      border-left-color:${style.color};
+    `;
+    clone.innerHTML = `
+      <span class="card-cost" style="background:${style.bg}">${aiCard.cost ?? '?'}</span>
+      <span class="card-name">${this._escapeHtml(aiCard.name)}</span>
+      <span class="card-type">${this.getTypeLabel(aiCard.type)}</span>
+    `;
+    document.body.appendChild(clone);
+
+    const dx = tgtRect.left + tgtRect.width / 2 - (srcRect.left + srcRect.width / 2);
+    const dy = tgtRect.top + tgtRect.height / 2 - (srcRect.top + srcRect.height / 2);
+
+    const midX = dx * 0.5 + (Math.random() - 0.5) * 30;
+    const midY = dy * 0.3 - 40;
+    clone.style.transform = `translate(${midX}px, ${midY}px) scale(1.15)`;
+    clone.style.opacity = '0.7';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        clone.style.transitionDelay = '0.15s';
+        clone.style.transform = `translate(${dx}px, ${dy}px) scale(${tgtRect.width / 50})`;
+        clone.style.opacity = '1';
+      });
+    });
+
+    setTimeout(() => {
+      clone.style.opacity = '0';
+      setTimeout(() => clone.remove(), 200);
+    }, 550);
+  }
+
+  /** AI攻击特效：伤害数字弹出（对己方造成伤害） */
+  _processAIEffectAnimations(effects) {
+    for (const eff of (effects || [])) {
+      if (!eff || typeof eff !== 'object') continue;
+
+      let value = null, type = 'dmg';
+      if (eff.type === 'damage' && eff.target === 'player') {
+        value = eff.value;
+        type = (eff.value > 100) ? 'crit' : 'dmg';
+      } else if (eff.type === 'heal' || eff.type === 'combo_heal_hp') {
+        value = eff.value;
+        type = 'heal';
+      } else if (eff.type === 'combo_extra_dmg' || eff.type === 'combo_force_dmg' || eff.type === 'combo_ignore_block') {
+        value = eff.value;
+        type = 'combo-dmg';
+      }
+      if (value === null || (value === 0 && type === 'dmg')) continue;
+
+      // 目标位置：己方玩家区域
+      const selfInfo = document.querySelector('.self-info');
+      if (selfInfo) {
+        const rect = selfInfo.getBoundingClientRect();
+        const x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 60;
+        const y = rect.top + rect.height / 2;
+        this._showDamageNumber(value, x, y, type);
+      }
     }
   }
 
@@ -1983,7 +2219,9 @@ class GameUI {
     this.selectedCard = null;
     this.addLogMessage('═══ AI 回合 ═══');
     this.updateAllDisplay();
-    this.runAITurn();
+    // 回合切换过渡动画
+    this._showTurnTransition('对手回合', 'opponent');
+    setTimeout(() => this.runAITurn(), 500);
   }
 
   // ==================== AI 回合 ====================
@@ -2027,7 +2265,7 @@ class GameUI {
           if (!decision) break;
 
           // AI 出牌 & 即时结算卡牌效果
-          this.engine.playCard(this.ai.aiIdx, decision.cardId, decision.target || 'player');
+          const _aiResult = this.engine.playCard(this.ai.aiIdx, decision.cardId, decision.target || 'player');
 
           // 添加到AI出牌展示区
           const aiCard = this.engine.getCardById(decision.cardId);
@@ -2039,6 +2277,19 @@ class GameUI {
           }
 
           this.updateAllDisplay();
+
+          // AI卡牌飞行动画（从对手手牌→AI出牌区）
+          this._animateAICardFly(aiCard);
+
+          // AI攻击特效：伤害数字弹出（对己方造成伤害时）
+          if (_aiResult && _aiResult.effects && Array.isArray(_aiResult.effects)) {
+            this._processAIEffectAnimations(_aiResult.effects);
+          }
+          // AI Combo特效
+          if (this.engine.pendingCombo && this.engine.pendingCombo[1]) {
+            const _aiCombo = this.engine.pendingCombo[1];
+            this._showComboEffect(_aiCombo.type, _aiCombo.msg + ' (AI)');
+          }
 
           // 短暂延迟让玩家看到AI出牌效果
           await this.ai._sleep(600 + Math.random() * 400);
@@ -2239,6 +2490,8 @@ class GameUI {
           if (!card) return;
 
           // 打出卡牌（通过playInOpponentTurn，自动处理+3费用和回合限制）
+          const _lsCardEl = document.querySelector(`#self-hand .card[data-card-id="${this._escapeAttr(card.id)}"]`);
+          const _lsCardRect = _lsCardEl ? _lsCardEl.getBoundingClientRect() : null;
           const result = this.engine.playInOpponentTurn(0, card.id, 'player');
           if (result && result.success) {
             this.addLogMessage(`[光速传播] 在AI回合打出「${card.name}」（费用+3）`);
@@ -2248,6 +2501,18 @@ class GameUI {
               domain: card.domain, cost: card.cost
             });
             this.updateAllDisplay();
+
+            // 卡牌飞行动画
+            if (_lsCardRect) {
+              const _lsPlayZoneEl = document.querySelector('#self-play-zone .play-card:last-child');
+              if (_lsPlayZoneEl) {
+                this._animateCardFly(card, _lsCardRect, _lsPlayZoneEl.getBoundingClientRect());
+              }
+            }
+            // 显示效果
+            if (result.effects) {
+              this._processEffectAnimations(result.effects, card.type);
+            }
           } else {
             this.addLogMessage(`[光速传播] 出牌失败: ${result?.msg || '未知原因'}`);
           }
@@ -2289,8 +2554,10 @@ class GameUI {
 
     this.addLogMessage('═══ 你的回合 ═══');
     this.phase = 'quiz';
-    this.updateAllDisplay(); // Bug修复：AI回合结束后刷新界面
-    this.showQuizPhase();
+    this.updateAllDisplay();
+    // 回合切换过渡动画
+    this._showTurnTransition('你的回合', 'your');
+    setTimeout(() => this.showQuizPhase(), 500);
   }
 
   // ==================== 游戏结束 ====================
