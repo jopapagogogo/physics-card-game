@@ -172,22 +172,22 @@ with open(os.path.join(BASE, 'art_samples', 'complete_card_design.html'), 'r', e
 style_match = re.search(r'<style>(.*?)</style>', template_html, re.DOTALL)
 template_css = style_match.group(1) if style_match else ''
 
-# Extract a domain rune base64
-rune_match = re.search(r'<div class="domain-rune"><img src="(data:image/png;base64,[^"]+)"', template_html)
-DEFAULT_RUNE = rune_match.group(1) if rune_match else ''
+# Load per-domain runes
+with open(os.path.join(BASE, 'domain_runes.json'), 'r', encoding='utf-8') as f:
+    DOMAIN_RUNES = json.load(f)
 
 DOMAIN_CSS = {
     'force': 'force', 'electric': 'electric', 'sound': 'sound',
-    'light': 'light-domain', 'heat': 'heat',
+    'light': 'light-domain', 'heat': 'heat', 'chaos': 'chaos',
 }
 TYPE_PIP = {'attack': 'attack', 'support': 'support', 'summon': 'summon'}
 TYPE_LABEL = {'attack': '攻击', 'support': '辅助', 'summon': '召唤'}
 RARITY_CSS = {'common': 'common', 'rare': 'rare', 'epic': 'epic', 'legendary': 'legendary', 'mythic': 'mythic'}
 
-DOMAIN_ORDER = ['force', 'electric', 'sound', 'light', 'heat']
+DOMAIN_ORDER = ['force', 'electric', 'sound', 'light', 'heat', 'chaos']
 DOMAIN_LABELS = {
     'force': '力 Force', 'electric': '电 Electric', 'sound': '声 Sound',
-    'light': '光 Light', 'heat': '热 Heat',
+    'light': '光 Light', 'heat': '热 Heat', 'chaos': '混沌 Chaos',
 }
 
 def get_stat_info(card):
@@ -218,11 +218,18 @@ def generate_card_html(card):
     principle = card.get('principle', '')
     cost = card.get('cost', '0')
     
+    # Remap C## (神兽) and T## (相变) to chaos domain
+    if (cid.startswith('C') or cid.startswith('T')):
+        domain = 'chaos'
+    
     domain_css = DOMAIN_CSS.get(domain, 'force')
     rarity_css = RARITY_CSS.get(rarity, 'common')
     type_pip = TYPE_PIP.get(ctype, 'attack')
     type_label = TYPE_LABEL.get(ctype, '攻击')
     stat_num, stat_unit, hp = get_stat_info(card)
+    
+    # Per-domain rune
+    rune = DOMAIN_RUNES.get(domain, DOMAIN_RUNES.get('force', ''))
     
     art_file = final_mapping.get(cid, '')
     if art_file:
@@ -241,7 +248,7 @@ def generate_card_html(card):
       <div class="card-header">
         <div class="cost-gem">{cost}</div>
         <div class="card-title-bar"><div class="card-title">{name}</div></div>
-        <div class="domain-rune"><img src="{DEFAULT_RUNE}" alt="rune"></div>
+        <div class="domain-rune"><img src="{rune}" class="rune-img"></div>
       </div>
       <div class="type-ribbon"><span class="type-pip {type_pip}">{type_label}</span></div>
       <div class="art-frame" style="position:relative"><img src="{art_file}" alt="{name}"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
@@ -253,9 +260,14 @@ def generate_card_html(card):
 # Group and sort
 domain_groups = {d: [] for d in DOMAIN_ORDER}
 for card in cards:
-    d = card.get('domain', 'force')
-    if d not in DOMAIN_ORDER:
-        d = 'force'
+    cid = card.get('id', '')
+    # Remap C## and T## to chaos
+    if cid.startswith('C') or cid.startswith('T'):
+        d = 'chaos'
+    else:
+        d = card.get('domain', 'force')
+        if d not in DOMAIN_ORDER:
+            d = 'force'
     domain_groups[d].append(card)
 
 for d in DOMAIN_ORDER:
@@ -272,6 +284,7 @@ tab_colors = {
     'sound': ('var(--sound)', 'var(--sound-light)'),
     'light': ('var(--light-color)', '#ffe080'),
     'heat': ('var(--heat)', 'var(--heat-light)'),
+    'chaos': ('var(--chaos)', '#c084fc'),
 }
 
 tab_buttons = ''
@@ -312,6 +325,7 @@ html = f'''<!DOCTYPE html>
     --sound:#16A085;--sound-light:#1de0b5;--sound-dark:#0a5c4a;
     --light:#F39C12;--light-color:#ffc04d;--light-dark:#8b5a00;
     --heat:#E67E22;--heat-light:#f0a04d;--heat-dark:#8a3d0a;
+    --chaos:#9333ea;--chaos-light:#c084fc;--chaos-dark:#581c87;
     --cyber-accent:#00e5ff;--anime-accent:#ff6b9d;
     --rare-gold:#f0c040;--common-silver:#7eb8da;
     --summon-hp:#4ecdc4;--attack-red:#e06050;--support-green:#3cb371;
@@ -438,6 +452,15 @@ html = f'''<!DOCTYPE html>
   .card.sound .card-desc-box{{border-left:2px solid rgba(22,160,133,.4)}}
   .card.light-domain .card-desc-box{{border-left:2px solid rgba(243,156,18,.4)}}
   .card.heat .card-desc-box{{border-left:2px solid rgba(230,126,34,.4)}}
+  .card.chaos{{border-color:var(--chaos-dark)}}
+  .card.chaos::before{{background:conic-gradient(from var(--m-angle,0deg),var(--chaos-dark),var(--chaos),var(--chaos-light),var(--chaos),var(--chaos-dark));opacity:.4;animation:mythic-spin 6s linear infinite}}
+  .card.chaos .cost-gem{{color:var(--chaos-light)}}
+  .card.chaos .card-title{{color:var(--chaos-light)}}
+  .card.chaos .ornate-divider .line{{background:linear-gradient(90deg,transparent,var(--chaos-dark),var(--chaos),var(--chaos-dark),transparent)}}
+  .card.chaos .ornate-divider .gem{{background:var(--chaos);box-shadow:0 0 6px var(--chaos)}}
+  .card.chaos .main-stat .stat-num{{color:var(--chaos);text-shadow:0 0 10px rgba(147,51,234,.4)}}
+  .card.chaos .card-desc-box{{border-left:2px solid rgba(147,51,234,.4)}}
+  .card.chaos .card-principle{{background:rgba(147,51,234,.12);color:var(--chaos-light);border:1px solid rgba(147,51,234,.2)}}
   .card-desc{{font-size:.72em;color:#e0e0e0;line-height:1.65;margin-bottom:6px;text-shadow:0 1px 2px rgba(0,0,0,.5)}}
   .card-principle{{font-family:'Consolas','Courier New',monospace;font-size:.7em;font-weight:700;letter-spacing:.5px;padding:3px 6px;border-radius:3px;display:inline-block}}
   .card.force .card-principle{{background:rgba(231,76,60,.12);color:var(--force-light);border:1px solid rgba(231,76,60,.2)}}
