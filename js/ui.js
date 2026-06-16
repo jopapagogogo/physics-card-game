@@ -394,7 +394,7 @@ class GameUI {
     document.body.appendChild(overlay);
 
     const MAX_CARDS = 30;
-    const MIN_CARDS = 20;
+    const MIN_CARDS = 22;
     const colorMap = { '力':'#E74C3C','声':'#3498DB','光':'#F1C40F','热':'#E67E22','电':'#9B59B6' };
 
     function getDomainColor(card) {
@@ -500,9 +500,9 @@ class GameUI {
       const statHTML = Object.entries(stats).map(([d, c]) =>
         `<span style="color:${colorMap[d] || '#888'}">${d}×${c}</span>`
       ).join(' ');
-      const allValid = atkC >= 8 && sumC <= 3 && domC <= 2 && phsC <= 2 && mainCount >= subCount && mainCount >= otherCount && mainCount + subCount >= Math.ceil(selected.size * 0.6);
+      const allValid = atkC >= 10 && atkC <= 15 && supC >= 7 && supC <= 12 && sumC <= 2 && domC <= 2 && phsC <= 1 && mainCount >= subCount && mainCount >= otherCount && mainCount + subCount >= Math.ceil(selected.size * 0.6);
       const ruleIcon = allValid ? '✅' : '⚠️';
-      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount}·副${subCount}·其他${otherCount} | 攻击${atkC}(≥8) 辅助${supC} 召唤${sumC}(≤3) 领域${domC}(≤2) 相变${phsC}(≤2)`;
+      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount}·副${subCount}·其他${otherCount} | 攻击${atkC}(10-15) 辅助${supC}(7-12) 召唤${sumC}(≤2) 领域${domC}(≤2) 相变${phsC}(≤1)`;
     }
 
     function updateCount() {
@@ -554,12 +554,16 @@ class GameUI {
         else otherCount++;
       }
       
-      // === 组合规则验证 ===
+      // === 组牌规则验证（对齐自动组牌比例）===
+      // auto: 13攻(8主+3副+2交) 10辅(5主+3副+2通) 2域 2召 1相 = 26张
       const rules = [
-        { check: attackCount >= 8, msg: '攻击卡至少需要8张（当前' + attackCount + '张）' },
-        { check: summonCount <= 3, msg: '召唤卡最多3张（当前' + summonCount + '张）' },
-        { check: domainCount <= 2, msg: '领域卡最多2张（当前' + domainCount + '张）' },
-        { check: phaseCount <= 2, msg: '相变卡最多2张（当前' + phaseCount + '张）' },
+        { check: attackCount >= 10, msg: '攻击卡至少10张（自动组牌13张，当前' + attackCount + '张）' },
+        { check: attackCount <= 15, msg: '攻击卡最多15张（当前' + attackCount + '张）' },
+        { check: supportCount >= 7, msg: '辅助卡至少7张（自动组牌10张，当前' + supportCount + '张）' },
+        { check: supportCount <= 12, msg: '辅助卡最多12张（当前' + supportCount + '张）' },
+        { check: summonCount <= 2, msg: '召唤卡最多2张（自动组牌2张，当前' + summonCount + '张）' },
+        { check: domainCount <= 2, msg: '领域卡最多2张（自动组牌2张，当前' + domainCount + '张）' },
+        { check: phaseCount <= 1, msg: '相变卡最多1张（自动组牌1张，当前' + phaseCount + '张）' },
         { check: mainCount >= subCount, msg: '主领域「' + self.mainDomain + '」(' + mainCount + ')不能少于副领域(' + subCount + ')' },
         { check: mainCount >= otherCount, msg: '主领域卡须最多（主' + mainCount + ' < 其他' + otherCount + '）' },
         { check: mainCount + subCount >= Math.ceil(selected.size * 0.6), msg: '主+副领域需≥60%（当前' + Math.round((mainCount+subCount)/selected.size*100) + '%）' },
@@ -587,7 +591,7 @@ class GameUI {
   // ==================== 游戏开始 / 卡组生成 ====================
 
   startGame() {
-    const playerDeck = this.customDeck && this.customDeck.length >= 20
+    const playerDeck = this.customDeck && this.customDeck.length >= 22
       ? this.customDeck
       : this.generateDeck(this.mainDomain, this.subDomain);
 
