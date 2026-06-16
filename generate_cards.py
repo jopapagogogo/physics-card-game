@@ -237,10 +237,17 @@ def generate_card_html(card):
         art_file = f'art_samples/card_art/{art_file}'
     
     # Truncate desc for 90px box
+    # (no truncation - we use overflow + expand instead)
     if len(desc) > 180:
-        desc = desc[:177] + '...'
+        desc_short = desc[:177] + '...'
+    else:
+        desc_short = desc
     
     hp_html = f'<div class="hp-stat"><span>❤</span><span class="hp-num">{hp}</span></div>' if hp else ''
+    
+    # Determine if expand button needed
+    needs_expand = len(desc) > 180
+    expand_btn = '<span class="desc-expand" onclick="this.parentElement.parentElement.classList.toggle(\'expanded\');this.textContent=this.parentElement.parentElement.classList.contains(\'expanded\')?\'▲\':\'▼\'">▼</span>' if needs_expand else ''
     
     return f'''
     <!-- {cid} {name} -->
@@ -255,7 +262,7 @@ def generate_card_html(card):
       <div class="art-frame" style="position:relative"><img src="{art_file}" alt="{name}"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
       <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
       <div class="card-stats"><div class="main-stat"><span class="stat-num">{stat_num}</span><span class="stat-unit">{stat_unit}</span></div>{hp_html}</div>
-      <div class="card-desc-box"><div class="card-desc">{desc}</div><span class="card-principle">{principle}</span></div>
+      <div class="card-desc-box"><div class="card-desc">{desc}</div><span class="card-principle">{principle}</span>{expand_btn}</div>
     </div></div>'''
 
 # Group and sort
@@ -448,7 +455,10 @@ html = f'''<!DOCTYPE html>
   .main-stat .stat-unit{{font-size:.68em;color:var(--text-dim)}}
   .hp-stat{{margin-left:auto;display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2)}}
   .hp-stat .hp-num{{font-weight:800;font-size:.9em;color:var(--summon-hp)}}
-  .card-desc-box{{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);height:90px;overflow:hidden}}
+  .card-desc-box{{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);min-height:90px;height:90px;overflow:hidden;transition:height .35s ease}}
+  .card-desc-box.expanded{{height:auto}}
+  .desc-expand{{position:absolute;bottom:2px;right:10px;cursor:pointer;font-size:10px;color:rgba(255,255,255,.4);background:rgba(0,0,0,.6);padding:1px 8px;border-radius:3px;user-select:none;z-index:5}}
+  .desc-expand:hover{{color:#fff;background:rgba(255,255,255,.1)}}
   .card.force .card-desc-box{{border-left:2px solid rgba(231,76,60,.4)}}
   .card.electric .card-desc-box{{border-left:2px solid rgba(155,89,182,.4)}}
   .card.sound .card-desc-box{{border-left:2px solid rgba(22,160,133,.4)}}

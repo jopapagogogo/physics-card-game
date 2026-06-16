@@ -140,7 +140,10 @@
   .main-stat .stat-unit{font-size:.68em;color:var(--text-dim)}
   .hp-stat{margin-left:auto;display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2)}
   .hp-stat .hp-num{font-weight:800;font-size:.9em;color:var(--summon-hp)}
-  .card-desc-box{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);height:90px;overflow:hidden}
+  .card-desc-box{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);min-height:90px;height:90px;overflow:hidden;transition:height .35s ease}
+  .card-desc-box.expanded{height:auto}
+  .desc-expand{position:absolute;bottom:2px;right:10px;cursor:pointer;font-size:10px;color:rgba(255,255,255,.4);background:rgba(0,0,0,.6);padding:1px 8px;border-radius:3px;user-select:none;z-index:5}
+  .desc-expand:hover{color:#fff;background:rgba(255,255,255,.1)}
   .card.force .card-desc-box{border-left:2px solid rgba(231,76,60,.4)}
   .card.electric .card-desc-box{border-left:2px solid rgba(155,89,182,.4)}
   .card.sound .card-desc-box{border-left:2px solid rgba(22,160,133,.4)}
