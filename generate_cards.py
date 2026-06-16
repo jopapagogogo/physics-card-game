@@ -218,8 +218,9 @@ def generate_card_html(card):
     principle = card.get('principle', '')
     cost = card.get('cost', '0')
     
-    # Remap C## (神兽) and T## (相变) to chaos domain
-    if (cid.startswith('C') or cid.startswith('T')):
+    # Remap C01-C04 (四神兽) and T## (相变) to chaos domain
+    CHAOS_IDS = {'C01', 'C02', 'C03', 'C04'}
+    if cid.startswith('T') or cid in CHAOS_IDS:
         domain = 'chaos'
     
     domain_css = DOMAIN_CSS.get(domain, 'force')
@@ -261,8 +262,9 @@ def generate_card_html(card):
 domain_groups = {d: [] for d in DOMAIN_ORDER}
 for card in cards:
     cid = card.get('id', '')
-    # Remap C## and T## to chaos
-    if cid.startswith('C') or cid.startswith('T'):
+    # Remap C01-C04 (四神兽) and T## (相变) to chaos
+    CHAOS_IDS = {'C01', 'C02', 'C03', 'C04'}
+    if cid.startswith('T') or cid in CHAOS_IDS:
         d = 'chaos'
     else:
         d = card.get('domain', 'force')

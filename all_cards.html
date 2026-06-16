@@ -169,7 +169,7 @@
 <body>
 <div class="hero">
   <h1><span>物理卡牌对战</span></h1>
-  <p>109 张卡牌 · 5领域 · Cyberpunk风格 · 力=17, 电=17, 声=18, 光=22, 热=18, 混=17</p>
+  <p>109 张卡牌 · 5领域 · Cyberpunk风格 · 力=19, 电=19, 声=20, 光=24, 热=20, 混=7</p>
 </div>
 <div class="domain-tabs">
 <button class="domain-tab tab-force active" onclick="switchDomain('force')">力</button>
@@ -439,6 +439,36 @@
       <div class="card-stats"><div class="main-stat"><span class="stat-num">—</span><span class="stat-unit">效果值</span></div></div>
       <div class="card-desc-box"><div class="card-desc">将一张手牌放回牌库顶部，从牌库抽一张新牌（通用卡，不受任何领域加成）。原理：控制变量法——替换不合实验条件的变量。</div><span class="card-principle">控制变量法</span></div>
     </div></div>
+
+    <!-- C05 牛顿 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card force cyber epic">
+      <div class="card-header">
+        <div class="cost-gem">22</div>
+        <div class="card-title-bar"><div class="card-title">牛顿</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_17th_century_English_scienti_2026-06-15T08-35-24.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+22</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">力系攻击卡额外+20伤害。原理：F=ma——力越大效果越猛，经典力学的奠基人。</div><span class="card-principle">F=ma</span></div>
+    </div></div>
+
+    <!-- C06 阿基米德 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card force cyber legendary">
+      <div class="card-header">
+        <div class="cost-gem">22</div>
+        <div class="card-title-bar"><div class="card-title">阿基米德</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/An_ancient_Greek_scholar_with__2026-06-15T08-36-11.png" alt="阿基米德"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+22</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">320</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">辅助卡精神力消耗-4，力系辅助卡额外-2。原理：杠杆原理——给我一个支点，我能撬动地球，省力不省功。</div><span class="card-principle">杠杆原理</span></div>
+    </div></div>
   </div>
 </div>
 
@@ -699,6 +729,36 @@
       <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
       <div class="card-stats"><div class="main-stat"><span class="stat-num">-2</span><span class="stat-unit">效果值</span></div></div>
       <div class="card-desc-box"><div class="card-desc">本回合所有电系攻击卡精神力消耗-2（本回合生效）。原理：多路并联放电使每条支路电阻降低，出牌门槛降低。</div><span class="card-principle">并联电路</span></div>
+    </div></div>
+
+    <!-- C07 欧姆 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card electric cyber legendary">
+      <div class="card-header">
+        <div class="cost-gem">26</div>
+        <div class="card-title-bar"><div class="card-title">欧姆</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAgCAYAAAD5VeO1AAAEkUlEQVR4nJVWTWxUVRQ+59773vy1hoVVRGvcgArxj7Bgo8wkRg1taiL2hxoEY+gQNXHhxpXTxp07oy6o/BgTLe0sTIAispnOShNlRQARN2oUAwtaOrz35r177zHnzbS28N60nGRyb97c873vfve75zyEO4KAECqAk1fOnM86uWdDHRgAkAnrSKFCTWZeatjydnX3Dc5FQFpaI1YmzAzOSP7zyG8/7HCV+0xT+5QEzIEAJuPkGOokAy/lrlyzCvzi9R5s0aL9GZnlObNODkKhTQQgaDJtiVopB9ZRzwzWuubRf62pfUBCwRQTwrhORjYj/8IG4/0U51bxLiLLzMd3zfH2cV76r+SdwsbIRgZw9c5W0CZHuJx+bKg6ZNq5kA5eLNp4A0BvxpuO5wmwQCRQKi9abDjGnogfFudsqiyVSkXgBNpjw2d7raAXA+0hAKYeZNbJKy9snHqr2v8vH+TQxJBJZz5XjEcj7et5pytHZHULJ5G6MFYDER1JXfM/kba3AeDLkTO/ZJ3c9kAHBpMsSGRdlRVN7f+6+VrhqWK9aO603yrmy94end2upPMcezsRuHUQ1pUuIODXpXpJz6Uc5DJ4z9a2t63Yl1W5Tt4mPsjbYSOwxnzDu73xwA3iMem3LMvx/bWsbnpXlXQf0SayyRYknXe6VCNqzJSn+oZhjYhNwi84PHJ6d8HtPu2FDYuIIs2CEhVaMn8BwfX4Id5hV2LWYFyVcSMT/sxWJESxTyBy1WG/iiRwBERDGhzh9kohexMJkAVHZsCPbjfA2lH1+eDpjUDwsh/5/FbZyVsICJENKbJomSXgaqcgokEUrjbhnvL0wGXhSjGSc3IbDBm2VUffcvAadhPLF4/tH5ClLrfbDSLv4/L0wLnDY4cdBUCHiG8GokwtJe2wpIn53fUcyHRlutVic+Hc2In+jyq7aqo8WdJKAO4NAo/AgUQXSqFIhyQVoAEJn2RV7iVf+8uXjPhiSVcEUfC3DoJ9bMPx4riFetuP643JkdnLGZV9ItSBhZarSCAaKRzZNF6pPDVQj2tNtVVrVKVCHbXYdG1S/vPQmHn4ytknpcAtoWmyMnEOAZm8e59a8Oc/PDQ9UGc5hqolrktxrMm8squmJuolPTn8/YFCtnDcCxc1ACpLsc7SCxdPHpzqe7W9jhkn99BOgcI+vzRnnTMqI4PQ+yOPdIBvI9Tjmp7eQ5Niol7SLB0R7OSeSayJkMQ3MdLh3je+7b+57dI2nICJuxpGR/AKMwKAR6/OPiYQN0cm5AJr825BhlHzg0PVgR9bOndqFmkx124iVu7IOQXHkmkWMt1OI7hVLU/3fbp0Hmnp69IckV5gMZV0XT/yfidz+yBLNV4vpn96rAU+3kpGINppyTJ+2IyikXJ1aGHbpeqqr6t7Aq/E9Rjpq8FTmwDxcUc6GNnovXeq/ec76bw+5nNtvR3x9P2FB7tuBQtHy1N9R2pr6Lwu8GJ7tIQDC/7NP4MefJevNjfl9QB3Bq8XTa1S42ayJTCNPe9/trt5cesgF/GOOq8ZSw32i+Hveo+OzvbznFnfK85/yPFHe20+lu0AAAAASUVORK5CYII=" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_German_physicis_2026-06-15T08-36-11.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗-6。原理：欧姆定律I=U/R——降低电阻=降低消耗，电流畅通无阻。</div><span class="card-principle">欧姆定律</span></div>
+    </div></div>
+
+    <!-- C14 安培 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card electric cyber epic">
+      <div class="card-header">
+        <div class="cost-gem">24</div>
+        <div class="card-title-bar"><div class="card-title">安培</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAgCAYAAAD5VeO1AAAEkUlEQVR4nJVWTWxUVRQ+59773vy1hoVVRGvcgArxj7Bgo8wkRg1taiL2hxoEY+gQNXHhxpXTxp07oy6o/BgTLe0sTIAispnOShNlRQARN2oUAwtaOrz35r177zHnzbS28N60nGRyb97c873vfve75zyEO4KAECqAk1fOnM86uWdDHRgAkAnrSKFCTWZeatjydnX3Dc5FQFpaI1YmzAzOSP7zyG8/7HCV+0xT+5QEzIEAJuPkGOokAy/lrlyzCvzi9R5s0aL9GZnlObNODkKhTQQgaDJtiVopB9ZRzwzWuubRf62pfUBCwRQTwrhORjYj/8IG4/0U51bxLiLLzMd3zfH2cV76r+SdwsbIRgZw9c5W0CZHuJx+bKg6ZNq5kA5eLNp4A0BvxpuO5wmwQCRQKi9abDjGnogfFudsqiyVSkXgBNpjw2d7raAXA+0hAKYeZNbJKy9snHqr2v8vH+TQxJBJZz5XjEcj7et5pytHZHULJ5G6MFYDER1JXfM/kba3AeDLkTO/ZJ3c9kAHBpMsSGRdlRVN7f+6+VrhqWK9aO603yrmy94end2upPMcezsRuHUQ1pUuIODXpXpJz6Uc5DJ4z9a2t63Yl1W5Tt4mPsjbYSOwxnzDu73xwA3iMem3LMvx/bWsbnpXlXQf0SayyRYknXe6VCNqzJSn+oZhjYhNwi84PHJ6d8HtPu2FDYuIIs2CEhVaMn8BwfX4Id5hV2LWYFyVcSMT/sxWJESxTyBy1WG/iiRwBERDGhzh9kohexMJkAVHZsCPbjfA2lH1+eDpjUDwsh/5/FbZyVsICJENKbJomSXgaqcgokEUrjbhnvL0wGXhSjGSc3IbDBm2VUffcvAadhPLF4/tH5ClLrfbDSLv4/L0wLnDY4cdBUCHiG8GokwtJe2wpIn53fUcyHRlutVic+Hc2In+jyq7aqo8WdJKAO4NAo/AgUQXSqFIhyQVoAEJn2RV7iVf+8uXjPhiSVcEUfC3DoJ9bMPx4riFetuP643JkdnLGZV9ItSBhZarSCAaKRzZNF6pPDVQj2tNtVVrVKVCHbXYdG1S/vPQmHn4ytknpcAtoWmyMnEOAZm8e59a8Oc/PDQ9UGc5hqolrktxrMm8squmJuolPTn8/YFCtnDcCxc1ACpLsc7SCxdPHpzqe7W9jhkn99BOgcI+vzRnnTMqI4PQ+yOPdIBvI9Tjmp7eQ5Niol7SLB0R7OSeSayJkMQ3MdLh3je+7b+57dI2nICJuxpGR/AKMwKAR6/OPiYQN0cm5AJr825BhlHzg0PVgR9bOndqFmkx124iVu7IOQXHkmkWMt1OI7hVLU/3fbp0Hmnp69IckV5gMZV0XT/yfidz+yBLNV4vpn96rAU+3kpGINppyTJ+2IyikXJ1aGHbpeqqr6t7Aq/E9Rjpq8FTmwDxcUc6GNnovXeq/ec76bw+5nNtvR3x9P2FB7tuBQtHy1N9R2pr6Lwu8GJ7tIQDC/7NP4MefJevNjfl9QB3Bq8XTa1S42ayJTCNPe9/trt5cesgF/GOOq8ZSw32i+Hveo+OzvbznFnfK85/yPFHe20+lu0AAAAASUVORK5CYII=" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_French_physicis_2026-06-15T08-05-33.png" alt="安培"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+24</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">电系攻击+8伤害；麻痹每点强度，电系攻击额外+2伤害。原理：电流强度I——电流越大效果越强。</div><span class="card-principle">电流</span></div>
     </div></div>
   </div>
 </div>
@@ -975,6 +1035,36 @@
       <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
       <div class="card-stats"><div class="main-stat"><span class="stat-num">—</span><span class="stat-unit">效果值</span></div></div>
       <div class="card-desc-box"><div class="card-desc">查看己方牌库最上方5张牌，并可改变其排序。原理：多普勒雷达/声纳——通过频率变化探测目标位置和速度，预见即将到来的牌。</div><span class="card-principle">多普勒效应</span></div>
+    </div></div>
+
+    <!-- C10 贝尔 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card sound cyber legendary">
+      <div class="card-header">
+        <div class="cost-gem">26</div>
+        <div class="card-title-bar"><div class="card-title">贝尔</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAgCAYAAADnnNMGAAAEbElEQVR4nN1Wz29UVRg9330znY4dy484U0qEojZqxcgSFizQ8Ae46YAhgRZFCAmigmktxemkLTTBYFA2RWyHstCMCoYFiQmmrJUdFjA2urBQ+muAklLamXeP+d7UMi0z6Q9x45nFzf3ed8753n3fvXeAfIjFjA7lZ2Kry74+dieSaDnpxZNJJ3cMJ1pPlH3zaWplR/OqXN5s5A1i7TXRIWPNKgkWLyX5qhfv6eGMkXadBAPL0sCqXF5hkzxVGMefgWtVcDJvMRrPWBqf4xZajUcmGojH7ew8ulagP0jeCqFxgXh5s6F6U0Y+JKsdRONuuKOljgLfcMmLbZX9/b5efPt4dXOgsn+jrzdZjfDY7x8BFkO1h9tU36A6aSOJ1tcgcpCu/Q7RqNubSqWxCPQqLxp1reueB+RAuOvoOtU3ECHB4yI8NPLOJ789k2jdX74Syz2WMQWWaRam8p5+PrAsfKZ1n+oQ0gDXPa76JtLZsgFA2WBN46lI55FtBtwD4IFHTs/zhdLZvCXBwAOQeyKJI28N1x76UnVV3wCyC4ILmkTYeoHs7d8dz5o4TrZV54KTzeuLHhg3lvtIW5/VkwuAvGso3EA658KJ5hcA2IGaQ93Tm26hSFY7AzsPd4sIy7qan6PLcxSuN0KUDt+79StpNkFwTXO1uxbjUdm/UXn6ja+7rnljZGzgqgClhiLE/i8mHHCNUPrwBCCQQUe4WnXJnB1PQUZAv5fzbz0IQ0i2G0SyJuFkLGSFN6zIGvUrKk/N/ODerp8bUzxSUEHgxvKzsVKda4MPyrhvg98X/EnIqsqLJwLXepCZhyY8uRwor6IzVizAy36Rbl+6aL0QAwaCS6Rs7d92cJjAzdHbozXT51h2k1EIV/txpgFExGgxnN608bgdp28HgJu3djSM0GArhJcMMuaUEJvKuo6VODR1FFO3pPOzpcqxlElmMipQ4a10UxPR3u7/Z+UJrtbnlhnvlFYejdQLWBc+GQsB3CSGp8zg2x//AeKy60623d7Z8Isr3FrsZPSjiX/i4XU7Nv6XhEpeiiRaP9AjArt3p7VinZtQSZUdG+9zTPCG5ivPBbYM1DT+zJC/TSCXB7Yf/lPAmHn2NJZO+ot6AO4drGk879WZTBo97MKJlu1OaegMJ9KwDyd0o10l+YopDmyWQBHce/drh2obE94Gjka9kzvS2fomwfZASbCqr3r0rkET0LcrnrIOooCUeHdAstoz0AKGahq7MndH34flfac09LoEi99zSkObdW7v3PvQM2Asm6/XhvINnjLglr7ogVTBLpmBqYtnxenmisjZo9+v+OHziUjX0aTOc5/Pp/uyyVpRPlw8EdAh3NESL/+xneGvmpty44+Lx0yu+aMzSts2XqCiYMpVkkCCsIQ4TtAT0Xg+yMyrvPCrzkY8biHIkq21+f4TFML8TXKhrbwALM4EC+Mt1gT/ExPqVfRfmTD7wUXMvDtrwSY01g9jQLDoyZsMrfXewFCucHxiTGiv5Mbnwt/AwAwu9mMW8QAAAABJRU5ErkJggg==" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_Scottish_invent_2026-06-15T08-36-10.png" alt="贝尔"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">己方每回合查看对方1张手牌；声系攻击+10伤害。原理：电话——声音远距离传输信息，信息获取优势。</div><span class="card-principle">电话原理</span></div>
+    </div></div>
+
+    <!-- C12 赫兹 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card sound cyber epic">
+      <div class="card-header">
+        <div class="cost-gem">24</div>
+        <div class="card-title-bar"><div class="card-title">赫兹</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAgCAYAAADnnNMGAAAEbElEQVR4nN1Wz29UVRg9330znY4dy484U0qEojZqxcgSFizQ8Ae46YAhgRZFCAmigmktxemkLTTBYFA2RWyHstCMCoYFiQmmrJUdFjA2urBQ+muAklLamXeP+d7UMi0z6Q9x45nFzf3ed8753n3fvXeAfIjFjA7lZ2Kry74+dieSaDnpxZNJJ3cMJ1pPlH3zaWplR/OqXN5s5A1i7TXRIWPNKgkWLyX5qhfv6eGMkXadBAPL0sCqXF5hkzxVGMefgWtVcDJvMRrPWBqf4xZajUcmGojH7ew8ulagP0jeCqFxgXh5s6F6U0Y+JKsdRONuuKOljgLfcMmLbZX9/b5efPt4dXOgsn+jrzdZjfDY7x8BFkO1h9tU36A6aSOJ1tcgcpCu/Q7RqNubSqWxCPQqLxp1reueB+RAuOvoOtU3ECHB4yI8NPLOJ789k2jdX74Syz2WMQWWaRam8p5+PrAsfKZ1n+oQ0gDXPa76JtLZsgFA2WBN46lI55FtBtwD4IFHTs/zhdLZvCXBwAOQeyKJI28N1x76UnVV3wCyC4ILmkTYeoHs7d8dz5o4TrZV54KTzeuLHhg3lvtIW5/VkwuAvGso3EA658KJ5hcA2IGaQ93Tm26hSFY7AzsPd4sIy7qan6PLcxSuN0KUDt+79StpNkFwTXO1uxbjUdm/UXn6ja+7rnljZGzgqgClhiLE/i8mHHCNUPrwBCCQQUe4WnXJnB1PQUZAv5fzbz0IQ0i2G0SyJuFkLGSFN6zIGvUrKk/N/ODerp8bUzxSUEHgxvKzsVKda4MPyrhvg98X/EnIqsqLJwLXepCZhyY8uRwor6IzVizAy36Rbl+6aL0QAwaCS6Rs7d92cJjAzdHbozXT51h2k1EIV/txpgFExGgxnN608bgdp28HgJu3djSM0GArhJcMMuaUEJvKuo6VODR1FFO3pPOzpcqxlElmMipQ4a10UxPR3u7/Z+UJrtbnlhnvlFYejdQLWBc+GQsB3CSGp8zg2x//AeKy60623d7Z8Isr3FrsZPSjiX/i4XU7Nv6XhEpeiiRaP9AjArt3p7VinZtQSZUdG+9zTPCG5ivPBbYM1DT+zJC/TSCXB7Yf/lPAmHn2NJZO+ot6AO4drGk879WZTBo97MKJlu1OaegMJ9KwDyd0o10l+YopDmyWQBHce/drh2obE94Gjka9kzvS2fomwfZASbCqr3r0rkET0LcrnrIOooCUeHdAstoz0AKGahq7MndH34flfac09LoEi99zSkObdW7v3PvQM2Asm6/XhvINnjLglr7ogVTBLpmBqYtnxenmisjZo9+v+OHziUjX0aTOc5/Pp/uyyVpRPlw8EdAh3NESL/+xneGvmpty44+Lx0yu+aMzSts2XqCiYMpVkkCCsIQ4TtAT0Xg+yMyrvPCrzkY8biHIkq21+f4TFML8TXKhrbwALM4EC+Mt1gT/ExPqVfRfmTD7wUXMvDtrwSY01g9jQLDoyZsMrfXewFCucHxiTGiv5Mbnwt/AwAwu9mMW8QAAAABJRU5ErkJggg==" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_German_physicis_2026-06-15T08-05-33.png" alt="赫兹"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+24</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">290</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">声系攻击+8伤害；声系辅助卡持续回合+1。原理：频率Hz——振动越快影响越持久。</div><span class="card-principle">频率</span></div>
     </div></div>
   </div>
 </div>
@@ -1312,6 +1402,36 @@
       <div class="card-stats"><div class="main-stat"><span class="stat-num">—</span><span class="stat-unit">效果值</span></div></div>
       <div class="card-desc-box"><div class="card-desc">选择对手上一回合打出的一张攻击卡或辅助卡。实像（倒立放大）：将所选攻击卡造成的伤害转化为己方HP恢复，恢复量=该伤害×150%；虚像（正立放大）：复制该卡效果打出，伤害×120%，需额外支付该卡原精神力消耗的50%。原理：凸透镜成像——实像倒立放大使伤害反转增幅；虚像正立放大使复制效果增幅。</div><span class="card-principle">凸透镜成像</span></div>
     </div></div>
+
+    <!-- C09 伽利略 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card light-domain cyber epic">
+      <div class="card-header">
+        <div class="cost-gem">26</div>
+        <div class="card-title-bar"><div class="card-title">伽利略</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_Renaissance_era_astronomer_w_2026-06-15T08-05-34.png" alt="伽利略"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">光系攻击+8伤害；己方场上每有一张持续生效的辅助卡，光系攻击额外+3伤害。原理：望远镜——聚焦放大，辅助卡=透镜。</div><span class="card-principle">望远镜</span></div>
+    </div></div>
+
+    <!-- C11 惠更斯 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card light-domain cyber legendary">
+      <div class="card-header">
+        <div class="cost-gem">22</div>
+        <div class="card-title-bar"><div class="card-title">惠更斯</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_17th_century_Dutch_scientist_2026-06-15T08-36-10.png" alt="惠更斯"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+22</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">对方攻击己方时20%概率闪避（全领域）；光系攻击+10伤害。原理：波动说——光如波般难以捕捉，忽隐忽现。</div><span class="card-principle">惠更斯原理</span></div>
+    </div></div>
   </div>
 </div>
 
@@ -1588,6 +1708,36 @@
       <div class="card-stats"><div class="main-stat"><span class="stat-num">—</span><span class="stat-unit">效果值</span></div></div>
       <div class="card-desc-box"><div class="card-desc">为对方附加3层灼烧。原理：温差大则传热快，热量聚集使灼烧加剧。</div><span class="card-principle">热传递</span></div>
     </div></div>
+
+    <!-- C08 焦耳 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card heat cyber legendary">
+      <div class="card-header">
+        <div class="cost-gem">26</div>
+        <div class="card-title-bar"><div class="card-title">焦耳</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_English_physici_2026-06-15T08-36-10.png" alt="焦耳"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">热系攻击+12伤害；己方每回合+2精神力。原理：热功当量——热能持续转化为功，能量永不消失。</div><span class="card-principle">焦耳定律</span></div>
+    </div></div>
+
+    <!-- C13 瓦特 -->
+    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
+    <div class="card heat cyber epic">
+      <div class="card-header">
+        <div class="cost-gem">24</div>
+        <div class="card-title-bar"><div class="card-title">瓦特</div></div>
+        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
+      </div>
+      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
+      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_cyberpunk_engineer_surrounde_2026-06-13T10-45-22.png" alt="瓦特"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
+      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="card-stats"><div class="main-stat"><span class="stat-num">+24</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
+      <div class="card-desc-box"><div class="card-desc">热系攻击+8伤害；对方每有1层灼烧，热系攻击额外+3伤害。原理：功率P=W/t——灼烧越多转化效率越高。</div><span class="card-principle">功率</span></div>
+    </div></div>
   </div>
 </div>
 
@@ -1698,156 +1848,6 @@
       <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
       <div class="card-stats"><div class="main-stat"><span class="stat-num">+28</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">250</span></div></div>
       <div class="card-desc-box"><div class="card-desc">己方出牌阶段开始时，50%概率造成100伤害，50%概率恢复100HP（若己方HP已满则恢复30精神力）。原理：量子叠加态——未观测前同时处于两种状态。</div><span class="card-principle">量子叠加</span></div>
-    </div></div>
-
-    <!-- C05 牛顿 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber epic">
-      <div class="card-header">
-        <div class="cost-gem">22</div>
-        <div class="card-title-bar"><div class="card-title">牛顿</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_17th_century_English_scienti_2026-06-15T08-35-24.png" alt="牛顿"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+22</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">310</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">力系攻击卡额外+20伤害。原理：F=ma——力越大效果越猛，经典力学的奠基人。</div><span class="card-principle">F=ma</span></div>
-    </div></div>
-
-    <!-- C06 阿基米德 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber legendary">
-      <div class="card-header">
-        <div class="cost-gem">22</div>
-        <div class="card-title-bar"><div class="card-title">阿基米德</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/An_ancient_Greek_scholar_with__2026-06-15T08-36-11.png" alt="阿基米德"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+22</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">320</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">辅助卡精神力消耗-4，力系辅助卡额外-2。原理：杠杆原理——给我一个支点，我能撬动地球，省力不省功。</div><span class="card-principle">杠杆原理</span></div>
-    </div></div>
-
-    <!-- C07 欧姆 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber legendary">
-      <div class="card-header">
-        <div class="cost-gem">26</div>
-        <div class="card-title-bar"><div class="card-title">欧姆</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_German_physicis_2026-06-15T08-36-11.png" alt="欧姆"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">电系卡精神力消耗-6。原理：欧姆定律I=U/R——降低电阻=降低消耗，电流畅通无阻。</div><span class="card-principle">欧姆定律</span></div>
-    </div></div>
-
-    <!-- C08 焦耳 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber legendary">
-      <div class="card-header">
-        <div class="cost-gem">26</div>
-        <div class="card-title-bar"><div class="card-title">焦耳</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_English_physici_2026-06-15T08-36-10.png" alt="焦耳"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">热系攻击+12伤害；己方每回合+2精神力。原理：热功当量——热能持续转化为功，能量永不消失。</div><span class="card-principle">焦耳定律</span></div>
-    </div></div>
-
-    <!-- C09 伽利略 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber epic">
-      <div class="card-header">
-        <div class="cost-gem">26</div>
-        <div class="card-title-bar"><div class="card-title">伽利略</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_Renaissance_era_astronomer_w_2026-06-15T08-05-34.png" alt="伽利略"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">光系攻击+8伤害；己方场上每有一张持续生效的辅助卡，光系攻击额外+3伤害。原理：望远镜——聚焦放大，辅助卡=透镜。</div><span class="card-principle">望远镜</span></div>
-    </div></div>
-
-    <!-- C10 贝尔 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber legendary">
-      <div class="card-header">
-        <div class="cost-gem">26</div>
-        <div class="card-title-bar"><div class="card-title">贝尔</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_Scottish_invent_2026-06-15T08-36-10.png" alt="贝尔"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+26</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">己方每回合查看对方1张手牌；声系攻击+10伤害。原理：电话——声音远距离传输信息，信息获取优势。</div><span class="card-principle">电话原理</span></div>
-    </div></div>
-
-    <!-- C11 惠更斯 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber legendary">
-      <div class="card-header">
-        <div class="cost-gem">22</div>
-        <div class="card-title-bar"><div class="card-title">惠更斯</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_17th_century_Dutch_scientist_2026-06-15T08-36-10.png" alt="惠更斯"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+22</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">300</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">对方攻击己方时20%概率闪避（全领域）；光系攻击+10伤害。原理：波动说——光如波般难以捕捉，忽隐忽现。</div><span class="card-principle">惠更斯原理</span></div>
-    </div></div>
-
-    <!-- C12 赫兹 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber epic">
-      <div class="card-header">
-        <div class="cost-gem">24</div>
-        <div class="card-title-bar"><div class="card-title">赫兹</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_German_physicis_2026-06-15T08-05-33.png" alt="赫兹"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+24</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">290</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">声系攻击+8伤害；声系辅助卡持续回合+1。原理：频率Hz——振动越快影响越持久。</div><span class="card-principle">频率</span></div>
-    </div></div>
-
-    <!-- C13 瓦特 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber epic">
-      <div class="card-header">
-        <div class="cost-gem">24</div>
-        <div class="card-title-bar"><div class="card-title">瓦特</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_cyberpunk_engineer_surrounde_2026-06-13T10-45-22.png" alt="瓦特"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+24</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">热系攻击+8伤害；对方每有1层灼烧，热系攻击额外+3伤害。原理：功率P=W/t——灼烧越多转化效率越高。</div><span class="card-principle">功率</span></div>
-    </div></div>
-
-    <!-- C14 安培 -->
-    <div class="card-set"><span class="skin-badge cyber">Cyberpunk</span>
-    <div class="card chaos cyber epic">
-      <div class="card-header">
-        <div class="cost-gem">24</div>
-        <div class="card-title-bar"><div class="card-title">安培</div></div>
-        <div class="domain-rune"><img src="data:image/png;base64,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" class="rune-img"></div>
-      </div>
-      <div class="type-ribbon"><span class="type-pip summon">召唤</span></div>
-      <div class="art-frame" style="position:relative"><img src="art_samples/card_art/A_19th_century_French_physicis_2026-06-15T08-05-33.png" alt="安培"><div class="art-corner tl"></div><div class="art-corner tr"></div><div class="art-corner bl"></div><div class="art-corner br"></div></div>
-      <div class="ornate-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-      <div class="card-stats"><div class="main-stat"><span class="stat-num">+24</span><span class="stat-unit">领域加成</span></div><div class="hp-stat"><span>❤</span><span class="hp-num">280</span></div></div>
-      <div class="card-desc-box"><div class="card-desc">电系攻击+8伤害；麻痹每点强度，电系攻击额外+2伤害。原理：电流强度I——电流越大效果越强。</div><span class="card-principle">电流</span></div>
     </div></div>
   </div>
 </div>
