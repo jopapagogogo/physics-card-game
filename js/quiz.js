@@ -1,6 +1,6 @@
 // ============================================================
 // 物理卡牌对战 —— 答题题库系统
-// 面向初中生，共100道题目，按领域×难度分布
+// 面向初中生，共190道题目，按领域×难度分布
 // ============================================================
 
 class QuizSystem {
@@ -11,7 +11,7 @@ class QuizSystem {
   }
 
   // ----------------------------------------------------------
-  // 初始化全部100道题目
+  // 初始化全部190道题目
   // ----------------------------------------------------------
   _initQuestions() {
     return [
@@ -148,6 +148,107 @@ class QuizSystem {
       },
 
       // ======================================================
+      // 力 领域 — basic (5) Q_F_21 ~ Q_F_25
+      // ======================================================
+      {
+        id: "Q_F_21", domain: "力", difficulty: "basic",
+        question: "牛顿第一定律指出，物体不受外力时将保持什么状态？",
+        options: ["A. 一定静止", "B. 一定运动", "C. 静止或匀速直线运动", "D. 加速运动"],
+        answer: 2, knowledge: "牛顿第一定律", relatedCard: "A02"
+      },
+      {
+        id: "Q_F_22", domain: "力", difficulty: "basic",
+        question: "关于定滑轮，下列说法正确的是？",
+        options: ["A. 省力", "B. 费力", "C. 不省力也不费力，改变力的方向", "D. 既省力又改变方向"],
+        answer: 2, knowledge: "定滑轮", relatedCard: "A04"
+      },
+      {
+        id: "Q_F_23", domain: "力", difficulty: "basic",
+        question: "力可以使物体发生形变，也可以改变物体的什么？",
+        options: ["A. 质量", "B. 运动状态", "C. 密度", "D. 温度"],
+        answer: 1, knowledge: "力的作用效果", relatedCard: "S05"
+      },
+      {
+        id: "Q_F_24", domain: "力", difficulty: "basic",
+        question: "以下哪种方法可以增大压强？",
+        options: ["A. 增大受力面积", "B. 减小压力", "C. 减小受力面积", "D. 增大接触面粗糙程度"],
+        answer: 2, knowledge: "增大压强的方法", relatedCard: "A03"
+      },
+      {
+        id: "Q_F_25", domain: "力", difficulty: "basic",
+        question: "下面哪个不是力的三要素之一？",
+        options: ["A. 力的大小", "B. 力的方向", "C. 力的作用点", "D. 力的单位"],
+        answer: 3, knowledge: "力的三要素", relatedCard: "S05"
+      },
+
+      // ======================================================
+      // 力 领域 — advanced (7) Q_F_26 ~ Q_F_32
+      // ======================================================
+      {
+        id: "Q_F_26", domain: "力", difficulty: "advanced",
+        question: "一个人推静止在水平地面的木箱，没有推动，原因是？",
+        options: ["A. 推力小于摩擦力", "B. 推力等于摩擦力", "C. 推力小于重力", "D. 没有摩擦力"],
+        answer: 1, knowledge: "二力平衡", relatedCard: "S04"
+      },
+      {
+        id: "Q_F_27", domain: "力", difficulty: "advanced",
+        question: "一个物体浸没在水中，重力为8N，浮力为12N，松手后物体会？",
+        options: ["A. 下沉", "B. 悬浮", "C. 上浮", "D. 无法判断"],
+        answer: 2, knowledge: "物体浮沉条件", relatedCard: "C06"
+      },
+      {
+        id: "Q_F_28", domain: "力", difficulty: "advanced",
+        question: "一台机器5s内做功1000J，其功率是多少？",
+        options: ["A. 50W", "B. 100W", "C. 200W", "D. 500W"],
+        answer: 2, knowledge: "功率 P=W/t", relatedCard: "A08"
+      },
+      {
+        id: "Q_F_29", domain: "力", difficulty: "advanced",
+        question: "关于大气压强，下列说法正确的是？",
+        options: ["A. 大气压随高度增加而增大", "B. 托里拆利实验测出了大气压的值", "C. 大气压只存在于地球表面", "D. 大气压与天气无关"],
+        answer: 1, knowledge: "大气压强", relatedCard: "A03"
+      },
+      {
+        id: "Q_F_30", domain: "力", difficulty: "advanced",
+        question: "一个小球从光滑斜面顶端滑下，下列说法正确的是？",
+        options: ["A. 动能减小，重力势能增大", "B. 动能增大，重力势能增大", "C. 动能增大，重力势能减小", "D. 机械能增大"],
+        answer: 2, knowledge: "动能与势能的转化", relatedCard: "A05"
+      },
+      {
+        id: "Q_F_31", domain: "力", difficulty: "advanced",
+        question: "连通器内装有同种液体，当液体不流动时，各容器中的液面总是？",
+        options: ["A. 随容器形状不同", "B. 相平的", "C. 左高右低", "D. 中间高两边低"],
+        answer: 1, knowledge: "连通器原理", relatedCard: "A03"
+      },
+      {
+        id: "Q_F_32", domain: "力", difficulty: "advanced",
+        question: "一个物体在水平面上受到与运动方向相反的10N摩擦力，移动了3m，摩擦力做的功是多少？",
+        options: ["A. 0J", "B. 30J", "C. -30J", "D. 3.3J"],
+        answer: 2, knowledge: "功的正负", relatedCard: "A08"
+      },
+
+      // ======================================================
+      // 力 领域 — challenge (3) Q_F_33 ~ Q_F_35
+      // ======================================================
+      {
+        id: "Q_F_33", domain: "力", difficulty: "challenge",
+        question: "铁块挂在弹簧测力计下，空气中示数为7.8N，浸没水中示数为6.8N。铁块的浮力和体积分别是？（g=10N/kg, ρ水=1×10³kg/m³）",
+        options: ["A. 1N, 1×10⁻⁴m³", "B. 7.8N, 7.8×10⁻⁴m³", "C. 6.8N, 6.8×10⁻⁴m³", "D. 10N, 1×10⁻³m³"],
+        answer: 0, knowledge: "称重法+阿基米德原理", relatedCard: "C06"
+      },
+      {
+        id: "Q_F_34", domain: "力", difficulty: "challenge",
+        question: "小明用滑轮组提升重物，机械效率为75%。若有用功为600J，总功是多少？",
+        options: ["A. 450J", "B. 600J", "C. 800J", "D. 750J"],
+        answer: 2, knowledge: "机械效率 η=W有用/W总", relatedCard: "A04"
+      },
+      {
+        id: "Q_F_35", domain: "力", difficulty: "challenge",
+        question: "一艘船从河里驶入海里，下列说法正确的是？（ρ海水>ρ河水）",
+        options: ["A. 船会上浮一些，浮力不变", "B. 船会下沉一些，浮力不变", "C. 船会上浮一些，浮力变大", "D. 船会下沉一些，浮力变小"],
+        answer: 0, knowledge: "浮力=重力，排开液体变化", relatedCard: "C06"
+      },
+      // ======================================================
       // 声 领域 — basic (10) Q_S_01 ~ Q_S_10
       // ======================================================
       {
@@ -279,6 +380,107 @@ class QuizSystem {
         answer: 3, knowledge: "声波传播、干涉、衰减综合分析", relatedCard: "D02"
       },
 
+      // ======================================================
+      // 声 领域 — basic (5) Q_S_21 ~ Q_S_25
+      // ======================================================
+      {
+        id: "Q_S_21", domain: "声", difficulty: "basic",
+        question: "吹笛子时，笛声是由什么振动产生的？",
+        options: ["A. 嘴唇振动", "B. 笛子本身振动", "C. 管内空气柱振动", "D. 手指振动"],
+        answer: 2, knowledge: "空气柱振动", relatedCard: "A13"
+      },
+      {
+        id: "Q_S_22", domain: "声", difficulty: "basic",
+        question: "高速公路两旁安装隔音板，这是从哪个环节减弱噪声？",
+        options: ["A. 声源处", "B. 传播过程中", "C. 人耳处", "D. 以上都不是"],
+        answer: 1, knowledge: "减弱噪声的途径", relatedCard: "S11"
+      },
+      {
+        id: "Q_S_23", domain: "声", difficulty: "basic",
+        question: "关于声波，以下说法正确的是？",
+        options: ["A. 声波是横波", "B. 声波是电磁波", "C. 声波是纵波", "D. 声波不需要介质传播"],
+        answer: 2, knowledge: "声波是纵波", relatedCard: "A32"
+      },
+      {
+        id: "Q_S_24", domain: "声", difficulty: "basic",
+        question: "医生用听诊器听病人的心跳，听诊器的主要作用是？",
+        options: ["A. 增大声音的音调", "B. 增大声音的响度", "C. 减小传播速度", "D. 改变声音的音色"],
+        answer: 1, knowledge: "听诊器原理", relatedCard: "S12"
+      },
+      {
+        id: "Q_S_25", domain: "声", difficulty: "basic",
+        question: "控制噪声是城市环保的重要项目。以下在声源处减弱噪声的是？",
+        options: ["A. 在道路两旁植树", "B. 给摩托车安装消声器", "C. 在道路旁安装隔音板", "D. 工人戴防噪声耳罩"],
+        answer: 1, knowledge: "声源处减弱噪声", relatedCard: "S07"
+      },
+
+      // ======================================================
+      // 声 领域 — advanced (7) Q_S_26 ~ Q_S_32
+      // ======================================================
+      {
+        id: "Q_S_26", domain: "声", difficulty: "advanced",
+        question: "蝙蝠发出超声波探测猎物，这利用了声音的什么特性？",
+        options: ["A. 声音能传递能量", "B. 声音能传递信息", "C. 声音需要介质", "D. 声音传播速度快"],
+        answer: 1, knowledge: "声能传递信息", relatedCard: "A45"
+      },
+      {
+        id: "Q_S_27", domain: "声", difficulty: "advanced",
+        question: "人能分辨不同人的说话声，这是因为每个人的声音有什么不同？",
+        options: ["A. 音调不同", "B. 响度不同", "C. 音色不同", "D. 频率不同"],
+        answer: 2, knowledge: "音色是发声体特征", relatedCard: "A45"
+      },
+      {
+        id: "Q_S_28", domain: "声", difficulty: "advanced",
+        question: "大礼堂墙壁上有凹凸不平的结构，这是为了？",
+        options: ["A. 增强回声", "B. 减弱回声（吸音）", "C. 改变音调", "D. 提高音色"],
+        answer: 1, knowledge: "吸音与回声", relatedCard: "S11"
+      },
+      {
+        id: "Q_S_29", domain: "声", difficulty: "advanced",
+        question: "能说明「液体可以传播声音」的事例是？",
+        options: ["A. 听到雨滴打在伞上的声音", "B. 钓鱼时岸边的人要轻声慢步", "C. 听到远处火车的鸣笛", "D. 潜水员能听到岸上的声音"],
+        answer: 3, knowledge: "液体传声", relatedCard: "A14"
+      },
+      {
+        id: "Q_S_30", domain: "声", difficulty: "advanced",
+        question: "关于双耳效应，下列说法正确的是？",
+        options: ["A. 双耳效应说明两只耳朵听到的声音更大", "B. 利用声音到达两耳的时间差和强度差定位", "C. 双耳效应可以提高音调", "D. 双耳效应需要特殊设备"],
+        answer: 1, knowledge: "双耳效应", relatedCard: "A45"
+      },
+      {
+        id: "Q_S_31", domain: "声", difficulty: "advanced",
+        question: "用超声波清洗眼镜，这利用了声音的什么？",
+        options: ["A. 声音能传递信息", "B. 声音能传递能量", "C. 超声波频率高", "D. 超声波传播快"],
+        answer: 1, knowledge: "声能传递能量", relatedCard: "A09"
+      },
+      {
+        id: "Q_S_32", domain: "声", difficulty: "advanced",
+        question: "以下哪种方式不能增大鼓声的响度？",
+        options: ["A. 用力敲鼓", "B. 在鼓面上放砂子", "C. 离鼓更近", "D. 将鼓放在空旷场地"],
+        answer: 1, knowledge: "响度与振幅", relatedCard: "S08"
+      },
+
+      // ======================================================
+      // 声 领域 — challenge (3) Q_S_33 ~ Q_S_35
+      // ======================================================
+      {
+        id: "Q_S_33", domain: "声", difficulty: "challenge",
+        question: "声音在空气中的传播速度在哪个条件下最快？",
+        options: ["A. 0℃", "B. 15℃", "C. 30℃", "D. -10℃"],
+        answer: 2, knowledge: "声速与温度 v=331+0.6t", relatedCard: "A51"
+      },
+      {
+        id: "Q_S_34", domain: "声", difficulty: "challenge",
+        question: "潜艇向海底发射声波，4s后收到回声。海水声速约1500m/s，海底深度约为？",
+        options: ["A. 1500m", "B. 3000m", "C. 6000m", "D. 750m"],
+        answer: 1, knowledge: "声呐测距 d=vt/2", relatedCard: "A14"
+      },
+      {
+        id: "Q_S_35", domain: "声", difficulty: "challenge",
+        question: "声音从声源发出，在空气中传播过程中，下列说法正确的是？",
+        options: ["A. 声音的音调越来越低", "B. 声音的响度越来越小", "C. 声音的传播速度越来越小", "D. 声音的频率越来越低"],
+        answer: 1, knowledge: "声波传播中响度衰减", relatedCard: "D02"
+      },
       // ======================================================
       // 光 领域 — basic (10) Q_L_01 ~ Q_L_10
       // ======================================================
@@ -412,6 +614,107 @@ class QuizSystem {
       },
 
       // ======================================================
+      // 光 领域 — basic (5) Q_L_21 ~ Q_L_25
+      // ======================================================
+      {
+        id: "Q_L_21", domain: "光", difficulty: "basic",
+        question: "下列物体中属于光源的是？",
+        options: ["A. 月亮", "B. 镜子", "C. 点燃的蜡烛", "D. 钻石"],
+        answer: 2, knowledge: "光源定义", relatedCard: "S14"
+      },
+      {
+        id: "Q_L_22", domain: "光", difficulty: "basic",
+        question: "一束光从空气斜射入水中，折射角和入射角的关系是？",
+        options: ["A. 折射角>入射角", "B. 折射角<入射角", "C. 折射角=入射角", "D. 无法确定"],
+        answer: 1, knowledge: "折射角<入射角（空气入水）", relatedCard: "A46"
+      },
+      {
+        id: "Q_L_23", domain: "光", difficulty: "basic",
+        question: "潜望镜利用了什么光学原理？",
+        options: ["A. 光的折射", "B. 光的直线传播", "C. 光的反射（平面镜）", "D. 光的色散"],
+        answer: 2, knowledge: "平面镜反射", relatedCard: "S34"
+      },
+      {
+        id: "Q_L_24", domain: "光", difficulty: "basic",
+        question: "我们能从不同方向看到不发光的物体，这是因为光在物体表面发生了？",
+        options: ["A. 镜面反射", "B. 漫反射", "C. 全反射", "D. 折射"],
+        answer: 1, knowledge: "漫反射", relatedCard: "S14"
+      },
+      {
+        id: "Q_L_25", domain: "光", difficulty: "basic",
+        question: "太阳光通过三棱镜后分解成七种色光，这叫什么现象？",
+        options: ["A. 反射", "B. 折射", "C. 色散", "D. 衍射"],
+        answer: 2, knowledge: "光的色散", relatedCard: "A16"
+      },
+
+      // ======================================================
+      // 光 领域 — advanced (7) Q_L_26 ~ Q_L_32
+      // ======================================================
+      {
+        id: "Q_L_26", domain: "光", difficulty: "advanced",
+        question: "近视眼的晶状体太厚，成像在视网膜的什么位置？",
+        options: ["A. 视网膜上", "B. 视网膜前", "C. 视网膜后", "D. 视神经上"],
+        answer: 1, knowledge: "近视眼成像原理", relatedCard: "S37"
+      },
+      {
+        id: "Q_L_27", domain: "光", difficulty: "advanced",
+        question: "关于光的反射定律，下列说法正确的是？",
+        options: ["A. 入射角随反射角变化", "B. 光垂直入射时反射角为90°", "C. 反射光线、入射光线、法线在同一平面", "D. 反射光线不一定在入射光线和法线决定的平面内"],
+        answer: 2, knowledge: "反射定律三线共面", relatedCard: "S34"
+      },
+      {
+        id: "Q_L_28", domain: "光", difficulty: "advanced",
+        question: "放电影时，银幕上的像是？",
+        options: ["A. 正立放大的实像", "B. 倒立放大的实像", "C. 正立缩小的虚像", "D. 倒立缩小的虚像"],
+        answer: 1, knowledge: "投影仪成像", relatedCard: "S37"
+      },
+      {
+        id: "Q_L_29", domain: "光", difficulty: "advanced",
+        question: "凸透镜的焦距为10cm，当物体距透镜15cm时，所成的像是？",
+        options: ["A. 倒立缩小的实像", "B. 倒立放大的实像", "C. 正立放大的虚像", "D. 倒立等大的实像"],
+        answer: 1, knowledge: "f<u<2f 倒立放大实像", relatedCard: "S37"
+      },
+      {
+        id: "Q_L_30", domain: "光", difficulty: "advanced",
+        question: "望远镜的物镜相当于什么光学元件？",
+        options: ["A. 平面镜", "B. 凸透镜", "C. 凹透镜", "D. 凸面镜"],
+        answer: 1, knowledge: "望远镜物镜", relatedCard: "C09"
+      },
+      {
+        id: "Q_L_31", domain: "光", difficulty: "advanced",
+        question: "红外线在生活中的应用不包括？",
+        options: ["A. 遥控器", "B. 夜视仪", "C. 验钞机", "D. 红外测温"],
+        answer: 2, knowledge: "验钞机=紫外线", relatedCard: "A17"
+      },
+      {
+        id: "Q_L_32", domain: "光", difficulty: "advanced",
+        question: "一束平行光经过凸透镜后会？",
+        options: ["A. 发散", "B. 会聚于焦点", "C. 继续平行射出", "D. 变成散射光"],
+        answer: 1, knowledge: "凸透镜焦点", relatedCard: "A55"
+      },
+
+      // ======================================================
+      // 光 领域 — challenge (3) Q_L_33 ~ Q_L_35
+      // ======================================================
+      {
+        id: "Q_L_33", domain: "光", difficulty: "challenge",
+        question: "物体在凸透镜前20cm处，在光屏上得到清晰等大的像，该凸透镜的焦距为？",
+        options: ["A. 20cm", "B. 10cm", "C. 40cm", "D. 5cm"],
+        answer: 1, knowledge: "u=2f成等大实像", relatedCard: "S37"
+      },
+      {
+        id: "Q_L_34", domain: "光", difficulty: "challenge",
+        question: "光从空气射向玻璃，入射角增大时折射角会？",
+        options: ["A. 也增大", "B. 减小", "C. 不变", "D. 先增后减"],
+        answer: 0, knowledge: "折射角随入射角增大", relatedCard: "A46"
+      },
+      {
+        id: "Q_L_35", domain: "光", difficulty: "challenge",
+        question: "显微镜观察微小物体时，第一次放大是由什么完成的？",
+        options: ["A. 目镜", "B. 物镜", "C. 反光镜", "D. 聚光镜"],
+        answer: 1, knowledge: "显微镜物镜成放大实像", relatedCard: "S37"
+      },
+      // ======================================================
       // 热 领域 — basic (10) Q_H_01 ~ Q_H_10
       // ======================================================
       {
@@ -544,6 +847,107 @@ class QuizSystem {
       },
 
       // ======================================================
+      // 热 领域 — basic (5) Q_H_21 ~ Q_H_25
+      // ======================================================
+      {
+        id: "Q_H_21", domain: "热", difficulty: "basic",
+        question: "下列物质中，比热容最大的是？",
+        options: ["A. 沙子", "B. 铁", "C. 水", "D. 酒精"],
+        answer: 2, knowledge: "水的比热容大", relatedCard: "S22"
+      },
+      {
+        id: "Q_H_22", domain: "热", difficulty: "basic",
+        question: "改变物体内能的方式有？",
+        options: ["A. 只有做功", "B. 只有热传递", "C. 做功和热传递", "D. 只有摩擦"],
+        answer: 2, knowledge: "改变内能的方式", relatedCard: "S19"
+      },
+      {
+        id: "Q_H_23", domain: "热", difficulty: "basic",
+        question: "下列现象中，属于升华的是？",
+        options: ["A. 夏天冰棒冒「白气」", "B. 冬天玻璃上出现冰花", "C. 樟脑丸变小消失", "D. 清晨草叶上有露珠"],
+        answer: 2, knowledge: "升华（固态→气态）", relatedCard: "A47"
+      },
+      {
+        id: "Q_H_24", domain: "热", difficulty: "basic",
+        question: "物体吸收热量后，温度一定会升高吗？",
+        options: ["A. 一定会", "B. 一定不会", "C. 晶体熔化时吸热但温度不变", "D. 只有液体如此"],
+        answer: 2, knowledge: "晶体熔化吸热温度不变", relatedCard: "S25"
+      },
+      {
+        id: "Q_H_25", domain: "热", difficulty: "basic",
+        question: "冬天用热水袋取暖，主要利用了水的什么特性？",
+        options: ["A. 密度大", "B. 比热容大", "C. 沸点高", "D. 透明度好"],
+        answer: 1, knowledge: "水比热容大的应用", relatedCard: "S22"
+      },
+
+      // ======================================================
+      // 热 领域 — advanced (7) Q_H_26 ~ Q_H_32
+      // ======================================================
+      {
+        id: "Q_H_26", domain: "热", difficulty: "advanced",
+        question: "质量为2kg的水，温度从30℃升高到50℃，吸收的热量是多少？（c水=4.2×10³J/(kg·℃)）",
+        options: ["A. 8.4×10⁴J", "B. 1.68×10⁵J", "C. 4.2×10⁵J", "D. 2.1×10⁵J"],
+        answer: 1, knowledge: "Q=cmΔt", relatedCard: "S22"
+      },
+      {
+        id: "Q_H_27", domain: "热", difficulty: "advanced",
+        question: "关于汽化的两种方式，下列说法正确的是？",
+        options: ["A. 蒸发和沸腾都只在液体表面发生", "B. 蒸发吸热，沸腾放热", "C. 蒸发在任何温度都能发生", "D. 沸腾不需要达到沸点"],
+        answer: 2, knowledge: "蒸发可在任意温度发生", relatedCard: "A25"
+      },
+      {
+        id: "Q_H_28", domain: "热", difficulty: "advanced",
+        question: "内燃机工作循环中，压缩冲程的能量转化是？",
+        options: ["A. 内能→机械能", "B. 机械能→内能", "C. 化学能→内能", "D. 内能→化学能"],
+        answer: 1, knowledge: "压缩冲程 机械能→内能", relatedCard: "S23"
+      },
+      {
+        id: "Q_H_29", domain: "热", difficulty: "advanced",
+        question: "把一杯80℃的热水放在20℃的房间里，水温变化趋势是？",
+        options: ["A. 立刻降至20℃", "B. 逐渐冷却到接近室温", "C. 永远不变", "D. 先冷却再升温"],
+        answer: 1, knowledge: "热传递与温度", relatedCard: "A21"
+      },
+      {
+        id: "Q_H_30", domain: "热", difficulty: "advanced",
+        question: "以下哪种物态变化过程吸热？",
+        options: ["A. 凝固", "B. 液化", "C. 凝华", "D. 升华"],
+        answer: 3, knowledge: "升华吸热", relatedCard: "A47"
+      },
+      {
+        id: "Q_H_31", domain: "热", difficulty: "advanced",
+        question: "常看到的「白气」，关于它的说法正确的是？",
+        options: ["A. 是水蒸气", "B. 是水蒸气液化的小水滴", "C. 是空气", "D. 是干冰"],
+        answer: 1, knowledge: "「白气」=液化小水滴", relatedCard: "A25"
+      },
+      {
+        id: "Q_H_32", domain: "热", difficulty: "advanced",
+        question: "关于热机效率 η=W有用/Q总，下列说法正确的是？",
+        options: ["A. 热机效率可以等于100%", "B. 热机效率总是小于1", "C. 热机效率取决于燃料种类", "D. 做功冲程效率最高"],
+        answer: 1, knowledge: "热机效率<1（能量损耗）", relatedCard: "S23"
+      },
+
+      // ======================================================
+      // 热 领域 — challenge (3) Q_H_33 ~ Q_H_35
+      // ======================================================
+      {
+        id: "Q_H_33", domain: "热", difficulty: "challenge",
+        question: "质量相等、初温相同的水和煤油，吸收相同热量后，温度升高较多的是？（c水>c煤油）",
+        options: ["A. 水", "B. 煤油", "C. 两者相同", "D. 无法确定"],
+        answer: 1, knowledge: "Δt=Q/(cm) c小者Δt大", relatedCard: "S22"
+      },
+      {
+        id: "Q_H_34", domain: "热", difficulty: "challenge",
+        question: "关于热量、温度、内能的关系，下列说法正确的是？",
+        options: ["A. 物体温度越高，含有的热量越多", "B. 热量总从内能大的物体传向内能小的物体", "C. 物体温度升高，内能一定增大", "D. 物体吸收热量，温度一定升高"],
+        answer: 2, knowledge: "温度升高内能一定增大", relatedCard: "S19"
+      },
+      {
+        id: "Q_H_35", domain: "热", difficulty: "challenge",
+        question: "一杯热水自然冷却过程中，关于它的温度变化，下列说法正确的是？",
+        options: ["A. 一直不变", "B. 降到室温后不再变化", "C. 降到0℃后不变", "D. 降到低于室温后回升"],
+        answer: 1, knowledge: "热平衡：温度最终相等", relatedCard: "A21"
+      },
+      // ======================================================
       // 电 领域 — basic (10) Q_E_01 ~ Q_E_10
       // ======================================================
       {
@@ -674,6 +1078,208 @@ class QuizSystem {
         options: ["A. 用电器之间是串联的", "B. 保险丝熔断后可用铜丝代替", "C. 开关应接在用电器和火线之间", "D. 插座的两个孔都接火线"],
         answer: 2, knowledge: "家庭电路安全用电", relatedCard: "S27"
       }
+      // ======================================================
+      // 电 领域 — basic (5) Q_E_21 ~ Q_E_25
+      // ======================================================
+      {
+        id: "Q_E_21", domain: "电", difficulty: "basic",
+        question: "我国家庭电路的电压是多少？",
+        options: ["A. 36V", "B. 110V", "C. 220V", "D. 380V"],
+        answer: 2, knowledge: "家庭电压220V", relatedCard: "S27"
+      },
+      {
+        id: "Q_E_22", domain: "电", difficulty: "basic",
+        question: "下列哪种做法符合安全用电原则？",
+        options: ["A. 用湿手触碰开关", "B. 在高压线下放风筝", "C. 发现有人触电先切断电源", "D. 用铜丝代替保险丝"],
+        answer: 2, knowledge: "安全用电", relatedCard: "S27"
+      },
+      {
+        id: "Q_E_23", domain: "电", difficulty: "basic",
+        question: "测电笔（试电笔）是用来检测什么的？",
+        options: ["A. 电流大小", "B. 电压大小", "C. 物体是否带电或区分火线零线", "D. 电阻大小"],
+        answer: 2, knowledge: "测电笔用途", relatedCard: "S30"
+      },
+      {
+        id: "Q_E_24", domain: "电", difficulty: "basic",
+        question: "下列各组物质中，通常情况下都属于绝缘体的是？",
+        options: ["A. 人体、大地、铜", "B. 橡胶、塑料、玻璃", "C. 盐水、石墨、铝", "D. 铁、铜、铝"],
+        answer: 1, knowledge: "绝缘体", relatedCard: "A27"
+      },
+      {
+        id: "Q_E_25", domain: "电", difficulty: "basic",
+        question: "灯泡上标有「220V 40W」字样，其额定电压和额定功率分别是？",
+        options: ["A. 220V 40W", "B. 220A 40V", "C. 40V 220W", "D. 220W 40V"],
+        answer: 0, knowledge: "额定电压和额定功率", relatedCard: "A49"
+      },
+
+      // ======================================================
+      // 电 领域 — advanced (7) Q_E_26 ~ Q_E_32
+      // ======================================================
+      {
+        id: "Q_E_26", domain: "电", difficulty: "advanced",
+        question: "一个电阻为10Ω的用电器，两端电压为6V，其功率是多少？",
+        options: ["A. 0.6W", "B. 3.6W", "C. 60W", "D. 1.67W"],
+        answer: 1, knowledge: "P=U²/R", relatedCard: "A49"
+      },
+      {
+        id: "Q_E_27", domain: "电", difficulty: "advanced",
+        question: "下列现象中，属于电磁感应的是？",
+        options: ["A. 通电导线使磁针偏转", "B. 闭合电路部分导体在磁场中运动产生电流", "C. 电流通过灯丝发光", "D. 磁铁吸引铁钉"],
+        answer: 1, knowledge: "电磁感应（磁生电）", relatedCard: "S28"
+      },
+      {
+        id: "Q_E_28", domain: "电", difficulty: "advanced",
+        question: "两个电阻串联时，总电阻与分电阻的关系是？",
+        options: ["A. R总=R₁+R₂", "B. R总=(R₁×R₂)/(R₁+R₂)", "C. R总<R₁", "D. R总<R₂"],
+        answer: 0, knowledge: "串联 R总=R₁+R₂", relatedCard: "C07"
+      },
+      {
+        id: "Q_E_29", domain: "电", difficulty: "advanced",
+        question: "关于安全电压，以下说法正确的是？",
+        options: ["A. 低于36V的电压绝对安全", "B. 潮湿环境下安全电压更低", "C. 任何低于220V的电压都安全", "D. 安全电压与人体电阻无关"],
+        answer: 1, knowledge: "安全电压与环境有关", relatedCard: "S27"
+      },
+      {
+        id: "Q_E_30", domain: "电", difficulty: "advanced",
+        question: "关于磁感线，下列说法正确的是？",
+        options: ["A. 磁感线是真实存在的曲线", "B. 磁体外部磁感线从N极指向S极", "C. 磁感线可以相交", "D. 磁感线从S极出发"],
+        answer: 1, knowledge: "磁感线方向 N→S", relatedCard: "D05"
+      },
+      {
+        id: "Q_E_31", domain: "电", difficulty: "advanced",
+        question: "下列装置中，利用电磁感应原理工作的是？",
+        options: ["A. 电风扇", "B. 发电机", "C. 电热水器", "D. 电磁起重机"],
+        answer: 1, knowledge: "发电机=电磁感应", relatedCard: "S28"
+      },
+      {
+        id: "Q_E_32", domain: "电", difficulty: "advanced",
+        question: "一根电阻丝对折后接入电路，其电阻将？",
+        options: ["A. 增大", "B. 减小", "C. 不变", "D. 无法确定"],
+        answer: 1, knowledge: "长度减半横截面加倍", relatedCard: "S27"
+      },
+
+      // ======================================================
+      // 电 领域 — challenge (3) Q_E_33 ~ Q_E_35
+      // ======================================================
+      {
+        id: "Q_E_33", domain: "电", difficulty: "challenge",
+        question: "两个电阻R₁=6Ω、R₂=12Ω并联后接到6V电源上，流过R₁的电流是多少？",
+        options: ["A. 0.5A", "B. 1A", "C. 2A", "D. 0.33A"],
+        answer: 1, knowledge: "并联电压相等 I₁=U/R₁", relatedCard: "S31"
+      },
+      {
+        id: "Q_E_34", domain: "电", difficulty: "challenge",
+        question: "一度电（1kW·h）可供「220V 40W」的灯泡正常工作多长时间？",
+        options: ["A. 10h", "B. 20h", "C. 25h", "D. 40h"],
+        answer: 2, knowledge: "t=W/P=1000/40=25h", relatedCard: "A49"
+      },
+      {
+        id: "Q_E_35", domain: "电", difficulty: "challenge",
+        question: "关于磁场和电流的关系，下列说法错误的是？",
+        options: ["A. 奥斯特发现电流周围存在磁场", "B. 通电螺线管外部磁场与条形磁铁相似", "C. 改变电流方向不会改变磁场方向", "D. 通电导体在磁场中会受到力的作用"],
+        answer: 2, knowledge: "电流方向决定磁场方向", relatedCard: "D05"
+      },
+      // ======================================================
+      // 混沌 领域 — basic (5) Q_C_01 ~ Q_C_05
+      // ======================================================
+      {
+        id: "Q_C_01", domain: "混沌", difficulty: "basic",
+        question: "芝诺悖论中「阿基里斯追不上乌龟」的本质矛盾在于？",
+        options: ["A. 阿基里斯跑得比乌龟慢", "B. 将无限分割的过程等同于无限的时间", "C. 乌龟可以瞬移", "D. 阿基里斯中途放弃"],
+        answer: 1, knowledge: "芝诺悖论与极限", relatedCard: "C01"
+      },
+      {
+        id: "Q_C_02", domain: "混沌", difficulty: "basic",
+        question: "薛定谔的猫思想实验中，猫在打开盒子前处于什么状态？",
+        options: ["A. 一定是活的", "B. 一定是死的", "C. 既是活的又是死的（叠加态）", "D. 猫已经逃走了"],
+        answer: 2, knowledge: "量子叠加态", relatedCard: "C04"
+      },
+      {
+        id: "Q_C_03", domain: "混沌", difficulty: "basic",
+        question: "能量守恒定律表明能量可以？",
+        options: ["A. 凭空产生", "B. 凭空消失", "C. 从一种形式转化为另一种形式", "D. 总量不断减少"],
+        answer: 2, knowledge: "能量守恒", relatedCard: "T01"
+      },
+      {
+        id: "Q_C_04", domain: "混沌", difficulty: "basic",
+        question: "麦克斯韦妖的设想中，小妖通过什么方式「违反」热力学第二定律？",
+        options: ["A. 创造能量", "B. 区分快慢分子减少熵", "C. 降低温度", "D. 增加压强"],
+        answer: 1, knowledge: "麦克斯韦妖与熵", relatedCard: "C02"
+      },
+      {
+        id: "Q_C_05", domain: "混沌", difficulty: "basic",
+        question: "相变是指物质在什么之间的转变？",
+        options: ["A. 不同状态（固态、液态、气态等）", "B. 不同颜色", "C. 不同质量", "D. 不同速度"],
+        answer: 0, knowledge: "相变：物质状态变化", relatedCard: "T02"
+      },
+
+      // ======================================================
+      // 混沌 领域 — advanced (7) Q_C_06 ~ Q_C_12
+      // ======================================================
+      {
+        id: "Q_C_06", domain: "混沌", difficulty: "advanced",
+        question: "拉普拉斯妖的核心思想是：如果知道宇宙中所有粒子的位置和动量，就可以？",
+        options: ["A. 创造新宇宙", "B. 预测未来一切", "C. 改变物理定律", "D. 使时间倒流"],
+        answer: 1, knowledge: "决定论与拉普拉斯妖", relatedCard: "C03"
+      },
+      {
+        id: "Q_C_07", domain: "混沌", difficulty: "advanced",
+        question: "熵增加原理告诉我们，在孤立系统中，熵总是？",
+        options: ["A. 减小", "B. 不变", "C. 增加或不变（不可逆）", "D. 先减小后增加"],
+        answer: 2, knowledge: "熵增原理", relatedCard: "T03"
+      },
+      {
+        id: "Q_C_08", domain: "混沌", difficulty: "advanced",
+        question: "为什么芝诺悖论在现实中不成立？",
+        options: ["A. 阿基里斯实际跑得更快", "B. 无穷级数之和可以是有限的", "C. 乌龟会累", "D. 阿基里斯有超能力"],
+        answer: 1, knowledge: "无穷级数之和有限", relatedCard: "C01"
+      },
+      {
+        id: "Q_C_09", domain: "混沌", difficulty: "advanced",
+        question: "「临界点」是指物质在什么条件下的特殊状态？",
+        options: ["A. 液态和气态无法区分的状态", "B. 绝对零度", "C. 最高温度", "D. 最大压强"],
+        answer: 0, knowledge: "临界态：气液不分", relatedCard: "T02"
+      },
+      {
+        id: "Q_C_10", domain: "混沌", difficulty: "advanced",
+        question: "量子力学中，「观测」对量子态有什么影响？",
+        options: ["A. 没有影响", "B. 使量子态坍缩为确定态", "C. 使量子态更不确定", "D. 创造新量子"],
+        answer: 1, knowledge: "观测导致波函数坍缩", relatedCard: "C04"
+      },
+      {
+        id: "Q_C_11", domain: "混沌", difficulty: "advanced",
+        question: "麦克斯韦妖悖论最终被什么理论破解？",
+        options: ["A. 牛顿力学", "B. 信息论（信息与熵的关系）", "C. 相对论", "D. 光学"],
+        answer: 1, knowledge: "信息熵与热力学熵", relatedCard: "C02"
+      },
+      {
+        id: "Q_C_12", domain: "混沌", difficulty: "advanced",
+        question: "冰直接变成水蒸气跳过液态，这个过程叫做？",
+        options: ["A. 熔化", "B. 凝固", "C. 升华", "D. 凝华"],
+        answer: 2, knowledge: "升华：固态→气态", relatedCard: "T02"
+      },
+
+      // ======================================================
+      // 混沌 领域 — challenge (3) Q_C_13 ~ Q_C_15
+      // ======================================================
+      {
+        id: "Q_C_13", domain: "混沌", difficulty: "challenge",
+        question: "量子叠加态与经典物理的最大区别是？",
+        options: ["A. 量子叠加可同时处于多个状态，测量后才确定", "B. 量子叠加总是一个确定的状态", "C. 经典物理没有叠加概念", "D. 两者完全相同"],
+        answer: 0, knowledge: "量子叠加 vs 经典确定", relatedCard: "C04"
+      },
+      {
+        id: "Q_C_14", domain: "混沌", difficulty: "challenge",
+        question: "熵逆转在现实物理中可能实现吗？为什么？",
+        options: ["A. 可以，只要能量足够", "B. 不可以，违反热力学第二定律", "C. 可以，在微观尺度", "D. 不可以，违反牛顿定律"],
+        answer: 1, knowledge: "熵逆转违反热力学第二定律", relatedCard: "T03"
+      },
+      {
+        id: "Q_C_15", domain: "混沌", difficulty: "challenge",
+        question: "关于决定论（拉普拉斯妖）与量子力学的关系，下列说法正确的是？",
+        options: ["A. 量子力学的概率性支持决定论", "B. 量子力学的不确定性原理挑战了决定论", "C. 两者没有关系", "D. 相对论证明了决定论"],
+        answer: 1, knowledge: "量子不确定性vs决定论", relatedCard: "C03"
+      },
     ];
   }
 
