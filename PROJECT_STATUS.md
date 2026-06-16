@@ -1,85 +1,111 @@
-# 物理卡牌对战游戏 — 项目进度
+# 物理卡牌对战游戏 — 项目总览
 
 > ⚠️ **给 AI 助手的指令**：
 > - **开工第一步**：`git pull` 拉取最新代码和本文件。
-> - 本文档是唯一权威的项目计划。代码中可能存在未完成的功能痕迹，不在当前范围内，请忽略。
+> - 本文档是唯一权威的项目文档（进度 + 架构 + 规则 + 计划）。代码中可能存在未完成的功能痕迹，不在当前范围内，请忽略。
 > - **完工最后一步**：更新本文件 → `git add -A && git commit -m "描述" && git push`。全部不需要等用户提醒。
 
-## 当前阶段
+---
 
-| 阶段 | 内容 | 状态 |
-|------|------|:---:|
-| Phase 1 | 109 张卡牌生成到 cards.js | ✅ 完成 |
-| Phase 2 | Combo 系统重建（35 combo + engine.js 重写） | ✅ 完成 |
-| Phase 3 | 可验证 AI 对战测试 | ✅ 完成 |
-| Phase 4 | 剩余 combo 效果 + 召唤/领域被动 + UI 高亮 | ✅ 完成 |
+## 项目定位
 
-## Phase 4 核心改动
+初中物理五大领域（力/声/光/热/电）卡牌对战游戏。开发者是零技术基础的物理教师，所有代码由 AI agent 生成。长期目标是触达真实玩家（学生/物理爱好者）。
 
-- **7 种剩余 combo 效果全部实现**：
-  - `modify_height` (S01→A05)：A05 重力势能每层伤害 40→55
-  - `boost_dot_increment` (S09→A45, 被 S09→A10 消耗)：A10 DOT 递增 13→16
-  - `boost_mirror_maze` (S13→S34)：镜面迷宫失败概率 35%→65%
-  - `boost_burn_cap` (S12→A55)：灼烧上限 10→15 层
-  - `boost_clear_debuff` (S37→A20)：清除己方 DOT 效果
-  - `boost_burn_dmg` (S19→A54)：A54 爆燃每层 48→65
-  - `boost_ignore_defense` (S31→A49)：追加 30 点无视防御伤害
-- **召唤被动**：C01(芝诺龟)/C02(麦克斯韦妖)/C04(薛定谔猫) 已实现，新增 C05(牛顿)力系+20伤害，C03(拉普拉斯妖)需UI配合推迟
-- **领域被动**：通过卡牌设计体现，引擎层已有完整支持
+## 技术栈
 
-## Phase 3 核心改动
+原生 HTML/CSS/JS，无框架，`index.html` 双击即运行。纯逻辑层（engine/cards/combo）与 UI 零耦合，未来可复用。
 
-- 新增 `tests/combo.test.js`：34 个测试用例，覆盖 combo 检测、效果应用、AI 对战、大规模模拟
-- 新增 `package.json`：vitest 测试框架配置
-- 修复 `js/engine.js` 中 3 个 bug：
-  1. **combo 检测时序 bug**：`checkCombo()` 原在卡牌效果处理之后执行，导致攻击卡无法读取 pendingCombo。修复为在效果处理前执行
-  2. **combo 键格式 bug**：`checkCombo()` 只支持 `→` 分隔符，不支持 `↔`（召唤对冲）和 `vs`（跨领域对抗）。修复为三种格式均支持，`→` 方向敏感，`↔` 和 `vs` 方向不敏感
-  3. **召唤物 combo 缺失**：`_handleSummon()` 未处理 pendingCombo 效果（如 C03↔C04 的 modify_flag）。修复为支持召唤物 combo 效果
-- 50 局 AI 对战模拟：0 崩溃，combo 触发率 96-100%
+## 六大领域
 
-## Phase 2 核心改动
-
-- `js/combo_table.js`：35 个核心 combo 查找表，21 种效果类型
-- `js/engine.js`：
-  - `checkCombo()` 完全重写 — 查询 COMBO_TABLE（替代 3 条泛用规则）
-  - `playCard()` 存 combo 效果到 `pendingCombo[playerIdx]`
-  - `_handleAttack()` 应用 combo 效果（extra_damage/extra_burn/view_hand 等 8 种已实现）
-  - 构造函数新增 `_a49NoDestroy`、`_pendingBurnAfterExplode`、`cardForms`
-  - `startTurn()` 每回合清理 pendingCombo 及 combo 临时状态
+| 领域 | 数量 | 颜色 | 关键词 |
+|------|------|------|--------|
+| 力 Force | 19 | 红 #E74C3C | 力学、运动、能量 |
+| 电 Electric | 19 | 紫 #9B59B6 | 电流、电压、磁场 |
+| 声 Sound | 20 | 绿 #16A085 | 声波、共振、频率 |
+| 光 Light | 24 | 橙 #F39C12 | 光学、透镜、波粒 |
+| 热 Heat | 20 | 暖橙 #E67E22 | 热力学、温变、相变 |
+| 混沌 Chaos | 7 | 紫 #9333ea | 四神兽 + 相变卡 |
 
 ## 文件结构
 
 ```
 物理卡牌游戏/
-├── index.html
-├── PROJECT_STATUS.md   ← 本文件
-├── package.json        ← vitest 测试配置
-├── css/game.css
+├── index.html              ← 游戏入口
+├── all_cards.html          ← 109张卡牌展示页（静态）
+├── PROJECT_STATUS.md       ← 本文件（唯一权威）
+├── package.json            ← vitest 测试配置
+├── css/game.css            ← 游戏主样式
 ├── js/
-│   ├── cards.js        ← 109 张卡牌
-│   ├── combo_table.js  ← 35 个 combo 定义
-│   ├── engine.js       ← 核心引擎（已重写 checkCombo）
-│   ├── ai.js           ← AI 逻辑
-│   ├── ui.js           ← 界面层
-│   └── quiz.js         ← 答题系统
-└── tests/
-    └── combo.test.js   ← Phase 3 测试套件（34 用例）
+│   ├── cards.js            ← 109张卡牌数据（唯一权威源）
+│   ├── engine.js           ← 核心战斗引擎
+│   ├── combo_table.js      ← 35个 combo 查找表
+│   ├── ai.js               ← AI 对手逻辑
+│   ├── ui.js               ← 界面控制器
+│   └── quiz.js             ← 物理题库
+├── art_samples/card_art/   ← 109+ 张卡牌插画
+├── generate_cards.py       ← 卡牌展示页生成器
+├── domain_runes.json       ← 6领域符文 base64
+├── approved_cards.json     ← 卡牌→插画文件映射（唯一权威）
+└── tests/combo.test.js     ← 34个测试用例
 ```
 
-## Phase 5：赛博朋克卡牌艺术图批量生成 ✅ 完成
+---
 
-- **80 张卡牌赛博朋克风格艺术图**已生成，全部 1024×1536，暗色背景，中文脚注水印
-- 存储位置：`art_samples/card_art/`
-- 覆盖五大领域（力/声/光/热/电）的攻击卡、咒语卡、角色卡、领域卡
-- 分 7 个批次并行生成：
-  1. FORCE 领域 10 张（A03/A04/A05/A06/A08/A32/A43/S01/S02/S03）
-  2. SOUND 领域 10 张（A09/A10/A13/A14/A45/S08/S10/S12/S13/D02）
-  3. HEAT+ELEC 12 张（A21/A22/A23/A24/A25/A47/S22/S23/S24/A27/A28/A29）
-  4. LIGHT+ELEC 12 张（A15/A16/A17/A18/A19/A20/A30/A44/A48/A49/S28/S29）
-  5. BATCH5 12 张（C12/C13/C14/A31/A33/A34/A35/A36/A37/A40/S04/S05）
-  6. BATCH6 12 张（S06/S07/S09/S11/S14/S15/S16/S17/S18/S20/S25/S26）
-  7. BATCH7 12 张（C09/A46/A50/A52/S19/S21/S27/S30/S31/S32/S33/D01）
+## 工作规则（铁律）
 
-## 下一任务
+1. `js/cards.js` 是唯一的卡牌数据权威源
+2. 引擎实现效果时，effect 属性名必须直接使用 cards.js 中的字段名
+3. `approved_cards.json` 是卡牌→插画的唯一映射，未审核确认不得写入
+4. 插画配对唯一依据是 `approved_cards.json`，不允许根据文件名自动猜测
+5. 工作资料三级分区：Confirmed（approved_cards.json）/ Pending（未审核）/ Deprecated（已淘汰）
+6. **开工前 `git pull`，收工后 `git add -A && git commit && git push`**
 
-全部 4 个 Phase 完成。后续可做：卡组构建器(Deck Builder)、题库扩展、UI 优化、平衡性调整。
+---
+
+## 已完成阶段
+
+| 阶段 | 内容 | 状态 |
+|------|------|:---:|
+| Phase 1 | 109 张卡牌生成 | ✅ |
+| Phase 2 | Combo 系统重建（35 combo + engine.js 重写） | ✅ |
+| Phase 3 | 可验证 AI 对战测试（34 用例） | ✅ |
+| Phase 4 | 7 种剩余 combo 效果 + 召唤被动 + UI 高亮 | ✅ |
+| Phase 5 | 全部 109 张插画生成 + 领域符文 + 混沌领域 | ✅ |
+| C03 | 拉普拉斯妖窥牌排序交互（引擎+UI模态框） | ✅ |
+| Deck | 卡组构建器（固定30张，主12-18，副6-12，领域≤2） | ✅ |
+
+---
+
+## 🎯 当前优先级（Phase 6）
+
+用户反馈的核心痛点，按重要性排序：
+
+### P0：AI 策略升级
+**现状**：AI 只会按最高伤害出牌，无 combo 意识、无防守策略、无手牌管理。
+**目标**：AI 能识别 combo 机会、管理精神力、根据局势选择攻守。
+
+### P1：出牌体验优化
+**现状**：出牌是瞬发，无动画、无音效、无视觉反馈，跟炉石传说的体验差距大。
+**目标**：卡牌飞行动画、伤害数字弹出、combo 触发特效、出牌区视觉层次。
+
+### P2：物理知识深度融入
+**现状**：答题环节与出牌环节割裂，答对只是加精神力，物理概念未真正影响战局。
+**目标**：答题结果影响卡牌效果（答对+伤害/答错-费用），物理原理在 combo 中突出展示。
+
+---
+
+## 📅 长期路线图
+
+| 阶段 | 时间 | 做什么 | 怎么触达玩家 |
+|------|------|------|------|
+| **打磨期** | 1-2 月 | AI 策略 + 出牌体验 + 题库扩充 + 平衡性 | 物理教研群内测链接 |
+| **PWA 化** | 2-3 月 | 手机可装到桌面，离线可玩 | 一个网址发给学生 |
+| **联网功能** | 3-6 月 | 双人对战 + 排行榜 | 学生间对打，自然传播 |
+| **App 化** | 6 月后 | 根据真实数据评估是否换 Cocos/Unity | 应用商店上架 |
+
+---
+
+## Git
+
+- 仓库：git@gitee.com:jopapa/physics-card-game.git
+- 分支：master
