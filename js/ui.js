@@ -372,7 +372,7 @@ class GameUI {
       <div class="db-topbar">
         <h2>🃏 卡组构建器</h2>
         <div class="db-count"><span id="db-count">${selected.size}</span>/30 张</div>
-        <button id="db-save" class="db-btn-save" ${selected.size < 20 ? 'disabled' : ''}>💾 保存卡组</button>
+        <button id="db-save" class="db-btn-save" ${selected.size < 30 ? 'disabled' : ''}>💾 保存卡组</button>
         <button id="db-auto" class="db-btn-auto">🤖 快速自动组牌</button>
         <button id="db-clear" class="db-btn-clear">🗑 清空</button>
         <button id="db-cancel" class="db-btn-cancel">← 返回</button>
@@ -394,7 +394,6 @@ class GameUI {
     document.body.appendChild(overlay);
 
     const MAX_CARDS = 30;
-    const MIN_CARDS = 22;
     const colorMap = { '力':'#E74C3C','声':'#3498DB','光':'#F1C40F','热':'#E67E22','电':'#9B59B6' };
 
     function getDomainColor(card) {
@@ -500,18 +499,18 @@ class GameUI {
       const statHTML = Object.entries(stats).map(([d, c]) =>
         `<span style="color:${colorMap[d] || '#888'}">${d}×${c}</span>`
       ).join(' ');
-      const allValid = atkC >= 10 && atkC <= 15 && supC >= 7 && supC <= 12 && sumC <= 2 && domC <= 2 && phsC <= 1 && mainCount >= subCount && mainCount >= otherCount && mainCount + subCount >= Math.ceil(selected.size * 0.6);
+      const allValid = domC <= 2 && mainCount >= 12 && mainCount <= 18 && subCount >= 6 && subCount <= 12 && selected.size === 30;
       const ruleIcon = allValid ? '✅' : '⚠️';
-      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount}·副${subCount}·其他${otherCount} | 攻击${atkC}(10-15) 辅助${supC}(7-12) 召唤${sumC}(≤2) 领域${domC}(≤2) 相变${phsC}(≤1)`;
+      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount}(12-18) 副${subCount}(6-12) 领域${domC}(≤2) | 30张必须满`;
     }
 
     function updateCount() {
       const count = overlay.querySelector('#db-count');
       count.textContent = selected.size;
-      count.style.color = selected.size >= MIN_CARDS ? '#4CAF50' : selected.size > 0 ? '#FFA500' : '#f44336';
+      count.style.color = selected.size === 30 ? '#4CAF50' : selected.size > 0 ? '#FFA500' : '#f44336';
       const saveBtn = overlay.querySelector('#db-save');
-      saveBtn.disabled = selected.size < MIN_CARDS;
-      saveBtn.textContent = selected.size >= MIN_CARDS ? '💾 保存卡组' : `还需${MIN_CARDS - selected.size}张`;
+      saveBtn.disabled = selected.size !== 30;
+      saveBtn.textContent = selected.size === 30 ? '💾 保存卡组' : `还需${30 - selected.size}张`;
     }
 
     // 事件绑定
@@ -529,23 +528,20 @@ class GameUI {
     });
 
     overlay.querySelector('#db-save').addEventListener('click', () => {
-      if (selected.size < MIN_CARDS) return;
+      if (selected.size !== MAX_CARDS) {
+        alert('卡组必须恰好30张（当前' + selected.size + '张）');
+        return;
+      }
       
-      // 领域验证：主领域卡 ≥ 副领域卡，且均≥其他领域
+      // 领域验证
       const self = this;
       const ids = [...selected];
-      
-      // 类型统计
-      let attackCount = 0, supportCount = 0, summonCount = 0, domainCount = 0, phaseCount = 0;
+      let domainCount = 0;
       let mainCount = 0, subCount = 0, otherCount = 0;
       for (const id of ids) {
         const c = allCards.find(card => card.id === id);
         if (!c) continue;
-        if (c.type === 'attack') attackCount++;
-        else if (c.type === 'support') supportCount++;
-        else if (c.type === 'summon') summonCount++;
-        else if (c.type === 'domain') domainCount++;
-        else if (c.type === 'phase') phaseCount++;
+        if (c.type === 'domain') domainCount++;
         const hasMain = self._cardHasDomain(c, self.mainDomain);
         const hasSub = self._cardHasDomain(c, self.subDomain);
         if (hasMain && hasSub) { mainCount++; subCount++; }
@@ -554,23 +550,12 @@ class GameUI {
         else otherCount++;
       }
       
-      // === 组牌规则验证（对齐自动组牌比例）===
-      // auto: 13攻(8主+3副+2交) 10辅(5主+3副+2通) 2域 2召 1相 = 26张
-      const rules = [
-        { check: attackCount >= 10, msg: '攻击卡至少10张（自动组牌13张，当前' + attackCount + '张）' },
-        { check: attackCount <= 15, msg: '攻击卡最多15张（当前' + attackCount + '张）' },
-        { check: supportCount >= 7, msg: '辅助卡至少7张（自动组牌10张，当前' + supportCount + '张）' },
-        { check: supportCount <= 12, msg: '辅助卡最多12张（当前' + supportCount + '张）' },
-        { check: summonCount <= 2, msg: '召唤卡最多2张（自动组牌2张，当前' + summonCount + '张）' },
-        { check: domainCount <= 2, msg: '领域卡最多2张（自动组牌2张，当前' + domainCount + '张）' },
-        { check: phaseCount <= 1, msg: '相变卡最多1张（自动组牌1张，当前' + phaseCount + '张）' },
-        { check: mainCount >= subCount, msg: '主领域「' + self.mainDomain + '」(' + mainCount + ')不能少于副领域(' + subCount + ')' },
-        { check: mainCount >= otherCount, msg: '主领域卡须最多（主' + mainCount + ' < 其他' + otherCount + '）' },
-        { check: mainCount + subCount >= Math.ceil(selected.size * 0.6), msg: '主+副领域需≥60%（当前' + Math.round((mainCount+subCount)/selected.size*100) + '%）' },
-      ];
-      for (const r of rules) {
-        if (!r.check) { alert(r.msg); return; }
-      }
+      // 三条约束
+      if (mainCount < 12) { alert('主领域「' + self.mainDomain + '」至少需要12张（当前' + mainCount + '张）'); return; }
+      if (mainCount > 18) { alert('主领域「' + self.mainDomain + '」最多18张（当前' + mainCount + '张）'); return; }
+      if (subCount < 6)  { alert('副领域「' + self.subDomain + '」至少需要6张（当前' + subCount + '张）'); return; }
+      if (subCount > 12) { alert('副领域「' + self.subDomain + '」最多12张（当前' + subCount + '张）'); return; }
+      if (domainCount > 2) { alert('领域卡最多2张（当前' + domainCount + '张）'); return; }
       
       this.customDeck = ids;
       this._updateStartButton();
@@ -591,7 +576,7 @@ class GameUI {
   // ==================== 游戏开始 / 卡组生成 ====================
 
   startGame() {
-    const playerDeck = this.customDeck && this.customDeck.length >= 22
+    const playerDeck = this.customDeck && this.customDeck.length === 30
       ? this.customDeck
       : this.generateDeck(this.mainDomain, this.subDomain);
 
