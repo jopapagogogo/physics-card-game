@@ -1,46 +1,860 @@
 // ============================================================
-// 物理卡牌对战 —— AI对手引擎
+// 物理卡牌对战 —— AI 对手引擎 v2.0
 // 面向初中生，导入 GameEngine，提供三种难度级别
+// Phase 6 P0: AI 策略全面升级
 // ============================================================
 
 import { GameEngine } from './engine.js';
+import { COMBO_TABLE } from './combo_table.js';
 
 // ============================================================
-// 已知卡牌组合表（辅助卡 → 攻击卡 → 额外效果）
+// 常量定义
 // ============================================================
-const KNOWN_COMBOS = {
-  // 力领域组合
-  'S01': { attackId: 'A01', bonusDmg: 65, desc: '质量增大→重力锤击' },
-  'S03': { attackId: 'A03', bonusDmg: 65, desc: '受力面积缩小→压强穿刺' },
-  'S02': {
-    attackIds: ['A06', 'A08'],
-    bonusFor: {
-      'A06': { bonusDmg: 25, dotBonus: 12 },
-      'A08': { pctBonus: 0.05 } // 额外10%→15%
-    },
-    desc: '能量蓄积→动能冲击/做功打击'
-  },
 
-  // 声领域组合
-  'S08': { attackId: 'A09', bonusDmg: 15, desc: '频率调节→超声清洗' },
-  'S09': { attackId: 'A45', viewAll: true, desc: '共振蓄能→双耳定位' },
-  'S06': { attackId: 'A14', bonusDmg: 30, desc: '回声消声→回声爆破' },
+/** 每回合灼烧基础伤害 */
+const BURN_DMG = 10;
 
-  // 光领域组合
-  'S14': { attackId: 'A19', bonusDmg: 25, desc: '光速传播→光纤穿透' },
-  'S15': { attackId: 'A16', fieldTurns: 4, zeroCostReturn: true, desc: '光谱叠加→色散分解' },
+/** 每层麻痹伤害 */
+const PARALYSIS_DMG = 15;
 
-  // 热领域组合
-  'S19': { attackId: 'A54', burnDmgPerLayer: '48→62', desc: '温度升高→爆燃' },
-  'S21': { attackId: 'A21', bonusPerBurn: 10, desc: '热量聚集→烈焰灼蚀' },
+/** 高威胁召唤物伤害阈值 */
+const HIGH_THREAT_SUMMON_DMG = 15;
 
-  // 电领域组合
-  'S29': { attackId: 'A27', ignoreDefBonus: 10, desc: '高压击穿→闪电劈击' },
-  'S31': { attackId: 'A49', preventDestroy: true, desc: '多路放电→过载放电' }
+/** 高风险灼烧层数 */
+const CRITICAL_BURN_LAYERS = 5;
+
+/** 危险 HP 阈值 */
+const DANGER_HP_RATIO = 0.3;
+const WARNING_HP_RATIO = 0.4;
+
+/** 威胁预算阈值 */
+const THREAT_FULL_SEND = 0.7;
+const THREAT_SAVE = 0.3;
+
+/** 精神力保留值 */
+const SPIRIT_RESERVE_NORMAL = 15;
+const SPIRIT_RESERVE_LOW = 20;
+const SPIRIT_RESERVE_HIGH = 40;
+
+/** 对手 combo 潜力权重 */
+const COMBO_POTENTIAL_WEIGHT = 0.15;
+
+/** 灭杀型攻击卡 ID 集合 */
+const SUMMON_ELIMINATOR_IDS = new Set([
+  'A18', 'A25', 'A30', 'A07', 'A35'
+]);
+
+/** 高价值召唤物 ID */
+const HIGH_VALUE_SUMMONS = new Set(['C01', 'C02', 'C07']);
+
+/** _estimateAttackDamage 中需要特殊处理的卡牌 ID */
+const SPECIAL_ATTACK_CARDS = {
+  A49: { id: 'A49', check: 'electric_supports' },
+  A02: { id: 'A02', check: 'force_history' },
+  A08: { id: 'A08', check: 'lost_hp' },
+  A54: { id: 'A54', check: 'burn_explosion' },
+  A51: { id: 'A51', check: 'burn_boost' },
+  A41: { id: 'A41', check: 'solar_boost' },
+  A53: { id: 'A53', check: 'light_sound_boost' },
+  A48: { id: 'A48', check: 'electric_chain' }
 };
 
-// 灭杀型攻击卡（优先攻击召唤物）
-const SUMMON_ELIMINATOR_IDS = new Set(['A18', 'A25', 'A30', 'A07', 'A35']);
+// ============================================================
+// 1. ComboIndex — 组合索引
+// 解析 COMBO_TABLE，构建多向快速查询索引
+// ============================================================
+class ComboIndex {
+  constructor() {
+    /** @type {object} 原始 COMBO_TABLE 引用 */
+    this.rawTable = COMBO_TABLE;
+
+    /** @type {Object<string, Object<string, object>>} 前向索引：basePrevId -> { curId -> comboEntry } */
+    this.forwardIndex = {};
+
+    /** @type {Object<string, string[]>} 参与索引：cardId -> 该卡参与的所有 comboKey */
+    this.participatingCombos = {};
+
+    /** @type {Object<string, object>} 双向索引（↔ 分隔的 combo） */
+    this.bidirectional = {};
+
+    /** @type {Object<string, object>} 对抗索引（vs 分隔的 combo），双向有效 */
+    this.conflictPair = {};
+
+    this._built = false;
+  }
+
+  /** 构建索引（首次调用自动触发） */
+  _ensureBuilt() {
+    if (this._built) return;
+    this._build();
+    this._built = true;
+  }
+
+  /** 解析所有 COMBO_TABLE 条目 */
+  _build() {
+    for (const [key, entry] of Object.entries(this.rawTable)) {
+      const parsed = this._parseKey(key);
+      if (!parsed) continue;
+
+      const { prevRaw, cur, separator, basePrev } = parsed;
+
+      // 参与索引
+      this._addParticipant(basePrev, key);
+      this._addParticipant(cur, key);
+
+      if (separator === '↔') {
+        // 双向 combo：两个方向都有效
+        this.bidirectional[key] = entry;
+        this._addForward(basePrev, cur, key, entry);
+        this._addForward(cur, basePrev, key, entry);
+      } else if (separator === 'vs') {
+        // 对抗 combo：双向有效
+        this.conflictPair[key] = entry;
+        this._addForward(basePrev, cur, key, entry);
+        this._addForward(cur, basePrev, key, entry);
+      } else {
+        // → 方向性 combo
+        this._addForward(basePrev, cur, key, entry);
+      }
+    }
+  }
+
+  /**
+   * 解析 combo key
+   * @returns {{ prevRaw: string, cur: string, separator: string, basePrev: string } | null}
+   */
+  _parseKey(key) {
+    // 确定分隔符
+    let separator = null;
+    if (key.includes('→')) separator = '→';
+    else if (key.includes('↔')) separator = '↔';
+    else if (key.includes('vs')) separator = 'vs';
+    if (!separator) return null;
+
+    const parts = key.split(separator);
+    if (parts.length !== 2) return null;
+
+    const prevRaw = parts[0].trim();
+    const cur = parts[1].trim();
+
+    // 提取 basePrev：去掉 升/降 等模式后缀
+    const basePrev = prevRaw.replace(/[升降]$/, '');
+
+    return { prevRaw, cur, separator, basePrev };
+  }
+
+  /** 添加前向索引条目 */
+  _addForward(prevId, curId, key, entry) {
+    if (!this.forwardIndex[prevId]) {
+      this.forwardIndex[prevId] = {};
+    }
+    this.forwardIndex[prevId][curId] = { key, ...entry };
+  }
+
+  /** 添加参与索引 */
+  _addParticipant(cardId, comboKey) {
+    if (!this.participatingCombos[cardId]) {
+      this.participatingCombos[cardId] = [];
+    }
+    if (!this.participatingCombos[cardId].includes(comboKey)) {
+      this.participatingCombos[cardId].push(comboKey);
+    }
+  }
+
+  /**
+   * 查询两个卡牌之间是否存在 combo
+   * @param {string} prevCardId - 先出的卡牌 ID
+   * @param {string} curCardId - 后出的卡牌 ID
+   * @returns {object|null} combo 条目
+   */
+  queryCombo(prevCardId, curCardId) {
+    this._ensureBuilt();
+
+    // 直查前向索引
+    if (this.forwardIndex[prevCardId]?.[curCardId]) {
+      return this.forwardIndex[prevCardId][curCardId];
+    }
+
+    // 查双向索引
+    for (const [key, entry] of Object.entries(this.bidirectional)) {
+      const parsed = this._parseKey(key);
+      if (!parsed) continue;
+      if ((parsed.basePrev === prevCardId && parsed.cur === curCardId) ||
+          (parsed.basePrev === curCardId && parsed.cur === prevCardId)) {
+        return { key, ...entry };
+      }
+    }
+
+    // 查对抗索引
+    for (const [key, entry] of Object.entries(this.conflictPair)) {
+      const parsed = this._parseKey(key);
+      if (!parsed) continue;
+      if ((parsed.basePrev === prevCardId && parsed.cur === curCardId) ||
+          (parsed.basePrev === curCardId && parsed.cur === prevCardId)) {
+        return { key, ...entry };
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * 获取某卡牌参与的所有 combo key
+   * @param {string} cardId
+   * @returns {string[]}
+   */
+  getCombosForCard(cardId) {
+    this._ensureBuilt();
+    return this.participatingCombos[cardId] || [];
+  }
+
+  /**
+   * 获取某辅助/前置卡的后续攻击卡 ID 列表
+   * @param {string} prevCardId
+   * @returns {string[]}
+   */
+  getCurCardsForPrev(prevCardId) {
+    this._ensureBuilt();
+    const forward = this.forwardIndex[prevCardId];
+    if (!forward) return [];
+    return Object.keys(forward);
+  }
+
+  /**
+   * 获取需要某攻击卡作为后续的前置卡 ID 列表
+   * @param {string} curCardId
+   * @returns {string[]}
+   */
+  getPrevCardsForCur(curCardId) {
+    this._ensureBuilt();
+    const result = [];
+    for (const [prevId, curMap] of Object.entries(this.forwardIndex)) {
+      if (curMap[curCardId]) result.push(prevId);
+    }
+    return result;
+  }
+
+  /**
+   * 在给定卡牌列表中查找所有可行的 combo 配对
+   * @param {Array<{id: string}>} cards - 卡牌列表
+   * @returns {Array<{ prevId: string, curId: string, comboKey: string, entry: object }>}
+   */
+  findAllCombosInCardList(cards) {
+    this._ensureBuilt();
+    const cardIds = cards.map(c => c.id);
+    const results = [];
+
+    for (let i = 0; i < cards.length; i++) {
+      for (let j = 0; j < cards.length; j++) {
+        if (i === j) continue;
+        const prevId = cardIds[i];
+        const curId = cardIds[j];
+        const entry = this.queryCombo(prevId, curId);
+        if (entry) {
+          results.push({
+            prevId,
+            curId,
+            prevCard: cards[i],
+            curCard: cards[j],
+            comboKey: entry.key,
+            entry
+          });
+        }
+      }
+    }
+
+    return results;
+  }
+}
+
+// ============================================================
+// 2. ThreatAssessor — 威胁评估
+// ============================================================
+const ThreatAssessor = {
+  /**
+   * 评估对手场面对己方的威胁等级
+   * @param {object} self - AI 方玩家状态
+   * @param {object} opp - 对手状态
+   * @param {string} difficulty
+   * @returns {{ level: number, details: object }}
+   */
+  assess(self, opp, difficulty) {
+    if (difficulty === 'easy') return { level: 0.3, details: {} };
+    if (difficulty === 'normal') return { level: 0.5, details: {} };
+
+    // hard: 精确评估
+    let score = 0;
+    const details = {};
+
+    // 因子1：对手场上进攻力 (0~0.3)
+    let oppOffense = 0;
+    for (const s of opp.fieldSummons) {
+      if (s.card?.effect?.dmgBonus) oppOffense += s.card.effect.dmgBonus;
+    }
+    if (opp.fieldDomain?.card?.effect?.bonusDmg) {
+      oppOffense += opp.fieldDomain.card.effect.bonusDmg;
+    }
+    oppOffense += opp.fieldSupports.length * 8;
+    details.offense = Math.min(0.3, oppOffense / 60);
+
+    // 因子2：对手 combo 潜力 (0~0.2)
+    const oppComboPotential = (opp.hand.length / 5) * 0.1 +
+      (opp.spirit / 100) * 0.1;
+    details.comboPotential = Math.min(0.2, oppComboPotential);
+
+    // 因子3：己方脆弱度 (0~0.25)
+    const hpRatio = self.hp / self.maxHp;
+    const fragility = (1 - hpRatio) * 0.25;
+    // 无保护召唤物时更脆弱
+    let protectedBySummon = false;
+    for (const s of self.fieldSummons) {
+      if (HIGH_VALUE_SUMMONS.has(s.card?.id)) {
+        protectedBySummon = true;
+        break;
+      }
+    }
+    details.fragility = protectedBySummon ? fragility * 0.5 : fragility;
+
+    // 因子4：对手驻场威胁 (0~0.15)
+    const oppFieldCount = opp.fieldSummons.length +
+      (opp.fieldDomain ? 1 : 0) + opp.fieldSupports.length;
+    details.fieldThreat = Math.min(0.15, oppFieldCount * 0.05);
+
+    // 因子5：DOT 累计 (0~0.1)
+    const dotDmg = (self.burnLayers || 0) * BURN_DMG +
+      (self.paralysis || 0) * PARALYSIS_DMG;
+    details.dotThreat = Math.min(0.1, dotDmg / 200);
+
+    score = details.offense + details.comboPotential +
+      details.fragility + details.fieldThreat + details.dotThreat;
+
+    return { level: Math.min(1.0, Math.max(0, score)), details };
+  }
+};
+
+// ============================================================
+// 3. SpiritBudgetManager — 精神力预算
+// ============================================================
+const SpiritBudgetManager = {
+  /**
+   * 计算精神力预算方案
+   * @returns {{ thisTurnMax: number, reserved: number, strategy: string }}
+   */
+  compute(hand, spirit, threatLevel, difficulty) {
+    if (difficulty === 'easy') {
+      return { thisTurnMax: spirit, reserved: 0, strategy: 'full_send' };
+    }
+
+    if (difficulty === 'normal') {
+      const reserved = Math.min(SPIRIT_RESERVE_NORMAL, Math.floor(spirit * 0.3));
+      return {
+        thisTurnMax: spirit - reserved,
+        reserved,
+        strategy: 'balanced'
+      };
+    }
+
+    // hard 难度：精确预算
+    const handCosts = hand.map(c => c.cost || 0).sort((a, b) => b - a);
+
+    if (threatLevel > THREAT_FULL_SEND) {
+      // 高威胁：全火力应对
+      return { thisTurnMax: spirit, reserved: 0, strategy: 'full_send' };
+    }
+
+    if (threatLevel > THREAT_SAVE) {
+      // 中威胁：均衡模式
+      const avgCost = handCosts.length > 0
+        ? handCosts.reduce((a, b) => a + b, 0) / handCosts.length
+        : 20;
+      const reserved = Math.min(SPIRIT_RESERVE_LOW, Math.floor(spirit * 0.25));
+      return {
+        thisTurnMax: Math.max(avgCost, spirit - reserved),
+        reserved,
+        strategy: 'balanced'
+      };
+    }
+
+    // 低威胁：积蓄模式
+    const reserved = Math.min(SPIRIT_RESERVE_HIGH, Math.floor(spirit * 0.5));
+    return {
+      thisTurnMax: spirit - reserved,
+      reserved,
+      strategy: 'save'
+    };
+  },
+
+  /**
+   * 估算下回合精神力
+   */
+  estimateNextTurnSpirit(self, reserved) {
+    // 基础恢复 + 保留值
+    return Math.min(100, 30 + reserved);
+  }
+};
+
+// ============================================================
+// 4. DefensePlanner — 防守策略
+// ============================================================
+const DefensePlanner = {
+  /**
+   * 判断是否需要防守
+   * @returns {{ defend: boolean, priority: string, reason: string }}
+   */
+  shouldDefend(self, opp, threatLevel, comboIndex) {
+    const hpRatio = self.hp / self.maxHp;
+
+    // 绝境：HP < 30%
+    if (hpRatio < DANGER_HP_RATIO) {
+      return { defend: true, priority: 'immediate', reason: 'HP低于30%' };
+    }
+
+    // 警告：HP < 40%
+    if (hpRatio < WARNING_HP_RATIO) {
+      return { defend: true, priority: 'preemptive', reason: 'HP低于40%' };
+    }
+
+    // 对手场上有高伤害召唤物
+    for (const s of opp.fieldSummons) {
+      if ((s.card?.effect?.dmgBonus || 0) >= HIGH_THREAT_SUMMON_DMG) {
+        return { defend: true, priority: 'preemptive',
+          reason: `对手${s.card.name}威胁过高` };
+      }
+    }
+
+    // 己方 DOT 致命：高灼烧 + 低 HP
+    if ((self.burnLayers || 0) >= CRITICAL_BURN_LAYERS && hpRatio < WARNING_HP_RATIO) {
+      return { defend: true, priority: 'immediate', reason: '灼烧即将致命' };
+    }
+
+    // 己方关键召唤物受威胁
+    for (const s of opp.fieldSummons) {
+      if (s.card?.effect?.special?.includes('消灭') &&
+          self.fieldSummons.some(ss => HIGH_VALUE_SUMMONS.has(ss.card?.id))) {
+        return { defend: true, priority: 'preemptive',
+          reason: '关键召唤物受威胁' };
+      }
+    }
+
+    return { defend: false, priority: 'none', reason: '' };
+  },
+
+  /**
+   * 获取防守动作序列
+   * @returns {Array<{ cardId: string, target: string, reason: string }>}
+   */
+  getDefensiveActions(hand, spirit, self, opp, comboIndex) {
+    const actions = [];
+    let remainingSpirit = spirit;
+
+    const canAfford = (cost) => cost <= remainingSpirit;
+
+    // 1. 优先相变卡
+    const hpRatio = self.hp / self.maxHp;
+    const phaseCards = hand.filter(c => c.type === 'phase' && canAfford(c.cost));
+    for (const pc of phaseCards) {
+      if (pc.id === 'T02' && hpRatio < DANGER_HP_RATIO) {
+        actions.push({ cardId: pc.id, target: 'player', reason: 'HP危急→时停' });
+        remainingSpirit -= pc.cost;
+        break;
+      }
+      if (pc.id === 'T01' && hpRatio < WARNING_HP_RATIO) {
+        actions.push({ cardId: pc.id, target: 'player', reason: 'HP危险→回溯' });
+        remainingSpirit -= pc.cost;
+        break;
+      }
+      if (pc.id === 'T03' && hpRatio < 0.35) {
+        actions.push({ cardId: pc.id, target: 'player', reason: 'HP危急→暗影' });
+        remainingSpirit -= pc.cost;
+        break;
+      }
+    }
+
+    // 2. 防御辅助卡
+    const defenseCards = hand.filter(
+      c => c.type === 'support' && c.effect?.defense && canAfford(c.cost)
+    );
+    if (defenseCards.length > 0) {
+      defenseCards.sort((a, b) => (b.effect.defense.value || 0) - (a.effect.defense.value || 0));
+      actions.push({ cardId: defenseCards[0].id, target: 'player',
+        reason: `防御+${defenseCards[0].effect.defense.value || 0}` });
+      remainingSpirit -= defenseCards[0].cost;
+    }
+
+    // 3. 消灭型攻击卡清除对手高危召唤物
+    if (remainingSpirit > 0) {
+      const eliminators = hand.filter(
+        c => c.type === 'attack' &&
+          SUMMON_ELIMINATOR_IDS.has(c.id) &&
+          canAfford(c.cost)
+      );
+      if (eliminators.length > 0 && opp.fieldSummons.length > 0) {
+        // 找最威胁的对手召唤物
+        let worstIdx = 0;
+        let worstThreat = 0;
+        for (let i = 0; i < opp.fieldSummons.length; i++) {
+          const s = opp.fieldSummons[i];
+          const threat = (s.card?.effect?.dmgBonus || 0) + (s.hp / 50);
+          if (threat > worstThreat) {
+            worstThreat = threat;
+            worstIdx = i;
+          }
+        }
+        actions.push({
+          cardId: eliminators[0].id,
+          target: `summon_${worstIdx}`,
+          reason: '灭杀高危召唤物'
+        });
+        remainingSpirit -= eliminators[0].cost;
+      }
+    }
+
+    // 4. 召唤芝诺龟作为肉盾
+    if (remainingSpirit >= 20 && self.fieldSummons.length < 2) {
+      const zeno = hand.find(c => c.id === 'C01' && canAfford(c.cost));
+      if (zeno) {
+        actions.push({ cardId: 'C01', target: 'player', reason: '芝诺龟肉盾' });
+        remainingSpirit -= zeno.cost;
+      }
+    }
+
+    return { actions, remainingSpirit };
+  }
+};
+
+// ============================================================
+// 5. ComboDetector — 多模式 Combo 检测
+// ============================================================
+const ComboDetector = {
+  /**
+   * 在手牌中检测所有可行的 combo
+   * @param {Array} hand - 手牌
+   * @param {string[]} cardsThisTurn - 本回合已出卡牌 ID 列表
+   * @param {ComboIndex} comboIndex
+   * @param {number} maxSpirit - 预算上限
+   * @param {string} difficulty
+   * @returns {Array<{ prevCard: object, curCard: object, prevId: string, curId: string,
+   *            comboKey: string, entry: object, totalCost: number, pattern: string, score: number }>}
+   */
+  detectAll(hand, cardsThisTurn, comboIndex, maxSpirit, difficulty) {
+    if (difficulty === 'easy') return [];
+
+    const results = [];
+
+    if (difficulty === 'normal') {
+      // 仅辅助→攻击
+      this._findSupportAttackCombos(hand, comboIndex, maxSpirit, results);
+    } else {
+      // hard: 全模式
+      this._findSupportAttackCombos(hand, comboIndex, maxSpirit, results);
+      this._findAttackAttackCombos(hand, comboIndex, maxSpirit, results);
+      this._findSummonAttackCombos(hand, comboIndex, maxSpirit, results);
+      this._findSummonBidirectional(hand, comboIndex, maxSpirit, results);
+      this._findCrossFieldCombos(hand, comboIndex, maxSpirit, results);
+
+      // 考虑本回合已出的卡作为前置
+      if (cardsThisTurn.length > 0) {
+        this._findChainCombos(hand, cardsThisTurn, comboIndex, maxSpirit, results);
+      }
+    }
+
+    // 计算评分
+    for (const r of results) {
+      r.score = this._scoreCombo(r);
+    }
+
+    // 按效率排序
+    results.sort((a, b) => (b.score / Math.max(1, b.totalCost)) -
+                          (a.score / Math.max(1, a.totalCost)));
+
+    return results;
+  },
+
+  /** 辅助→攻击 */
+  _findSupportAttackCombos(hand, comboIndex, maxSpirit, out) {
+    const supports = hand.filter(c => c.type === 'support');
+    const attacks = hand.filter(c => c.type === 'attack');
+
+    for (const support of supports) {
+      const curIds = comboIndex.getCurCardsForPrev(support.id);
+      if (curIds.length === 0) continue;
+
+      for (const atkId of curIds) {
+        const attack = attacks.find(a => a.id === atkId);
+        if (!attack) continue;
+
+        const entry = comboIndex.queryCombo(support.id, atkId);
+        if (!entry) continue;
+
+        const totalCost = support.cost + attack.cost;
+        if (totalCost > maxSpirit) continue;
+
+        out.push({
+          prevCard: support, curCard: attack,
+          prevId: support.id, curId: atkId,
+          comboKey: entry.key || `${support.id}→${atkId}`,
+          entry, totalCost,
+          pattern: 'support→attack'
+        });
+      }
+    }
+  },
+
+  /** 攻击→攻击（同一回合链式出牌） */
+  _findAttackAttackCombos(hand, comboIndex, maxSpirit, out) {
+    const attacks = hand.filter(c => c.type === 'attack');
+
+    for (let i = 0; i < attacks.length; i++) {
+      for (let j = 0; j < attacks.length; j++) {
+        if (i === j) continue;
+        const entry = comboIndex.queryCombo(attacks[i].id, attacks[j].id);
+        if (!entry) continue;
+        const totalCost = attacks[i].cost + attacks[j].cost;
+        if (totalCost > maxSpirit) continue;
+
+        out.push({
+          prevCard: attacks[i], curCard: attacks[j],
+          prevId: attacks[i].id, curId: attacks[j].id,
+          comboKey: entry.key,
+          entry, totalCost,
+          pattern: 'attack→attack'
+        });
+      }
+    }
+  },
+
+  /** 召唤→攻击 */
+  _findSummonAttackCombos(hand, comboIndex, maxSpirit, out) {
+    const summons = hand.filter(c => c.type === 'summon');
+    const attacks = hand.filter(c => c.type === 'attack');
+
+    for (const summon of summons) {
+      const curIds = comboIndex.getCurCardsForPrev(summon.id);
+      if (curIds.length === 0) continue;
+
+      for (const atkId of curIds) {
+        const attack = attacks.find(a => a.id === atkId);
+        if (!attack) continue;
+
+        const entry = comboIndex.queryCombo(summon.id, atkId);
+        if (!entry) continue;
+
+        const totalCost = summon.cost + attack.cost;
+        if (totalCost > maxSpirit) continue;
+
+        out.push({
+          prevCard: summon, curCard: attack,
+          prevId: summon.id, curId: atkId,
+          comboKey: entry.key,
+          entry, totalCost,
+          pattern: 'summon→attack'
+        });
+      }
+    }
+  },
+
+  /** 召唤对冲（↔） */
+  _findSummonBidirectional(hand, comboIndex, maxSpirit, out) {
+    const summons = hand.filter(c => c.type === 'summon');
+
+    for (let i = 0; i < summons.length; i++) {
+      for (let j = i + 1; j < summons.length; j++) {
+        const entry = comboIndex.queryCombo(summons[i].id, summons[j].id);
+        if (!entry) continue;
+        const totalCost = summons[i].cost + summons[j].cost;
+        if (totalCost > maxSpirit) continue;
+
+        out.push({
+          prevCard: summons[i], curCard: summons[j],
+          prevId: summons[i].id, curId: summons[j].id,
+          comboKey: entry.key,
+          entry, totalCost,
+          pattern: 'summon↔summon'
+        });
+      }
+    }
+  },
+
+  /** 跨领域对抗 */
+  _findCrossFieldCombos(hand, comboIndex, maxSpirit, out) {
+    for (const [key, entry] of Object.entries(comboIndex.conflictPair)) {
+      const parsed = comboIndex._parseKey(key);
+      if (!parsed) continue;
+
+      const cardA = hand.find(c => c.id === parsed.basePrev);
+      const cardB = hand.find(c => c.id === parsed.cur);
+      if (!cardA || !cardB) continue;
+
+      const totalCost = cardA.cost + cardB.cost;
+      if (totalCost > maxSpirit) continue;
+
+      out.push({
+        prevCard: cardA, curCard: cardB,
+        prevId: cardA.id, curId: cardB.id,
+        comboKey: key,
+        entry, totalCost,
+        pattern: 'cross_field'
+      });
+    }
+  },
+
+  /**
+   * 链式 combo：本回合已出的卡作为前置，手牌中有后续
+   */
+  _findChainCombos(hand, cardsThisTurn, comboIndex, maxSpirit, out) {
+    for (const prevId of cardsThisTurn) {
+      const curIds = comboIndex.getCurCardsForPrev(prevId);
+      if (curIds.length === 0) continue;
+
+      for (const curId of curIds) {
+        const curCard = hand.find(c => c.id === curId);
+        if (!curCard) continue;
+
+        const entry = comboIndex.queryCombo(prevId, curId);
+        if (!entry) continue;
+
+        if (curCard.cost > maxSpirit) continue;
+
+        out.push({
+          prevCard: { id: prevId }, curCard,
+          prevId, curId,
+          comboKey: entry.key,
+          entry,
+          totalCost: curCard.cost,
+          pattern: 'chain→attack'
+        });
+      }
+    }
+  },
+
+  /**
+   * 评分 combo
+   */
+  _scoreCombo(combo) {
+    let score = 0;
+
+    for (const effect of combo.entry.effects) {
+      switch (effect.type) {
+        case 'extra_damage':
+        case 'extra_damage_per_force_card':
+          score += effect.value || 0;
+          break;
+        case 'extra_damage_per_burn':
+          score += (effect.perLayer || 0) * 3;
+          break;
+        case 'extra_burn':
+        case 'extra_burn_after_detonate':
+          score += (effect.layers || 0) * 25;
+          break;
+        case 'extra_dot':
+          score += (effect.dmg || 0) * (effect.turns || 1);
+          break;
+        case 'extend_dot_turns':
+          score += (effect.value || 0) * 15;
+          break;
+        case 'view_hand':
+          score += 30;
+          break;
+        case 'steal_spirit':
+          score += (effect.value || 0) * 1.5;
+          break;
+        case 'set_return_to_hand':
+        case 'return_to_hand':
+          score += 25;
+          break;
+        case 'modify_flag':
+          score += 20;
+          break;
+        case 'boost_burn_dmg':
+        case 'boost_burn_cap':
+        case 'boost_dot_increment':
+        case 'boost_ignore_defense':
+        case 'boost_mirror_maze':
+        case 'boost_clear_debuff':
+          score += 25;
+          break;
+        case 'modify_height':
+          score += (effect.perHeight || 0) * 3;
+          break;
+        case 'modify_card_dmg':
+          score += (effect.value || 0);
+          break;
+        case 'extra_damage_ignore_block':
+          score += (effect.value || 0) * 1.5;
+          break;
+        case 'heal_hp':
+          score += (effect.value || 0) * 0.8;
+          break;
+        default:
+          score += 10;
+      }
+    }
+
+    return score;
+  }
+};
+
+// ============================================================
+// 6. MultiTurnPlanner — 多回合规划（hard 难度专属）
+// ============================================================
+const MultiTurnPlanner = {
+  /**
+   * 多回合规划
+   * @returns {{ shouldPassTurn: boolean, recommendedCombo: object|null, reason: string }}
+   */
+  plan(hand, spirit, budget, comboIndex, self, opp, threatLevel) {
+    // 如果已经有威胁，不蓄力
+    if (threatLevel > 0.5) {
+      return { shouldPassTurn: false, recommendedCombo: null, reason: '威胁过高，不蓄力' };
+    }
+
+    // 如果对手 HP 太低，先解决战斗
+    const oppHpRatio = opp.hp / opp.maxHp;
+    if (oppHpRatio < 0.3) {
+      return { shouldPassTurn: false, recommendedCombo: null, reason: '对手HP低，直接进攻' };
+    }
+
+    // 查找高压 combo：总费用 > 当前精神力但 < 下回合精神力
+    const nextTurnSpirit = SpiritBudgetManager.estimateNextTurnSpirit(self, budget.reserved);
+    const allCombos = ComboDetector.detectAll(
+      hand, [], comboIndex, nextTurnSpirit, 'hard'
+    );
+
+    for (const combo of allCombos) {
+      // 该 combo 需要超过当前精神力，但下回合足够
+      if (combo.totalCost > spirit && combo.totalCost <= nextTurnSpirit) {
+        return {
+          shouldPassTurn: true,
+          recommendedCombo: combo,
+          reason: `蓄力下回合打出${combo.prevId}→${combo.curId} (${combo.totalCost}费)`
+        };
+      }
+
+      // 即使当前够，如果留到下回合能打出更强效果也蓄力
+      if (combo.totalCost > budget.thisTurnMax * 0.8 &&
+          combo.totalCost <= nextTurnSpirit &&
+          combo.score > 50) {
+        return {
+          shouldPassTurn: true,
+          recommendedCombo: combo,
+          reason: `保留精神力下回合爆发: ${combo.prevId}→${combo.curId}`
+        };
+      }
+    }
+
+    // 看看是否应该少出牌（保留更多下回合可用）
+    if (budget.strategy === 'save' && allCombos.length === 0) {
+      // 没有 combo 机会，等一张关键牌
+      return {
+        shouldPassTurn: false,
+        recommendedCombo: null,
+        reason: '等抽关键牌'
+      };
+    }
+
+    return { shouldPassTurn: false, recommendedCombo: null, reason: '' };
+  }
+};
 
 // ============================================================
 // AIEngine 类
@@ -48,15 +862,18 @@ const SUMMON_ELIMINATOR_IDS = new Set(['A18', 'A25', 'A30', 'A07', 'A35']);
 class AIEngine {
   /**
    * @param {GameEngine} engine - 游戏引擎实例
-   * @param {string} difficulty - 难度："easy"|"normal"|"hard"
+   * @param {string} difficulty - "easy"|"normal"|"hard"
    */
   constructor(engine, difficulty) {
     /** @type {GameEngine} */
     this.engine = engine;
     this.difficulty = this._normalizeDifficulty(difficulty);
-    this.aiIdx = 1;       // AI固定为玩家索引 1
-    this.oppIdx = 0;      // 对手（人类玩家）索引 0
-    this.pendingDecisions = null; // 待出牌决策队列（用于逐张出牌）
+    this.aiIdx = 1;
+    this.oppIdx = 0;
+    this.pendingDecisions = null;
+
+    /** @type {ComboIndex} 组合索引（单例缓存） */
+    this._comboIndex = new ComboIndex();
   }
 
   // ==========================================================
@@ -68,40 +885,27 @@ class AIEngine {
   }
 
   // ==========================================================
-  // 获取完整游戏状态快照
+  // 游戏状态访问
   // ==========================================================
   _getGameState() {
     return this.engine.getGameState();
   }
-
-  /** 获取AI玩家状态 */
   _getSelf() {
     return this.engine.players[this.aiIdx];
   }
-
-  /** 获取对手状态 */
   _getOpp() {
     return this.engine.players[this.oppIdx];
   }
 
   // ==========================================================
-  // 答题模拟 —— simulateQuiz()
+  // 答题模拟 —— simulateQuiz()（不变）
   // ==========================================================
-
-  /**
-   * 模拟答题结果
-   * easy: 50%正确率，偏向1-2题
-   * normal: 70%正确率，偏向2-3题
-   * hard: 90%正确率，偏向3题
-   * @returns {{ correct: number, total: number }}
-   */
   simulateQuiz() {
     const total = 3;
     let correct;
 
     switch (this.difficulty) {
       case 'easy': {
-        // 50%正确率，偏向1-2题
         const roll = Math.random();
         if (roll < 0.15) correct = 0;
         else if (roll < 0.55) correct = 1;
@@ -110,7 +914,6 @@ class AIEngine {
         break;
       }
       case 'normal': {
-        // 70%正确率，偏向2-3题
         const roll = Math.random();
         if (roll < 0.05) correct = 0;
         else if (roll < 0.25) correct = 1;
@@ -119,7 +922,6 @@ class AIEngine {
         break;
       }
       case 'hard': {
-        // 90%正确率，偏向3题
         const roll = Math.random();
         if (roll < 0.02) correct = 1;
         else if (roll < 0.20) correct = 2;
@@ -134,53 +936,36 @@ class AIEngine {
   }
 
   // ==========================================================
-  // 思考延迟 —— getThinkDelay()
+  // 思考延迟 —— getThinkDelay()（不变）
   // ==========================================================
-
-  /**
-   * AI思考延迟（模拟真人思考时间）
-   * easy: 1-3秒
-   * normal: 2-4秒
-   * hard: 1.5-3秒（更果断）
-   * @returns {number} 毫秒
-   */
   getThinkDelay() {
     switch (this.difficulty) {
-      case 'easy':
-        return 1000 + Math.random() * 2000;
-      case 'normal':
-        return 2000 + Math.random() * 2000;
-      case 'hard':
-        return 1500 + Math.random() * 1500;
-      default:
-        return 2000;
+      case 'easy':   return 1000 + Math.random() * 2000;
+      case 'normal': return 2000 + Math.random() * 2000;
+      case 'hard':   return 1500 + Math.random() * 1500;
+      default:       return 2000;
     }
   }
 
-  /** 内部sleep辅助 */
   _sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   // ==========================================================
-  // 出牌决策 —— makePlayDecision()
+  // 出牌决策 —— makePlayDecision() [重写]
   // ==========================================================
-
-  /**
-   * AI出牌决策，按优先级依次判断
-   * @returns {Array<{ cardId: string, target: string }>} 按顺序的出牌序列
-   */
   makePlayDecision() {
     const self = this._getSelf();
     const opp = this._getOpp();
     const hand = [...self.hand];
     let spirit = self.spirit;
     const gameState = this._getGameState();
+    const cardsThisTurn = this.engine.cardsThisTurn || [];
+    const comboIndex = this._comboIndex;
 
     const decisions = [];
     const usedIds = new Set();
 
-    /** 帮辅函数：消耗手牌和精神力 */
     const useCard = (card, target = 'player') => {
       if (!card) return false;
       decisions.push({ cardId: card.id, target });
@@ -189,35 +974,87 @@ class AIEngine {
       return true;
     };
 
-    // easy难度：随机出牌
+    // === easy 难度：随机出牌 ===
     if (this.difficulty === 'easy') {
       return this._makeRandomDecision(hand, spirit);
     }
 
-    // ==========================================================
-    // 1. 绝境翻盘：HP < 30% → 打出相变卡
-    // ==========================================================
-    const hpPercent = self.hp / self.maxHp;
-    if (hpPercent < 0.3) {
-      const phaseCards = hand.filter(
-        c => c.type === 'phase' && c.cost <= spirit && !usedIds.has(c.id)
+    // === 第 1 步：威胁评估 ===
+    const threat = ThreatAssessor.assess(self, opp, this.difficulty);
+
+    // === 第 2 步：精神力预算 ===
+    const budget = SpiritBudgetManager.compute(hand, spirit, threat.level, this.difficulty);
+
+    // === 第 3 步：防守检查 ===
+    const defenseCheck = DefensePlanner.shouldDefend(self, opp, threat.level, comboIndex);
+    if (defenseCheck.defend) {
+      const { actions, remainingSpirit: defRemaining } =
+        DefensePlanner.getDefensiveActions(hand, spirit, self, opp, comboIndex);
+      for (const action of actions) {
+        const card = hand.find(c => c.id === action.cardId && !usedIds.has(c.id));
+        if (card && card.cost <= spirit) {
+          useCard(card, action.target);
+        }
+      }
+      // 更新精神力和手牌
+      hand.splice(0, hand.length, ...self.hand.filter(c => !usedIds.has(c.id)));
+      spirit = self.spirit - decisions.reduce((sum, d) => {
+        const c = this.engine.getCardById(d.cardId);
+        return sum + (c ? c.cost : 0);
+      }, 0);
+    }
+
+    // === 第 4 步：多回合规划（仅 hard） ===
+    if (this.difficulty === 'hard') {
+      const remainingHand = hand.filter(c => !usedIds.has(c.id));
+      const plan = MultiTurnPlanner.plan(
+        remainingHand, spirit, budget, comboIndex, self, opp, threat.level
       );
-      for (const pc of phaseCards) {
-        // T02只能在HP<30%打出
-        if (pc.id === 'T02' && hpPercent >= 0.3) continue;
-        if (useCard(pc)) break;
+      if (plan.shouldPassTurn) {
+        // 蓄力：可能只出低费防守牌，空过主要精神力
+        if (plan.recommendedCombo && spirit >= plan.recommendedCombo.totalCost) {
+          // 如果当前就能打，不空过
+        } else {
+          // 少出牌，保留精神力
+          return decisions;
+        }
       }
     }
 
-    // ==========================================================
-    // 2. 领域卡：场上无领域卡时打出
-    // ==========================================================
+    // === 第 5 步：Combo 搜索（多模式） ===
+    if (this.difficulty !== 'easy') {
+      const remainingHand = hand.filter(c => !usedIds.has(c.id));
+      const allCombos = ComboDetector.detectAll(
+        remainingHand, cardsThisTurn, comboIndex, budget.thisTurnMax, this.difficulty
+      );
+
+      if (allCombos.length > 0) {
+        const best = allCombos[0];
+        const prevCard = remainingHand.find(c => c.id === best.prevId && !usedIds.has(c.id));
+        const curCard = remainingHand.find(c => c.id === best.curId && !usedIds.has(c.id));
+        const totalCost = (prevCard?.cost || 0) + (curCard?.cost || 0);
+
+        if (prevCard && curCard && totalCost <= budget.thisTurnMax) {
+          const prevTarget = prevCard.type === 'attack'
+            ? this.getBestTarget(prevCard, gameState)
+            : 'player';
+          useCard(prevCard, prevTarget);
+          const curTarget = curCard.type === 'attack'
+            ? this.getBestTarget(curCard, gameState)
+            : 'player';
+          useCard(curCard, curTarget);
+        }
+      }
+    }
+
+    // === 第 6 步：领域卡 ===
+    const activeHand = hand.filter(c => !usedIds.has(c.id));
     if (!self.fieldDomain) {
-      const domainCards = hand.filter(
-        c => c.type === 'domain' && c.cost <= spirit && !usedIds.has(c.id)
+      const domainCards = activeHand.filter(
+        c => c.type === 'domain' && c.cost <= budget.thisTurnMax &&
+        c.cost <= spirit && !usedIds.has(c.id)
       );
       if (domainCards.length > 0) {
-        // hard难度：优先匹配己方主/副领域
         if (this.difficulty === 'hard') {
           const matchDomain = domainCards.find(
             c => c.domain.includes(self.domain.main) || c.domain.includes(self.domain.sub)
@@ -229,59 +1066,45 @@ class AIEngine {
       }
     }
 
-    // ==========================================================
-    // 3. 组合：先打辅助再打对应攻击
-    // ==========================================================
-    const combo = this.getBestCombo(hand, spirit, usedIds, gameState);
-    if (combo) {
-      // 先打出辅助卡
-      const supportCard = hand.find(
-        c => c.id === combo.supportCardId && !usedIds.has(c.id)
-      );
-      const attackCard = hand.find(
-        c => c.id === combo.attackCardId && !usedIds.has(c.id)
-      );
-
-      if (supportCard && attackCard) {
-        const totalCost = (supportCard.cost || 0) + (attackCard.cost || 0);
-        if (totalCost <= spirit) {
-          useCard(supportCard);
-          useCard(attackCard, combo.target);
-        }
-      }
-    }
-
-    // ==========================================================
-    // 4. 召唤卡（精神力充裕，召唤物未满）
-    // ==========================================================
+    // === 第 7 步：召唤物 ===
     if (spirit >= 20 && self.fieldSummons.length < 2) {
-      const summons = hand.filter(
-        c => c.type === 'summon' && c.cost <= spirit && !usedIds.has(c.id)
+      const summons = activeHand.filter(
+        c => c.type === 'summon' && c.cost <= spirit &&
+        c.cost <= budget.thisTurnMax && !usedIds.has(c.id)
       );
       if (summons.length > 0) {
-        // hard难度优先选择匹配领域的召唤物
         if (this.difficulty === 'hard') {
-          const matchSummon = summons.find(
-            c => c.domain.some(d => d === self.domain.main || d === self.domain.sub)
-          );
-          if (matchSummon) {
-            useCard(matchSummon);
+          // 优先选有 combo 配对的召唤物
+          let bestSummon = null;
+          for (const s of summons) {
+            const hasComboPair = activeHand.some(
+              c => c.id !== s.id && comboIndex.queryCombo(s.id, c.id)
+            );
+            if (hasComboPair) {
+              bestSummon = s;
+              break;
+            }
           }
+          if (!bestSummon) {
+            const matchSummon = summons.find(
+              c => c.domain.some(d => d === self.domain.main || d === self.domain.sub)
+            );
+            bestSummon = matchSummon || summons[0];
+          }
+          useCard(bestSummon);
         } else {
-          // normal: 简单按费用挑选
           summons.sort((a, b) => (b.cost || 0) - (a.cost || 0));
           useCard(summons[0]);
         }
       }
     }
 
-    // ==========================================================
-    // 5. 攻击卡：按性价比打出
-    // ==========================================================
+    // === 第 8 步：攻击卡 — 在预算内按性价比打出 ===
     let maxIterations = 10;
     while (spirit > 0 && maxIterations-- > 0) {
-      const attacks = hand.filter(
-        c => c.type === 'attack' && c.cost <= spirit && !usedIds.has(c.id)
+      const attacks = activeHand.filter(
+        c => c.type === 'attack' && c.cost <= spirit &&
+        c.cost <= budget.thisTurnMax && !usedIds.has(c.id)
       );
       if (attacks.length === 0) break;
 
@@ -292,38 +1115,32 @@ class AIEngine {
       useCard(best, target);
     }
 
-    // ==========================================================
-    // 6. 辅助卡：剩余精神力打出
-    // ==========================================================
+    // === 第 9 步：辅助卡 — 剩余精神力 ===
     maxIterations = 5;
     while (spirit > 0 && maxIterations-- > 0) {
-      const supports = hand.filter(
-        c => c.type === 'support' && c.cost <= spirit && !usedIds.has(c.id)
+      const supports = activeHand.filter(
+        c => c.type === 'support' && c.cost <= spirit &&
+        c.cost <= budget.thisTurnMax && !usedIds.has(c.id)
       );
       if (supports.length === 0) break;
 
-      // 优选增伤/效果辅助
       const bestSupport = this._pickBestSupport(supports, gameState);
       if (!bestSupport) break;
 
       useCard(bestSupport);
     }
 
-    // ==========================================================
-    // 7. 剩余精神力打其他卡（领域/召唤补充）
-    // ==========================================================
-    const remaining = hand.filter(c => c.cost <= spirit && !usedIds.has(c.id));
-    if (remaining.length > 0 && this.difficulty === 'hard') {
-      // hard难度额外尝试
-      // 如果还有领域卡没打也试一下（之前可能因为匹配跳过）
-      const extraDomain = remaining.find(
-        c => c.type === 'domain' && !self.fieldDomain
+    // === 第 10 步：hard 难度额外补充 ===
+    if (spirit > 0 && this.difficulty === 'hard') {
+      const remaining = activeHand.filter(
+        c => c.cost <= spirit && !usedIds.has(c.id) && c.cost <= budget.thisTurnMax
       );
-      if (extraDomain && useCard(extraDomain)) {
-        // 已打出
+
+      if (!self.fieldDomain) {
+        const extraDomain = remaining.find(c => c.type === 'domain');
+        if (extraDomain) useCard(extraDomain);
       }
 
-      // 未满召唤物
       if (self.fieldSummons.length < 2 && spirit >= 20) {
         const extraSummon = remaining.find(c => c.type === 'summon');
         if (extraSummon) useCard(extraSummon);
@@ -333,18 +1150,13 @@ class AIEngine {
     return decisions;
   }
 
-  /**
-   * 逐张出牌模式：获取AI的下一张出牌决策
-   * 首次调用自动生成全部决策队列，后续逐个弹出
-   * 当AI剩余精神力因外部事件（如对方光速传播出牌）变化时，
-   * 会自动跳过费用不足的决策
-   * @returns {{ cardId: string, target: string } | null}
-   */
+  // ==========================================================
+  // 逐张出牌模式（不变）
+  // ==========================================================
   getNextPlayDecision() {
     if (!this.pendingDecisions || this.pendingDecisions.length === 0) {
       this.pendingDecisions = this.makePlayDecision();
     }
-    // 弹出下一张，同时检查是否仍有足够精神力
     while (this.pendingDecisions.length > 0) {
       const decision = this.pendingDecisions.shift();
       const self = this._getSelf();
@@ -352,20 +1164,16 @@ class AIEngine {
       if (card && self.spirit >= card.cost) {
         return decision;
       }
-      // 精神力不足，跳过这张
     }
     return null;
   }
 
-  /**
-   * 重置出牌决策队列（新回合开始时调用）
-   */
   resetPlayDecisions() {
     this.pendingDecisions = null;
   }
 
   // ==========================================================
-  // easy难度：随机出牌
+  // easy难度：随机出牌（不变）
   // ==========================================================
   _makeRandomDecision(hand, spirit) {
     const decisions = [];
@@ -385,7 +1193,6 @@ class AIEngine {
     return decisions;
   }
 
-  /** 随机选择攻击目标 */
   _randomTarget() {
     const opp = this._getOpp();
     const targets = ['player'];
@@ -398,15 +1205,6 @@ class AIEngine {
   // ==========================================================
   // 攻击性价比评估 —— getBestAttack()
   // ==========================================================
-
-  /**
-   * 选择性价比最高的攻击卡
-   * 性价比 = 预期伤害 / 费用，考虑领域加成、召唤物加成、条件触发
-   * @param {Array} hand - 可选攻击卡列表
-   * @param {number} spirit - 剩余精神力
-   * @param {object} gameState - 游戏状态
-   * @returns {object|null} 最优攻击卡
-   */
   getBestAttack(hand, spirit, gameState) {
     if (hand.length === 0) return null;
     const self = this._getSelf();
@@ -415,54 +1213,39 @@ class AIEngine {
     const scored = hand.map(card => {
       let value = this._estimateAttackDamage(card);
 
-      // 附加价值：消灭驻场卡
       const special = card.effect.special || '';
       if (special.includes('消灭') && special.includes('驻场')) {
         if (opp.fieldSupports.length > 0 || opp.fieldDomain) {
-          value += 30; // 消灭驻场卡额外价值
+          value += 30;
         }
       }
-
-      // 附加价值：灼烧
       if (card.effect.burnLayers) {
         value += card.effect.burnLayers * 20;
       }
-
-      // 附加价值：子弹回卡
       if (special.includes('弹回')) {
         value += 25;
       }
-
-      // 附加价值：查看手牌
       if (special.includes('查看') && special.includes('手牌')) {
         value += 15;
       }
-
-      // 附加价值：偷取精神力
       if (special.includes('偷取') && special.includes('精神力')) {
         value += 20;
       }
-
-      // 特殊负面卡避免打（对己方有害的辅助卡、会摧毁自己辅助的攻击）
-      if (card.id === 'A49' && self.fieldSupports.filter(s => s.card.domain.includes('电')).length < 3) {
-        value *= 0.7; // A49过载放电条件不足时贬值
+      if (card.id === 'A49' &&
+          self.fieldSupports.filter(s => s.card.domain.includes('电')).length < 3) {
+        value *= 0.7;
       }
 
-      // 性价比分数
       const efficiency = value / Math.max(1, card.cost);
-
       return { card, efficiency, value };
     });
 
-    // 排序：性价比高的优先
     scored.sort((a, b) => b.efficiency - a.efficiency);
 
-    // hard难度额外考虑后续回合规划
     if (this.difficulty === 'hard') {
-      // 如果有两个攻击卡分数相近，优先选费用低+伤害稳定的
-      if (scored.length >= 2 && Math.abs(scored[0].efficiency - scored[1].efficiency) < 1.0) {
+      if (scored.length >= 2 &&
+          Math.abs(scored[0].efficiency - scored[1].efficiency) < 1.0) {
         if (scored[1].card.cost < scored[0].card.cost) {
-          // 低费优先以保留精神力
           return scored[1].card;
         }
       }
@@ -471,11 +1254,9 @@ class AIEngine {
     return scored[0]?.card || null;
   }
 
-  /**
-   * 估算攻击卡预期伤害（考虑当前场上状态）
-   * @param {object} card - 攻击卡对象
-   * @returns {number} 预期伤害估计
-   */
+  // ==========================================================
+  // 估算攻击卡伤害
+  // ==========================================================
   _estimateAttackDamage(card) {
     const self = this._getSelf();
     const opp = this._getOpp();
@@ -487,9 +1268,10 @@ class AIEngine {
       if (dCard.effect.bonusDmg && card.domain.some(d => dCard.domain.includes(d))) {
         dmg += dCard.effect.bonusDmg;
       }
-      // D02声领域特殊加成
       if (dCard.id === 'D02' && card.domain.includes('声')) {
-        const soundCount = self.fieldSupports.filter(s => s.card.domain.includes('声')).length;
+        const soundCount = self.fieldSupports.filter(
+          s => s.card.domain.includes('声')
+        ).length;
         dmg += soundCount * 8;
       }
     }
@@ -502,15 +1284,12 @@ class AIEngine {
           dmg += s.card.effect.dmgBonus;
         }
       }
-      // 安培(C14)：每层麻痹+2电攻
       if (s.card.id === 'C14' && card.domain.includes('电')) {
         dmg += opp.paralysis * 2;
       }
-      // 瓦特(C13)：每层灼烧+3热攻
       if (s.card.id === 'C13' && card.domain.includes('热')) {
         dmg += opp.burnLayers * 3;
       }
-      // 伽利略(C09)：每驻场辅助+3光攻
       if (s.card.id === 'C09' && card.domain.includes('光')) {
         dmg += self.fieldSupports.length * 3;
       }
@@ -518,7 +1297,9 @@ class AIEngine {
 
     // 串联增压（电系）
     if (card.domain.includes('电')) {
-      const elecCount = self.fieldSupports.filter(s => s.card.domain.includes('电')).length;
+      const elecCount = self.fieldSupports.filter(
+        s => s.card.domain.includes('电')
+      ).length;
       dmg += elecCount * 15;
     }
 
@@ -532,7 +1313,8 @@ class AIEngine {
         dmg += opp.burnLayers * (cond.bonusDmg || 0);
       }
       if (cond.condition.includes('对方场上每张卡')) {
-        const df = opp.fieldSummons.length + (opp.fieldDomain ? 1 : 0) + opp.fieldSupports.length;
+        const df = opp.fieldSummons.length + (opp.fieldDomain ? 1 : 0) +
+          opp.fieldSupports.length;
         dmg += df * (cond.bonusDmg || 0);
       }
       if (cond.condition.includes('己方有') && cond.condition.includes('领域')) {
@@ -544,155 +1326,44 @@ class AIEngine {
         if (ec >= (m ? parseInt(m[1]) : 1)) dmg += cond.bonusDmg || 0;
       }
       if (cond.condition.includes('已受电系伤害')) {
-        // A48静电爆发：后续电击可触发，预估50%概率
         dmg += Math.floor((cond.bonusDmg || 0) * 0.5);
       }
     }
 
-    // 特殊攻击预估
+    // 特殊攻击卡预估
     if (card.id === 'A02') {
-      // 惯性冲锋：上回合力系伤害50%额外
       dmg += Math.floor((self.totalForceDmg || 0) * 0.5);
     }
     if (card.id === 'A08') {
-      // 做功打击：附加已损失HP的10%
       const lostHp = self.maxHp - opp.hp;
       dmg += Math.floor(lostHp * 0.1);
     }
     if (card.id === 'A54') {
-      // 爆燃：引爆灼烧层数
       const burnDmg = opp.burnLayers * 48;
       dmg += burnDmg;
     }
     if (card.id === 'A51') {
-      // 声速激增：下回声系攻击+buff
       dmg += opp.burnLayers * 6;
     }
     if (card.id === 'A41') {
-      // 太阳能聚变：热领域+70
       if (self.fieldDomain?.card?.domain?.includes('热')) {
         dmg += 70;
       }
     }
     if (card.id === 'A53') {
-      // 镜面回声：声光+10
-      dmg += 10; // 预估附加
+      dmg += 10;
     }
 
     // 答题增益
     const quizBonus = (this.engine.quizResult?.bonus || 0);
     dmg = Math.floor(dmg * (1 + quizBonus));
 
-    // 临界突破(T02)翻倍效果：硬难度考虑
-    // 此处不处理，因为T02在出牌前就已打出
-
     return dmg;
   }
 
   // ==========================================================
-  // 组合检测 —— getBestCombo()
+  // 最优攻击目标 —— getBestTarget()（增强）
   // ==========================================================
-
-  /**
-   * 寻找手牌中的最佳辅助→攻击组合
-   * @param {Array} hand - 手牌列表
-   * @param {number} spirit - 精神力
-   * @param {Set} usedIds - 已使用的卡牌ID
-   * @param {object} gameState - 游戏状态
-   * @returns {object|null} { supportCardId, attackCardId, target, bonusDmg }
-   */
-  getBestCombo(hand, spirit, usedIds, gameState) {
-    if (this.difficulty === 'easy') return null;
-
-    const opp = this._getOpp();
-    const available = hand.filter(c => !usedIds.has(c.id));
-
-    // 收集所有可用的辅助卡和攻击卡
-    const supports = available.filter(c => c.type === 'support');
-    const attacks = available.filter(c => c.type === 'attack');
-
-    let bestCombo = null;
-    let bestValue = 0;
-
-    for (const support of supports) {
-      const comboInfo = KNOWN_COMBOS[support.id];
-      if (!comboInfo) continue;
-
-      // 单攻击组合
-      if (comboInfo.attackId) {
-        const attack = attacks.find(a => a.id === comboInfo.attackId);
-        if (attack && support.cost + attack.cost <= spirit) {
-          const value = comboInfo.bonusDmg || 15;
-          if (value > bestValue) {
-            bestValue = value;
-            const target = this._getTargetForComboAttack(attack.id, opp);
-            bestCombo = {
-              supportCardId: support.id,
-              attackCardId: attack.id,
-              target,
-              bonusDmg: comboInfo.bonusDmg || 0
-            };
-          }
-        }
-      }
-
-      // 多攻击组合
-      if (comboInfo.attackIds) {
-        for (const atkId of comboInfo.attackIds) {
-          const attack = attacks.find(a => a.id === atkId);
-          if (attack && support.cost + attack.cost <= spirit) {
-            // 多攻击组合保守估值
-            const value = (comboInfo.bonusFor?.[atkId]?.bonusDmg) || 20;
-            if (value > bestValue) {
-              bestValue = value;
-              const target = this._getTargetForComboAttack(attack.id, opp);
-              bestCombo = {
-                supportCardId: support.id,
-                attackCardId: attack.id,
-                target,
-                bonusDmg: comboInfo.bonusFor?.[atkId]?.bonusDmg || 0
-              };
-            }
-          }
-        }
-      }
-    }
-
-    return bestCombo;
-  }
-
-  /**
-   * 为组合攻击选择目标
-   */
-  _getTargetForComboAttack(attackId, opp) {
-    // 灭杀型攻击优先打召唤物
-    if (SUMMON_ELIMINATOR_IDS.has(attackId) && opp.fieldSummons.length > 0) {
-      // 找HP最低的召唤物
-      let minHp = Infinity;
-      let minIdx = 0;
-      for (let i = 0; i < opp.fieldSummons.length; i++) {
-        if (opp.fieldSummons[i].hp < minHp) {
-          minHp = opp.fieldSummons[i].hp;
-          minIdx = i;
-        }
-      }
-      return `summon_${minIdx}`;
-    }
-    return 'player';
-  }
-
-  // ==========================================================
-  // 最优攻击目标 —— getBestTarget()
-  // ==========================================================
-
-  /**
-   * 选择最优攻击目标
-   * 对方有召唤物时，优先消灭低HP召唤物
-   * 灭杀型攻击卡优先打召唤物
-   * @param {object} attackCard - 攻击卡对象
-   * @param {object} gameState - 游戏状态
-   * @returns {string} 目标标识 "player"|"summon_N"
-   */
   getBestTarget(attackCard, gameState) {
     const opp = this._getOpp();
 
@@ -702,7 +1373,6 @@ class AIEngine {
 
     // 灭杀型攻击卡：优先消灭召唤物
     if (SUMMON_ELIMINATOR_IDS.has(attackCard.id)) {
-      // 找HP最低的召唤物
       let minHp = Infinity;
       let minIdx = 0;
       for (let i = 0; i < opp.fieldSummons.length; i++) {
@@ -714,40 +1384,34 @@ class AIEngine {
       return `summon_${minIdx}`;
     }
 
-    // 估算伤害
     const estDmg = this._estimateAttackDamage(attackCard);
 
-    // 硬难度：判断是否能击杀召唤物
     if (this.difficulty === 'hard') {
       for (let i = 0; i < opp.fieldSummons.length; i++) {
         const summon = opp.fieldSummons[i];
         if (estDmg >= summon.hp && summon.hp > 0) {
-          // 优先击杀惠更斯(C11，有闪避的)
-          if (summon.card.id === 'C11') {
-            return `summon_${i}`;
-          }
-          // 优先击杀芝诺龟(C01，伤害减半的)
-          if (summon.card.id === 'C01') {
-            return `summon_${i}`;
-          }
-          // 能单次击杀的低HP召唤物
-          if (summon.hp <= 150) {
-            return `summon_${i}`;
-          }
+          // 优先击杀高价值召唤物
+          if (summon.card.id === 'C11') return `summon_${i}`;
+          if (summon.card.id === 'C01') return `summon_${i}`;
+          if (summon.card.id === 'C02') return `summon_${i}`;
+          if (summon.hp <= 150) return `summon_${i}`;
         }
       }
 
-      // normal/hard: 范围攻击考虑
-      // 对方有惠更斯(闪避效果)优先攻击玩家（避免被闪避）
+      // 对手有高威胁召唤物时优先攻击
+      for (let i = 0; i < opp.fieldSummons.length; i++) {
+        const s = opp.fieldSummons[i];
+        if ((s.card?.effect?.dmgBonus || 0) >= HIGH_THREAT_SUMMON_DMG) {
+          return `summon_${i}`;
+        }
+      }
+
       if (opp.fieldSummons.some(s => s.card.id === 'C11')) {
-        // 如果达不到惠更斯HP或者不是关键卡，打玩家
         return 'player';
       }
     }
 
-    // normal难度：简单判断
     if (this.difficulty === 'normal') {
-      // 仅当攻击卡为灭杀型或召唤物HP极低时打召唤物
       const weakSummonIdx = opp.fieldSummons.findIndex(s => s.hp <= 60);
       if (weakSummonIdx >= 0) {
         return `summon_${weakSummonIdx}`;
@@ -760,13 +1424,6 @@ class AIEngine {
   // ==========================================================
   // 辅助卡挑选 —— _pickBestSupport()
   // ==========================================================
-
-  /**
-   * 从可用的辅助卡中选择当前最有价值的
-   * @param {Array} supports - 可选辅助卡列表
-   * @param {object} gameState - 游戏状态
-   * @returns {object|null} 最优辅助卡
-   */
   _pickBestSupport(supports, gameState) {
     if (supports.length === 0) return null;
 
@@ -776,22 +1433,16 @@ class AIEngine {
     const scored = supports.map(card => {
       let value = 0;
 
-      // 增伤辅助：高价值
       if (card.effect.buffDmg) {
         value += card.effect.buffDmg * 1.5;
       }
-
-      // 防御辅助
       if (card.effect.defense) {
         value += card.effect.defense.value || 20;
       }
-
-      // 精神力恢复
       if (card.effect.spiritRestore) {
         value += card.effect.spiritRestore * 1.2;
       }
 
-      // 特殊效果评分
       const special = card.effect.special || '';
       if (special.includes('附加') && special.includes('灼烧')) {
         const match = special.match(/(\d+)层灼烧/);
@@ -800,27 +1451,27 @@ class AIEngine {
       if (special.includes('查看') && special.includes('手牌')) {
         value += 20;
       }
+      // 消灭驻场
+      if (special.includes('消灭') && special.includes('驻场')) {
+        if (opp.fieldSupports.length > 0 || opp.fieldDomain) {
+          value += 35;
+        }
+      }
 
-      // 需要条件才能发动的辅助卡降分
       if (card.id === 'S18' || card.id === 'S20') {
-        // 需要自身灼烧≥2
         if (self.burnLayers < 2) value *= 0.3;
       }
       if (card.id === 'S27') {
-        // 需要牺牲电辅助
         const hasElec = self.fieldSupports.some(s => s.card.domain.includes('电'));
         if (!hasElec) value = 0;
       }
       if (card.id === 'S35') {
-        // 需要对方场上有卡
         const oppHasField = opp.fieldSummons.length > 0 ||
           opp.fieldDomain || opp.fieldSupports.length > 0;
         if (!oppHasField) value *= 0.3;
       }
 
-      // 效率分数
       const efficiency = value / Math.max(1, card.cost);
-
       return { card, efficiency, value };
     });
 
@@ -829,15 +1480,8 @@ class AIEngine {
   }
 
   // ==========================================================
-  // 卡牌价值评估 —— evaluateCardValue()
+  // 卡牌价值评估 —— evaluateCardValue()（增强）
   // ==========================================================
-
-  /**
-   * 评估卡牌在当前游戏状态下的整体价值
-   * @param {object} card - 卡牌对象
-   * @param {object} gameState - 游戏状态
-   * @returns {number} 价值分数
-   */
   evaluateCardValue(card, gameState) {
     const self = this._getSelf();
     const opp = this._getOpp();
@@ -846,39 +1490,45 @@ class AIEngine {
     switch (card.type) {
       case 'attack':
         value = this._estimateAttackDamage(card) * 1.0;
-        // 特殊效果加成
         if (card.effect.burnLayers) value += card.effect.burnLayers * 15;
         if (card.id === 'A31') {
-          // 共振爆破：对方场上卡越多越值
-          const oppField = opp.fieldSummons.length + (opp.fieldDomain ? 1 : 0) + opp.fieldSupports.length;
+          const oppField = opp.fieldSummons.length + (opp.fieldDomain ? 1 : 0) +
+            opp.fieldSupports.length;
           value += oppField * 40;
         }
         break;
 
       case 'support':
-        value = 20; // 基础值
+        value = 20;
         if (card.effect.buffDmg) value += card.effect.buffDmg * 1.5;
         if (card.effect.defense) value += (card.effect.defense.value || 15);
         if (card.effect.spiritRestore) value += card.effect.spiritRestore * 1.2;
-        if (card.id === 'S16') value += 35; // X射线强
-        if (card.id === 'S29') value += 40; // 高压击穿强
-        if (card.id === 'S31') value += 35; // 多路放电强
+        if (card.id === 'S16') value += 35;
+        if (card.id === 'S29') value += 40;
+        if (card.id === 'S31') value += 35;
+        // combo 潜力加分
+        if (this._comboIndex.getCombosForCard(card.id).length > 0) {
+          value += 15;
+        }
         break;
 
       case 'domain':
         value = 50;
-        if (self.fieldDomain) value = 15; // 已有领域时价值降低
-        // 匹配主领域加分
+        if (self.fieldDomain) value = 15;
         if (card.domain.some(d => d === self.domain.main)) value += 20;
         break;
 
       case 'summon':
         value = 40;
         if (self.fieldSummons.length >= 2) value = 10;
-        if (card.id === 'C01') value += 20; // 芝诺龟强防守
-        if (card.id === 'C02') value += 15; // 麦克斯韦妖资源
-        if (card.id === 'C04') value += 10; // 薛定谔的猫随机
-        if (card.id === 'C07') value += 15; // 欧姆减费
+        if (card.id === 'C01') value += 20;
+        if (card.id === 'C02') value += 15;
+        if (card.id === 'C04') value += 10;
+        if (card.id === 'C07') value += 15;
+        // combo 潜力加分
+        if (this._comboIndex.getCurCardsForPrev(card.id).length > 0) {
+          value += 20;
+        }
         break;
 
       case 'phase':
@@ -889,7 +1539,6 @@ class AIEngine {
         break;
     }
 
-    // 费用惩罚高费卡
     const costPenalty = card.cost * 0.5;
     value = Math.max(0, value - costPenalty);
 
@@ -897,13 +1546,8 @@ class AIEngine {
   }
 
   // ==========================================================
-  // 弃牌决策 —— _handleDiscard()
+  // 弃牌决策 —— _handleDiscard()（增强）
   // ==========================================================
-
-  /**
-   * AI处理弃牌阶段
-   * 手牌超过5张时选择最差的牌丢弃
-   */
   _handleDiscard() {
     const self = this._getSelf();
     const maxSize = 5;
@@ -913,73 +1557,59 @@ class AIEngine {
     const gameState = this._getGameState();
     const toDiscard = self.hand.length - maxSize;
 
-    // 评估所有手牌价值
     const scored = self.hand.map((card, idx) => ({
       card,
       idx,
       value: this.evaluateCardValue(card, gameState)
     }));
 
-    // 按价值升序排列（最差的在前）
     scored.sort((a, b) => a.value - b.value);
-
-    // 需要弃置的索引（取最差的toDiscard张）
     const discardIndices = scored.slice(0, toDiscard).map(s => s.idx);
-
     this.engine.discardPhase(discardIndices);
   }
 
   // ==========================================================
-  // 是否保留卡牌 —— shouldHoldCard()
+  // 是否保留卡牌 —— shouldHoldCard()（增强：使用真实 COMBO_TABLE）
   // ==========================================================
-
-  /**
-   * 判断是否应保留该卡牌（不弃置）
-   * 用于hard难度：保留组合关键牌
-   * @param {object} card - 卡牌对象
-   * @returns {boolean} 是否保留
-   */
   shouldHoldCard(card) {
     if (this.difficulty !== 'hard') return true;
 
     const self = this._getSelf();
+    const comboIndex = this._comboIndex;
 
     // 保留领域卡（如果还没有领域）
     if (card.type === 'domain' && !self.fieldDomain) return true;
 
     // 保留相变卡（HP危险时）
     if (card.type === 'phase') {
-      if (card.id === 'T02' && self.hp < self.maxHp * 0.4) return true;
-      if (card.id === 'T03' && self.hp < self.maxHp * 0.4) return true;
+      const hpRatio = self.hp / self.maxHp;
+      if (card.id === 'T02' && hpRatio < 0.4) return true;
+      if (card.id === 'T03' && hpRatio < 0.4) return true;
     }
 
-    // 保留组合关键卡：检查手牌中是否有配套
-    if (KNOWN_COMBOS[card.id]) {
-      // 这是一张辅助卡，检查手牌中是否有对应攻击卡
-      const comboInfo = KNOWN_COMBOS[card.id];
-      const attackId = comboInfo.attackId;
-      const attackIds = comboInfo.attackIds;
-      if (attackId) {
-        const hasAttack = self.hand.some(c => c.id === attackId);
-        if (hasAttack) return true;
-      }
-      if (attackIds) {
-        const hasAny = self.hand.some(c => attackIds.includes(c.id));
-        if (hasAny) return true;
+    // 使用真实 COMBO_TABLE 检查 combo 关键牌
+    const combos = comboIndex.getCombosForCard(card.id);
+    if (combos.length > 0) {
+      // 检查手牌中是否有配套卡
+      for (const comboKey of combos) {
+        const entry = comboIndex.queryCombo(card.id,
+          // 尝试找到配对卡
+          ...(comboIndex.getCurCardsForPrev(card.id))
+        );
+        // 简化检查：如果该卡的任何 combo 配对存在于手牌中则保留
+        const pairIds = comboIndex.getCurCardsForPrev(card.id);
+        const hasPairInHand = self.hand.some(h => pairIds.includes(h.id));
+        if (hasPairInHand) return true;
       }
     }
 
-    // 检查此卡是否被其他辅助卡需要的攻击卡
-    for (const support of self.hand) {
-      if (support.id !== card.id && KNOWN_COMBOS[support.id]) {
-        const info = KNOWN_COMBOS[support.id];
-        if (info.attackId === card.id) return true;
-        if (info.attackIds?.includes(card.id)) return true;
-      }
-    }
+    // 检查此卡是否被其他卡需要的后续卡
+    const prevIds = comboIndex.getPrevCardsForCur(card.id);
+    const hasPrevInHand = self.hand.some(h => prevIds.includes(h.id));
+    if (hasPrevInHand) return true;
 
     // 保留高价值召唤物
-    if (card.type === 'summon' && ['C01', 'C02', 'C07'].includes(card.id)) {
+    if (card.type === 'summon' && HIGH_VALUE_SUMMONS.has(card.id)) {
       return true;
     }
 

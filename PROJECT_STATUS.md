@@ -80,9 +80,16 @@
 
 用户反馈的核心痛点，按重要性排序：
 
-### P0：AI 策略升级
-**现状**：AI 只会按最高伤害出牌，无 combo 意识、无防守策略、无手牌管理。
-**目标**：AI 能识别 combo 机会、管理精神力、根据局势选择攻守。
+### P0：AI 策略升级 ✅ 完成
+**完成内容**：AI 引擎全面重构（ai.js v2.0），7 大模块升级：
+1. **ComboIndex** — 导入真实 COMBO_TABLE（35 个 combo）替代硬编码 KNOWN_COMBOS（11 个），支持支撑→攻击/攻击→攻击/召唤→攻击/召唤对冲/跨领域对抗五种模式
+2. **ThreatAssessor** — 威胁评估系统（对手进攻力 + combo 潜力 + 己方脆弱度 + 驻场威胁 + DOT 累计）
+3. **SpiritBudgetManager** — 精神力预算（full_send/balanced/save 三档，hard 难度精确分配）
+4. **DefensePlanner** — 防守策略（HP 阈值 + 高威胁召唤物 + DOT 致命 + 关键召唤物保护）
+5. **ComboDetector** — 多模式 combo 搜索（5 种模式，按评分排序）
+6. **AttackEvaluator** — 增强攻击卡评估（引入威胁权重）
+7. **MultiTurnPlanner** — 多回合规划（hard 难度蓄力→下回合爆发）
+- **测试结果**：34 项全部通过，50 局 AI 对战 0 崩溃，combo 触发率 92%
 
 ### P1：出牌体验优化
 **现状**：出牌是瞬发，无动画、无音效、无视觉反馈，跟炉石传说的体验差距大。
