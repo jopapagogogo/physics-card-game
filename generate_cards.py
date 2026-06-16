@@ -34,8 +34,10 @@ def parse_card(text_block):
     # rarity
     m = re.search(r'rarity:\s*"([^"]*)"', text_block)
     if m: info['rarity'] = m.group(1)
-    # desc
-    m = re.search(r'desc:\s*"([^"]*)"', text_block)
+    # desc (cards.js uses "description")
+    m = re.search(r'description:\s*"([^"]*)"', text_block)
+    if not m:
+        m = re.search(r'desc:\s*"([^"]*)"', text_block)
     if m: info['desc'] = m.group(1)
     # principle
     m = re.search(r'principle:\s*"([^"]*)"', text_block)
@@ -223,8 +225,8 @@ def generate_card_html(card):
     stat_num, stat_unit, hp = get_stat_info(card)
     
     art_file = final_mapping.get(cid, '')
-    if art_file and not art_file.startswith('card_art/'):
-        art_file = f'card_art/{art_file}'
+    if art_file:
+        art_file = f'art_samples/card_art/{art_file}'
     
     # Truncate desc for 90px box
     if len(desc) > 180:
