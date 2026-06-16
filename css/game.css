@@ -917,3 +917,37 @@ body {
   .card-v3 .v3-desc-effect { font-size:9.5px; }
   .card-v3 .v3-desc-principle { font-size:8px; }
 }
+
+/* ======== 拉普拉斯妖 窥牌排序弹窗 ======== */
+.scry-overlay {
+  position:fixed; inset:0; z-index:250; background:rgba(0,0,0,.75);
+  display:flex; align-items:center; justify-content:center; animation:fadeIn .2s ease;
+}
+.scry-dialog {
+  background:linear-gradient(135deg,#1a1028,#2d1a4a); border:2px solid #9333ea;
+  border-radius:16px; padding:28px 32px; min-width:380px; max-width:500px;
+  box-shadow:0 0 40px rgba(147,51,234,.3);
+}
+.scry-dialog h2 { color:#c084fc; text-align:center; font-size:20px; margin-bottom:8px; }
+.scry-hint { color:#999; text-align:center; font-size:13px; margin-bottom:20px; }
+.scry-list { list-style:none; padding:0; margin:0 0 20px; }
+.scry-item {
+  display:flex; align-items:center; gap:10px; padding:10px 14px; margin-bottom:6px;
+  background:rgba(147,51,234,.1); border:1px solid rgba(147,51,234,.25);
+  border-radius:8px; cursor:grab; transition:all .2s;
+}
+.scry-item:hover { background:rgba(147,51,234,.2); }
+.scry-item.dragging { opacity:.5; cursor:grabbing; }
+.scry-item.drag-over { border-color:#c084fc; box-shadow:0 0 12px rgba(192,132,252,.4); }
+.scry-handle { color:#666; font-size:16px; cursor:grab; flex-shrink:0; }
+.scry-order { color:#c084fc; font-weight:bold; width:24px; text-align:center; font-size:14px; }
+.scry-name { flex:1; color:#e0d0f0; font-size:14px; font-weight:600; }
+.scry-dmg { color:#f0a04d; font-size:13px; font-weight:bold; min-width:50px; text-align:right; }
+.scry-btns { display:flex; gap:12px; justify-content:center; }
+.scry-confirm, .scry-auto {
+  padding:10px 24px; border:none; border-radius:8px; font-size:14px; font-weight:bold; cursor:pointer;
+}
+.scry-confirm { background:#7c3aed; color:#fff; }
+.scry-confirm:hover { background:#9333ea; }
+.scry-auto { background:rgba(240,160,77,.15); color:#f0a04d; border:1px solid rgba(240,160,77,.3); }
+.scry-auto:hover { background:rgba(240,160,77,.25); }

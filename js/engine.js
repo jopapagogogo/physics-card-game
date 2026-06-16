@@ -304,13 +304,20 @@ class GameEngine {
       }
     }
 
-    // C03 拉普拉斯妖：每回合预览对方牌库顶5张
+    // C03 拉普拉斯妖：每回合预览对方牌库顶5张并排序
+    this._pendingScry = null;  // 清除上一回合的窥牌数据
     const c03 = player.fieldSummons.find(s => s.card.id === 'C03');
     if (c03 && opponent.deck.length > 0) {
       const scryCount = Math.min(c03.card.effect.scryOpponent || 5, opponent.deck.length);
       const topCards = opponent.deck.slice(-scryCount).reverse();
       const cardNames = topCards.map(c => c.name).join('、');
       this._addLog(`[拉普拉斯妖] 预览对方牌库顶 ${scryCount} 张：${cardNames}`);
+      // 保存窥牌数据，供UI交互使用
+      this._pendingScry = {
+        targetPlayerIdx: oIdx,
+        cards: topCards.map(c => ({ id: c.id, name: c.name, domain: c.domain, type: c.type, dmg: c.effect?.dmg || 0 })),
+        count: scryCount
+      };
     }
 
     // C10 贝尔：每回合查看对方1张手牌
@@ -537,6 +544,28 @@ class GameEngine {
     this.currentPlayer = 1 - this.currentPlayer;
     this.turnNumber++;
     this.startTurn();
+  }
+
+  /** 拉普拉斯妖：重新排序对方牌库顶部（scry） */
+  scryReorderTarget(cardIds) {
+    if (!this._pendingScry) return false;
+    const { targetPlayerIdx, count } = this._pendingScry;
+    const opponent = this.players[targetPlayerIdx];
+    if (!opponent || opponent.deck.length < count) return false;
+    if (!Array.isArray(cardIds) || cardIds.length !== count) return false;
+    const removed = opponent.deck.splice(-count, count);
+    const newCards = cardIds.map(id => {
+      const idx = removed.findIndex(c => c.id === id);
+      return idx === -1 ? null : removed[idx];
+    });
+    if (newCards.includes(null)) {
+      opponent.deck.push(...removed);
+      return false;
+    }
+    opponent.deck.push(...newCards.reverse());
+    this._addLog('[拉普拉斯妖] 已重新排列对方牌库顶部。');
+    this._pendingScry = null;
+    return true;
   }
 
   // ==========================================================

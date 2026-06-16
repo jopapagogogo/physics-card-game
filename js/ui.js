@@ -486,6 +486,18 @@ class GameUI {
     if (this.phase === 'gameover') return;
 
     this.engine.startTurn();
+    
+    // 拉普拉斯妖窥牌排序
+    if (this.engine._pendingScry) {
+      this._showScryModal().then(() => {
+        this._continuePlayerTurn();
+      });
+      return;
+    }
+    this._continuePlayerTurn();
+  }
+  
+  _continuePlayerTurn() {
     this.phase = 'quiz';
     this.selectedCard = null;
     this.lastPlayedCard = null;
@@ -1739,6 +1751,9 @@ class GameUI {
     try {
       this.addLogMessage('AI正在思考...');
 
+      // AI自动处理拉普拉斯妖窥牌（按伤害降序排列）
+      this._autoScryAI();
+
       // ─── AI 阶段 1: 答题 ───
       const quiz = this.ai.simulateQuiz();
       this.engine.setQuizResult(quiz.correct, quiz.total);
@@ -1840,6 +1855,54 @@ class GameUI {
     }
 
     this._afterAITurn();
+  }
+
+  /** AI自动处理拉普拉斯妖窥牌：按伤害降序排列 */
+  _autoScryAI() {
+    if (!this.engine._pendingScry) return;
+    const scry = this.engine._pendingScry;
+    const ordered = [...scry.cards].sort((a, b) => b.dmg - a.dmg);
+    this.engine.scryReorderTarget(ordered.map(c => c.id));
+  }
+
+  /** 玩家侧拉普拉斯妖窥牌排序弹窗 */
+  async _showScryModal() {
+    if (!this.engine._pendingScry) return false;
+    const scry = this.engine._pendingScry;
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'scry-overlay';
+      overlay.innerHTML = '<div class="scry-dialog"><h2>🔮 拉普拉斯妖 · 窥牌排序</h2><p class="scry-hint">拖拽调整对方牌库顶部 ' + scry.cards.length + ' 张牌的顺序，然后点击确认</p><ul class="scry-list" id="scry-list"></ul><div class="scry-btns"><button class="scry-auto" id="scry-auto-dmg">⚔️ 伤害降序</button><button class="scry-confirm" id="scry-confirm">✅ 确认排序</button></div></div>';
+      document.body.appendChild(overlay);
+      const list = overlay.querySelector('#scry-list');
+      let order = [...scry.cards];
+      function renderList() {
+        list.innerHTML = '';
+        order.forEach((card, idx) => {
+          const li = document.createElement('li');
+          li.className = 'scry-item';
+          li.draggable = true;
+          li.dataset.idx = idx;
+          li.innerHTML = '<span class="scry-handle">☰</span><span class="scry-order">' + (idx + 1) + '</span><span class="scry-name">' + card.name + '</span><span class="scry-dmg">' + (card.dmg > 0 ? '⚔' + card.dmg : '') + '</span>';
+          li.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', idx.toString()); li.classList.add('dragging'); });
+          li.addEventListener('dragend', () => li.classList.remove('dragging'));
+          li.addEventListener('dragover', (e) => { e.preventDefault(); li.classList.add('drag-over'); });
+          li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+          li.addEventListener('drop', (e) => {
+            e.preventDefault(); li.classList.remove('drag-over');
+            const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+            if (fromIdx !== idx) { const [moved] = order.splice(fromIdx, 1); order.splice(idx, 0, moved); renderList(); }
+          });
+          list.appendChild(li);
+        });
+      }
+      renderList();
+      overlay.querySelector('#scry-confirm').addEventListener('click', () => {
+        this.engine.scryReorderTarget(order.map(c => c.id));
+        overlay.remove(); resolve(true);
+      });
+      overlay.querySelector('#scry-auto-dmg').addEventListener('click', () => { order.sort((a, b) => b.dmg - a.dmg); renderList(); });
+    });
   }
 
   /**
