@@ -245,9 +245,8 @@ def generate_card_html(card):
     
     hp_html = f'<div class="hp-stat"><span>❤</span><span class="hp-num">{hp}</span></div>' if hp else ''
     
-    # Determine if expand button needed
-    needs_expand = len(desc) > 180
-    expand_btn = '<span class="desc-expand" onclick="this.parentElement.parentElement.classList.toggle(\'expanded\');this.textContent=this.parentElement.parentElement.classList.contains(\'expanded\')?\'▲\':\'▼\'">▼</span>' if needs_expand else ''
+    # Always add expand/collapse button
+    expand_btn = '<span class="desc-expand" onclick="event.stopPropagation();var b=this.parentElement;b.classList.toggle(\'expanded\');this.textContent=b.classList.contains(\'expanded\')?\'▲ 收起\':\'▼ 展开\'">▼ 展开</span>'
     
     return f'''
     <!-- {cid} {name} -->
@@ -457,8 +456,8 @@ html = f'''<!DOCTYPE html>
   .hp-stat .hp-num{{font-weight:800;font-size:.9em;color:var(--summon-hp)}}
   .card-desc-box{{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);min-height:90px;height:90px;overflow:hidden;transition:height .35s ease}}
   .card-desc-box.expanded{{height:auto}}
-  .desc-expand{{position:absolute;bottom:2px;right:10px;cursor:pointer;font-size:10px;color:rgba(255,255,255,.4);background:rgba(0,0,0,.6);padding:1px 8px;border-radius:3px;user-select:none;z-index:5}}
-  .desc-expand:hover{{color:#fff;background:rgba(255,255,255,.1)}}
+  .desc-expand{{position:absolute;bottom:2px;right:8px;cursor:pointer;font-size:11px;color:rgba(255,255,255,.5);background:rgba(0,0,0,.7);padding:2px 10px;border-radius:3px;user-select:none;z-index:5;pointer-events:auto}}
+  .desc-expand:hover{{color:#fff;background:rgba(120,80,255,.3)}}
   .card.force .card-desc-box{{border-left:2px solid rgba(231,76,60,.4)}}
   .card.electric .card-desc-box{{border-left:2px solid rgba(155,89,182,.4)}}
   .card.sound .card-desc-box{{border-left:2px solid rgba(22,160,133,.4)}}
