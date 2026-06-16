@@ -479,10 +479,25 @@ class GameUI {
         stats[d] = (stats[d] || 0) + 1;
         totalDmg += c.effect?.dmg || 0;
       }
+      // 领域统计（包括主副领域检查）
+      let mainCount = 0, subCount = 0, otherCount = 0;
+      for (const id of selected) {
+        const c = allCards.find(card => card.id === id);
+        if (!c) continue;
+        const hasMain = this._cardHasDomain(c, this.mainDomain);
+        const hasSub = this._cardHasDomain(c, this.subDomain);
+        if (hasMain && hasSub) { mainCount++; subCount++; }
+        else if (hasMain) mainCount++;
+        else if (hasSub) subCount++;
+        else otherCount++;
+      }
       const statHTML = Object.entries(stats).map(([d, c]) =>
         `<span style="color:${colorMap[d] || '#888'}">${d}×${c}</span>`
       ).join(' ');
-      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}`;
+      const validMain = mainCount >= subCount && mainCount >= otherCount;
+      const validPct = mainCount + subCount >= Math.ceil(selected.size * 0.6);
+      const ruleIcon = validMain && validPct ? '✅' : '⚠️';
+      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount} · 副${subCount} · 其他${otherCount} (需主≥副≥其他，主+副≥60%)`;
     }
 
     function updateCount() {
@@ -510,7 +525,36 @@ class GameUI {
 
     overlay.querySelector('#db-save').addEventListener('click', () => {
       if (selected.size < MIN_CARDS) return;
-      this.customDeck = [...selected];
+      
+      // 领域验证：主领域卡 ≥ 副领域卡，且均≥其他领域
+      const self = this;
+      const ids = [...selected];
+      let mainCount = 0, subCount = 0, otherCount = 0;
+      for (const id of ids) {
+        const c = allCards.find(card => card.id === id);
+        if (!c) continue;
+        const hasMain = self._cardHasDomain(c, self.mainDomain);
+        const hasSub = self._cardHasDomain(c, self.subDomain);
+        if (hasMain && hasSub) { mainCount++; subCount++; }
+        else if (hasMain) mainCount++;
+        else if (hasSub) subCount++;
+        else otherCount++;
+      }
+      
+      if (mainCount < subCount) {
+        alert('主领域「' + self.mainDomain + '」卡牌(' + mainCount + '张)不能少于副领域「' + self.subDomain + '」卡牌(' + subCount + '张)！');
+        return;
+      }
+      if (mainCount < otherCount) {
+        alert('主领域卡牌(' + mainCount + '张)必须是卡组中数量最多的！\n当前其他领域卡牌: ' + otherCount + '张');
+        return;
+      }
+      if (mainCount + subCount < Math.ceil(selected.size * 0.6)) {
+        alert('主领域+副领域卡牌至少占卡组的60%！\n当前: ' + Math.round((mainCount+subCount)/selected.size*100) + '%');
+        return;
+      }
+      
+      this.customDeck = ids;
       this._updateStartButton();
       overlay.remove();
     });
