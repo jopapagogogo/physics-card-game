@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prev 卡牌插画配对审核 (46张)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0a1a; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px; }
+h1 { text-align: center; color: #fff; margin-bottom: 8px; font-size: 24px; }
+.subtitle { text-align: center; color: #888; margin-bottom: 20px; font-size: 14px; }
+.toolbar { position: sticky; top: 0; z-index: 100; background: #111133; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; margin-bottom: 20px; border-radius: 8px; }
+.toolbar .counts { color: #aaa; font-size: 14px; }
+.toolbar button { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
+.btn-export { background: #4CAF50; color: white; }
+.btn-export:hover { background: #45a049; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+.card { background: #161630; border-radius: 12px; padding: 16px; border: 1px solid #2a2a4a; transition: all 0.3s; }
+.card.accepted { border-color: #4CAF50; background: #162016; }
+.card.rejected { border-color: #f44336; background: #201616; }
+.card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.cid { background: #333; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+.name { font-size: 16px; font-weight: bold; color: #fff; }
+.domain { font-size: 13px; font-weight: bold; }
+.card-body { display: flex; gap: 12px; }
+.image-container { flex: 0 0 160px; height: 220px; overflow: hidden; border-radius: 8px; background: #000; cursor: pointer; }
+.image-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.image-container:hover img { transform: scale(1.05); }
+.info { flex: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.effect { color: #ccc; line-height: 1.5; max-height: 80px; overflow-y: auto; background: #1a1a30; padding: 8px; border-radius: 6px; }
+.match-note { color: #4CAF50; font-weight: bold; }
+.file-name { color: #666; font-size: 11px; word-break: break-all; }
+.card-footer { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.card-footer button { padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+.btn-accept { background: #4CAF50; color: white; }
+.btn-accept:hover { background: #45a049; }
+.btn-reject { background: #f44336; color: white; }
+.btn-reject:hover { background: #da190b; }
+.status { font-size: 12px; font-weight: bold; margin-left: auto; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+.modal.active { display: flex; }
+.modal img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+.modal .close { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>Prev 卡牌插画配对审核</h1>
+<div class="subtitle">从现有图库中自动配对 46 张早期审批卡牌 | 力:8 | 声:8 | 光:11 | 热:9 | 电:10 | 总计: 46 张</div>
+
+<div class="toolbar">
+  <div class="counts">
+    通过: <span id="accepted-count" style="color:#4CAF50">0</span> |
+    不通过: <span id="rejected-count" style="color:#f44336">0</span> |
+    待审核: <span id="pending-count">46</span>
+  </div>
+  <button class="btn-export" onclick="exportResults()">📋 导出审核结果</button>
+</div>
+
+<div class="grid" id="card-grid">
+
+  <div class="card" id="card-A01" data-cid="A01">
+    <div class="card-header">
+      <span class="cid">A01</span>
+      <span class="name">⚡ 重力锤击</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/a01_zhonglichuiji_cyber.png" alt="重力锤击" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成75点伤害。原理：物体所受重力与质量成正比（G=mg），质量越大重力越强。</div>
+        <div class="match-note">📎 直接ID匹配 - 重力锤击</div>
+        <div class="file-name">📁 a01_zhonglichuiji_cyber.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A01')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A01')">❌ 不通过</button>
+      <span class="status" id="status-A01"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A05" data-cid="A05">
+    <div class="card-header">
+      <span class="cid">A05</span>
+      <span class="name">⚡ 重力势能</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_colossal_boulder_suspended_h_2026-06-13T02-32-35.png" alt="重力势能" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">打出后进入蓄能状态（最多4回合），每经过己方1回合蓄能高度+1。对手对己方累计造成200伤害时或持续时间结束时触发：造成(40+蓄能高度×40)伤害。触发后此卡离场。原理：物体质量越大、位置越高，重力势能越大（Ep=mgh）。</div>
+        <div class="match-note">📎 巨石高悬 - 重力势能</div>
+        <div class="file-name">📁 A_colossal_boulder_suspended_h_2026-06-13T02-32-35.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A05')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A05')">❌ 不通过</button>
+      <span class="status" id="status-A05"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A43" data-cid="A43">
+    <div class="card-header">
+      <span class="cid">A43</span>
+      <span class="name">⚡ 活塞压缩</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_massive_mechanical_piston_co_2026-06-12T17-38-06.png" alt="活塞压缩" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成41点伤害 + 为对方附加1层灼烧 + 对方下回合每张卡精神力消耗+5。原理：活塞对气体做功，压缩使气体温度升高——做功转化为内能，温度升高产生灼烧和压制。</div>
+        <div class="match-note">📎 机械活塞 - 活塞压缩</div>
+        <div class="file-name">📁 A_massive_mechanical_piston_co_2026-06-12T17-38-06.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A43')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A43')">❌ 不通过</button>
+      <span class="status" id="status-A43"></span>
+    </div>
+  </div>
+  <div class="card" id="card-D01" data-cid="D01">
+    <div class="card-header">
+      <span class="cid">D01</span>
+      <span class="name">⚡ 力之领域·引力场</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_gravitational_field_dome_war_2026-06-13T02-38-12.png" alt="力之领域·引力场" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">力系攻击卡即时伤害+25，延续伤害+5，持续3个己方回合。原理：引力场无处不在——质量越大力场越强，力系效果全面增幅。</div>
+        <div class="match-note">📎 引力场穹顶 - 力之领域</div>
+        <div class="file-name">📁 A_gravitational_field_dome_war_2026-06-13T02-38-12.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('D01')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('D01')">❌ 不通过</button>
+      <span class="status" id="status-D01"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S02" data-cid="S02">
+    <div class="card-header">
+      <span class="cid">S02</span>
+      <span class="name">⚡ 能量蓄积</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_futuristic_warrior_charging__2026-06-12T17-34-41.png" alt="能量蓄积" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">己方下次力系攻击+18伤害。原理：运动的物体具有动能（Ek=1/2mv²），能量蓄积后释放更猛烈。</div>
+        <div class="match-note">📎 战士蓄力 - 能量蓄积</div>
+        <div class="file-name">📁 A_futuristic_warrior_charging__2026-06-12T17-34-41.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S02')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S02')">❌ 不通过</button>
+      <span class="status" id="status-S02"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S03" data-cid="S03">
+    <div class="card-header">
+      <span class="cid">S03</span>
+      <span class="name">⚡ 受力面积缩小</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_needle_thin_concentrated_for_2026-06-13T02-31-39.png" alt="受力面积缩小" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">己方下次攻击+10伤害。原理：压强P=F/S，受力面积越小压强越大——集中力量于一点。</div>
+        <div class="match-note">📎 针状集中 - 受力面积缩小</div>
+        <div class="file-name">📁 A_needle_thin_concentrated_for_2026-06-13T02-31-39.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S03')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S03')">❌ 不通过</button>
+      <span class="status" id="status-S03"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S06" data-cid="S06">
+    <div class="card-header">
+      <span class="cid">S06</span>
+      <span class="name">⚡ 弹性储能</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_spring_and_rubber_band_stret_2026-06-12T17-36-21.png" alt="弹性储能" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">打出后进入储能状态（场上持续，最多4回合）。己方每打出一张力系攻击卡，将该卡实际造成伤害的30%存入储能（上限300）。时间结束或储能满时释放50%伤害。原理：弹性势能Ep=1/2kx²，弹性形变越大储能越多。</div>
+        <div class="match-note">📎 弹簧拉伸 - 弹性储能 (修正)</div>
+        <div class="file-name">📁 A_spring_and_rubber_band_stret_2026-06-12T17-36-21.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S06')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S06')">❌ 不通过</button>
+      <span class="status" id="status-S06"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A09" data-cid="A09">
+    <div class="card-header">
+      <span class="cid">A09</span>
+      <span class="name">🔊 超声清洗</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Ultrasonic_waves_blasting_dirt_2026-06-12T17-35-42.png" alt="超声清洗" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成55点伤害 + 消灭对方一张驻场卡（若无驻场卡则仅造成伤害）。原理：超声波空化效应——空化气泡破裂产生强大冲击力，能清除表面附着物。</div>
+        <div class="match-note">📎 超声波清洁 - 超声清洗</div>
+        <div class="file-name">📁 Ultrasonic_waves_blasting_dirt_2026-06-12T17-35-42.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A09')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A09')">❌ 不通过</button>
+      <span class="status" id="status-A09"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A10" data-cid="A10">
+    <div class="card-header">
+      <span class="cid">A10</span>
+      <span class="name">🔊 次声震荡</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Low_frequency_sound_waves_caus_2026-06-12T17-36-07.png" alt="次声震荡" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成45点即时伤害。持续5个己方回合，每回合结算阶段造成递增伤害：15/25/35/45/55。视为驻场卡，可被清场效果清除。原理：次声波频率<20Hz，与人体器官固有频率接近，引发共振，伤害逐步增大。</div>
+        <div class="match-note">📎 低频声波 - 次声震荡</div>
+        <div class="file-name">📁 Low_frequency_sound_waves_caus_2026-06-12T17-36-07.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A10')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A10')">❌ 不通过</button>
+      <span class="status" id="status-A10"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A13" data-cid="A13">
+    <div class="card-header">
+      <span class="cid">A13</span>
+      <span class="name">🔊 驻波共振</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Standing_wave_pattern_forming__2026-06-12T17-36-32.png" alt="驻波共振" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成70点伤害，己方场上每有一张持续生效的声系卡伤害+25。原理：驻波由入射波和反射波叠加形成，反射面越多共振效果越强。</div>
+        <div class="match-note">📎 驻波图案 - 驻波共振</div>
+        <div class="file-name">📁 Standing_wave_pattern_forming__2026-06-12T17-36-32.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A13')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A13')">❌ 不通过</button>
+      <span class="status" id="status-A13"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A31" data-cid="A31">
+    <div class="card-header">
+      <span class="cid">A31</span>
+      <span class="name">🔊 共振爆破</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_spherical_resonance_chamber__2026-06-13T14-30-58.png" alt="共振爆破" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成50点伤害 + 对方场上每有一张卡额外造成55伤害。原理：共振是受迫振动达到固有频率时振幅最大的现象——对方场上卡越多=共振面越多=破坏力越强。</div>
+        <div class="match-note">📎 球形共振腔 - 共振爆破</div>
+        <div class="file-name">📁 A_spherical_resonance_chamber__2026-06-13T14-30-58.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A31')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A31')">❌ 不通过</button>
+      <span class="status" id="status-A31"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A32" data-cid="A32">
+    <div class="card-header">
+      <span class="cid">A32</span>
+      <span class="name">🔊 声波推力</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_massive_pink_sonic_shockwave_2026-06-13T14-28-21.png" alt="声波推力" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成80点伤害，若场上有力领域则额外造成40伤害。原理：声波是机械波，本质是介质中质点的振动——振动传递力的作用，有力领域加持则推力更强。</div>
+        <div class="match-note">📎 粉色冲击波 - 声波推力</div>
+        <div class="file-name">📁 A_massive_pink_sonic_shockwave_2026-06-13T14-28-21.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A32')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A32')">❌ 不通过</button>
+      <span class="status" id="status-A32"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A45" data-cid="A45">
+    <div class="card-header">
+      <span class="cid">A45</span>
+      <span class="name">🔊 双耳定位</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Two_cybernetic_ear_like_sensor_2026-06-13T02-33-40.png" alt="双耳定位" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成50点伤害 + 查看对方2张手牌。原理：双耳效应——两耳接收到声音的时间差和强度差使人能精确定位声源方向。</div>
+        <div class="match-note">📎 双耳传感器 - 双耳定位</div>
+        <div class="file-name">📁 Two_cybernetic_ear_like_sensor_2026-06-13T02-33-40.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A45')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A45')">❌ 不通过</button>
+      <span class="status" id="status-A45"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S07" data-cid="S07">
+    <div class="card-header">
+      <span class="cid">S07</span>
+      <span class="name">🔊 回声消声</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Anti_noise_soundwaves_in_neon__2026-06-13T02-37-42.png" alt="回声消声" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">己方盲选查看对方2张手牌 + 选择清除己方1种负面状态。原理：回声定位产生反相声波，主动降噪抵消有害效果。</div>
+        <div class="match-note">📎 反噪声波 - 回声消声</div>
+        <div class="file-name">📁 Anti_noise_soundwaves_in_neon__2026-06-13T02-37-42.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S07')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S07')">❌ 不通过</button>
+      <span class="status" id="status-S07"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S08" data-cid="S08">
+    <div class="card-header">
+      <span class="cid">S08</span>
+      <span class="name">🔊 噪音干扰</span>
+      <span class="domain" style="color:#ff00aa">[声]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Chaotic_noise_waves_disrupting_2026-06-12T17-37-46.png" alt="噪音干扰" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">对方下回合每张卡出牌精神力消耗+5。原理：噪声是环境污染源，干扰人的注意力和判断力。</div>
+        <div class="match-note">📎 混乱噪声 - 噪音干扰</div>
+        <div class="file-name">📁 Chaotic_noise_waves_disrupting_2026-06-12T17-37-46.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S08')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S08')">❌ 不通过</button>
+      <span class="status" id="status-S08"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A15" data-cid="A15">
+    <div class="card-header">
+      <span class="cid">A15</span>
+      <span class="name">💡 激光切割</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_precise_laser_beam_cutting_t_2026-06-12T17-36-02.png" alt="激光切割" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成120点伤害。原理：激光方向性好、能量高度集中，几乎不发散，适合精确切割。</div>
+        <div class="match-note">📎 激光切割 - 激光切割</div>
+        <div class="file-name">📁 A_precise_laser_beam_cutting_t_2026-06-12T17-36-02.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A15')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A15')">❌ 不通过</button>
+      <span class="status" id="status-A15"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A16" data-cid="A16">
+    <div class="card-header">
+      <span class="cid">A16</span>
+      <span class="name">💡 色散分解</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_massive_crystal_prism_splitt_2026-06-15T08-34-35.png" alt="色散分解" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成40点即时伤害。驻场4个己方回合，每回合结算阶段造成40点伤害。若未被清场，回到手牌可0费再次打出。原理：白光通过三棱镜色散为七色光，各色光独立作用后重新合成白光——光的可逆循环。</div>
+        <div class="match-note">📎 水晶棱镜分光 - 色散分解</div>
+        <div class="file-name">📁 A_massive_crystal_prism_splitt_2026-06-15T08-34-35.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A16')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A16')">❌ 不通过</button>
+      <span class="status" id="status-A16"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A17" data-cid="A17">
+    <div class="card-header">
+      <span class="cid">A17</span>
+      <span class="name">💡 红外灼烧</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Invisible_infrared_heat_rays_b_2026-06-12T17-36-42.png" alt="红外灼烧" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成48点伤害 + 为对方附加1层灼烧。原理：红外线具有显著的热效应，能使物体温度升高。</div>
+        <div class="match-note">📎 红外热线 - 红外灼烧</div>
+        <div class="file-name">📁 Invisible_infrared_heat_rays_b_2026-06-12T17-36-42.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A17')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A17')">❌ 不通过</button>
+      <span class="status" id="status-A17"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A19" data-cid="A19">
+    <div class="card-header">
+      <span class="cid">A19</span>
+      <span class="name">💡 光纤穿透</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Light_traveling_through_a_fibe_2026-06-12T17-37-31.png" alt="光纤穿透" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">无视本领域防御，造成100点伤害。原理：光在光纤中通过全反射传播，几乎无能量损耗。</div>
+        <div class="match-note">📎 光纤传输 - 光纤穿透</div>
+        <div class="file-name">📁 Light_traveling_through_a_fibe_2026-06-12T17-37-31.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A19')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A19')">❌ 不通过</button>
+      <span class="status" id="status-A19"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A20" data-cid="A20">
+    <div class="card-header">
+      <span class="cid">A20</span>
+      <span class="name">💡 日光暴晒</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Intense_sunlight_amplified_thr_2026-06-13T02-34-45.png" alt="日光暴晒" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成80点伤害 + 清除己方1种负面状态 + 己方场上每有一张辅助卡额外+20伤害。原理：阳光中的紫外线具有杀菌消毒作用，暴晒越久清除效果越强。</div>
+        <div class="match-note">📎 阳光放大 - 日光暴晒</div>
+        <div class="file-name">📁 Intense_sunlight_amplified_thr_2026-06-13T02-34-45.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A20')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A20')">❌ 不通过</button>
+      <span class="status" id="status-A20"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A52" data-cid="A52">
+    <div class="card-header">
+      <span class="cid">A52</span>
+      <span class="name">💡 光电信号</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Light_converting_into_electric_2026-06-12T17-37-38.png" alt="光电信号" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成60点伤害 + 查看对方全部手牌。原理：光信号可通过光电转换变为电信号传输，从而获取信息。</div>
+        <div class="match-note">📎 光转电 - 光电信号</div>
+        <div class="file-name">📁 Light_converting_into_electric_2026-06-12T17-37-38.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A52')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A52')">❌ 不通过</button>
+      <span class="status" id="status-A52"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S14" data-cid="S14">
+    <div class="card-header">
+      <span class="cid">S14</span>
+      <span class="name">💡 滤光</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/An_optical_filter_separating_w_2026-06-12T17-38-02.png" alt="滤光" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">己方选择一种领域。本回合己方打出该领域卡牌时精神力消耗-3，持续1个己方回合。原理：滤光片只允许特定波长的光通过——选定领域使该领域能量更纯粹，消耗更低。</div>
+        <div class="match-note">📎 光学滤镜 - 滤光</div>
+        <div class="file-name">📁 An_optical_filter_separating_w_2026-06-12T17-38-02.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S14')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S14')">❌ 不通过</button>
+      <span class="status" id="status-S14"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S16" data-cid="S16">
+    <div class="card-header">
+      <span class="cid">S16</span>
+      <span class="name">💡 光速传播</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_beam_of_light_traveling_at_i_2026-06-13T02-34-46.png" alt="光速传播" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">打出后持续2个己方回合，己方可以在对方回合使用光领域卡牌，精神力消耗+3。原理：光速c=3×10⁸m/s不可超越——你的反应比对方出牌还快。</div>
+        <div class="match-note">📎 光束飞驰 - 光速传播</div>
+        <div class="file-name">📁 A_beam_of_light_traveling_at_i_2026-06-13T02-34-46.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S16')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S16')">❌ 不通过</button>
+      <span class="status" id="status-S16"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S17" data-cid="S17">
+    <div class="card-header">
+      <span class="cid">S17</span>
+      <span class="name">💡 光谱叠加</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Seven_neon_color_beams_overlap_2026-06-13T02-34-46.png" alt="光谱叠加" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">打出后持续至本回合结束。己方本回合累计打出的不同领域种类数×10，后续所有攻击卡伤害+此值。原理：七色光叠加——越多波长叠加，白光越强。</div>
+        <div class="match-note">📎 七色光叠加 - 光谱叠加</div>
+        <div class="file-name">📁 Seven_neon_color_beams_overlap_2026-06-13T02-34-46.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S17')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S17')">❌ 不通过</button>
+      <span class="status" id="status-S17"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S19" data-cid="S19">
+    <div class="card-header">
+      <span class="cid">S19</span>
+      <span class="name">💡 镜面迷宫</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Infinite_reflections_in_a_hall_2026-06-12T17-38-03.png" alt="镜面迷宫" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">对方接下来3次出牌（仅出牌阶段），每次35%概率失败。失败时卡牌失效（效果不触发，卡牌进入弃牌堆，精神力消耗返还50%）。3次机会用完后此卡从场上消失。原理：平面镜多次反射使无数虚像与实物交织，受迷宫干扰无法精准发动。</div>
+        <div class="match-note">📎 无尽反射 - 镜面迷宫</div>
+        <div class="file-name">📁 Infinite_reflections_in_a_hall_2026-06-12T17-38-03.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S19')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S19')">❌ 不通过</button>
+      <span class="status" id="status-S19"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S20" data-cid="S20">
+    <div class="card-header">
+      <span class="cid">S20</span>
+      <span class="name">💡 影子束缚</span>
+      <span class="domain" style="color:#ffdd00">[光]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_shadow_taking_physical_form__2026-06-12T17-40-06.png" alt="影子束缚" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">若对方场上有卡牌存在，对方下2个回合无法打出辅助卡。若对方场上无卡牌，此卡无法打出。原理：光沿直线传播——对方场上卡牌遮挡光线形成影子，对方辅助卡被困在影子中。</div>
+        <div class="match-note">📎 实体化影子 - 影子束缚</div>
+        <div class="file-name">📁 A_shadow_taking_physical_form__2026-06-12T17-40-06.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S20')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S20')">❌ 不通过</button>
+      <span class="status" id="status-S20"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A21" data-cid="A21">
+    <div class="card-header">
+      <span class="cid">A21</span>
+      <span class="name">🔥 烈焰灼蚀</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Intense_flames_burning_and_ero_2026-06-12T17-35-52.png" alt="烈焰灼蚀" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成80点伤害，对方每有1层灼烧额外+15伤害（灼烧保留）。原理：热传导使高温持续向低温传递，灼烧越猛烈侵蚀越深。</div>
+        <div class="match-note">📎 烈焰灼蚀 - 烈焰灼蚀</div>
+        <div class="file-name">📁 Intense_flames_burning_and_ero_2026-06-12T17-35-52.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A21')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A21')">❌ 不通过</button>
+      <span class="status" id="status-A21"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A24" data-cid="A24">
+    <div class="card-header">
+      <span class="cid">A24</span>
+      <span class="name">🔥 熔岩喷发</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Molten_lava_erupting_from_a_vo_2026-06-12T17-37-05.png" alt="熔岩喷发" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成70点伤害 + 为对方附加2层灼烧 + 对方下2回合精神力恢复-3（叠加最低到0）。原理：岩浆温度极高，持续灼烧并改变周围环境。</div>
+        <div class="match-note">📎 熔岩喷发 - 熔岩喷发 (手动修正)</div>
+        <div class="file-name">📁 Molten_lava_erupting_from_a_vo_2026-06-12T17-37-05.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A24')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A24')">❌ 不通过</button>
+      <span class="status" id="status-A24"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A25" data-cid="A25">
+    <div class="card-header">
+      <span class="cid">A25</span>
+      <span class="name">🔥 蒸发消散</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Water_boiling_away_into_steam__2026-06-12T17-37-20.png" alt="蒸发消散" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成65点伤害 + 为对方附加1层灼烧 + 偷取对方15精神力 + 消灭对方一张驻场卡（若无驻场卡则仅造成伤害和偷取）。原理：蒸发是物质从液态变气态的相变过程——辅助效果随蒸发而消散。</div>
+        <div class="match-note">📎 水沸蒸发 - 蒸发消散</div>
+        <div class="file-name">📁 Water_boiling_away_into_steam__2026-06-12T17-37-20.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A25')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A25')">❌ 不通过</button>
+      <span class="status" id="status-A25"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A37" data-cid="A37">
+    <div class="card-header">
+      <span class="cid">A37</span>
+      <span class="name">🔥 漏电灼伤</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Electricity_leaking_from_a_dam_2026-06-12T17-39-32.png" alt="漏电灼伤" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成44点伤害 + 为对方附加1层灼烧。原理：漏电使电流持续通过非预期路径释放能量，电能转化为热能造成灼伤。</div>
+        <div class="match-note">📎 漏电火花 - 漏电灼伤</div>
+        <div class="file-name">📁 Electricity_leaking_from_a_dam_2026-06-12T17-39-32.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A37')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A37')">❌ 不通过</button>
+      <span class="status" id="status-A37"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A47" data-cid="A47">
+    <div class="card-header">
+      <span class="cid">A47</span>
+      <span class="name">🔥 升华爆散</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Solid_matter_transforming_dire_2026-06-12T17-37-45.png" alt="升华爆散" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成63点伤害 + 为对方附加1层灼烧 + 己方恢复30HP。原理：升华是固体直接变气体的相变过程，急剧膨胀释放能量，同时吸收大量热量——爆炸伤人又降温自愈。</div>
+        <div class="match-note">📎 固体升华 - 升华爆散</div>
+        <div class="file-name">📁 Solid_matter_transforming_dire_2026-06-12T17-37-45.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A47')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A47')">❌ 不通过</button>
+      <span class="status" id="status-A47"></span>
+    </div>
+  </div>
+  <div class="card" id="card-C13" data-cid="C13">
+    <div class="card-header">
+      <span class="cid">C13</span>
+      <span class="name">🔥 瓦特</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_steampunk_cyberpunk_engine_c_2026-06-13T09-48-53.png" alt="瓦特" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">热系攻击+8伤害；对方每有1层灼烧，热系攻击额外+3伤害。原理：功率P=W/t——灼烧越多转化效率越高。</div>
+        <div class="match-note">📎 蒸汽引擎 - 瓦特</div>
+        <div class="file-name">📁 A_steampunk_cyberpunk_engine_c_2026-06-13T09-48-53.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('C13')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('C13')">❌ 不通过</button>
+      <span class="status" id="status-C13"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S22" data-cid="S22">
+    <div class="card-header">
+      <span class="cid">S22</span>
+      <span class="name">🔥 比热护盾</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_protective_energy_shield_res_2026-06-12T17-38-10.png" alt="比热护盾" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">3个己方回合内免疫灼烧伤害（灼烧仍可附加且正常衰减层数，但每层灼烧不造成伤害）。原理：比热容大的物体升温慢，灼烧难以奏效。</div>
+        <div class="match-note">📎 能量护盾 - 比热护盾</div>
+        <div class="file-name">📁 A_protective_energy_shield_res_2026-06-12T17-38-10.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S22')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S22')">❌ 不通过</button>
+      <span class="status" id="status-S22"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S25" data-cid="S25">
+    <div class="card-header">
+      <span class="cid">S25</span>
+      <span class="name">🔥 潜热释放</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Ice_cubes_melting_and_absorbin_2026-06-12T17-40-31.png" alt="潜热释放" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">消耗2层灼烧，恢复80HP + 选择清除己方1种负面状态。原理：相变潜热吸收热能——偷灼烧能量恢复+净化。</div>
+        <div class="match-note">📎 冰块融化 - 潜热释放</div>
+        <div class="file-name">📁 Ice_cubes_melting_and_absorbin_2026-06-12T17-40-31.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S25')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S25')">❌ 不通过</button>
+      <span class="status" id="status-S25"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S26" data-cid="S26">
+    <div class="card-header">
+      <span class="cid">S26</span>
+      <span class="name">🔥 热量聚集</span>
+      <span class="domain" style="color:#ff3300">[热]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Multiple_heat_sources_convergi_2026-06-13T02-35-49.png" alt="热量聚集" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">为对方附加3层灼烧。原理：温差大则传热快，热量聚集使灼烧加剧。</div>
+        <div class="match-note">📎 多热源汇聚 - 热量聚集</div>
+        <div class="file-name">📁 Multiple_heat_sources_convergi_2026-06-13T02-35-49.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S26')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S26')">❌ 不通过</button>
+      <span class="status" id="status-S26"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A27" data-cid="A27">
+    <div class="card-header">
+      <span class="cid">A27</span>
+      <span class="name">⚡ 闪电劈击</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/a27_gaoyadianji_cyber.png" alt="闪电劈击" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成30点伤害。场上电系辅助卡≥2张时触发：无视20点本领域防御+额外20伤害。原理：电压足够高时可击穿绝缘层——高压击穿。</div>
+        <div class="match-note">📎 直接ID匹配 - 闪电劈击</div>
+        <div class="file-name">📁 a27_gaoyadianji_cyber.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A27')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A27')">❌ 不通过</button>
+      <span class="status" id="status-A27"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A29" data-cid="A29">
+    <div class="card-header">
+      <span class="cid">A29</span>
+      <span class="name">⚡ 电弧灼烧</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/An_electric_arc_burning_throug_2026-06-12T17-40-14.png" alt="电弧灼烧" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成30点伤害。场上电系辅助卡≥1张时触发：额外造成20点灼烧伤害。原理：电流热效应Q=I²Rt，大电流通过空气产生高温电弧。</div>
+        <div class="match-note">📎 电弧灼烧 - 电弧灼烧</div>
+        <div class="file-name">📁 An_electric_arc_burning_throug_2026-06-12T17-40-14.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A29')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A29')">❌ 不通过</button>
+      <span class="status" id="status-A29"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A30" data-cid="A30">
+    <div class="card-header">
+      <span class="cid">A30</span>
+      <span class="name">⚡ 电磁脉冲</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/An_EMP_blast_radiating_outward_2026-06-12T17-38-19.png" alt="电磁脉冲" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成30点伤害。场上电系辅助卡≥2张时触发：消灭对方一张驻场卡 + 额外15伤害（若无驻场卡则仅加伤）。原理：EMP电磁脉冲能干扰和瘫痪运行中的电子系统。</div>
+        <div class="match-note">📎 EMP冲击波 - 电磁脉冲</div>
+        <div class="file-name">📁 An_EMP_blast_radiating_outward_2026-06-12T17-38-19.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A30')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A30')">❌ 不通过</button>
+      <span class="status" id="status-A30"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A35" data-cid="A35">
+    <div class="card-header">
+      <span class="cid">A35</span>
+      <span class="name">⚡ 短路熔毁</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_short_circuit_melting_wires__2026-06-12T17-38-42.png" alt="短路熔毁" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">消灭对方一张召唤物（无视HP直接击杀）；若对方无召唤物则造成80伤害。原理：短路时电流剧增，热效应Q=I²Rt使导体瞬间熔化——物理性摧毁。</div>
+        <div class="match-note">📎 短路熔毁 - 短路熔毁</div>
+        <div class="file-name">📁 A_short_circuit_melting_wires__2026-06-12T17-38-42.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A35')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A35')">❌ 不通过</button>
+      <span class="status" id="status-A35"></span>
+    </div>
+  </div>
+  <div class="card" id="card-A49" data-cid="A49">
+    <div class="card-header">
+      <span class="cid">A49</span>
+      <span class="name">⚡ 过载放电</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_circuit_overloaded_with_too__2026-06-12T17-39-33.png" alt="过载放电" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">造成30点伤害。场上电系辅助卡≥3张时触发：本次基础伤害翻倍（30→60），触发后摧毁己方1张电系辅助卡。原理：超额定电压运行导致过载输出，元件因过热而损坏。</div>
+        <div class="match-note">📎 电路过载 - 过载放电 (手动修正)</div>
+        <div class="file-name">📁 A_circuit_overloaded_with_too__2026-06-12T17-39-33.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('A49')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('A49')">❌ 不通过</button>
+      <span class="status" id="status-A49"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S27" data-cid="S27">
+    <div class="card-header">
+      <span class="cid">S27</span>
+      <span class="name">⚡ 电阻屏障</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_futuristic_resistor_grid_glo_2026-06-13T02-37-42.png" alt="电阻屏障" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">受到的电系伤害-20（持续3个己方回合）。原理：电阻R升高使电流I降低（欧姆定律I=U/R），减伤效果更持久。</div>
+        <div class="match-note">📎 电阻网格 - 电阻屏障</div>
+        <div class="file-name">📁 A_futuristic_resistor_grid_glo_2026-06-13T02-37-42.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S27')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S27')">❌ 不通过</button>
+      <span class="status" id="status-S27"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S29" data-cid="S29">
+    <div class="card-header">
+      <span class="cid">S29</span>
+      <span class="name">⚡ 静电吸附</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Static_electricity_pulling_dus_2026-06-12T17-40-21.png" alt="静电吸附" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">弃1张手牌，抽2张牌，清除己方1种负面状态（本回合生效）。原理：静电吸附有害粒子清除污染，净化负面状态。</div>
+        <div class="match-note">📎 静电吸附 - 静电吸附</div>
+        <div class="file-name">📁 Static_electricity_pulling_dus_2026-06-12T17-40-21.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S29')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S29')">❌ 不通过</button>
+      <span class="status" id="status-S29"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S30" data-cid="S30">
+    <div class="card-header">
+      <span class="cid">S30</span>
+      <span class="name">⚡ 短路开关</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/A_short_circuit_melting_wires__2026-06-12T17-38-42.png" alt="短路开关" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">牺牲场上1张电系辅助卡，本回合每张电系攻击卡额外+20伤害（本回合生效）。原理：短路使电流绕过负载直接导通，瞬间大电流爆发输出。</div>
+        <div class="match-note">📎 短路熔毁 - 短路开关 (与A35同图)</div>
+        <div class="file-name">📁 A_short_circuit_melting_wires__2026-06-12T17-38-42.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S30')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S30')">❌ 不通过</button>
+      <span class="status" id="status-S30"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S33" data-cid="S33">
+    <div class="card-header">
+      <span class="cid">S33</span>
+      <span class="name">⚡ 多路放电</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/Multiple_parallel_electrical_c_2026-06-13T02-36-52.png" alt="多路放电" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">本回合所有电系攻击卡精神力消耗-2（本回合生效）。原理：多路并联放电使每条支路电阻降低，出牌门槛降低。</div>
+        <div class="match-note">📎 多路并联 - 多路放电</div>
+        <div class="file-name">📁 Multiple_parallel_electrical_c_2026-06-13T02-36-52.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S33')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S33')">❌ 不通过</button>
+      <span class="status" id="status-S33"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S01" data-cid="S01">
+    <div class="card-header">
+      <span class="cid">S01</span>
+      <span class="name">⚡ 质量增大</span>
+      <span class="domain" style="color:#ff6600">[力]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/s01_zhiliangzengda_cyber.png" alt="质量增大" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">己方下次力系攻击+10伤害。原理：物体质量越大，重力越大（G=mg），惯性也越大——质量是惯性的唯一量度。</div>
+        <div class="match-note">📎 已有文件 - 质量增大</div>
+        <div class="file-name">📁 s01_zhiliangzengda_cyber.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S01')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S01')">❌ 不通过</button>
+      <span class="status" id="status-S01"></span>
+    </div>
+  </div>
+  <div class="card" id="card-S28" data-cid="S28">
+    <div class="card-header">
+      <span class="cid">S28</span>
+      <span class="name">⚡ 电磁感应</span>
+      <span class="domain" style="color:#00ccff">[电]</span>
+    </div>
+    <div class="card-body">
+      <div class="image-container">
+        <img src="art_samples/card_art/s28_dianciganying_cyber.png" alt="电磁感应" onclick="zoomImage(this.src)" loading="lazy">
+      </div>
+      <div class="info">
+        <div class="effect">持续3个己方回合。每回合获得2点精神力；场上期间，你每打出1张其他电系卡，获得2点精神力。原理：电磁感应现象——变化的磁场产生电流，将磁能转化为电能。</div>
+        <div class="match-note">📎 已有文件 - 电磁感应</div>
+        <div class="file-name">📁 s28_dianciganying_cyber.png</div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button class="btn-accept" onclick="accept('S28')">✅ 通过</button>
+      <button class="btn-reject" onclick="reject('S28')">❌ 不通过</button>
+      <span class="status" id="status-S28"></span>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="zoom-modal" onclick="this.classList.remove('active')">
+  <span class="close">&times;</span>
+  <img id="zoom-img" src="">
+</div>
+
+<script>
+const decisions = {};
+function accept(cid) {
+  decisions[cid] = 'accept';
+  const card = document.getElementById('card-' + cid);
+  card.classList.add('accepted');
+  card.classList.remove('rejected');
+  document.getElementById('status-' + cid).textContent = '✅ 已通过';
+  document.getElementById('status-' + cid).style.color = '#4CAF50';
+  updateCounts();
+}
+function reject(cid) {
+  decisions[cid] = 'reject';
+  const card = document.getElementById('card-' + cid);
+  card.classList.add('rejected');
+  card.classList.remove('accepted');
+  document.getElementById('status-' + cid).textContent = '❌ 不通过';
+  document.getElementById('status-' + cid).style.color = '#f44336';
+  updateCounts();
+}
+function updateCounts() {
+  let a = 0, r = 0, p = 46;
+  for (const [cid, d] of Object.entries(decisions)) {
+    if (d === 'accept') a++;
+    else if (d === 'reject') r++;
+  }
+  p = 46 - a - r;
+  document.getElementById('accepted-count').textContent = a;
+  document.getElementById('rejected-count').textContent = r;
+  document.getElementById('pending-count').textContent = p;
+}
+function zoomImage(src) {
+  document.getElementById('zoom-img').src = src;
+  document.getElementById('zoom-modal').classList.add('active');
+}
+const allCids = ["A01","A05","A43","D01","S02","S03","S06","A09","A10","A13","A31","A32","A45","S07","S08","A15","A16","A17","A19","A20","A52","S14","S16","S17","S19","S20","A21","A24","A25","A37","A47","C13","S22","S25","S26","A27","A29","A30","A35","A49","S27","S29","S30","S33","S01","S28"];
+function exportResults() {
+  const result = { accepted: [], rejected: [], pending: [] };
+  for (let i = 0; i < allCids.length; i++) {
+    const cid = allCids[i];
+    const d = decisions[cid];
+    if (d === 'accept') result.accepted.push(cid);
+    else if (d === 'reject') result.rejected.push(cid);
+    else result.pending.push(cid);
+  }
+  const json = JSON.stringify(result, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'prev_art_review_result.json';
+  a.click();
+}
+</script>
+</body>
+</html>
