@@ -479,11 +479,17 @@ class GameUI {
         stats[d] = (stats[d] || 0) + 1;
         totalDmg += c.effect?.dmg || 0;
       }
-      // 领域统计（包括主副领域检查）
+      // 统计数据（类型 + 领域）
       let mainCount = 0, subCount = 0, otherCount = 0;
+      let atkC = 0, supC = 0, sumC = 0, domC = 0, phsC = 0;
       for (const id of selected) {
         const c = allCards.find(card => card.id === id);
         if (!c) continue;
+        if (c.type === 'attack') atkC++;
+        else if (c.type === 'support') supC++;
+        else if (c.type === 'summon') sumC++;
+        else if (c.type === 'domain') domC++;
+        else if (c.type === 'phase') phsC++;
         const hasMain = this._cardHasDomain(c, this.mainDomain);
         const hasSub = this._cardHasDomain(c, this.subDomain);
         if (hasMain && hasSub) { mainCount++; subCount++; }
@@ -494,10 +500,9 @@ class GameUI {
       const statHTML = Object.entries(stats).map(([d, c]) =>
         `<span style="color:${colorMap[d] || '#888'}">${d}×${c}</span>`
       ).join(' ');
-      const validMain = mainCount >= subCount && mainCount >= otherCount;
-      const validPct = mainCount + subCount >= Math.ceil(selected.size * 0.6);
-      const ruleIcon = validMain && validPct ? '✅' : '⚠️';
-      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount} · 副${subCount} · 其他${otherCount} (需主≥副≥其他，主+副≥60%)`;
+      const allValid = atkC >= 8 && sumC <= 3 && domC <= 2 && phsC <= 2 && mainCount >= subCount && mainCount >= otherCount && mainCount + subCount >= Math.ceil(selected.size * 0.6);
+      const ruleIcon = allValid ? '✅' : '⚠️';
+      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount}·副${subCount}·其他${otherCount} | 攻击${atkC}(≥8) 辅助${supC} 召唤${sumC}(≤3) 领域${domC}(≤2) 相变${phsC}(≤2)`;
     }
 
     function updateCount() {
@@ -529,10 +534,18 @@ class GameUI {
       // 领域验证：主领域卡 ≥ 副领域卡，且均≥其他领域
       const self = this;
       const ids = [...selected];
+      
+      // 类型统计
+      let attackCount = 0, supportCount = 0, summonCount = 0, domainCount = 0, phaseCount = 0;
       let mainCount = 0, subCount = 0, otherCount = 0;
       for (const id of ids) {
         const c = allCards.find(card => card.id === id);
         if (!c) continue;
+        if (c.type === 'attack') attackCount++;
+        else if (c.type === 'support') supportCount++;
+        else if (c.type === 'summon') summonCount++;
+        else if (c.type === 'domain') domainCount++;
+        else if (c.type === 'phase') phaseCount++;
         const hasMain = self._cardHasDomain(c, self.mainDomain);
         const hasSub = self._cardHasDomain(c, self.subDomain);
         if (hasMain && hasSub) { mainCount++; subCount++; }
@@ -541,17 +554,18 @@ class GameUI {
         else otherCount++;
       }
       
-      if (mainCount < subCount) {
-        alert('主领域「' + self.mainDomain + '」卡牌(' + mainCount + '张)不能少于副领域「' + self.subDomain + '」卡牌(' + subCount + '张)！');
-        return;
-      }
-      if (mainCount < otherCount) {
-        alert('主领域卡牌(' + mainCount + '张)必须是卡组中数量最多的！\n当前其他领域卡牌: ' + otherCount + '张');
-        return;
-      }
-      if (mainCount + subCount < Math.ceil(selected.size * 0.6)) {
-        alert('主领域+副领域卡牌至少占卡组的60%！\n当前: ' + Math.round((mainCount+subCount)/selected.size*100) + '%');
-        return;
+      // === 组合规则验证 ===
+      const rules = [
+        { check: attackCount >= 8, msg: '攻击卡至少需要8张（当前' + attackCount + '张）' },
+        { check: summonCount <= 3, msg: '召唤卡最多3张（当前' + summonCount + '张）' },
+        { check: domainCount <= 2, msg: '领域卡最多2张（当前' + domainCount + '张）' },
+        { check: phaseCount <= 2, msg: '相变卡最多2张（当前' + phaseCount + '张）' },
+        { check: mainCount >= subCount, msg: '主领域「' + self.mainDomain + '」(' + mainCount + ')不能少于副领域(' + subCount + ')' },
+        { check: mainCount >= otherCount, msg: '主领域卡须最多（主' + mainCount + ' < 其他' + otherCount + '）' },
+        { check: mainCount + subCount >= Math.ceil(selected.size * 0.6), msg: '主+副领域需≥60%（当前' + Math.round((mainCount+subCount)/selected.size*100) + '%）' },
+      ];
+      for (const r of rules) {
+        if (!r.check) { alert(r.msg); return; }
       }
       
       this.customDeck = ids;
