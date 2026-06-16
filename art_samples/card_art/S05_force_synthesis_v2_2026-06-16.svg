@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1536">
+  <defs>
+    <!-- Deep space background -->
+    <radialGradient id="spaceBg" cx="35%" cy="42%" r="80%">
+      <stop offset="0%" stop-color="#161638"/>
+      <stop offset="40%" stop-color="#0e0e24"/>
+      <stop offset="100%" stop-color="#06060f"/>
+    </radialGradient>
+
+    <!-- Subtle nebula glow -->
+    <radialGradient id="nebula1" cx="75%" cy="25%" r="45%">
+      <stop offset="0%" stop-color="#00c8ff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#00c8ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nebula2" cx="15%" cy="70%" r="40%">
+      <stop offset="0%" stop-color="#ff6b35" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Glow for each vector color -->
+    <filter id="glowOrange" x="-10%" y="-50%" width="120%" height="200%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowPink" x="-10%" y="-60%" width="120%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowBlue" x="-5%" y="-30%" width="110%" height="160%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    
+    <!-- Core line filter (no blur) for crisp center -->
+  </defs>
+
+  <!-- ===== BACKGROUND ===== -->
+  <rect width="1024" height="1536" fill="url(#spaceBg)"/>
+  
+  <!-- Nebula glows -->
+  <circle cx="768" cy="384" r="500" fill="url(#nebula1)"/>
+  <circle cx="154" cy="1075" r="450" fill="url(#nebula2)"/>
+
+  <!-- Subtle grid dots -->
+  <g fill="#fff" opacity="0.02">
+    <pattern id="dots" width="48" height="48" patternUnits="userSpaceOnUse">
+      <circle cx="24" cy="24" r="1"/>
+    </pattern>
+    <rect width="1024" height="1536" fill="url(#dots)"/>
+  </g>
+
+  <!-- Axis reference line (very faint) -->
+  <line x1="110" y1="768" x2="914" y2="768" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+
+  <!-- ===== ORIGIN POINT ===== -->
+  <circle cx="180" cy="768" r="12" fill="#ffffff" opacity="0.12"/>
+  <circle cx="180" cy="768" r="6" fill="#ffffff" opacity="0.85"/>
+  <circle cx="180" cy="768" r="3" fill="#ffffff"/>
+
+  <!-- ===== F1: ORANGE COMPONENT ===== -->
+  <!-- Outer glow layer -->
+  <line x1="180" y1="768" x2="498" y2="768"
+        stroke="#ff6b35" stroke-width="28" stroke-linecap="butt"
+        opacity="0.20" filter="url(#glowOrange)"/>
+  <!-- Mid glow layer -->
+  <line x1="180" y1="768" x2="499" y2="768"
+        stroke="#ff6b35" stroke-width="22" stroke-linecap="butt"
+        opacity="0.55" filter="url(#glowOrange)"/>
+  <!-- Solid core -->
+  <line x1="180" y1="768" x2="500" y2="768"
+        stroke="#ff8855" stroke-width="12" stroke-linecap="round"/>
+  <!-- Bright center -->
+  <line x1="180" y1="768" x2="498" y2="768"
+        stroke="#ffb088" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+  <!-- Arrowhead: outer glow -->
+  <polygon points="490,732 550,768 490,804" fill="#ff6b35" opacity="0.18" filter="url(#glowOrange)"/>
+  <!-- Arrowhead: main body -->
+  <polygon points="493,741 546,768 493,795" fill="#ff6b35" opacity="0.92"/>
+  <!-- Arrowhead: highlight edge -->
+  <polygon points="496,747 538,768 496,789" fill="#ffa366"/>
+
+  <!-- ===== F2: PINK COMPONENT ===== -->
+  <!-- Outer glow -->
+  <line x1="180" y1="768" x2="377" y2="768"
+        stroke="#ff2d95" stroke-width="24" stroke-linecap="butt"
+        opacity="0.18" filter="url(#glowPink)"/>
+  <!-- Mid glow -->
+  <line x1="180" y1="768" x2="378" y2="768"
+        stroke="#ff2d95" stroke-width="17" stroke-linecap="butt"
+        opacity="0.52" filter="url(#glowPink)"/>
+  <!-- Solid core -->
+  <line x1="180" y1="768" x2="380" y2="768"
+        stroke="#ff55aa" stroke-width="9" stroke-linecap="round"/>
+  <!-- Bright center -->
+  <line x1="180" y1="768" x2="378" y2="768"
+        stroke="#ff99cc" stroke-width="3" stroke-linecap="round" opacity="0.65"/>
+  <!-- Arrowhead outer glow -->
+  <polygon points="370,739 430,768 370,797" fill="#ff2d95" opacity="0.16" filter="url(#glowPink)"/>
+  <!-- Arrowhead main -->
+  <polygon points="373,747 426,768 373,789" fill="#ff2d95" opacity="0.92"/>
+  <!-- Arrowhead highlight -->
+  <polygon points="376,752 416,768 376,784" fill="#ff77cc"/>
+
+  <!-- ===== F: BLUE RESULTANT ===== -->
+  <!-- Wide diffuse glow -->
+  <line x1="175" y1="768" x2="828" y2="768"
+        stroke="#00c8ff" stroke-width="56" stroke-linecap="butt"
+        opacity="0.07" filter="url(#glowBlue)"/>
+  <!-- Medium glow -->
+  <line x1="178" y1="768" x2="829" y2="768"
+        stroke="#00c8ff" stroke-width="40" stroke-linecap="butt"
+        opacity="0.13" filter="url(#glowBlue)"/>
+  <!-- Inner glow -->
+  <line x1="179" y1="768" x2="830" y2="768"
+        stroke="#00c8ff" stroke-width="28" stroke-linecap="butt"
+        opacity="0.28" filter="url(#glowBlue)"/>
+  <!-- Solid core -->
+  <line x1="180" y1="768" x2="832" y2="768"
+        stroke="#44ddff" stroke-width="14" stroke-linecap="round" opacity="0.58"/>
+  <!-- Bright center streak -->
+  <line x1="181" y1="768" x2="828" y2="768"
+        stroke="#aaffff" stroke-width="3" stroke-linecap="round" opacity="0.25"/>
+  <!-- Arrowhead: wide glow -->
+  <polygon points="815,720 892,768 815,816" fill="#00c8ff" opacity="0.06" filter="url(#glowBlue)"/>
+  <!-- Arrowhead: medium glow -->
+  <polygon points="818,733 882,768 818,803" fill="#00c8ff" opacity="0.12" filter="url(#glowBlue)"/>
+  <!-- Arrowhead: inner glow -->
+  <polygon points="821,743 869,768 821,793" fill="#00c8ff" opacity="0.28"/>
+  <!-- Arrowhead: core -->
+  <polygon points="825,750 860,768 825,786" fill="#66e0ff" opacity="0.52"/>
+  <!-- Arrowhead: bright edge -->
+  <polygon points="827,754 850,768 827,782" fill="#aaeeff" opacity="0.35"/>
+
+  <!-- ===== LABELS ===== -->
+  <text x="196" y="700" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="34" font-weight="bold" fill="#ff8855">F₁</text>
+  <text x="198" y="855" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="34" font-weight="bold" fill="#ff55aa">F₂</text>
+  <text x="520" y="698" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="44" font-weight="bold" fill="#66e0ff" opacity="0.62">F</text>
+
+  <!-- Formula -->
+  <text x="512" y="900" font-family="'Segoe UI','Microsoft YaHei',sans-serif" font-size="26"
+        fill="#666" text-anchor="middle" letter-spacing="5">F = F₁ + F₂</text>
+
+  <!-- ===== CORNER DECORATIONS ===== -->
+  <rect x="18" y="18" width="64" height="3" fill="#ff6b35" rx="1.5" opacity="0.65"/>
+  <rect x="18" y="26" width="44" height="2.5" fill="#ff2d95" rx="1" opacity="0.6"/>
+  <rect x="18" y="33" width="28" height="2.5" fill="#00c8ff" rx="1" opacity="0.35"/>
+  
+  <rect x="942" y="1515" width="64" height="3" fill="#00c8ff" rx="1.5" opacity="0.35"/>
+  <rect x="954" y="1507" width="52" height="2.5" fill="#ff6b35" rx="1" opacity="0.5"/>
+</svg>

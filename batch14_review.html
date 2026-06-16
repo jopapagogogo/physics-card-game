@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第14批卡牌插画审核 (新路线)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0a1a; color:#ccc; font-family:'Segoe UI',sans-serif; padding:20px; }
+  h1 { text-align:center; color:#00e5ff; margin-bottom:4px; font-size:20px; }
+  .subtitle { text-align:center; color:#ff8a80; margin-bottom:20px; font-size:13px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; max-width:1400px; margin:0 auto; }
+  .card-item { background:#111122; border:1px solid #222; border-radius:10px; overflow:hidden; transition:all 0.2s; max-width:260px; margin:0 auto; }
+  .card-item:hover { border-color:#00e5ff; box-shadow:0 0 16px rgba(0,229,255,0.1); }
+  .card-header { padding:8px 12px; background:#0d0d22; border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center; }
+  .card-id { color:#00e5ff; font-weight:bold; font-size:13px; }
+  .card-name { color:#ffab40; font-size:11px; }
+  .card-img { width:100%; display:block; object-fit:cover; max-height:350px; cursor:pointer; }
+  .card-hint { padding:6px 12px; font-size:10px; color:#888; background:#0d0d22; border-top:1px solid #222; line-height:1.3; }
+  .card-actions { padding:8px 12px; display:flex; gap:6px; background:#0d0d22; }
+  .btn { flex:1; padding:6px 0; border:1px solid #333; border-radius:5px; cursor:pointer; font-size:12px; background:transparent; color:#999; transition:all 0.15s; }
+  .btn:hover { border-color:#555; color:#ccc; }
+  .btn.approve.active { background:#1b5e20; color:#69f0ae; border-color:#4caf50; }
+  .btn.reject.active { background:#5e1b1b; color:#ff8a80; border-color:#f44336; }
+  .toolbar { text-align:center; margin-top:24px; padding-bottom:40px; }
+  .toolbar button { padding:12px 28px; background:#1b5e20; color:#69f0ae; border:1px solid #4caf50; border-radius:8px; cursor:pointer; font-size:14px; margin:0 6px; }
+  .toolbar button:hover { background:#2e7d32; }
+  .toolbar button:last-child { background:#333; border-color:#555; color:#aaa; }
+  .toolbar button:last-child:hover { background:#444; }
+  .lightbox { display:none; position:fixed; top:0;left:0;width:100%;height:100%; background:rgba(0,0,0,0.92); z-index:9999; justify-content:center;align-items:center; }
+  .lightbox img { max-width:90vw; max-height:90vh; border-radius:8px; }
+  .lightbox.show { display:flex; }
+</style>
+</head>
+<body>
+<h1>🔬 第14批卡牌插画审核</h1>
+<div class="subtitle">新路线：降维简化 + 符号化转义</div>
+<div class="grid" id="grid"></div>
+<div class="toolbar">
+  <button onclick="exportResults()">📋 导出审核结果</button>
+  <button onclick="resetAll()">🔄 重置全部</button>
+</div>
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('show')">
+  <img id="lightboxImg" src="" alt="large preview">
+</div>
+
+<script>
+const CARDS = [
+  { id:"A04", name:"杠杆撬击", file:"A04_lever_v2_2026-06-16.png", hint:"巨大机械杠杆，短端撬起巨石，支点发光" },
+  { id:"A08", name:"做功打击", file:"A08_work_strike_v2_2026-06-16.png", hint:"赛博战士被能量击退，地面留拖痕和火花" },
+  { id:"A14", name:"回声爆破", file:"A14_echo_v2_2026-06-16.png", hint:"暗室中声波撞墙反射，汇聚破坏中心" },
+  { id:"A51", name:"声速激增", file:"A51_sound_speed_v2_2026-06-16.png", hint:"左冷蓝波慢伸，右热红波急进，温度梯度" },
+  { id:"S05", name:"力的合成", file:"S05_force_synthesis_v2_2026-06-16.png", hint:"两细力箭头合并为一粗力箭头，几何可视化" },
+  { id:"S10", name:"共振蓄能", file:"S10_resonance_v2_2026-06-16.png", hint:"三个音叉三角排列，中心裂纹球体即将碎裂" },
+  { id:"S12", name:"聚焦声束", file:"S12_parabolic_v2_2026-06-16.png", hint:"抛物面聚焦声波为光束，击碎目标" },
+  { id:"S15", name:"偏振过滤", file:"S15_polarization_v2_2026-06-16.png", hint:"网格左乱振，右统一竖直振动方向" }
+];
+
+const results = {};
+const grid = document.getElementById('grid');
+
+CARDS.forEach((c,i) => {
+  const div = document.createElement('div');
+  div.className = 'card-item';
+  div.innerHTML =
+    '<div class="card-header"><span class="card-id">' + c.id + '</span><span class="card-name">' + c.name + '</span></div>' +
+    '<img class="card-img" src="art_samples/card_art/' + c.file + '" alt="' + c.name + '" loading="lazy" onclick="showLarge(this.src)">' +
+    '<div class="card-hint">💡 ' + c.hint + '</div>' +
+    '<div class="card-actions">' +
+    '<button class="btn approve" onclick="toggleBtn(this,' + i + ',\'approve\')">✅ 通过</button>' +
+    '<button class="btn reject" onclick="toggleBtn(this,' + i + ',\'reject\')">❌ 不通过</button>' +
+    '</div>';
+  grid.appendChild(div);
+});
+
+function toggleBtn(btn, idx, type) {
+  const key = CARDS[idx].id;
+  if (type === 'approve') {
+    results[key] = 'approve';
+    btn.classList.add('active');
+    btn.nextElementSibling.classList.remove('active');
+  } else {
+    results[key] = 'reject';
+    btn.classList.add('active');
+    btn.previousElementSibling.classList.remove('active');
+  }
+}
+function showLarge(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('show');
+}
+function exportResults() {
+  const lines = ['第14批审核结果 @ ' + new Date().toLocaleString()];
+  let hasData = false;
+  CARDS.forEach(c => {
+    const r = results[c.id];
+    if (r) {
+      hasData = true;
+      const status = r === 'approve' ? '✅ 通过' : '❌ 不通过';
+      lines.push(c.id + ' ' + c.name + ' → ' + status + ' → art_samples/card_art/' + c.file);
+    }
+  });
+  if (!hasData) { alert('请先点击按钮审核每张卡'); return; }
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'batch14_result.txt';
+  a.click();
+  alert('已导出 ' + lines.length + ' 条结果');
+}
+function resetAll() {
+  CARDS.forEach((c,i) => { results[c.id] = null; });
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+}
+</script>
+</body>
+</html>

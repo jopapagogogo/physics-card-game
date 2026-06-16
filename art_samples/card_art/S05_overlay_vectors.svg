@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1536">
+  <defs>
+    <!-- Neon glow filters -->
+    <filter id="glowOrange" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur1"/>
+      <feGaussianBlur stdDeviation="6" result="blur2"/>
+      <feGaussianBlur stdDeviation="2" result="blur3"/>
+      <feMerge>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur3"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowPink" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur1"/>
+      <feGaussianBlur stdDeviation="5" result="blur2"/>
+      <feGaussianBlur stdDeviation="1.5" result="blur3"/>
+      <feMerge>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur3"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowBlue" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18" result="blur1"/>
+      <feGaussianBlur stdDeviation="9" result="blur2"/>
+      <feGaussianBlur stdDeviation="3" result="blur3"/>
+      <feMerge>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur3"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Vector: F1 (orange, short) -->
+  <g filter="url(#glowOrange)">
+    <line x1="180" y1="768" x2="510" y2="768" stroke="#FF6B35" stroke-width="22" stroke-linecap="round"/>
+    <!-- arrow head -->
+    <polygon points="510,768 475,748 475,788" fill="#FF6B35"/>
+  </g>
+
+  <!-- Vector: F2 (pink, shorter) -->
+  <g filter="url(#glowPink)">
+    <line x1="180" y1="768" x2="390" y2="768" stroke="#FF2D95" stroke-width="18" stroke-linecap="round"/>
+    <!-- arrow head -->
+    <polygon points="390,768 360,750 360,786" fill="#FF2D95"/>
+  </g>
+
+  <!-- Vector: Resultant (blue, long, thick, translucent) -->
+  <g filter="url(#glowBlue)" opacity="0.65">
+    <line x1="180" y1="768" x2="840" y2="768" stroke="#00D4FF" stroke-width="36" stroke-linecap="round" opacity="0.7"/>
+    <!-- arrow head -->
+    <polygon points="840,768 795,740 795,796" fill="#00D4FF" opacity="0.8"/>
+  </g>
+
+  <!-- Core bright lines on top -->
+  <line x1="180" y1="768" x2="505" y2="768" stroke="#FFAA70" stroke-width="5" stroke-linecap="round"/>
+  <line x1="180" y1="768" x2="385" y2="768" stroke="#FF70B0" stroke-width="4" stroke-linecap="round"/>
+  <line x1="180" y1="768" x2="835" y2="768" stroke="#80E8FF" stroke-width="7" stroke-linecap="round" opacity="0.5"/>
+</svg>

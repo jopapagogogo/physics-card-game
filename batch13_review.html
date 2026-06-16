@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第13批卡牌插画审核 (最后8张)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a1a; color: #ccc; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+  h1 { text-align: center; color: #00e5ff; margin-bottom: 4px; font-size: 20px; }
+  .subtitle { text-align: center; color: #ff8a80; margin-bottom: 20px; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; max-width: 1400px; margin: 0 auto; }
+  .card-item { background: #111122; border: 1px solid #222; border-radius: 10px; overflow: hidden; transition: all 0.2s; max-width: 260px; margin: 0 auto; }
+  .card-item:hover { border-color: #00e5ff; box-shadow: 0 0 16px rgba(0,229,255,0.1); }
+  .card-header { padding: 8px 12px; background: #0d0d22; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+  .card-id { color: #00e5ff; font-weight: bold; font-size: 13px; }
+  .card-name { color: #ffab40; font-size: 11px; }
+  .card-img { width: 100%; display: block; object-fit: cover; max-height: 350px; }
+  .card-hint { padding: 6px 12px; font-size: 10px; color: #888; background: #0d0d22; border-top: 1px solid #222; line-height: 1.3; }
+  .card-actions { padding: 8px 12px; display: flex; gap: 6px; background: #0d0d22; }
+  .btn { flex: 1; padding: 6px 0; border: 1px solid #333; border-radius: 5px; cursor: pointer; font-size: 12px; background: transparent; color: #999; transition: all 0.15s; }
+  .btn:hover { border-color: #555; color: #ccc; }
+  .btn.approve.active { background: #1b5e20; color: #69f0ae; border-color: #4caf50; }
+  .btn.reject.active { background: #5e1b1b; color: #ff8a80; border-color: #f44336; }
+  .a08-section { grid-column: 1 / -1; background: #0d0d22; border: 1px solid #333; border-radius: 10px; padding: 14px; margin-bottom: 4px; }
+  .a08-title { color: #00e5ff; font-size: 14px; margin-bottom: 10px; }
+  .a08-title span { color: #ffab40; font-size: 12px; }
+  .a08-variants { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .a08-variants .card-item { max-width: none; }
+  .toolbar { text-align: center; margin-top: 24px; padding-bottom: 40px; }
+  .toolbar button { padding: 12px 28px; background: #1b5e20; color: #69f0ae; border: 1px solid #4caf50; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 0 6px; }
+  .toolbar button:hover { background: #2e7d32; }
+  .toolbar button:last-child { background: #333; border-color: #555; color: #aaa; }
+  .toolbar button:last-child:hover { background: #444; }
+</style>
+</head>
+<body>
+<h1>🔬 第13批卡牌插画审核</h1>
+<div class="subtitle">最后 8 张顽固卡 · 成败在此一举</div>
+<div class="grid" id="grid"></div>
+<div class="toolbar">
+  <button onclick="exportResults()">📋 导出审核结果</button>
+  <button onclick="resetAll()">🔄 重置全部</button>
+</div>
+
+<script>
+const CARDS = [
+  { id: "A04", name: "杠杆撬击", file: "A_child_crouching_low_pressing_2026-06-15T12-04-35.png", hint: "小孩端下压（长臂），重物端飞起（短臂），支点靠短端" },
+  { id: "A08", name: "做功打击(3选1)", file: "", hint: "三张选一：人被推倒退滑行留拖痕", multi: [
+    { label: "版本A", file: "A_person_being_forcefully_shov_2026-06-15T12-09-55.png" },
+    { label: "版本B", file: "A_powerful_impact_striking_a_p_2026-06-15T12-05-31.png" },
+    { label: "版本C", file: "A_warrior_being_blasted_backwa_2026-06-15T12-09-55.png" }
+  ]},
+  { id: "A14", name: "回声爆破", file: "Dense_visible_concentric_sound_2026-06-15T12-09-55.png", hint: "360°同心圆声波扩散→撞墙回弹→叠加破坏" },
+  { id: "A51", name: "声速激增", file: "A_frozen_cold_blue_environment_2026-06-15T12-09-54.png", hint: "冷区声波慢爬→热区声波急速冲刺，波前拉伸" },
+  { id: "S05", name: "力的合成", file: "Two_thin_short_faint_neon_forc_2026-06-15T12-09-55.png", hint: "两细短分力同线同向→合并为粗长合力" },
+  { id: "S10", name: "共振蓄能", file: "A_clean_symmetrical_scientific_2026-06-15T12-09-54.png", hint: "六音叉围圈同频振动→中央物体共振碎裂" },
+  { id: "S12", name: "聚焦声束", file: "A_large_curved_parabolic_refle_2026-06-15T12-05-20.png", hint: "平行声波→抛物面反射→聚焦一点→振碎物体" },
+  { id: "S15", name: "偏振过滤", file: "Unpolarized_light_waves_with_e_2026-06-15T12-09-55.png", hint: "过滤后所有光波振动方向统一（非传播方向）" }
+];
+
+const grid = document.getElementById('grid');
+CARDS.forEach((c, i) => {
+  if (c.multi) {
+    const sec = document.createElement('div');
+    sec.className = 'a08-section';
+    sec.id = 'a08-section';
+    sec.innerHTML = '<div class="a08-title">A08 <span>做功打击 — 三选一</span> 💡 人被推倒退滑行，留拖痕</div><div class="a08-variants" id="a08-variants"></div>';
+    grid.appendChild(sec);
+    const vars = document.getElementById('a08-variants');
+    c.multi.forEach((v, vi) => {
+      const div = document.createElement('div');
+      div.className = 'card-item';
+      div.innerHTML =
+        '<div class="card-header"><span class="card-id">' + v.label + '</span></div>' +
+        '<img class="card-img" src="art_samples/card_art/' + v.file + '" alt="' + v.label + '" loading="lazy">' +
+        '<div class="card-actions">' +
+        '<button class="btn approve" onclick="pickA08(' + vi + ', this)" style="font-size:11px">✅ 选这张</button>' +
+        '</div>';
+      vars.appendChild(div);
+    });
+    return;
+  }
+  const div = document.createElement('div');
+  div.className = 'card-item';
+  div.innerHTML =
+    '<div class="card-header"><span class="card-id">' + c.id + '</span><span class="card-name">' + c.name + '</span></div>' +
+    '<img class="card-img" src="art_samples/card_art/' + c.file + '" alt="' + c.name + '" loading="lazy">' +
+    '<div class="card-hint">💡 ' + c.hint + '</div>' +
+    '<div class="card-actions">' +
+    '<button class="btn approve" onclick="toggleBtn(this, ' + i + ', \'approve\')">✅ 通过</button>' +
+    '<button class="btn reject" onclick="toggleBtn(this, ' + i + ', \'reject\')">❌ 不通过</button>' +
+    '</div>';
+  grid.appendChild(div);
+});
+
+let a08Picked = -1;
+function pickA08(idx, btn) {
+  a08Picked = idx;
+  const sec = document.getElementById('a08-section');
+  sec.querySelectorAll('.btn.approve').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleBtn(btn, idx, type) {
+  const item = btn.closest('.card-item');
+  const btns = item.querySelectorAll('.btn');
+  btns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function exportResults() {
+  const approved = [], rejected = [];
+  document.querySelectorAll('.grid > .card-item').forEach((item, i) => {
+    const btns = item.querySelectorAll('.btn');
+    if (btns[0].classList.contains('active')) approved.push(CARDS[i].id);
+    else if (btns[1].classList.contains('active')) rejected.push(CARDS[i].id);
+  });
+  if (a08Picked >= 0) {
+    approved.push('A08(v' + (a08Picked+1) + ')');
+  } else {
+    rejected.push('A08(未选)');
+  }
+  let old = document.getElementById('export-result');
+  if (old) old.remove();
+  const box = document.createElement('div');
+  box.id = 'export-result';
+  box.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:2px solid #00e5ff;border-radius:12px;padding:24px 32px;z-index:9999;max-width:600px;min-width:320px;box-shadow:0 0 40px rgba(0,229,255,0.3)';
+  box.innerHTML = '<h3 style="color:#00e5ff;margin:0 0 12px">📋 审核结果</h3>' +
+    '<p style="color:#69f0ae;margin:4px 0"><b>✅ 通过 (' + approved.length + '):</b><br>' + (approved.length ? approved.join(', ') : '(无)') + '</p>' +
+    '<p style="color:#ff8a80;margin:4px 0"><b>❌ 不通过 (' + rejected.length + '):</b><br>' + (rejected.length ? rejected.join(', ') : '(无)') + '</p>' +
+    '<div style="margin-top:12px;display:flex;gap:8px;justify-content:center">' +
+    '<button onclick="navigator.clipboard.writeText(document.getElementById(\'export-result\').innerText).then(()=>this.textContent=\'已复制!\')" style="background:#1b5e20;color:#69f0ae;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">📝 复制结果</button>' +
+    '<button onclick="document.getElementById(\'export-result\').remove()" style="background:#333;color:#ccc;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">关闭</button>' +
+    '</div>';
+  document.body.appendChild(box);
+}
+
+function resetAll() {
+  a08Picked = -1;
+  document.querySelectorAll('.btn.active').forEach(b => b.classList.remove('active'));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10批卡牌插画审核 — 全部剩余50张</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0f; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; padding: 24px; }
+h1 { text-align: center; font-size: 24px; margin-bottom: 4px; color: #00e5ff; }
+.subtitle { text-align: center; color: #888; margin-bottom: 8px; font-size: 13px; }
+.legend { display: flex; gap: 16px; justify-content: center; margin-bottom: 24px; font-size: 13px; }
+.legend span { padding: 4px 12px; border-radius: 4px; }
+.legend .redo { background: #332200; color: #ffb300; }
+.legend .fresh { background: #112233; color: #4fc3f7; }
+.section-title { color: #ff9100; font-size: 16px; margin: 24px 0 12px; padding: 8px 0; border-bottom: 1px solid #222; }
+.grid { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.card-item { background: #111118; border: 2px solid #222; border-radius: 10px; padding: 12px; width: 280px; text-align: center; transition: border-color 0.3s; }
+.card-id { font-size: 20px; font-weight: 700; color: #ff9100; margin-bottom: 2px; }
+.card-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+.card-img { width: 100%; border-radius: 6px; border: 1px solid #333; min-height: 180px; background: #1a1a20; }
+.card-status { margin-top: 8px; display: flex; gap: 8px; justify-content: center; }
+.btn { padding: 6px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+.btn-approve { background: #1b5e20; color: #69f0ae; }
+.btn-approve:hover { background: #2e7d32; }
+.btn-reject { background: #4a1a1a; color: #ff8a80; }
+.btn-reject:hover { background: #621b1b; }
+.btn-approve.active { background: #00c853; color: #000; box-shadow: 0 0 12px #00c853; }
+.btn-reject.active { background: #ff1744; color: #fff; box-shadow: 0 0 12px #ff1744; }
+.card-item.redo { border-color: #ffb300; }
+.card-item.fresh { border-color: #1a3a4a; }
+.export-btn { display: block; margin: 32px auto 0; padding: 12px 32px; background: #ff9100; color: #000; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.export-btn:hover { background: #ffab40; }
+</style>
+</head>
+<body>
+<h1>🔬 第10批卡牌插画审核</h1>
+<p class="subtitle">50 张（5重做 + 45新图）· 点击按钮标记 · 底部可导出结果</p>
+<div class="legend">
+  <span class="redo">🟡 重做</span>
+  <span class="fresh">🔵 新图</span>
+</div>
+<div id="container"></div>
+<button class="export-btn" onclick="exportResults()">📋 导出审核结果</button>
+
+<script>
+const CARDS = [
+  // === 重做 ===
+  { id:"A03", name:"压强穿刺", file:"A_sharp_mechanical_spear_tip_b_2026-06-15T08-17-28.png", tag:"redo" },
+  { id:"A04", name:"杠杆撬击", file:"A_tiny_child_jumping_on_the_fa_2026-06-15T08-17-28.png", tag:"redo" },
+  { id:"S05", name:"力的合成", file:"Two_thin_faint_neon_vector_arr_2026-06-15T08-17-28.png", tag:"redo" },
+  { id:"A14", name:"回声爆破", file:"Glowing_sound_wave_rings_radia_2026-06-15T08-17-28.png", tag:"redo" },
+  { id:"S10", name:"共振蓄能", file:"A_glass_crystal_being_hit_by_v_2026-06-15T08-17-28.png", tag:"redo" },
+  // === 力系攻击 ===
+  { id:"A02", name:"惯性冲锋", file:"A_massive_warrior_or_vehicle_b_2026-06-15T08-20-54.png", tag:"fresh" },
+  { id:"A08", name:"做功打击", file:"A_powerful_mechanical_fist_sla_2026-06-15T08-20-44.png", tag:"fresh" },
+  // === 声系攻击 ===
+  { id:"A11", name:"啸叫", file:"A_cybernetic_figure_screaming__2026-06-15T08-20-44.png", tag:"fresh" },
+  // === 光系攻击 ===
+  { id:"A46", name:"折射偏转", file:"A_bright_laser_beam_hitting_a__2026-06-15T08-20-44.png", tag:"fresh" },
+  // === 热系攻击 ===
+  { id:"A26", name:"凝固封锁", file:"Frost_and_ice_rapidly_spreadin_2026-06-15T08-21-38.png", tag:"fresh" },
+  { id:"A54", name:"爆燃", file:"A_sudden_combustion_explosion__2026-06-15T08-23-13.png", tag:"fresh" },
+  // === 电系攻击 ===
+  { id:"A48", name:"静电爆发", file:"Static_electricity_crackling_a_2026-06-15T08-21-37.png", tag:"fresh" },
+  // === 多领域攻击 ===
+  { id:"A34", name:"摩擦生热", file:"Two_rough_metal_surfaces_grind_2026-06-15T08-21-37.png", tag:"fresh" },
+  { id:"A38", name:"光压推击", file:"A_beam_of_intense_light_pushin_2026-06-15T08-21-48.png", tag:"fresh" },
+  { id:"A39", name:"光电效应", file:"A_beam_of_violet_light_strikin_2026-06-15T08-22-24.png", tag:"fresh" },
+  { id:"A40", name:"安培力冲击", file:"An_electrified_wire_bending_dr_2026-06-15T08-22-25.png", tag:"fresh" },
+  { id:"A41", name:"太阳能聚变", file:"A_miniature_artificial_sun_sus_2026-06-15T08-22-35.png", tag:"fresh" },
+  { id:"A50", name:"海市蜃楼", file:"A_shimmering_mirage_in_a_heat__2026-06-15T08-22-24.png", tag:"fresh" },
+  { id:"A42", name:"电声轰鸣", file:"A_massive_speaker_cone_vibrati_2026-06-15T08-23-13.png", tag:"fresh" },
+  { id:"A51", name:"声速激增", file:"Sound_waves_accelerating_throu_2026-06-15T08-23-13.png", tag:"fresh" },
+  { id:"A53", name:"镜面回声", file:"Sound_and_light_waves_bouncing_2026-06-15T08-23-13.png", tag:"fresh" },
+  { id:"A55", name:"凸透引燃", file:"A_convex_lens_focusing_paralle_2026-06-15T08-20-44.png", tag:"fresh" },
+  // === 辅助卡 ===
+  { id:"S04", name:"摩擦阻碍", file:"Rough_surfaces_resisting_movem_2026-06-15T08-23-12.png", tag:"fresh" },
+  { id:"S09", name:"频率调节", file:"A_sound_wave_frequency_dial_or_2026-06-15T08-24-18.png", tag:"fresh" },
+  { id:"S11", name:"隔音屏障", file:"An_energy_shield_barrier_absor_2026-06-15T08-24-18.png", tag:"fresh" },
+  { id:"S12", name:"聚焦声束", file:"Sound_waves_being_focused_by_a_2026-06-15T08-24-20.png", tag:"fresh" },
+  { id:"S13", name:"多普勒探测", file:"Radar_waves_pulsing_outward_to_2026-06-15T08-24-19.png", tag:"fresh" },
+  { id:"S15", name:"偏振过滤", file:"Light_passing_through_a_polari_2026-06-15T08-24-17.png", tag:"fresh" },
+  { id:"S21", name:"凸透成像", file:"A_convex_lens_projecting_a_mag_2026-06-15T08-29-56.png", tag:"fresh" },
+  { id:"S24", name:"温度升高", file:"A_glowing_thermometer_rising_r_2026-06-15T08-29-56.png", tag:"fresh" },
+  { id:"S31", name:"高压击穿", file:"A_dramatic_lightning_bolt_stri_2026-06-15T08-29-56.png", tag:"fresh" },
+  { id:"S32", name:"低压启动", file:"A_tiny_spark_jumping_between_t_2026-06-15T08-29-56.png", tag:"fresh" },
+  { id:"S34", name:"置换卡", file:"A_hand_swapping_two_glowing_ca_2026-06-15T08-29-56.png", tag:"fresh" },
+  // === 领域 ===
+  { id:"D02", name:"声之领域·共鸣场", file:"A_massive_resonant_amphitheate_2026-06-15T08-34-35.png", tag:"fresh" },
+  { id:"D03", name:"光之领域·棱镜界", file:"A_massive_crystal_prism_splitt_2026-06-15T08-34-35.png", tag:"fresh" },
+  { id:"D04", name:"热之领域·熵增域", file:"Energy_dispersing_and_spreadin_2026-06-15T08-34-45.png", tag:"fresh" },
+  { id:"D05", name:"电之领域·电磁域", file:"A_powerful_electromagnetic_fie_2026-06-15T08-34-36.png", tag:"fresh" },
+  // === 召唤卡 ===
+  { id:"C01", name:"芝诺龟", file:"A_mythical_turtle_creature_mad_2026-06-15T08-35-24.png", tag:"fresh" },
+  { id:"C02", name:"麦克斯韦妖", file:"A_tiny_impish_demon_creature_s_2026-06-15T08-35-24.png", tag:"fresh" },
+  { id:"C03", name:"拉普拉斯妖", file:"An_omniscient_cosmic_entity_wi_2026-06-15T08-35-24.png", tag:"fresh" },
+  { id:"C04", name:"薛定谔的猫", file:"A_cat_existing_in_two_states_s_2026-06-15T08-35-24.png", tag:"fresh" },
+  { id:"C05", name:"牛顿", file:"A_17th_century_English_scienti_2026-06-15T08-35-24.png", tag:"fresh" },
+  { id:"C06", name:"阿基米德", file:"An_ancient_Greek_scholar_with__2026-06-15T08-36-11.png", tag:"fresh" },
+  { id:"C07", name:"欧姆", file:"A_19th_century_German_physicis_2026-06-15T08-36-11.png", tag:"fresh" },
+  { id:"C08", name:"焦耳", file:"A_19th_century_English_physici_2026-06-15T08-36-10.png", tag:"fresh" },
+  { id:"C10", name:"贝尔", file:"A_19th_century_Scottish_invent_2026-06-15T08-36-10.png", tag:"fresh" },
+  { id:"C11", name:"惠更斯", file:"A_17th_century_Dutch_scientist_2026-06-15T08-36-10.png", tag:"fresh" },
+  // === 相位 ===
+  { id:"T01", name:"能量守恒", file:"Energy_transforming_from_one_f_2026-06-15T08-37-58.png", tag:"fresh" },
+  { id:"T02", name:"临界突破", file:"A_warrior_at_the_absolute_brin_2026-06-15T08-37-57.png", tag:"fresh" },
+  { id:"T03", name:"熵逆转", file:"Order_emerging_from_chaos__sha_2026-06-15T08-37-57.png", tag:"fresh" }
+];
+
+const container = document.getElementById('container');
+let lastSection = '';
+
+CARDS.forEach((card, i) => {
+  const section = card.tag === 'redo' ? 're' : card.id[0];
+  if (section !== lastSection) {
+    const labels = { 're': '🟡 重做', 'A': '🗡️ 攻击卡', 'S': '🛡️ 辅助卡', 'D': '🏛️ 领域卡', 'C': '🧙 召唤卡', 'T': '✨ 相位卡' };
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = labels[section] || section;
+    container.appendChild(title);
+    lastSection = section;
+  }
+  const div = document.createElement('div');
+  div.className = 'card-item ' + card.tag;
+  div.innerHTML = `
+    <div class="card-id">${card.id}</div>
+    <div class="card-name">${card.name}</div>
+    <img class="card-img" src="art_samples/card_art/${card.file}" onerror="this.alt='加载失败';this.style.borderColor='red'" loading="lazy">
+    <div class="card-status">
+      <button class="btn btn-approve" onclick="mark(this,'approve',${i})">✅ 通过</button>
+      <button class="btn btn-reject" onclick="mark(this,'reject',${i})">❌ 不通过</button>
+    </div>
+  `;
+  container.appendChild(div);
+});
+
+function mark(btn, type, idx) {
+  btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const item = container.querySelectorAll('.card-item')[idx];
+  item.style.borderColor = type === 'approve' ? '#00c853' : '#ff1744';
+}
+
+function exportResults() {
+  const approved = [], rejected = [];
+  container.querySelectorAll('.card-item').forEach((item, i) => {
+    const btns = item.querySelectorAll('.btn');
+    if (btns[0].classList.contains('active')) approved.push(CARDS[i].id);
+    else if (btns[1].classList.contains('active')) rejected.push(CARDS[i].id);
+  });
+  let old = document.getElementById('export-result');
+  if (old) old.remove();
+  const box = document.createElement('div');
+  box.id = 'export-result';
+  box.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:2px solid #00e5ff;border-radius:12px;padding:24px 32px;z-index:9999;max-width:600px;min-width:320px;box-shadow:0 0 40px rgba(0,229,255,0.3)';
+  box.innerHTML = '<h3 style="color:#00e5ff;margin:0 0 12px">📋 审核结果</h3>' +
+    '<p style="color:#69f0ae;margin:4px 0"><b>✅ 通过 (' + approved.length + '):</b><br>' + (approved.length ? approved.join(', ') : '(无)') + '</p>' +
+    '<p style="color:#ff8a80;margin:4px 0"><b>❌ 不通过 (' + rejected.length + '):</b><br>' + (rejected.length ? rejected.join(', ') : '(无)') + '</p>' +
+    '<div style="margin-top:12px;display:flex;gap:8px;justify-content:center">' +
+    '<button onclick="navigator.clipboard.writeText(document.getElementById(\'export-result\').innerText).then(()=>this.textContent=\'已复制!\')" style="background:#1b5e20;color:#69f0ae;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">📝 复制结果</button>' +
+    '<button onclick="document.getElementById(\'export-result\').remove()" style="background:#333;color:#ccc;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">关闭</button>' +
+    '</div>';
+  document.body.appendChild(box);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第12批卡牌插画审核 (11张)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a1a; color: #ccc; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+  h1 { text-align: center; color: #00e5ff; margin-bottom: 8px; font-size: 22px; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 24px; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; max-width: 1400px; margin: 0 auto; }
+  .card-item { background: #111122; border: 1px solid #222; border-radius: 10px; overflow: hidden; transition: all 0.2s; max-width: 260px; margin: 0 auto; }
+  .card-item:hover { border-color: #00e5ff; box-shadow: 0 0 16px rgba(0,229,255,0.1); }
+  .card-header { padding: 8px 12px; background: #0d0d22; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+  .card-id { color: #00e5ff; font-weight: bold; font-size: 13px; }
+  .card-name { color: #ffab40; font-size: 11px; }
+  .card-img { width: 100%; display: block; object-fit: cover; max-height: 380px; }
+  .card-hint { padding: 6px 12px; font-size: 10px; color: #888; background: #0d0d22; border-top: 1px solid #222; line-height: 1.3; }
+  .card-actions { padding: 8px 12px; display: flex; gap: 6px; background: #0d0d22; }
+  .btn { flex: 1; padding: 6px 0; border: 1px solid #333; border-radius: 5px; cursor: pointer; font-size: 12px; background: transparent; color: #999; transition: all 0.15s; }
+  .btn:hover { border-color: #555; color: #ccc; }
+  .btn.approve.active { background: #1b5e20; color: #69f0ae; border-color: #4caf50; }
+  .btn.reject.active { background: #5e1b1b; color: #ff8a80; border-color: #f44336; }
+  .toolbar { text-align: center; margin-top: 30px; padding-bottom: 40px; }
+  .toolbar button { padding: 12px 28px; background: #1b5e20; color: #69f0ae; border: 1px solid #4caf50; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 0 6px; }
+  .toolbar button:hover { background: #2e7d32; }
+  .toolbar button:last-child { background: #333; border-color: #555; color: #aaa; }
+  .toolbar button:last-child:hover { background: #444; }
+</style>
+</head>
+<body>
+<h1>📋 第12批卡牌插画审核</h1>
+<div class="subtitle">最后11张 · 109/109 冲刺</div>
+<div class="grid" id="grid"></div>
+<div class="toolbar">
+  <button onclick="exportResults()">📋 导出审核结果</button>
+  <button onclick="resetAll()">🔄 重置全部</button>
+</div>
+
+<script>
+const CARDS = [
+  { id: "A04", name: "杠杆撬击", file: "A_child_half_crouching_with_fu_2026-06-15T09-42-25.png", hint: "小孩半蹲踩杠杆一端，另一端重物被击飞" },
+  { id: "A08", name: "做功打击", file: "A_person_being_shoved_forceful_2026-06-15T09-42-25.png", hint: "人被推着倒退滑行，留下拖痕" },
+  { id: "A14", name: "回声爆破", file: "Sound_waves_radiating_outward__2026-06-15T09-42-25.png", hint: "四面八方传播→障碍反射→叠加→破坏" },
+  { id: "A46", name: "折射偏转", file: "A_single_narrow_focused_beam_o_2026-06-15T09-42-25.png", hint: "光束斜射入水折射，水中光束保持收拢" },
+  { id: "A50", name: "海市蜃楼", file: "A_vast_hot_desert_ground_with__2026-06-15T09-42-25.png", hint: "大面积热浪扭曲，蜃楼在偏上空位置" },
+  { id: "A51", name: "声速激增", file: "Visible_sound_wave_pulses_trav_2026-06-15T09-42-25.png", hint: "声波冷→热区域，波前加速拉伸" },
+  { id: "S05", name: "力的合成", file: "Two_thin_short_glowing_force_v_2026-06-15T09-42-25.png", hint: "两个细短分力在同一直线→合成粗长合力" },
+  { id: "S10", name: "共振蓄能", file: "Multiple_identical_tuning_fork_2026-06-15T09-42-25.png", hint: "周围音叉同频振动→中间物体共振碎裂" },
+  { id: "S12", name: "聚焦声束", file: "Parallel_sound_wave_lines_appr_2026-06-15T09-42-25.png", hint: "平行声波经抛物面反射→聚焦一点→振碎物体" },
+  { id: "S15", name: "偏振过滤", file: "A_beam_of_unpolarized_light_ap_2026-06-15T09-42-25.png", hint: "滤单一振动方向的光（非传播方向）" },
+  { id: "S31", name: "高压击穿", file: "A_massive_violent_lightning_bo_2026-06-15T09-42-25.png", hint: "高压闪电击穿绝缘体，打出一个洞" }
+];
+
+const grid = document.getElementById('grid');
+CARDS.forEach((c, i) => {
+  const div = document.createElement('div');
+  div.className = 'card-item';
+  div.innerHTML =
+    '<div class="card-header"><span class="card-id">' + c.id + '</span><span class="card-name">' + c.name + '</span></div>' +
+    '<img class="card-img" src="art_samples/card_art/' + c.file + '" alt="' + c.name + '" loading="lazy">' +
+    '<div class="card-hint">💡 ' + c.hint + '</div>' +
+    '<div class="card-actions">' +
+    '<button class="btn approve" onclick="toggleBtn(this, ' + i + ', \'approve\')">✅ 通过</button>' +
+    '<button class="btn reject" onclick="toggleBtn(this, ' + i + ', \'reject\')">❌ 不通过</button>' +
+    '</div>';
+  grid.appendChild(div);
+});
+
+function toggleBtn(btn, idx, type) {
+  const item = btn.closest('.card-item');
+  const btns = item.querySelectorAll('.btn');
+  btns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function exportResults() {
+  const approved = [], rejected = [];
+  document.querySelectorAll('.card-item').forEach((item, i) => {
+    const btns = item.querySelectorAll('.btn');
+    if (btns[0].classList.contains('active')) approved.push(CARDS[i].id);
+    else if (btns[1].classList.contains('active')) rejected.push(CARDS[i].id);
+  });
+  let old = document.getElementById('export-result');
+  if (old) old.remove();
+  const box = document.createElement('div');
+  box.id = 'export-result';
+  box.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;border:2px solid #00e5ff;border-radius:12px;padding:24px 32px;z-index:9999;max-width:600px;min-width:320px;box-shadow:0 0 40px rgba(0,229,255,0.3)';
+  box.innerHTML = '<h3 style="color:#00e5ff;margin:0 0 12px">📋 审核结果</h3>' +
+    '<p style="color:#69f0ae;margin:4px 0"><b>✅ 通过 (' + approved.length + '):</b><br>' + (approved.length ? approved.join(', ') : '(无)') + '</p>' +
+    '<p style="color:#ff8a80;margin:4px 0"><b>❌ 不通过 (' + rejected.length + '):</b><br>' + (rejected.length ? rejected.join(', ') : '(无)') + '</p>' +
+    '<div style="margin-top:12px;display:flex;gap:8px;justify-content:center">' +
+    '<button onclick="navigator.clipboard.writeText(document.getElementById(\'export-result\').innerText).then(()=>this.textContent=\'已复制!\')" style="background:#1b5e20;color:#69f0ae;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">📝 复制结果</button>' +
+    '<button onclick="document.getElementById(\'export-result\').remove()" style="background:#333;color:#ccc;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">关闭</button>' +
+    '</div>';
+  document.body.appendChild(box);
+}
+
+function resetAll() {
+  document.querySelectorAll('.btn.active').forEach(b => b.classList.remove('active'));
+}
+</script>
+</body>
+</html>
