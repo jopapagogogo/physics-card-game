@@ -40,8 +40,8 @@ class GameUI {
 
   // ==================== 初始化 ====================
 
-  init() {
-    this._loadCardArt();
+  async init() {
+    await this._loadCardArt();
     this.showStartScreen();
   }
 
@@ -3161,7 +3161,7 @@ class GameUI {
 
 export { GameUI };
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   try {
     const container = document.getElementById('game-container');
     if (!container) {
@@ -3169,7 +3169,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const ui = new GameUI('game-container');
-    ui.init();
+    await ui.init();
 
     // 挂载到window方便调试
     window.__gameUI = ui;

@@ -92,7 +92,7 @@ body {
 .card-hand::-webkit-scrollbar { display:none; }
 .card-hand .card.small:first-child { margin-left:0; }
 .card-hand .card.small.selected,
-.card-hand .card.small:hover { transform:translateY(-8px); z-index:5; box-shadow:var(--shdH); }
+.card-hand .card.small:hover { z-index:5; box-shadow:var(--shdH); }
 .opponent-hand { min-height:50px; padding:4px 12px; }
 .opponent-hand .card.small { cursor:default; }
 
@@ -160,7 +160,6 @@ body {
 
 @media (hover:hover) and (pointer:fine) {
   .card:hover { transform:translateY(-4px); box-shadow:var(--shdH); }
-  .card.small:hover { transform:translateY(-8px); }
 }
 
 /* ---- 场上区域 ---- */
