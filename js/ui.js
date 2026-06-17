@@ -1331,7 +1331,7 @@ class GameUI {
           html += `
             <div class="card-v3 mini ${this._domainClass(card.domain)} skin-cyber ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
                  data-card-id="${this._escapeAttr(card.id)}"
-                 style="transform:rotate(${rot}deg); transform-origin:bottom center; transition:all .2s ease; flex-shrink:0;">
+                 style="--rot:${rot}deg;transform:rotate(var(--rot));transform-origin:bottom center;transition:all .2s ease;flex-shrink:0;height:215px;">
               <div class="v3-header">
                 <div class="v3-cost">${card.cost ?? '-'}</div>
                 <div class="v3-name">${this._escapeHtml(card.name)}</div>
@@ -1340,8 +1340,8 @@ class GameUI {
               <div class="v3-type-ribbon"><span class="v3-type-pip ${card.type}">${typeLabel}</span></div>
               <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
               <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-              ${card.effect?.dmg ? `<div class="v3-stats"><span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span></div>` : ''}
-              ${hasDesc ? `<div class="v3-desc-box">${this._escapeHtml(descRaw)}</div>` : ''}
+              <div class="v3-stats" style="min-height:18px;">${card.effect?.dmg ? `<span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}</div>
+              <div class="v3-desc-box" style="min-height:24px;font-size:.6em;">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
               <span class="v3-badge">赛博</span>
             </div>
           `;
