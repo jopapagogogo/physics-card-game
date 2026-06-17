@@ -86,8 +86,8 @@ body {
 /* ---- 手牌区域 ---- */
 .card-hand {
   display:flex; flex-direction:row; align-items:flex-end; justify-content:center;
-  gap:2px; padding:8px 12px; overflow-x:auto; overflow-y:visible;
-  scrollbar-width:none;
+  gap:0; padding:12px 16px; overflow-x:auto; overflow-y:visible;
+  scrollbar-width:none; min-height:200px;
 }
 .card-hand::-webkit-scrollbar { display:none; }
 .card-hand .card.small:first-child { margin-left:0; }
@@ -1002,6 +1002,36 @@ body {
 .card-v3.skin-cyber .v3-name{text-shadow:0 0 6px var(--dm-glow)}
 .card-v3.skin-cyber .v3-art-frame{opacity:.85}
 .card-v3.skin-cyber .v3-cost{font-family:monospace;border:2px solid var(--dm)}
+
+/* === MINI — 手牌用缩小版 === */
+.card-v3.mini { width:130px; font-size:9px; }
+.card-v3.mini .v3-header { padding:6px 8px 2px; gap:4px; }
+.card-v3.mini .v3-cost { width:24px; height:24px; font-size:.8em; }
+.card-v3.mini .v3-cost::before { inset:-1.5px; -webkit-mask:radial-gradient(circle,transparent 11px,#000 11.5px); mask:radial-gradient(circle,transparent 11px,#000 11.5px); }
+.card-v3.mini .v3-name { font-size:.65em; letter-spacing:1px; padding:1px 0; }
+.card-v3.mini .v3-rune { width:18px; height:18px; font-size:14px; }
+.card-v3.mini .v3-type-ribbon { padding:0 0 3px; }
+.card-v3.mini .v3-type-pip { font-size:.55em; padding:1px 6px; }
+.card-v3.mini .v3-art-frame { margin:0 6px; height:90px; }
+.card-v3.mini .v3-art-frame img { width:calc(100% - 4px); height:calc(100% - 4px); }
+.card-v3.mini .v3-art-corner { width:10px; height:10px; }
+.card-v3.mini .v3-art-corner.tl { top:4px; left:4px; }
+.card-v3.mini .v3-art-corner.tr { top:4px; right:4px; }
+.card-v3.mini .v3-art-corner.bl { bottom:4px; left:4px; }
+.card-v3.mini .v3-art-corner.br { bottom:4px; right:4px; }
+.card-v3.mini .v3-divider { padding:2px 8px; gap:3px; }
+.card-v3.mini .v3-divider .gem { width:4px; height:4px; }
+.card-v3.mini .v3-stats { padding:0 8px 2px; }
+.card-v3.mini .v3-stat-num { font-size:1em; }
+.card-v3.mini .v3-stat-unit { font-size:.6em; }
+.card-v3.mini .v3-badge { padding:1px 6px; font-size:.45em; }
+
+/* 手牌 playable 高亮 */
+.card-v3.mini { margin-left:-8px; margin-right:-8px; }
+.card-v3.mini:first-child { margin-left:0; }
+.card-v3.mini:last-child { margin-right:0; }
+.card-v3.mini.playable { border-color:#2ecc71 !important; }
+.card-v3.mini.selected { transform:translateY(-12px) scale(1.08) !important; z-index:20; }
 
 /* === 皮肤 B: 二次元幻境（柔光+星点+圆角）=== */
 .skin-anime {

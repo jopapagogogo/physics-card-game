@@ -1308,35 +1308,38 @@ class GameUI {
     // 己方手牌
     if (selfHand) {
       const cards = gs.players[0].hand || [];
-      const artCards = cards.filter(c => this.artMap[c.id]);
-      console.log('[renderHand] cards:', cards.length, '有插画:', artCards.length);
+      console.log('[renderHand] cards:', cards.length);
       let html = '';
       if (cards.length === 0) {
         html = '<div class="empty-state"><span class="empty-icon">🃏</span>暂无手牌</div>';
       } else {
-        const fanAngle = Math.min(8, cards.length * 2); // 扇形总角度
-        const startAngle = -(fanAngle / 2);
+        const totalAngle = Math.min(cards.length * 3.5, 40); // 扇形总角度
+        const startAngle = -(totalAngle / 2);
         for (let i = 0; i < cards.length; i++) {
           const card = cards[i];
           const cpResult = this.phase === 'play' && this.engine.canPlay
             ? this.engine.canPlay(0, card)
             : { can: false };
           const isPlayable = cpResult.can;
-          const style = this.getDomainStyle(card.domain);
           const isSelected = this.selectedCard && this.selectedCard.id === card.id;
-          const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[card.type] || '🃏';
-          // 扇形旋转角度
-          const rot = cards.length > 1 ? startAngle + (fanAngle / (cards.length - 1)) * i : 0;
+          const rot = cards.length > 1 ? startAngle + (totalAngle / (cards.length - 1)) * i : 0;
           const artUrl = this.artMap[card.id] || '';
+          const typeLabel = this.getTypeLabel(card.type);
+          const runeEmoji = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡' }[this.getDomainLabel(card.domain)] || '⚛';
           html += `
-            <div class="card small ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
+            <div class="card-v3 mini ${this._domainClass(card.domain)} skin-cyber ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
                  data-card-id="${this._escapeAttr(card.id)}"
-                 style="border-left-color:${style.color}; border:3px solid ${isPlayable ? '#2ecc71' : '#555'}; transform: rotate(${rot}deg) translateY(${Math.abs(rot) * 0.8}px); transition: all 0.2s ease; background:#1a1a2e;">
-              <span class="card-cost" style="background:${style.bg};top:4px;left:4px;width:20px;height:20px;font-size:10px;z-index:2;">${card.cost ?? '?'}</span>
-              ${artUrl ? `<img class="hand-card-art" src="${this._escapeAttr(artUrl)}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:.7;z-index:0;pointer-events:none;border-radius:4px;">` : ''}
-              <span class="card-name" style="color:#fff;font-size:11px;font-weight:900;padding:26px 2px 2px;line-height:1.1;position:relative;z-index:1;">${this._escapeHtml(card.name)}</span>
-              <span class="card-type" style="font-size:8px;position:relative;z-index:1;">${emoji} ${this.getTypeLabel(card.type)}</span>
-              ${!artUrl ? `<span class="card-desc">${this._escapeHtml(String(card.description || '').substring(0, 16))}</span>` : ''}
+                 style="transform:rotate(${rot}deg) translateY(${Math.abs(rot)*1.2}px); transition:all .2s ease; flex-shrink:0;">
+              <div class="v3-header">
+                <div class="v3-cost">${card.cost ?? '-'}</div>
+                <div class="v3-name">${this._escapeHtml(card.name)}</div>
+                <div class="v3-rune">${runeEmoji}</div>
+              </div>
+              <div class="v3-type-ribbon"><span class="v3-type-pip ${card.type}">${typeLabel}</span></div>
+              <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+              <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+              ${card.effect?.dmg ? `<div class="v3-stats"><span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span></div>` : ''}
+              <span class="v3-badge">赛博</span>
             </div>
           `;
         }
