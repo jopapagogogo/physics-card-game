@@ -60,7 +60,10 @@ class GameUI {
           card._artUrl = `art_samples/card_art/${mapping[card.id]}`;
         }
       }
-      console.log(`[init] 插画加载完成: ${Object.keys(mapping).length} 张`);
+      console.log(`[init] 插画加载完成: ${Object.keys(mapping).length} 张 → ${CARDS.filter(c=>c._artUrl).length} 张注入`);
+      // 调试：打印前3张有插画的卡
+      const withArt = CARDS.filter(c => c._artUrl).slice(0, 3);
+      console.log('[init] 首批插画:', withArt.map(c => `${c.id}:${c._artUrl}`).join(', '));
     } catch (e) {
       console.warn('[init] 插画加载失败(可能缺少approved_cards.json):', e.message);
     }
@@ -1304,7 +1307,8 @@ class GameUI {
       console.warn('[renderHand] no state');
       return;
     }
-    console.log('[renderHand] selfHand element:', selfHand, 'cards:', gs.players[0].hand?.length);
+    console.log('[renderHand] selfHand element:', selfHand, 'cards:', cards.length);
+    if (cards.length > 0) console.log('[renderHand] 首卡_artUrl:', cards[0]._artUrl || '无');
 
     // 己方手牌
     if (selfHand) {
