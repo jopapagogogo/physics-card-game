@@ -66,7 +66,8 @@ class GameEngine {
 
     // 海市蜃楼偏转 (A50)
     this.mirageTurns = [0, 0];               // 剩余回合数
-    this.mirageFirstAtk = [false, false];    // 本回合首次攻击已触发
+    this.mirageFirstAtk = [false, false];    // 本回合首次攻击已触发（海市蜃楼用）
+    this._zenoFirstAtk = [false, false];     // 本回合首次攻击已触发（芝诺龟用）
 
     // 镜面迷宫 (S19)
     this.mirrorMaze = [0, 0];               // 剩余出牌次数
@@ -270,6 +271,7 @@ class GameEngine {
 
     // 重置偏转首次攻击标记
     this.mirageFirstAtk[pIdx] = false;
+    this._zenoFirstAtk[pIdx] = false;
 
     // 重置短路开关
     this.shortCircuitActive[pIdx] = false;
@@ -393,6 +395,7 @@ class GameEngine {
         this._addLog(`[${playerIdx === 0 ? '玩家' : 'AI'}] 弃牌堆洗回牌库。`);
       }
       const card = player.deck.pop();
+      if (!card) break; // deck still empty after reshuffle, stop drawing
       player.hand.push(card);
       drawn++;
     }
@@ -694,7 +697,7 @@ class GameEngine {
           s => s.card.domain.includes('电')
         ).length;
         const match = cond.condition.match(/≥(\d+)/);
-        const threshold = match ? parseInt(match[1]) : 1;
+        const threshold = match ? parseInt(match[1], 10) : 1;
         if (electricCount >= threshold) {
           damage += cond.bonusDmg || 0;
         }
@@ -759,7 +762,7 @@ class GameEngine {
     }
 
     // A53 镜面回声: +10 to sound and light attacks
-    const echoEffect = attacker.fieldSupports?.find(f => f.type === 'mirror_echo');
+    const echoEffect = attacker.fieldSupports?.find(f => f.card.type === 'mirror_echo');
     if (echoEffect && (card.domain.includes('声') || card.domain.includes('光'))) {
         damage += 10;
     }
@@ -924,7 +927,12 @@ class GameEngine {
     // 按卡牌类型处理
     switch (card.type) {
       case 'attack':
-        effects.push(...this._handleAttack(card, playerIdx, target));
+        try {
+          effects.push(...this._handleAttack(card, playerIdx, target));
+        } catch (e) {
+          console.error('_handleAttack error for card', card?.id, e);
+          this._addLog(`[错误] 攻击卡处理失败: ${card?.name || '未知'}`);
+        }
         break;
       case 'support':
         effects.push(...this._handleSupport(card, playerIdx));
@@ -1215,7 +1223,7 @@ class GameEngine {
     }
 
     // 芝诺龟(C01)减半伤害
-    if (!this.mirageFirstAtk[attackerIdx]) {
+    if (!this._zenoFirstAtk[attackerIdx]) {
       for (const s of opponent.fieldSummons) {
         if (s.card.id === 'C01') {
           const halfDmg = this._isFirstAtkThisTurn(attackerIdx);
@@ -1225,7 +1233,8 @@ class GameEngine {
           }
         }
       }
-      this.mirageFirstAtk[attackerIdx] = true;
+      // 芝诺龟仅对第一次攻击减半
+      this._zenoFirstAtk[attackerIdx] = true;
     }
 
     // 海市蜃楼(A50)偏转检查
@@ -1236,6 +1245,7 @@ class GameEngine {
         effects.push({ type: 'mirage_deflect', msg: '海市蜃楼偏转了攻击' });
       }
     }
+    this.mirageFirstAtk[attackerIdx] = true;
 
     // 处理特定攻击的消灭/弹回效果
     const destroyCards = ['A09', 'A18', 'A25'];
@@ -1802,7 +1812,7 @@ class GameEngine {
       if (spec.includes('每出卡+') || spec.includes('每出一张卡额外消耗')) {
         const match = spec.match(/\+(\d+)/);
         if (match) {
-          opponent.extraCost = parseInt(match[1]);
+          opponent.extraCost = parseInt(match[1], 10);
           effects.push({ type: 'extra_cost', value: opponent.extraCost });
         }
       }
@@ -1994,7 +2004,7 @@ class GameEngine {
       if (spec.includes('每出卡') && spec.includes('费')) {
         const match = spec.match(/\+(\d+)/);
         if (match) {
-          opponent.extraCost = parseInt(match[1]);
+          opponent.extraCost = parseInt(match[1], 10);
         }
       }
 

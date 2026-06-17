@@ -1077,7 +1077,7 @@ class QuizSystem {
         question: "关于家庭电路，下列说法正确的是？",
         options: ["A. 用电器之间是串联的", "B. 保险丝熔断后可用铜丝代替", "C. 开关应接在用电器和火线之间", "D. 插座的两个孔都接火线"],
         answer: 2, knowledge: "家庭电路安全用电", relatedCard: "S27"
-      }
+      },
       // ======================================================
       // 电 领域 — basic (5) Q_E_21 ~ Q_E_25
       // ======================================================
@@ -1385,7 +1385,7 @@ class QuizSystem {
       return { correct: false, knowledge: "" };
     }
     return {
-      correct: question.answer === answerIndex,
+      correct: question.answer === Number(answerIndex),
       knowledge: question.knowledge
     };
   }

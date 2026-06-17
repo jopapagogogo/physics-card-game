@@ -281,14 +281,16 @@ class GameUI {
     });
 
     // 自定义卡组按钮
-    document.getElementById('btn-deck-builder').addEventListener('click', () => {
+    const deckBtn = document.getElementById('btn-deck-builder');
+    if (deckBtn) deckBtn.addEventListener('click', () => {
       if (this.mainDomain && this.subDomain) {
         this.showDeckBuilder();
       }
     });
 
     // 开始按钮
-    document.getElementById('btn-start-game').addEventListener('click', () => {
+    const startBtn = document.getElementById('btn-start-game');
+    if (startBtn) startBtn.addEventListener('click', () => {
       if (this.mainDomain && this.subDomain) {
         this.startGame();
       }
@@ -836,9 +838,8 @@ class GameUI {
     opts.forEach((opt, i) => {
       optionsHTML += `<button class="btn quiz-option" data-option="${i}">${this._escapeHtml(opt)}</button>`;
     });
-    if (optionsEl) {
-      optionsEl.innerHTML = optionsHTML;
-    }
+    if (!optionsEl) return;
+    optionsEl.innerHTML = optionsHTML;
 
     // 绑定选项点击
     optionsEl.querySelectorAll('.quiz-option').forEach(btn => {
@@ -1493,7 +1494,11 @@ class GameUI {
     // 结束回合按钮
     const btnEnd = document.getElementById('btn-end-turn');
     if (btnEnd) {
-      btnEnd.addEventListener('click', () => this.endPlayerTurn());
+      btnEnd.addEventListener('click', () => {
+        if (this.phase !== 'play') return; // 防重入守卫
+        btnEnd.disabled = true;
+        this.endPlayerTurn();
+      });
     }
 
     // 战斗记录抽屉toggle
@@ -2489,6 +2494,16 @@ class GameUI {
         overlay.remove(); resolve(true);
       });
       overlay.querySelector('#scry-auto-dmg').addEventListener('click', () => { order.sort((a, b) => b.dmg - a.dmg); renderList(); });
+
+      // 30秒超时自动确认当前排序
+      const timeout = setTimeout(() => {
+        if (document.body.contains(overlay)) {
+          this.engine.scryReorderTarget(order.map(c => c.id));
+          overlay.remove();
+          resolve(false);
+        }
+      }, 30000);
+      overlay.querySelector('#scry-confirm').addEventListener('click', () => { clearTimeout(timeout); });
     });
   }
 
@@ -3046,7 +3061,7 @@ class GameUI {
 
     // 点击空白关闭
     const closeOnOutsideClick = (e) => {
-      if (dialog && dialog.contains(e.target)) return;
+      if (overlay && overlay.contains(e.target)) return;
       this._closeCardDetail();
     };
     this._zoomOutsideHandler = closeOnOutsideClick;

@@ -1057,7 +1057,7 @@ class AIEngine {
       if (domainCards.length > 0) {
         if (this.difficulty === 'hard') {
           const matchDomain = domainCards.find(
-            c => c.domain.includes(self.domain.main) || c.domain.includes(self.domain.sub)
+            c => Array.isArray(c.domain) && (c.domain.includes(self.domain.main) || c.domain.includes(self.domain.sub))
           );
           useCard(matchDomain || domainCards[0]);
         } else {
@@ -1087,7 +1087,7 @@ class AIEngine {
           }
           if (!bestSummon) {
             const matchSummon = summons.find(
-              c => c.domain.some(d => d === self.domain.main || d === self.domain.sub)
+              c => Array.isArray(c.domain) && c.domain.some(d => d === self.domain.main || d === self.domain.sub)
             );
             bestSummon = matchSummon || summons[0];
           }
@@ -1265,12 +1265,12 @@ class AIEngine {
     // 领域加成
     if (self.fieldDomain) {
       const dCard = self.fieldDomain.card;
-      if (dCard.effect.bonusDmg && card.domain.some(d => dCard.domain.includes(d))) {
+      if (dCard?.effect?.bonusDmg && card.domain?.some(d => dCard.domain?.includes(d))) {
         dmg += dCard.effect.bonusDmg;
       }
-      if (dCard.id === 'D02' && card.domain.includes('声')) {
+      if (dCard.id === 'D02' && Array.isArray(card.domain) && card.domain.includes('声')) {
         const soundCount = self.fieldSupports.filter(
-          s => s.card.domain.includes('声')
+          s => Array.isArray(s.card?.domain) && s.card.domain.includes('声')
         ).length;
         dmg += soundCount * 8;
       }
@@ -1278,33 +1278,34 @@ class AIEngine {
 
     // 召唤物加成
     for (const s of self.fieldSummons) {
-      if (s.card.effect.dmgBonus) {
-        const sDomains = s.card.domain;
-        if (card.domain.some(d => sDomains.includes(d))) {
+      if (s.card?.effect?.dmgBonus) {
+        const sDomains = Array.isArray(s.card.domain) ? s.card.domain : [s.card.domain || ''];
+        const cDomains = Array.isArray(card.domain) ? card.domain : [card.domain || ''];
+        if (cDomains.some(d => sDomains.includes(d))) {
           dmg += s.card.effect.dmgBonus;
         }
       }
-      if (s.card.id === 'C14' && card.domain.includes('电')) {
-        dmg += opp.paralysis * 2;
+      if (s.card.id === 'C14' && Array.isArray(card.domain) && card.domain.includes('电')) {
+        dmg += (opp.paralysis || 0) * 2;
       }
-      if (s.card.id === 'C13' && card.domain.includes('热')) {
-        dmg += opp.burnLayers * 3;
+      if (s.card.id === 'C13' && Array.isArray(card.domain) && card.domain.includes('热')) {
+        dmg += (opp.burnLayers || 0) * 3;
       }
-      if (s.card.id === 'C09' && card.domain.includes('光')) {
+      if (s.card.id === 'C09' && Array.isArray(card.domain) && card.domain.includes('光')) {
         dmg += self.fieldSupports.length * 3;
       }
     }
 
     // 串联增压（电系）
-    if (card.domain.includes('电')) {
+    if (Array.isArray(card.domain) && card.domain.includes('电')) {
       const elecCount = self.fieldSupports.filter(
-        s => s.card.domain.includes('电')
+        s => Array.isArray(s.card?.domain) && s.card.domain.includes('电')
       ).length;
       dmg += elecCount * 15;
     }
 
     // 条件效果预估
-    if (card.effect.conditional) {
+    if (card.effect?.conditional) {
       const cond = card.effect.conditional;
       if (cond.condition.includes('己方辅助卡') || cond.condition.includes('驻场辅助')) {
         dmg += self.fieldSupports.length * (cond.bonusDmg || 0);
@@ -1335,7 +1336,7 @@ class AIEngine {
       dmg += Math.floor((self.totalForceDmg || 0) * 0.5);
     }
     if (card.id === 'A08') {
-      const lostHp = self.maxHp - opp.hp;
+      const lostHp = (opp.maxHp || 500) - opp.hp;
       dmg += Math.floor(lostHp * 0.1);
     }
     if (card.id === 'A54') {
