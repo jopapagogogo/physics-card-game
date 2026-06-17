@@ -2859,23 +2859,27 @@ class GameUI {
 
   /** 构建卡牌tooltip内容 */
   _getCardTooltipHTML(cardData) {
-    const style = this.getDomainStyle(cardData.domain);
     const domainLabel = this.getDomainLabel(cardData.domain);
     const typeLabel = this.getTypeLabel(cardData.type);
     const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[cardData.type] || '🃏';
 
     const artUrl = this.artMap[cardData.id] || '';
+    const descRaw = String(cardData.description || '暂无描述');
+    const principleIdx = descRaw.indexOf('原理：');
+    const summary = principleIdx > 0 ? descRaw.substring(0, principleIdx) : descRaw;
+    const principle = principleIdx > 0 ? descRaw.substring(principleIdx + 3) : null;
+    const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     return `
-      <div style="width:180px; background:#1a1a2e; border-radius:10px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.6); border:1px solid ${style.color}50;">
-        ${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="" style="width:100%;height:120px;object-fit:cover;display:block;">` : ''}
-        <div style="padding:8px 10px;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-            <span style="background:${style.bg};color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${cardData.cost ?? '-'}</span>
-            <span style="color:${style.color};font-weight:700;font-size:12px;">${this._escapeHtml(cardData.name)}</span>
-          </div>
-          <div style="color:#888;font-size:9px;margin-bottom:4px;">${emoji} ${typeLabel} · ${domainLabel}</div>
-          <div style="color:#bbb;font-size:10px;line-height:1.4;max-height:60px;overflow:hidden;">${this._escapeHtml(String(cardData.description || '暂无描述'))}</div>
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:200px; min-height:auto; height:auto; display:flex; flex-direction:column;">
+        <div class="v3-cost">${cardData.cost ?? '-'}</div>
+        <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
+        <div class="v3-art" style="height:110px;">
+          ${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:24px; opacity:.1;">⚛</span>`}
         </div>
+        <div class="v3-type"><span>${emoji} ${typeLabel}</span></div>
+        <div class="v3-desc-effect">${this._escapeHtml(summary)}</div>
+        ${principle ? `<div class="v3-desc-principle"><span class="lbl">原理：</span>${this._escapeHtml(principle)}</div>` : ''}
+        ${formula ? `<div class="v3-formula">${this._escapeHtml(formula)}</div>` : ''}
       </div>
     `;
   }
@@ -2908,17 +2912,17 @@ class GameUI {
       top = rect.top - tooltipH - gap - 4;
     }
 
-    // 水平居中于卡片（宽度180）
-    left = rect.left + rect.width / 2 - 90;
+    // 水平居中于卡片（宽度200）
+    left = rect.left + rect.width / 2 - 100;
 
     // 边界修正 + 确保在视口内
-    tooltip.style.maxWidth = '200px';
+    tooltip.style.maxWidth = '220px';
     tooltip.style.position = 'fixed';
     tooltip.style.zIndex = '999';
     if (top < 8) top = 8;
     if (top + tooltipH > window.innerHeight - 8) top = window.innerHeight - tooltipH - 8;
     if (left < 4) left = 4;
-    left = Math.min(left, window.innerWidth - 188);
+    left = Math.min(left, window.innerWidth - 208);
 
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
