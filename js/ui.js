@@ -1121,17 +1121,6 @@ class GameUI {
       .spirit-bar{width:64px;height:6px;border-radius:3px;background:#1a2a40;overflow:hidden;flex-shrink:0;position:relative}
       .spirit-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3498db,#9b59b6);transition:width .3s ease}
       .hand-counter{font-size:10px;color:var(--mt);padding:2px 6px;background:rgba(0,0,0,.2);border-radius:4px;flex-shrink:0}
-      .card-hand{display:flex;flex-direction:row;gap:4px;padding:4px 8px;overflow-x:auto;overflow-y:visible;scrollbar-width:thin;flex-shrink:0;min-height:40px}
-      .opponent-hand{min-height:36px;padding:2px 8px}
-      .self-hand-main{min-height:100px;justify-content:center;background:linear-gradient(to top,rgba(10,10,26,.95),rgba(10,10,26,.5));box-shadow:0 -4px 20px rgba(0,0,0,.4)}
-      .card-hand .card.small{margin-left:0;flex-shrink:0;width:72px;height:90px;font-size:10px;background:#1a1a2e;border-radius:6px;border-left:3px solid;cursor:pointer;position:relative;display:flex;flex-direction:column;overflow:hidden}
-      .card-hand .card.small .card-cost{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:2}
-      .card-hand .card.small .card-name{font-size:10px;font-weight:700;color:#fff;text-align:center;padding:22px 3px 2px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .card-hand .card.small .card-type{font-size:8px;color:var(--mt);text-align:center;padding:0 3px}
-      .card-hand .card.small .card-desc{font-size:7px;color:var(--mt);text-align:center;padding:2px 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .card-hand .card.small.playable{border-color:#2ecc71!important;animation:cardReady 2s ease-in-out infinite}
-      .card-hand .card.small.selected{transform:translateY(-8px);z-index:5;box-shadow:0 0 16px rgba(52,152,219,.5)}
-      .card-hand .card.small:hover{transform:translateY(-4px);z-index:3}
       .card-back{background:linear-gradient(135deg,#2c3e50,#1a252f);border:1.5px solid #34495e;border-radius:5px;width:40px;height:52px;flex-shrink:0;cursor:default;margin-left:0}
       .card-field{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;padding:3px 6px;min-height:48px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01);overflow-x:auto}
       .opponent-field{border-color:rgba(231,76,60,.12)}

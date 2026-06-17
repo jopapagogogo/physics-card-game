@@ -93,6 +93,7 @@ body {
 .card-hand .card.small:first-child { margin-left:0; }
 .opponent-hand { min-height:50px; padding:4px 12px; }
 .opponent-hand .card.small { cursor:default; }
+.self-hand-main { justify-content:center; background:linear-gradient(to top,rgba(10,10,26,.95),rgba(10,10,26,.5)); box-shadow:0 -4px 20px rgba(0,0,0,.4); }
 
 /* 卡牌背面 */
 .card-back {
