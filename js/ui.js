@@ -1357,6 +1357,11 @@ class GameUI {
         '<div class="card card-back"></div>'
       ).join('');
     }
+    // 更新手牌计数
+    const oppCnt = document.getElementById('opp-hand-count');
+    if (oppCnt) oppCnt.textContent = '🃏' + (gs.players[1].hand || []).length;
+    const selfCnt = document.getElementById('hand-count');
+    if (selfCnt) selfCnt.textContent = '🃏' + cards.length;
     } catch(e) {
       console.error('[renderHand] error:', e.message);
     }
