@@ -1335,7 +1335,7 @@ class GameUI {
                  data-card-id="${this._escapeAttr(card.id)}"
                  style="border-left-color:${style.color}; border:3px solid ${isPlayable ? '#2ecc71' : '#555'}; transform: rotate(${rot}deg) translateY(${Math.abs(rot) * 0.8}px); transition: all 0.2s ease; background:#1a1a2e;">
               <span class="card-cost" style="background:${style.bg};top:4px;left:4px;width:20px;height:20px;font-size:10px;z-index:2;">${card.cost ?? '?'}</span>
-              ${artUrl ? `<img class="hand-card-art" src="${this._escapeAttr(artUrl)}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:.45;z-index:0;pointer-events:none;">` : ''}
+              ${artUrl ? `<img class="hand-card-art" src="${this._escapeAttr(artUrl)}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:.7;z-index:0;pointer-events:none;border-radius:4px;">` : ''}
               <span class="card-name" style="color:#fff;font-size:11px;font-weight:900;padding:26px 2px 2px;line-height:1.1;position:relative;z-index:1;">${this._escapeHtml(card.name)}</span>
               <span class="card-type" style="font-size:8px;position:relative;z-index:1;">${emoji} ${this.getTypeLabel(card.type)}</span>
               ${!artUrl ? `<span class="card-desc">${this._escapeHtml(String(card.description || '').substring(0, 16))}</span>` : ''}
