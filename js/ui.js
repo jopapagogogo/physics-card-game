@@ -41,7 +41,29 @@ class GameUI {
   // ==================== 初始化 ====================
 
   init() {
+    this._loadCardArt();
     this.showStartScreen();
+  }
+
+  /** 加载卡牌插画映射 */
+  async _loadCardArt() {
+    try {
+      const resp = await fetch('./approved_cards.json');
+      const data = await resp.json();
+      const mapping = {};
+      // 合并 approved 和 prev 两个来源
+      if (data.approved) Object.assign(mapping, data.approved);
+      if (data.prev) Object.assign(mapping, data.prev);
+      // 给所有 CARDS 注入插画路径
+      for (const card of CARDS) {
+        if (mapping[card.id]) {
+          card._artUrl = `art_samples/card_art/${mapping[card.id]}`;
+        }
+      }
+      console.log(`[init] 插画加载完成: ${Object.keys(mapping).length} 张`);
+    } catch (e) {
+      console.warn('[init] 插画加载失败(可能缺少approved_cards.json):', e.message);
+    }
   }
 
   // ==================== 开始界面 ====================
@@ -1291,7 +1313,10 @@ class GameUI {
       if (cards.length === 0) {
         html = '<div class="empty-state"><span class="empty-icon">🃏</span>暂无手牌</div>';
       } else {
-        for (const card of cards) {
+        const fanAngle = Math.min(8, cards.length * 2); // 扇形总角度
+        const startAngle = -(fanAngle / 2);
+        for (let i = 0; i < cards.length; i++) {
+          const card = cards[i];
           const cpResult = this.phase === 'play' && this.engine.canPlay
             ? this.engine.canPlay(0, card)
             : { can: false };
@@ -1299,14 +1324,17 @@ class GameUI {
           const style = this.getDomainStyle(card.domain);
           const isSelected = this.selectedCard && this.selectedCard.id === card.id;
           const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[card.type] || '🃏';
+          // 扇形旋转角度
+          const rot = cards.length > 1 ? startAngle + (fanAngle / (cards.length - 1)) * i : 0;
+          const artUrl = card._artUrl ? `url('${card._artUrl}')` : '';
           html += `
             <div class="card small ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
                  data-card-id="${this._escapeAttr(card.id)}"
-                 style="border-left-color:${style.color}; border:3px solid ${isPlayable ? '#2ecc71' : '#555'}; background:#1a1a2e;">
+                 style="border-left-color:${style.color}; border:3px solid ${isPlayable ? '#2ecc71' : '#555'}; transform: rotate(${rot}deg) translateY(${Math.abs(rot) * 0.8}px); transition: all 0.2s ease;${artUrl ? `background:linear-gradient(135deg,${style.bg}80 0%,#1a1a2e 100%),${artUrl} center/cover;` : 'background:#1a1a2e;'}">
               <span class="card-cost" style="background:${style.bg};top:4px;left:4px;width:20px;height:20px;font-size:10px;">${card.cost ?? '?'}</span>
               <span class="card-name" style="color:#fff;font-size:11px;font-weight:900;padding:26px 2px 2px;line-height:1.1;">${this._escapeHtml(card.name)}</span>
               <span class="card-type" style="font-size:8px;">${emoji} ${this.getTypeLabel(card.type)}</span>
-              <span class="card-desc">${this._escapeHtml(String(card.description || '').substring(0, 16))}</span>
+              ${!artUrl ? `<span class="card-desc">${this._escapeHtml(String(card.description || '').substring(0, 16))}</span>` : ''}
             </div>
           `;
         }
@@ -2328,30 +2356,44 @@ class GameUI {
       return;
     }
 
+    // 全局超时守卫：AI回合最多30秒，超时强制结束
+    const TURN_TIMEOUT = 30000;
+    let turnTimedOut = false;
+    let turnEnded = false;
+    const timeoutId = setTimeout(() => {
+      if (turnEnded) return;
+      turnTimedOut = true;
+      console.warn('[AI] 回合超时，强制结束');
+      this.addLogMessage('⚠️ AI思考超时，自动跳过');
+      this._afterAITurn();
+    }, TURN_TIMEOUT);
+
     try {
       this.addLogMessage('AI正在思考...');
 
-      // AI自动处理拉普拉斯妖窥牌（按伤害降序排列）
+      // AI自动处理拉普拉斯妖窥牌
       this._autoScryAI();
 
       // ─── AI 阶段 1: 答题 ───
       const quiz = this.ai.simulateQuiz();
       this.engine.setQuizResult(quiz.correct, quiz.total);
-      if (this.engine.isGameOver && this.engine.isGameOver()) {
-        this.showGameOver();
-        this.phase = 'gameover';
+      if (turnTimedOut || (this.engine.isGameOver && this.engine.isGameOver())) {
+        clearTimeout(timeoutId);
+        if (!turnTimedOut) { this.showGameOver(); this.phase = 'gameover'; }
         return;
       }
 
-      // ─── AI 阶段 2: 逐张出牌（含光速传播反制） ───
+      // ─── AI 阶段 2: 逐张出牌 ───
       const self = this.engine.players[1];
       if (!self.turnBlocked) {
-        this.ai.pendingDecisions = null; // 重置决策队列
+        this.ai.pendingDecisions = null;
 
         const delay = this.ai.getThinkDelay();
         await this.ai._sleep(delay);
+        if (turnTimedOut) { clearTimeout(timeoutId); return; }
 
-        while (!this.engine.gameOver) {
+        let aiCardCount = 0;
+        while (!this.engine.gameOver && !turnTimedOut && aiCardCount < 50) {
           // 获取AI下一张牌决策
           const decision = this.ai.getNextPlayDecision();
           if (!decision) break;
@@ -2430,6 +2472,7 @@ class GameUI {
 
       // 检查游戏结束
       if (this.engine.isGameOver && this.engine.isGameOver()) {
+        clearTimeout(timeoutId);
         this.showGameOver();
         this.phase = 'gameover';
         return;
@@ -2447,6 +2490,8 @@ class GameUI {
       } catch (e2) { /* 忽略二次错误 */ }
     }
 
+    clearTimeout(timeoutId);
+    turnEnded = true;
     this._afterAITurn();
   }
 
