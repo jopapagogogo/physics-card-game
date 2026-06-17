@@ -1554,7 +1554,7 @@ class GameUI {
     const selfHand = document.getElementById('self-hand');
     if (selfHand) {
       selfHand.addEventListener('click', (e) => {
-        const cardEl = e.target.closest('.card');
+        const cardEl = e.target.closest('.card-v3, .card');
         if (!cardEl) return;
         const cardId = cardEl.dataset.cardId;
         if (cardId) this.handleCardSelect(cardId);
@@ -1599,7 +1599,7 @@ class GameUI {
           }
         } else if (cardEl.classList.contains('support-card')) {
           // 驻场辅助卡：从DOM获取名称匹配
-          const nameEl = cardEl.querySelector('.card-name');
+          const nameEl = cardEl.querySelector('.v3-name, .card-name');
           if (nameEl) {
             const supports = gs.players[1].fieldSupports || [];
             const sup = supports.find(s => s.card && s.card.name === nameEl.textContent.trim());
@@ -1657,7 +1657,7 @@ class GameUI {
             }
           }
         } else if (cardEl.classList.contains('support-card')) {
-          const nameEl = cardEl.querySelector('.card-name');
+          const nameEl = cardEl.querySelector('.v3-name, .card-name');
           if (nameEl) {
             const supports = gs.players[0].fieldSupports || [];
             const sup = supports.find(s => s.card && s.card.name === nameEl.textContent.trim());
@@ -1668,7 +1668,7 @@ class GameUI {
             }
           }
         } else if (cardEl.classList.contains('domain-card')) {
-          const nameEl = cardEl.querySelector('.card-name');
+          const nameEl = cardEl.querySelector('.v3-name, .card-name');
           if (nameEl && gs.players[0].fieldDomain) {
             const domainCard = this.engine?.getCardById?.(gs.players[0].fieldDomain.card?.id);
             if (domainCard) {
@@ -1687,7 +1687,7 @@ class GameUI {
       let hoverCardEl = null;
 
       gameContainer.addEventListener('mouseover', (e) => {
-        const cardEl = e.target.closest('.card.small');
+        const cardEl = e.target.closest('.card-v3.mini, .card.small');
         if (cardEl === hoverCardEl) return; // 同一张卡不重复触发
         this._hideHoverTooltip();
         hoverCardEl = null;
@@ -1724,7 +1724,7 @@ class GameUI {
         }
         // 驻场辅助卡（双方）
         else if (cardEl.classList.contains('support-card')) {
-          const nameEl = cardEl.querySelector('.card-name');
+          const nameEl = cardEl.querySelector('.v3-name, .card-name');
           if (nameEl) {
             const isOpp = !!cardEl.closest('#opp-field');
             const supports = isOpp ? (gs.players[1].fieldSupports || []) : (gs.players[0].fieldSupports || []);
@@ -1751,7 +1751,7 @@ class GameUI {
       });
 
       gameContainer.addEventListener('mouseout', (e) => {
-        const cardEl = e.target.closest('.card.small');
+        const cardEl = e.target.closest('.card-v3.mini, .card.small');
         if (cardEl && cardEl === hoverCardEl) {
           // 检查鼠标是否真的离开了卡牌（不是移到子元素）
           if (!e.relatedTarget || !cardEl.contains(e.relatedTarget)) {
@@ -1854,7 +1854,7 @@ class GameUI {
     this._clearAutoPlayTimeout();
 
     // 动画准备：保存手牌元素引用（在引擎移除前获取DOM位置）
-    const cardEl = document.querySelector(`#self-hand .card[data-card-id="${this._escapeAttr(card.id)}"]`);
+    const cardEl = document.querySelector(`#self-hand .card-v3[data-card-id="${this._escapeAttr(card.id)}"], #self-hand .card[data-card-id="${this._escapeAttr(card.id)}"]`);
     const cardRect = cardEl ? cardEl.getBoundingClientRect() : null;
 
     const result = this.engine.playCard(0, this.selectedCard.id, target);
