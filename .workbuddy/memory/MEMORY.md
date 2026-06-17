@@ -6,15 +6,23 @@
 - SSH 密钥：~/.ssh/id_ed25519_gitee
 
 ## 跨设备协作
-- 电脑（本地 WorkBuddy）← git push/pull → Gitee ← git push/pull → 手机（云端 WorkBuddy）
+- 电脑（本地 WorkBuddy）← git push/pull → Gitee ← git push/pull → 项目模式 WorkBuddy
 - 进度文件 PROJECT_STATUS.md 是两端 AI 助手的共同语言
-- 云端助手无跨会话记忆，必须依赖 PROJECT_STATUS.md
+- **开工协议（2026-06-17 强化）**：
+  1. `git pull`
+  2. 读 PROJECT_STATUS.md「⏳ 当前待办」区域
+  3. 如果待办为空，不自行推断任务，等待用户指示
+  4. 完工后更新本文件 → commit + push
+- 教训 2026-06-17：pull 后未仔细读待办区，项目模式完成了 P0/P1/P2 但被我漏看 → 新增开工协议强制检查待办区
 
 ## 项目阶段
-- Phase 1 ✅：109 张卡牌生成
-- Phase 2 ✅：Combo 系统重建（30 combo + engine.js 重写）
-- Phase 3 ✅：AI 对战验证测试（34 用例，3 bug 修复）
-- Phase 4 🔜：剩余 combo 效果 + 召唤/领域被动 + UI 高亮
+- Phase 1-5 ✅ 完成
+- P0 AI策略 ✅ 完成（ai.js v2.0）
+- P1 出牌体验 ✅ 完成
+- P2 物理融入 ✅ 完成
+- 卡组构建器 ✅ 完成
+- 题库 190题 ✅ 完成
+- 测试 136个 ✅ 完成
 
 ## 自动同步规则
 - **开工前自动 `git pull`，完工后自动 `git add -A && git commit -m "描述" && git push`**
