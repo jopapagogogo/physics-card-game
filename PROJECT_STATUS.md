@@ -34,7 +34,8 @@
 物理卡牌游戏/
 ├── index.html              ← 游戏入口
 ├── all_cards.html          ← 109张卡牌展示页
-├── PROJECT_STATUS.md       ← 本文件（唯一权威）
+├── PROJECT_STATUS.md       ← 进度文档
+├── GAME_RULES.md           ← 游戏规则（唯一权威）
 ├── package.json            ← vitest 测试配置
 ├── css/game.css            ← 游戏主样式
 ├── js/
