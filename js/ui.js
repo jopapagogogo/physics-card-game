@@ -1018,117 +1018,191 @@ class GameUI {
 
   // ==================== 战斗界面渲染 ====================
 
-    renderBattleScreen() {
+  renderBattleScreen() {
     this.container.innerHTML = `
-      <div class="battle-layout">
-        <div class="bar-row opp-bar">
-          <div class="bar-side"><span>🃏</span></div>
-          <div class="bar-side"><span>👾</span></div>
-          <div class="bar-center player-info opp-info" id="opponent-area">
+      <div class="battle-grid">
+        <!-- 顶栏：AI信息 -->
+        <div class="battle-top" id="opponent-area">
+          <div class="player-info opponent-info">
             <span class="avatar">🤖</span>
-            <div class="hp-bar"><div id="opp-hp-fill" class="hp-bar-fill"></div><span id="opp-hp-text" class="hp-text">1200/1200</span></div>
-            <div class="spirit-bar"><div id="opp-spirit-fill" class="spirit-bar-fill"></div><span id="opp-spirit-text" class="hp-text s9">50/100</span></div>
-            <span id="opp-hand-count" class="hand-counter">🃏0</span>
+            <span class="label">AI对手</span>
+            <div class="hp-bar">
+              <div id="opp-hp-fill" class="hp-bar-fill"></div>
+              <span id="opp-hp-text" class="hp-text">1200/1200</span>
+            </div>
+            <div class="spirit-bar">
+              <div id="opp-spirit-fill" class="spirit-bar-fill"></div>
+              <span id="opp-spirit-text" class="hp-text" style="font-size:9px;">50/100</span>
+            </div>
+            <span id="opp-hand-count" class="hand-counter">🃏5</span>
           </div>
-          <div class="bar-side"><span>🏛️</span></div>
-          <div class="bar-side"><div id="opp-play-zone" class="inline-play-zone"></div></div>
         </div>
-        <div class="hand-row opp-hand-row"><div id="opp-hand" class="card-hand"></div></div>
-        <div class="field-row"><div id="opp-field" class="card-field"></div></div>
-        <div class="battle-mid">
-          <div class="battle-log-panel"><div class="log-panel-header">📜 记录</div><div id="log-drawer-body" class="log-panel-body"></div></div>
-          <div class="battle-vs-zone"><div class="battle-vs">⚡ VS ⚡</div></div>
-          <div class="timer-panel"><div class="timer-container"><div id="timer-bar" class="timer-bar"></div></div></div>
+
+        <!-- 对方场地行 -->
+        <div class="battle-row opponent-row">
+          <div id="opp-hand" class="card-hand opponent-hand"></div>
+          <div id="opp-field" class="card-field opponent-field"></div>
+          <div id="opp-play-zone" class="play-zone opponent-play-zone"></div>
         </div>
-        <div class="field-row"><div id="self-field" class="card-field"></div></div>
-        <div class="hand-row self-hand-row"><div id="self-hand" class="card-hand"></div></div>
-        <div class="bar-row self-bar">
-          <div class="bar-side"><span>🃏</span></div>
-          <div class="bar-side"><span id="domain-zone" class="inline-domain-zone"></span></div>
-          <div class="bar-center player-info self-info">
+
+        <!-- VS 分隔 -->
+        <div class="battle-vs"><span>⚡ VS ⚡</span></div>
+
+        <!-- 己方场地行 -->
+        <div class="battle-row self-row">
+          <div class="battle-row-spacer"></div>
+          <div id="self-field" class="card-field self-field"></div>
+          <div id="self-play-zone" class="play-zone self-play-zone"></div>
+        </div>
+
+        <!-- 手牌区域（跨列） -->
+        <div id="self-hand" class="card-hand self-hand-main"></div>
+
+        <!-- 计时器 + 领域效果 -->
+        <div class="timer-container"><div id="timer-bar" class="timer-bar"></div></div>
+        <div id="domain-zone" class="domain-effect-zone"></div>
+
+        <!-- 底栏 -->
+        <div class="battle-bottom">
+          <div class="player-info self-info">
             <span class="avatar">👤</span>
-            <div class="hp-bar"><div id="self-hp-fill" class="hp-bar-fill"></div><span id="self-hp-text" class="hp-text">1200/1200</span></div>
-            <div class="spirit-bar"><div id="self-spirit-fill" class="spirit-bar-fill"></div><span id="self-spirit-text" class="hp-text s9">50/100</span></div>
-            <span id="hand-count" class="hand-counter">🃏0</span>
+            <span class="label">你</span>
+            <div class="hp-bar">
+              <div id="self-hp-fill" class="hp-bar-fill"></div>
+              <span id="self-hp-text" class="hp-text">1200/1200</span>
+            </div>
+            <div class="spirit-bar">
+              <div id="self-spirit-fill" class="spirit-bar-fill"></div>
+              <span id="self-spirit-text" class="hp-text" style="font-size:9px;">50/100</span>
+            </div>
+            <span id="hand-count" class="hand-counter">🃏5</span>
           </div>
-          <div class="bar-side"><span>👾</span></div>
-          <div class="bar-side"><div id="self-play-zone" class="inline-play-zone"></div></div>
+          <button id="btn-end-turn" class="btn btn-end-turn" disabled>结束回合</button>
         </div>
-        <div class="turn-btn-row"><button id="btn-end-turn" class="btn-end-turn" disabled>⚔️ 结束回合</button></div>
-      </div>`;
-    this.updateAllDisplay(); this.bindBattleEvents(); this._injectBattleStyles();
+
+        <!-- 日志（悬浮气泡） -->
+        <div id="log-area" class="log-area"></div>
+        <div id="log-drawer-toggle" class="log-drawer-toggle" title="战斗记录">📜</div>
+        <div id="log-drawer" class="log-drawer">
+          <div class="log-drawer-header">
+            <span>战斗记录</span>
+            <span id="log-drawer-close" style="cursor:pointer;font-size:14px;">✕</span>
+          </div>
+          <div id="log-drawer-body" class="log-drawer-body"></div>
+        </div>
+      </div>
+    `;
+
+    this.updateAllDisplay();
+    this.bindBattleEvents();
+    this._injectBattleStyles();
   }
 
+  /** 注入战斗界面专有样式 */
   _injectBattleStyles() {
-    if (document.getElementById('battle-screen-styles')) document.getElementById('battle-screen-styles').remove();
-    const style = document.createElement('style'); style.id = 'battle-screen-styles';
+    if (document.getElementById('battle-screen-styles')) {
+      document.getElementById('battle-screen-styles').remove();
+    }
+    const style = document.createElement('style');
+    style.id = 'battle-screen-styles';
     style.textContent = `
-      .battle-layout{display:flex;flex-direction:column;height:100vh;width:100vw;background:#0a0a1a;overflow:hidden;color:var(--lt);font-family:var(--ff)}
-      .bar-row{flex-shrink:0;display:flex;align-items:center;padding:4px 8px;gap:6px;background:rgba(0,0,0,.35);border-bottom:1px solid rgba(255,255,255,.05)}
-      .self-bar{border-bottom:none;border-top:1px solid rgba(255,255,255,.05)}
-      .bar-side{display:flex;align-items:center;gap:2px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.04);flex-shrink:0;min-width:38px;justify-content:center;font-size:12px}
-      .bar-center{flex:1;justify-content:center}
-      .player-info{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
-      .player-info .avatar{font-size:18px;flex-shrink:0}
-      .hp-bar{position:relative;width:100px;height:14px;border-radius:7px;background:#2c3e50;overflow:hidden;flex-shrink:0}
-      .hp-bar-fill{height:100%;border-radius:7px;background:linear-gradient(90deg,#e74c3c,#2ecc71);transition:width .4s ease}
-      .hp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}.s9{font-size:7px}
-      .spirit-bar{width:50px;height:6px;border-radius:3px;background:#1a2a40;overflow:hidden;flex-shrink:0;position:relative}
+      .battle-grid{display:flex;flex-direction:column;height:100vh;width:100vw;background:#0a0a1a;overflow:hidden;color:var(--lt)}
+      .battle-top{flex-shrink:0;display:flex;align-items:center;padding:4px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
+      .opponent-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
+      .self-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
+      .battle-vs{flex-shrink:0;text-align:center;padding:1px 0;font-size:11px;color:rgba(255,255,255,.1)}
+      .battle-row-spacer{width:100px;flex-shrink:0}
+      .player-info{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;min-width:0}
+      .player-info .avatar{font-size:20px;flex-shrink:0}
+      .player-info .label{font-size:11px;font-weight:700;color:var(--lt);flex-shrink:0}
+      .hp-bar{position:relative;width:100px;height:16px;border-radius:8px;background:#2c3e50;overflow:hidden;flex-shrink:0}
+      .hp-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--red),var(--grn));transition:width .4s ease}
+      .hp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;pointer-events:none}
+      .spirit-bar{width:64px;height:6px;border-radius:3px;background:#1a2a40;overflow:hidden;flex-shrink:0;position:relative}
       .spirit-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3498db,#9b59b6);transition:width .3s ease}
       .hand-counter{font-size:10px;color:var(--mt);padding:2px 6px;background:rgba(0,0,0,.2);border-radius:4px;flex-shrink:0}
-      .inline-play-zone{max-width:70px;overflow:hidden;font-size:7px;color:var(--mt);opacity:.6}
-      .inline-domain-zone{display:flex;gap:3px;font-size:9px;padding:2px 4px;border-radius:4px;background:rgba(0,0,0,.15)}
-      .hand-row{flex-shrink:0;display:flex;justify-content:center;align-items:flex-end;padding:0 10px}
-      .opp-hand-row{min-height:60px;padding-top:4px;justify-content:center;align-items:center;transform:scaleY(-1)}
-      .self-hand-row{min-height:220px;padding-top:4px;padding-bottom:4px;background:linear-gradient(to top,rgba(10,10,26,.95),transparent)}
-      .field-row{flex-shrink:0;padding:2px 12px}
-      .card-field{display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:28px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)}
-      .battle-mid{flex:1;display:flex;gap:6px;padding:2px 8px;overflow:hidden;min-height:0}
-      .battle-log-panel{width:140px;flex-shrink:0;display:flex;flex-direction:column;background:rgba(0,0,0,.25);border-radius:6px;border:1px solid rgba(255,255,255,.04);overflow:hidden}
-      .log-panel-header{padding:3px 8px;font-size:10px;font-weight:700;color:var(--mt);border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)}
-      .log-panel-body{flex:1;overflow-y:auto;padding:3px 6px;font-size:8px;color:var(--mt);line-height:1.4}
-      .battle-vs-zone{flex:1;display:flex;align-items:center;justify-content:center}
-      .battle-vs{font-size:11px;font-weight:900;color:rgba(255,255,255,.06);letter-spacing:3px}
-      .timer-panel{width:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-      .timer-container{width:4px;height:100%;min-height:30px;background:rgba(255,255,255,.06);border-radius:2px;position:relative;overflow:hidden}
-      .timer-bar{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,#3498db,#2ecc71);transition:height .1s linear;border-radius:2px}
-      .turn-btn-row{flex-shrink:0;display:flex;justify-content:center;padding:6px 0;background:rgba(0,0,0,.35)}
-      .btn-end-turn{padding:8px 28px;border-radius:10px;background:#2ecc71;color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px}
-      .btn-end-turn:hover:not(:disabled){background:#219a52;transform:scale(1.03)}
-      .btn-end-turn:disabled{opacity:.35;cursor:not-allowed}
-      .card-back{background:linear-gradient(135deg,#2c3e50,#1a252f);border:1.5px solid #34495e;border-radius:5px;width:36px;height:50px;flex-shrink:0;cursor:default}
-      /* 覆盖层 */
-      .discard-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center}
-      .discard-card{background:#16213e;color:#eee;border-radius:16px;padding:24px;width:calc(100%-32px);max-width:380px}
-      .discard-card h3{font-size:15px;text-align:center;margin-bottom:16px}
+      .card-hand{display:flex;flex-direction:row;gap:4px;padding:4px 8px;overflow-x:auto;overflow-y:visible;scrollbar-width:thin;flex-shrink:0;min-height:40px}
+      .opponent-hand{min-height:36px;padding:2px 8px}
+      .self-hand-main{min-height:100px;justify-content:center;background:linear-gradient(to top,rgba(10,10,26,.95),rgba(10,10,26,.5));box-shadow:0 -4px 20px rgba(0,0,0,.4)}
+      .card-hand .card.small{margin-left:0;flex-shrink:0;width:72px;height:90px;font-size:10px;background:#1a1a2e;border-radius:6px;border-left:3px solid;cursor:pointer;position:relative;display:flex;flex-direction:column;overflow:hidden}
+      .card-hand .card.small .card-cost{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:2}
+      .card-hand .card.small .card-name{font-size:10px;font-weight:700;color:#fff;text-align:center;padding:22px 3px 2px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .card-hand .card.small .card-type{font-size:8px;color:var(--mt);text-align:center;padding:0 3px}
+      .card-hand .card.small .card-desc{font-size:7px;color:var(--mt);text-align:center;padding:2px 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .card-hand .card.small.playable{border-color:#2ecc71!important;animation:cardReady 2s ease-in-out infinite}
+      .card-hand .card.small.selected{transform:translateY(-8px);z-index:5;box-shadow:0 0 16px rgba(52,152,219,.5)}
+      .card-hand .card.small:hover{transform:translateY(-4px);z-index:3}
+      .card-back{background:linear-gradient(135deg,#2c3e50,#1a252f);border:1.5px solid #34495e;border-radius:5px;width:40px;height:52px;flex-shrink:0;cursor:default;margin-left:0}
+      .card-field{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;padding:3px 6px;min-height:48px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01);overflow-x:auto}
+      .opponent-field{border-color:rgba(231,76,60,.12)}
+      .self-field{border-color:rgba(46,204,113,.12);flex:2}
+      .play-zone{width:130px;flex-shrink:0;display:flex;flex-direction:column;padding:3px 6px;border-radius:8px;border:1px dashed transparent;min-height:48px;overflow-y:auto;max-height:120px}
+      .opponent-play-zone{border-color:rgba(231,76,60,.15)}
+      .self-play-zone{border-color:rgba(46,204,113,.15)}
+      .play-zone.has-cards{background:rgba(255,255,255,.02)}
+      .opponent-play-zone.has-cards{border-color:rgba(231,76,60,.3);background:rgba(231,76,60,.04)}
+      .self-play-zone.has-cards{border-color:rgba(46,204,113,.3);background:rgba(46,204,113,.04)}
+      .play-zone-label{font-size:9px;font-weight:700;color:rgba(46,204,113,.4);margin-bottom:2px}
+      .play-zone-label.opponent{color:rgba(231,76,60,.4)}
+      .play-zone-cards{display:flex;flex-wrap:wrap;gap:4px;overflow-x:auto}
+      .play-zone-empty{font-size:9px;color:var(--mt);opacity:.4;text-align:center}
+      .play-card.small{width:50px;height:62px;margin-left:0;cursor:default;animation:playCardIn .3s ease both;position:relative;display:flex;flex-direction:column;overflow:hidden;background:#1a1a2e;border-radius:6px;border-left:3px solid}
+      .play-card .card-cost{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;z-index:2}
+      .play-card .card-name{font-size:8px;font-weight:700;padding:18px 2px 2px;text-align:center;line-height:1.1;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .play-card .card-type{font-size:7px;color:var(--mt);text-align:center}
+      .log-area{position:fixed;bottom:16px;right:66px;z-index:250;display:flex;flex-direction:column-reverse;gap:4px;max-width:260px;pointer-events:none}
+      .log-message{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+      .battle-bottom{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:4px 10px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.06)}
+      .btn-end-turn{flex-shrink:0;padding:8px 20px;border-radius:8px;background:var(--grn);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer}
+      .btn-end-turn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+      .summon-hp{position:relative;height:5px;border-radius:3px;background:#444;overflow:hidden;margin-top:2px}
+      .summon-hp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--grn),var(--ylw),var(--red));transition:width .4s ease}
+      .summon-card{font-size:10px;padding:3px 5px;border-radius:5px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);min-width:50px;flex-shrink:0}
+      .summon-card.enemy{cursor:pointer;border-color:var(--red);border-style:dashed}
+      .summon-card.enemy:hover{box-shadow:0 0 8px rgba(231,76,60,.3)}
       .lightspeed-overlay{position:fixed;inset:0;z-index:220;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center}
-      .lightspeed-card{background:#16213e;color:#eee;border-radius:16px;padding:28px 20px;width:calc(100%-32px);max-width:420px;position:relative;overflow:hidden}
+      .lightspeed-card{background:var(--pnl);color:var(--lt);border-radius:16px;padding:28px 20px;width:calc(100% - 32px);max-width:420px;position:relative;overflow:hidden;animation:popIn .4s ease}
       .ls-header{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
       .ls-header h3{font-size:18px;font-weight:900;color:#F1C40F;margin:0}
-      .ls-desc{text-align:center;font-size:12px;color:#889;margin-bottom:12px}
-      .ls-timer{text-align:center;font-size:13px;color:#eee;margin-bottom:12px}
+      .ls-icon{font-size:18px}
+      .ls-desc{text-align:center;font-size:12px;color:var(--mt);margin-bottom:12px}
+      .ls-timer{text-align:center;font-size:13px;color:var(--lt);margin-bottom:12px}
       .ls-timer span{font-weight:700;color:#F1C40F}
       .ls-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:200px;overflow-y:auto}
       .ls-card-choice{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;border-left:3px solid #F1C40F;cursor:pointer;transition:all .2s}
       .ls-card-choice:hover{background:rgba(241,196,15,.1);transform:translateX(4px)}
-      .btn-outline-ls{width:100%;padding:12px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.04);color:#889;font-size:14px;font-weight:600;cursor:pointer}
+      .btn-outline-ls{width:100%;padding:12px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.04);color:var(--mt);font-size:14px;font-weight:600;cursor:pointer}
+      .btn-outline-ls:hover{background:rgba(255,255,255,.08);color:#fff}
       .gameover-overlay{position:fixed;inset:0;z-index:250;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center}
-      .gameover-card{background:#16213e;color:#eee;border-radius:16px;padding:32px 24px;width:calc(100%-32px);max-width:340px;text-align:center}
+      .gameover-card{background:var(--pnl);color:var(--lt);border-radius:16px;padding:32px 24px;width:calc(100%-32px);max-width:340px;text-align:center}
       .gameover-card h1{font-size:28px;font-weight:900;margin-bottom:12px}
-      .lightSpeed-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(241,196,15,.2);color:#F1C40F;border:1px solid rgba(241,196,15,.3);flex-shrink:0}
+      .discard-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center}
+      .discard-card{background:var(--pnl);color:var(--lt);border-radius:16px;padding:24px;width:calc(100%-32px);max-width:380px}
+      .discard-card h3{font-size:15px;text-align:center;margin-bottom:16px}
+      .lightSpeed-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(241,196,15,.2);color:#F1C40F;border:1px solid rgba(241,196,15,.3);animation:lsPulse 1.5s ease-in-out infinite;flex-shrink:0}
+      .timer-container{flex-shrink:0;height:4px;background:rgba(255,255,255,.06)}
+      .timer-bar{height:100%;width:100%;background:linear-gradient(90deg,#3498db,#2ecc71);transition:width .1s linear,background .3s ease}
+      @keyframes lsPulse{0%,100%{box-shadow:0 0 4px rgba(241,196,15,.2)}50%{box-shadow:0 0 12px rgba(241,196,15,.5)}}
+      @keyframes cardReady{0%,100%{box-shadow:0 0 4px rgba(46,204,113,.3)}50%{box-shadow:0 0 14px rgba(46,204,113,.6)}}
+      @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+      @keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+      @keyframes playCardIn{from{opacity:0;transform:translateY(-40px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
+      /* Combo physics highlight */
       .combo-physics{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 4px;padding:8px 16px;background:rgba(46,204,113,.08);border-radius:12px;border:1px solid rgba(46,204,113,.2)}
       .physics-from,.physics-to{font-size:22px;font-weight:900;color:#2ecc71;text-shadow:0 0 12px rgba(46,204,113,.5);letter-spacing:1px}
       .physics-arrow{font-size:16px;color:rgba(46,204,113,.6)}
       .combo-effect-text{font-size:14px;color:#bdc3c7;margin-top:4px;text-align:center}
-      .quiz-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700}
+      .quiz-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;animation:fadeIn .3s ease}
       .quiz-badge.knowledge-reduce{background:rgba(46,204,113,.15);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
       .quiz-badge.knowledge-penalty{background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
-      .quiz-progress{text-align:center;font-size:13px;color:#889;margin-bottom:12px}
+      .quiz-progress{text-align:center;font-size:13px;color:var(--mt);margin-bottom:12px}
       .domain-card{padding:4px 8px;border-radius:5px;font-size:10px;font-weight:700;border:2px solid;flex-shrink:0}
       .domain-label{font-size:7px;opacity:.7}
-    `; document.head.appendChild(style);
+    `;
+    document.head.appendChild(style);
   }
 
+  /** 更新所有战斗显示 */
   updateAllDisplay() {
     try {
       const gs = this.engine?.getGameState();
