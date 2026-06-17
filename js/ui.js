@@ -41,34 +41,29 @@ class GameUI {
   // ==================== 初始化 ====================
 
   async init() {
+    this.artMap = {};
     await this._loadCardArt();
     this.showStartScreen();
   }
 
-  /** 加载卡牌插画映射 */
+  /** 加载卡牌插画映射 → this.artMap */
   async _loadCardArt() {
     try {
       const resp = await fetch('./approved_cards.json');
       const data = await resp.json();
       const mapping = {};
-      // 合并所有批次（approved, prev, batch9_10, batch11, batch12, batch14...）
       for (const key of Object.keys(data)) {
         if (data[key] && typeof data[key] === 'object') {
           Object.assign(mapping, data[key]);
         }
       }
-      // 给所有 CARDS 注入插画路径
-      for (const card of CARDS) {
-        if (mapping[card.id]) {
-          card._artUrl = `art_samples/card_art/${mapping[card.id]}`;
-        }
+      this.artMap = {};
+      for (const [id, file] of Object.entries(mapping)) {
+        this.artMap[id] = `art_samples/card_art/${file}`;
       }
-      console.log(`[init] 插画加载完成: ${Object.keys(mapping).length} 张 → ${CARDS.filter(c=>c._artUrl).length} 张注入`);
-      // 调试：打印前3张有插画的卡
-      const withArt = CARDS.filter(c => c._artUrl).slice(0, 3);
-      console.log('[init] 首批插画:', withArt.map(c => `${c.id}:${c._artUrl}`).join(', '));
+      console.log(`[init] 插画映射: ${Object.keys(this.artMap).length} 张`);
     } catch (e) {
-      console.warn('[init] 插画加载失败(可能缺少approved_cards.json):', e.message);
+      console.warn('[init] 插画加载失败:', e.message);
     }
   }
 
@@ -1313,8 +1308,8 @@ class GameUI {
     // 己方手牌
     if (selfHand) {
       const cards = gs.players[0].hand || [];
-      const artCards = cards.filter(c => c._artUrl);
-      console.log('[renderHand] cards:', cards.length, '有插画:', artCards.length, artCards.length > 0 ? '首张:'+artCards[0]._artUrl : '全部无插画');
+      const artCards = cards.filter(c => this.artMap[c.id]);
+      console.log('[renderHand] cards:', cards.length, '有插画:', artCards.length);
       let html = '';
       if (cards.length === 0) {
         html = '<div class="empty-state"><span class="empty-icon">🃏</span>暂无手牌</div>';
@@ -1332,7 +1327,7 @@ class GameUI {
           const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[card.type] || '🃏';
           // 扇形旋转角度
           const rot = cards.length > 1 ? startAngle + (fanAngle / (cards.length - 1)) * i : 0;
-          const artUrl = card._artUrl || '';
+          const artUrl = this.artMap[card.id] || '';
           html += `
             <div class="card small ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
                  data-card-id="${this._escapeAttr(card.id)}"
@@ -3083,7 +3078,7 @@ class GameUI {
         <div class="v3-cost">${cardData.cost ?? '-'}</div>
         <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
         <div class="v3-art" style="height:160px;">
-          ${cardData._artUrl ? `<img src="${this._escapeAttr(cardData._artUrl)}" alt="${this._escapeAttr(cardData.name)}">` : `<span style="font-size:36px; opacity:.1;">⚛</span>`}
+          ${this.artMap[cardData.id] ? `<img src="${this._escapeAttr(this.artMap[cardData.id])}" alt="${this._escapeAttr(cardData.name)}">` : `<span style="font-size:36px; opacity:.1;">⚛</span>`}
         </div>
         <div class="v3-type"><span>${emoji} ${typeLabel}</span></div>
         <div class="v3-desc-effect">${summary}</div>
