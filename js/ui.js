@@ -51,9 +51,12 @@ class GameUI {
       const resp = await fetch('./approved_cards.json');
       const data = await resp.json();
       const mapping = {};
-      // 合并 approved 和 prev 两个来源
-      if (data.approved) Object.assign(mapping, data.approved);
-      if (data.prev) Object.assign(mapping, data.prev);
+      // 合并所有批次（approved, prev, batch9_10, batch11, batch12, batch14...）
+      for (const key of Object.keys(data)) {
+        if (data[key] && typeof data[key] === 'object') {
+          Object.assign(mapping, data[key]);
+        }
+      }
       // 给所有 CARDS 注入插画路径
       for (const card of CARDS) {
         if (mapping[card.id]) {
