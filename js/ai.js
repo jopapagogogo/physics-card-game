@@ -1593,11 +1593,6 @@ class AIEngine {
     if (combos.length > 0) {
       // 检查手牌中是否有配套卡
       for (const comboKey of combos) {
-        const entry = comboIndex.queryCombo(card.id,
-          // 尝试找到配对卡
-          ...(comboIndex.getCurCardsForPrev(card.id))
-        );
-        // 简化检查：如果该卡的任何 combo 配对存在于手牌中则保留
         const pairIds = comboIndex.getCurCardsForPrev(card.id);
         const hasPairInHand = self.hand.some(h => pairIds.includes(h.id));
         if (hasPairInHand) return true;

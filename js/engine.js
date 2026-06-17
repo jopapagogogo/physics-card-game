@@ -272,6 +272,7 @@ class GameEngine {
     // 重置偏转首次攻击标记
     this.mirageFirstAtk[pIdx] = false;
     this._zenoFirstAtk[pIdx] = false;
+    this._c04PlayerChoose = false;  // 薛定谔猫标记回合重置
 
     // 重置短路开关
     this.shortCircuitActive[pIdx] = false;
@@ -783,7 +784,7 @@ class GameEngine {
     if (nb.sound && card.domain.includes('声')) {
       damage += nb.sound;
       // S12 反屏障额外伤害
-      if (nb.antiBarrier && defender.fieldSupports.some(s => s.card.effect.soundDefense)) {
+      if (nb.antiBarrier && defender.fieldSupports.some(s => s.card.effect?.soundDefense)) {
         damage += nb.antiBarrier;
         delete nb.antiBarrier;
       }

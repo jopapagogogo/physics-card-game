@@ -417,7 +417,7 @@ class GameUI {
       cardList.innerHTML = filtered.map(c => {
         const isSelected = selected.has(c.id);
         const domainColor = getDomainColor(c);
-        const dmg = c.effect?.dmg || '';
+        const dmg = c.effect?.dmg != null ? c.effect.dmg : '';
         return `<div class="db-card ${isSelected ? 'selected' : ''}" data-id="${c.id}" style="border-left:3px solid ${domainColor}">
           <span class="db-card-cost">${c.cost || 0}</span>
           <span class="db-card-name" style="color:${domainColor}">${c.name}</span>
@@ -2191,6 +2191,7 @@ class GameUI {
   }
 
   showDiscardScreen() {
+    clearInterval(this.discardTimer);  // 防止重复进入导致旧定时器泄漏
     const gs = this.engine?.getGameState();
     if (!gs || !gs.players[0].hand) return;
 
@@ -2923,7 +2924,6 @@ class GameUI {
         case 'critical_break': msgs.push(`⚠️ ${eff.msg || '临界突破！本回合所有攻击伤害翻倍'}`); break;
         case 'entropy_reverse': msgs.push(`🔄 熵逆转: HP互换 (你:${eff.playerHp} AI:${eff.aiHp})`); break;
         // special effects
-        case 'temperature_rise': msgs.push(`🌡 灼烧伤害提升至36/层（持续3回合）`); break;
         case 'light_speed': msgs.push(`⚡ 光速传播激活: ${eff.turns}回合内对方回合可出光系卡`); break;
         case 'mirage': msgs.push(`🌫 海市蜃楼: 对方 ${eff.turns} 回合内攻击命中下降`); break;
         case 'sound_speed_buff': msgs.push(`🔊 声速激增: 下次声系攻击+${eff.value}`); break;
