@@ -2904,23 +2904,23 @@ class GameUI {
 
     let top, left;
     if (isTopArea) {
-      // 对方区域 → tooltip在卡片下方
       top = rect.bottom + gap;
-      tooltip.classList.add('arrow-down');
     } else {
-      // 己方 / 手牌区域 → tooltip在卡片上方
-      top = rect.top - tooltipH - gap;
-      tooltip.classList.add('arrow-up');
+      // 己方手牌 → tooltip在卡片上方
+      top = rect.top - tooltipH - gap - 4;
     }
 
     // 水平居中于卡片
     left = rect.left + rect.width / 2 - 90; // 90 = tooltip宽度180的一半
 
-    // 边界修正
+    // 边界修正 + 确保在视口内
+    tooltip.style.maxWidth = '200px';
+    tooltip.style.position = 'fixed';
+    tooltip.style.zIndex = '999';
     if (top < 8) top = 8;
     if (top + tooltipH > window.innerHeight - 8) top = window.innerHeight - tooltipH - 8;
     if (left < 8) left = 8;
-    if (left + 180 > window.innerWidth - 8) left = window.innerWidth - 188;
+    left = Math.min(left, window.innerWidth - 200);
 
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
@@ -3074,22 +3074,22 @@ class GameUI {
       ? `❤️ ${cardData.hp}/${cardData.maxHp}` : '';
 
     overlay.innerHTML = `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:280px; min-height:auto; height:auto; display:flex; flex-direction:column; margin:auto;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:260px; max-height:92vh; overflow-y:auto; min-height:auto; display:flex; flex-direction:column; margin:auto; border-radius:12px;">
         <div class="v3-cost">${cardData.cost ?? '-'}</div>
         <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
-        <div class="v3-art" style="height:160px;">
-          ${this.artMap[cardData.id] ? `<img src="${this._escapeAttr(this.artMap[cardData.id])}" alt="${this._escapeAttr(cardData.name)}">` : `<span style="font-size:36px; opacity:.1;">⚛</span>`}
+        <div class="v3-art" style="height:140px;">
+          ${this.artMap[cardData.id] ? `<img src="${this._escapeAttr(this.artMap[cardData.id])}" alt="${this._escapeAttr(cardData.name)}" style="width:100%;height:100%;object-fit:cover;">` : `<span style="font-size:36px; opacity:.1;">⚛</span>`}
         </div>
         <div class="v3-type"><span>${emoji} ${typeLabel}</span></div>
-        <div class="v3-desc-effect">${summary}</div>
-        ${principle ? `<div class="v3-desc-principle"><span class="lbl">原理：</span>${principle}</div>` : ''}
+        <div class="v3-desc-effect" style="font-size:11px;line-height:1.5;max-height:120px;overflow-y:auto;">${summary}</div>
+        ${principle ? `<div class="v3-desc-principle" style="font-size:10px;line-height:1.4;"><span class="lbl">原理：</span>${principle}</div>` : ''}
         ${formula ? `<div class="v3-formula">${formula}</div>` : ''}
         ${hpText ? `<div style="padding:2px 8px 4px; font-size:10px; color:#aaa;">${hpText}</div>` : ''}
         <div class="v3-rarity-bar"></div>
-        <span class="skin-badge">赛博朋克</span>
-        <div style="padding:6px 8px; display:flex; gap:8px; border-top:1px solid rgba(255,255,255,.06);">
-          <button class="btn btn-close" id="btn-zoom-close" style="flex:1; font-size:12px; padding:6px;">✕ 关闭</button>
-          ${canPlayIt ? `<button class="btn btn-play" id="btn-zoom-play" style="flex:1; font-size:12px; padding:6px;">⚔️ 打出此卡</button>` : ''}
+        ${cardData.rarity ? `<span class="skin-badge">${cardData.rarity}</span>` : ''}
+        <div style="padding:8px; display:flex; gap:8px; border-top:1px solid rgba(255,255,255,.08);">
+          <button class="btn btn-close" id="btn-zoom-close" style="flex:1; font-size:12px; padding:8px; border-radius:8px; background:#333; color:#eee; border:none; cursor:pointer;">✕ 关闭</button>
+          ${canPlayIt ? `<button class="btn btn-play" id="btn-zoom-play" style="flex:1; font-size:12px; padding:8px; border-radius:8px; background:${style.color}; color:#fff; border:none; cursor:pointer;">⚔️ 打出此卡</button>` : ''}
         </div>
       </div>
     `;
