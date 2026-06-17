@@ -1313,7 +1313,7 @@ class GameUI {
       if (cards.length === 0) {
         html = '<div class="empty-state"><span class="empty-icon">🃏</span>暂无手牌</div>';
       } else {
-        const totalAngle = Math.min(cards.length * 3.5, 40); // 扇形总角度
+        const totalAngle = Math.min(cards.length * 3.5, 40);
         const startAngle = -(totalAngle / 2);
         for (let i = 0; i < cards.length; i++) {
           const card = cards[i];
@@ -1326,10 +1326,12 @@ class GameUI {
           const artUrl = this.artMap[card.id] || '';
           const typeLabel = this.getTypeLabel(card.type);
           const runeEmoji = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡' }[this.getDomainLabel(card.domain)] || '⚛';
+          const descRaw = String(card.description || '');
+          const hasDesc = descRaw.length > 0;
           html += `
             <div class="card-v3 mini ${this._domainClass(card.domain)} skin-cyber ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
                  data-card-id="${this._escapeAttr(card.id)}"
-                 style="transform:rotate(${rot}deg) translateY(${Math.abs(rot)*1.2}px); transition:all .2s ease; flex-shrink:0;">
+                 style="transform:rotate(${rot}deg); transform-origin:bottom center; transition:all .2s ease; flex-shrink:0;">
               <div class="v3-header">
                 <div class="v3-cost">${card.cost ?? '-'}</div>
                 <div class="v3-name">${this._escapeHtml(card.name)}</div>
@@ -1339,6 +1341,7 @@ class GameUI {
               <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
               <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
               ${card.effect?.dmg ? `<div class="v3-stats"><span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span></div>` : ''}
+              ${hasDesc ? `<div class="v3-desc-box">${this._escapeHtml(descRaw)}</div>` : ''}
               <span class="v3-badge">赛博</span>
             </div>
           `;
