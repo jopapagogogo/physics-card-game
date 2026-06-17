@@ -2863,22 +2863,20 @@ class GameUI {
     const domainLabel = this.getDomainLabel(cardData.domain);
     const typeLabel = this.getTypeLabel(cardData.type);
     const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[cardData.type] || '🃏';
-    const hpText = cardData.hp !== undefined
-      ? `<span style="color:#e74c3c;">❤️ ${cardData.hp}/${cardData.maxHp}</span>&nbsp;` : '';
-    const turnText = cardData.turns ? `<span>⏱ ${cardData.turns}回合</span>` : '';
 
+    const artUrl = this.artMap[cardData.id] || '';
     return `
-      <div class="tt-header">
-        <span class="tt-cost" style="background:${style.bg}">${cardData.cost ?? '-'}</span>
-        <span class="tt-name" style="color:${style.color}">${this._escapeHtml(cardData.name)}</span>
-        ${hpText}
+      <div style="width:180px; background:#1a1a2e; border-radius:10px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.6); border:1px solid ${style.color}50;">
+        ${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="" style="width:100%;height:120px;object-fit:cover;display:block;">` : ''}
+        <div style="padding:8px 10px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span style="background:${style.bg};color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${cardData.cost ?? '-'}</span>
+            <span style="color:${style.color};font-weight:700;font-size:12px;">${this._escapeHtml(cardData.name)}</span>
+          </div>
+          <div style="color:#888;font-size:9px;margin-bottom:4px;">${emoji} ${typeLabel} · ${domainLabel}</div>
+          <div style="color:#bbb;font-size:10px;line-height:1.4;max-height:60px;overflow:hidden;">${this._escapeHtml(String(cardData.description || '暂无描述'))}</div>
+        </div>
       </div>
-      <div class="tt-meta">
-        <span>${emoji} ${typeLabel}</span>
-        <span style="background:${style.color}; color:#fff;">${domainLabel}</span>
-        ${turnText}
-      </div>
-      <div class="tt-desc">${this._escapeHtml(String(cardData.description || '暂无描述'))}</div>
     `;
   }
 
@@ -2910,8 +2908,8 @@ class GameUI {
       top = rect.top - tooltipH - gap - 4;
     }
 
-    // 水平居中于卡片
-    left = rect.left + rect.width / 2 - 90; // 90 = tooltip宽度180的一半
+    // 水平居中于卡片（宽度180）
+    left = rect.left + rect.width / 2 - 90;
 
     // 边界修正 + 确保在视口内
     tooltip.style.maxWidth = '200px';
@@ -2919,8 +2917,8 @@ class GameUI {
     tooltip.style.zIndex = '999';
     if (top < 8) top = 8;
     if (top + tooltipH > window.innerHeight - 8) top = window.innerHeight - tooltipH - 8;
-    if (left < 8) left = 8;
-    left = Math.min(left, window.innerWidth - 200);
+    if (left < 4) left = 4;
+    left = Math.min(left, window.innerWidth - 188);
 
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
