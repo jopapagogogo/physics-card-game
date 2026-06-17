@@ -2864,22 +2864,26 @@ class GameUI {
     const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[cardData.type] || '🃏';
 
     const artUrl = this.artMap[cardData.id] || '';
+    const runeEmoji = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' }[domainLabel] || '⚛';
     const descRaw = String(cardData.description || '暂无描述');
     const principleIdx = descRaw.indexOf('原理：');
     const summary = principleIdx > 0 ? descRaw.substring(0, principleIdx) : descRaw;
     const principle = principleIdx > 0 ? descRaw.substring(principleIdx + 3) : null;
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
+    const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:200px; min-height:auto; height:auto; display:flex; flex-direction:column;">
-        <div class="v3-cost">${cardData.cost ?? '-'}</div>
-        <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
-        <div class="v3-art" style="height:110px;">
-          ${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:24px; opacity:.1;">⚛</span>`}
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;">
+        <div class="v3-header">
+          <div class="v3-cost">${cardData.cost ?? '-'}</div>
+          <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
+          <div class="v3-rune">${runeEmoji}</div>
         </div>
-        <div class="v3-type"><span>${emoji} ${typeLabel}</span></div>
-        <div class="v3-desc-effect">${this._escapeHtml(summary)}</div>
-        ${principle ? `<div class="v3-desc-principle"><span class="lbl">原理：</span>${this._escapeHtml(principle)}</div>` : ''}
-        ${formula ? `<div class="v3-formula">${this._escapeHtml(formula)}</div>` : ''}
+        <div class="v3-type-ribbon"><span class="v3-type-pip ${cardData.type}">${typeLabel}</span></div>
+        <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:28px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+        <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
+        <div class="v3-desc-box"><div>${this._escapeHtml(summary)}</div>${principle ? `<span class="principle">${this._escapeHtml(principle)}</span>` : ''}</div>
+        <span class="v3-badge">赛博朋克</span>
       </div>
     `;
   }
@@ -3075,23 +3079,26 @@ class GameUI {
     const hpText = cardData.hp !== undefined
       ? `❤️ ${cardData.hp}/${cardData.maxHp}` : '';
 
+    const runeEmoji = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' }[domainLabel] || '⚛';
+    const artUrl = this.artMap[cardData.id] || '';
+    const hasHp = cardData.hp !== undefined;
+
     overlay.innerHTML = `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:260px; max-height:92vh; overflow-y:auto; min-height:auto; display:flex; flex-direction:column; margin:auto; border-radius:12px;">
-        <div class="v3-cost">${cardData.cost ?? '-'}</div>
-        <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
-        <div class="v3-art" style="height:140px;">
-          ${this.artMap[cardData.id] ? `<img src="${this._escapeAttr(this.artMap[cardData.id])}" alt="${this._escapeAttr(cardData.name)}" style="width:100%;height:100%;object-fit:cover;">` : `<span style="font-size:36px; opacity:.1;">⚛</span>`}
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:300px; max-height:90vh; overflow-y:auto; margin:auto;">
+        <div class="v3-header">
+          <div class="v3-cost">${cardData.cost ?? '-'}</div>
+          <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
+          <div class="v3-rune">${runeEmoji}</div>
         </div>
-        <div class="v3-type"><span>${emoji} ${typeLabel}</span></div>
-        <div class="v3-desc-effect" style="font-size:11px;line-height:1.5;max-height:120px;overflow-y:auto;">${summary}</div>
-        ${principle ? `<div class="v3-desc-principle" style="font-size:10px;line-height:1.4;"><span class="lbl">原理：</span>${principle}</div>` : ''}
-        ${formula ? `<div class="v3-formula">${formula}</div>` : ''}
-        ${hpText ? `<div style="padding:2px 8px 4px; font-size:10px; color:#aaa;">${hpText}</div>` : ''}
-        <div class="v3-rarity-bar"></div>
-        ${cardData.rarity ? `<span class="skin-badge">${cardData.rarity}</span>` : ''}
-        <div style="padding:8px; display:flex; gap:8px; border-top:1px solid rgba(255,255,255,.08);">
-          <button class="btn btn-close" id="btn-zoom-close" style="flex:1; font-size:12px; padding:8px; border-radius:8px; background:#333; color:#eee; border:none; cursor:pointer;">✕ 关闭</button>
-          ${canPlayIt ? `<button class="btn btn-play" id="btn-zoom-play" style="flex:1; font-size:12px; padding:8px; border-radius:8px; background:${style.color}; color:#fff; border:none; cursor:pointer;">⚔️ 打出此卡</button>` : ''}
+        <div class="v3-type-ribbon"><span class="v3-type-pip ${cardData.type}">${typeLabel}</span></div>
+        <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:36px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+        <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+        <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
+        <div class="v3-desc-box" style="max-height:200px;overflow-y:auto;"><div>${summary}</div>${principle ? `<span class="principle">${principle}</span>` : ''}</div>
+        <span class="v3-badge">赛博朋克</span>
+        <div style="padding:10px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.08);">
+          <button class="btn btn-close" id="btn-zoom-close" style="flex:1;font-size:13px;padding:10px;border-radius:8px;background:#333;color:#eee;border:none;cursor:pointer;">✕ 关闭</button>
+          ${canPlayIt ? `<button class="btn btn-play" id="btn-zoom-play" style="flex:1;font-size:13px;padding:10px;border-radius:8px;background:${style.color};color:#fff;border:none;cursor:pointer;">⚔️ 打出此卡</button>` : ''}
         </div>
       </div>
     `;
