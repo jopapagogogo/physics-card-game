@@ -1315,12 +1315,12 @@ class GameUI {
           const artUrl = this.artMap[card.id] || '';
           const typeLabel = this.getTypeLabel(card.type);
           const runeEmoji = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡' }[this.getDomainLabel(card.domain)] || '⚛';
-          const descRaw = String(card.description || '');
+          const descRaw = String(card.description || '').substring(0, 30);
           const hasDesc = descRaw.length > 0;
           html += `
             <div class="card-v3 mini ${this._domainClass(card.domain)} skin-cyber ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
                  data-card-id="${this._escapeAttr(card.id)}"
-                 style="--rot:${rot}deg;transform:rotate(var(--rot));transform-origin:bottom center;transition:all .2s ease;flex-shrink:0;height:215px;">
+                 style="--rot:${rot}deg;transform:rotate(var(--rot));transform-origin:bottom center;transition:all .2s ease;flex-shrink:0;height:200px;">
               <div class="v3-header">
                 <div class="v3-cost">${card.cost ?? '-'}</div>
                 <div class="v3-name">${this._escapeHtml(card.name)}</div>
@@ -1330,7 +1330,7 @@ class GameUI {
               <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
               <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
               <div class="v3-stats" style="min-height:18px;">${card.effect?.dmg ? `<span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}</div>
-              <div class="v3-desc-box" style="min-height:24px;font-size:.6em;">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
+              <div class="v3-desc-box" style="min-height:16px;font-size:.6em;">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
               <span class="v3-badge">赛博</span>
             </div>
           `;
