@@ -1310,8 +1310,8 @@ class GameUI {
     // 己方手牌
     if (selfHand) {
       const cards = gs.players[0].hand || [];
-      console.log('[renderHand] selfHand element:', selfHand, 'cards:', cards.length);
-      if (cards.length > 0) console.log('[renderHand] 首卡_artUrl:', cards[0]._artUrl || '无');
+      const artCards = cards.filter(c => c._artUrl);
+      console.log('[renderHand] cards:', cards.length, '有插画:', artCards.length, artCards.length > 0 ? '首张:'+artCards[0]._artUrl : '全部无插画');
       let html = '';
       if (cards.length === 0) {
         html = '<div class="empty-state"><span class="empty-icon">🃏</span>暂无手牌</div>';
@@ -1748,9 +1748,9 @@ class GameUI {
 
       gameContainer.addEventListener('mouseout', (e) => {
         const cardEl = e.target.closest('.card.small');
-        if (cardEl === hoverCardEl) {
+        if (cardEl && cardEl === hoverCardEl) {
           // 检查鼠标是否真的离开了卡牌（不是移到子元素）
-          if (e.relatedTarget && !cardEl.contains(e.relatedTarget)) {
+          if (!e.relatedTarget || !cardEl.contains(e.relatedTarget)) {
             this._hideHoverTooltip();
             hoverCardEl = null;
           }
