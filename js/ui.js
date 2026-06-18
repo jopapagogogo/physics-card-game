@@ -6,6 +6,7 @@ import { GameEngine } from './engine.js';
 import { AIEngine } from './ai.js';
 import { QuizSystem } from './quiz.js';
 import { CARDS } from './cards.js';
+import { DOMAIN_RUNES } from './runes.js';
 
 class GameUI {
   constructor(containerId) {
@@ -1314,9 +1315,8 @@ class GameUI {
           const rot = cards.length > 1 ? startAngle + (totalAngle / (cards.length - 1)) * i : 0;
           const artUrl = this.artMap[card.id] || '';
           const typeLabel = this.getTypeLabel(card.type);
-          const emojiMap = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡','混沌':'🌌' };
           const domains = Array.isArray(card.domain) ? card.domain : [card.domain];
-          const runeEmoji = domains.map(d => emojiMap[d] || '⚛').join('');
+          const runeHtml = domains.map(d => DOMAIN_RUNES[d] ? `<img src="${DOMAIN_RUNES[d]}" class="rune-img">` : (d === '混沌' ? '🌌' : '⚛')).join('');
           const descRaw = String(card.description || '').substring(0, 30);
           const hasDesc = descRaw.length > 0;
           html += `
@@ -1326,7 +1326,7 @@ class GameUI {
               <div class="v3-header">
                 <div class="v3-cost">${card.cost ?? '-'}</div>
                 <div class="v3-name">${this._escapeHtml(card.name)}</div>
-                <div class="v3-rune">${runeEmoji}</div>
+                <div class="v3-rune">${runeHtml}</div>
               </div>
               <div class="v3-type-ribbon"><span class="v3-type-pip ${card.type}">${typeLabel}</span></div>
               <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
@@ -2868,7 +2868,7 @@ class GameUI {
     const artUrl = this.artMap[cardData.id] || '';
     const emojiMap = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' };
     const domains = Array.isArray(cardData.domain) ? cardData.domain : [cardData.domain];
-    const runeEmoji = domains.map(d => emojiMap[d] || '⚛').join('');
+    const runeHtml = domains.map(d => DOMAIN_RUNES[d] ? `<img src="${DOMAIN_RUNES[d]}" class="rune-img">` : (d === '混沌' ? '🌌' : '⚛')).join('');
     const descRaw = String(cardData.description || '暂无描述');
     const principleIdx = descRaw.indexOf('原理：');
     const summary = principleIdx > 0 ? descRaw.substring(0, principleIdx) : descRaw;
@@ -2880,7 +2880,7 @@ class GameUI {
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
-          <div class="v3-rune">${runeEmoji}</div>
+          <div class="v3-rune">${runeHtml}</div>
         </div>
         <div class="v3-type-ribbon"><span class="v3-type-pip ${cardData.type}">${typeLabel}</span></div>
         <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:28px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
@@ -3085,7 +3085,7 @@ class GameUI {
 
     const emojiMap2 = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' };
     const domains2 = Array.isArray(cardData.domain) ? cardData.domain : [cardData.domain];
-    const runeEmoji = domains2.map(d => emojiMap2[d] || '⚛').join('');
+    const runeHtml = domains2.map(d => DOMAIN_RUNES[d] ? `<img src="${DOMAIN_RUNES[d]}" class="rune-img">` : (d === '混沌' ? '🌌' : '⚛')).join('');
     const artUrl = this.artMap[cardData.id] || '';
     const hasHp = cardData.hp !== undefined;
 
@@ -3094,7 +3094,7 @@ class GameUI {
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
-          <div class="v3-rune">${runeEmoji}</div>
+          <div class="v3-rune">${runeHtml}</div>
         </div>
         <div class="v3-type-ribbon"><span class="v3-type-pip ${cardData.type}">${typeLabel}</span></div>
         <div class="v3-art-frame" style="height:250px;">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:36px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
