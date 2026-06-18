@@ -75,7 +75,8 @@ class GameUI {
       { id: '声', name: '声', icon: '🔊', color: '#3498DB', desc: '声学领域' },
       { id: '光', name: '光', icon: '💡', color: '#F1C40F', desc: '光学领域' },
       { id: '热', name: '热', icon: '🔥', color: '#E67E22', desc: '热学领域' },
-      { id: '电', name: '电', icon: '⚡', color: '#9B59B6', desc: '电学领域' }
+      { id: '电', name: '电', icon: '⚡', color: '#9B59B6', desc: '电学领域' },
+      { id: '混沌', name: '混沌', icon: '🌌', color: '#7B2FBE', desc: '混沌领域' }
     ];
 
     const domainButtons = domains.map((d, i) => `
@@ -1314,7 +1315,7 @@ class GameUI {
           const rot = cards.length > 1 ? startAngle + (totalAngle / (cards.length - 1)) * i : 0;
           const artUrl = this.artMap[card.id] || '';
           const typeLabel = this.getTypeLabel(card.type);
-          const emojiMap = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡' };
+          const emojiMap = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡','混沌':'🌌' };
           const domains = Array.isArray(card.domain) ? card.domain : [card.domain];
           const runeEmoji = domains.map(d => emojiMap[d] || '⚛').join('');
           const descRaw = String(card.description || '').substring(0, 30);
@@ -2822,7 +2823,7 @@ class GameUI {
   _domainClass(domain) {
     if (!domain) return 'domain-force';
     const d = Array.isArray(domain) ? domain[0] : domain;
-    const map = { '力':'domain-force','声':'domain-sound','光':'domain-light','热':'domain-heat','电':'domain-elec' };
+    const map = { '力':'domain-force','声':'domain-sound','光':'domain-light','热':'domain-heat','电':'domain-elec','混沌':'domain-chaos' };
     return map[d] || 'domain-force';
   }
 
