@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C09 伽利略 | 物理卡牌对战</title>
+<style>
+    :root {
+    --bg: #0a0a12; --card-inner: #14161e;
+    --text: #e8ecf1; --text-dim: #8890a4;
+    --gold: #d4a853; --gold-bright: #f0d070; --gold-dark: #8b6914;
+    --force: #E74C3C; --force-light: #f06050; --force-dark: #8b1a1a;
+    --electric: #9B59B6; --electric-light: #b870d8; --electric-dark: #4a1d6e;
+    --sound: #16A085; --sound-light: #1de0b5; --sound-dark: #0a5c4a;
+    --light: #F39C12; --light-color: #ffc04d; --light-dark: #8b5a00;
+    --heat: #E67E22; --heat-light: #f0a04d; --heat-dark: #8a3d0a;
+    --cyber-accent: #00e5ff; --anime-accent: #ff6b9d;
+    --rare-gold: #f0c040; --common-silver: #7eb8da;
+    --summon-hp: #4ecdc4; --attack-red: #e06050; --support-green: #3cb371;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);
+    background-image:radial-gradient(ellipse at 20% 0%, rgba(231,76,60,.04), transparent 60%),radial-gradient(ellipse at 80% 0%, rgba(155,89,182,.04), transparent 60%);
+    color:var(--text);font-family:'Segoe UI','Noto Sans SC',sans-serif;min-height:100vh;
+  }
+  .hero{text-align:center;padding:36px 20px 16px}
+  .hero h1{font-size:1.8em;letter-spacing:3px;text-transform:uppercase}
+  .hero h1 span{background:linear-gradient(135deg,var(--force),var(--electric));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--text-dim);font-size:.88em;margin-top:4px}
+
+  .domain-tabs{display:flex;justify-content:center;gap:16px;margin:16px 0 28px;position:sticky;top:10px;z-index:100}
+  .domain-tab{padding:10px 36px;border-radius:6px;border:1.5px solid #2a2a3a;background:#12141c;color:var(--text-dim);cursor:pointer;font-size:.92em;font-weight:700;letter-spacing:2px;transition:all .3s;text-transform:uppercase}
+  .domain-tab:hover{border-color:#444;color:#ccc}
+  .tab-force.active{border-color:var(--force);color:var(--force-light);box-shadow:0 0 20px rgba(231,76,60,.3),inset 0 0 20px rgba(231,76,60,.05)}
+  .tab-electric.active{border-color:var(--electric);color:var(--electric-light);box-shadow:0 0 20px rgba(155,89,182,.3),inset 0 0 20px rgba(155,89,182,.05)}
+  .tab-showcase.active{border-color:#f0c040;color:#f0c040;box-shadow:0 0 20px rgba(240,192,64,.3),inset 0 0 20px rgba(240,192,64,.05)}
+
+  .domain-section{display:none;max-width:1400px;margin:0 auto;padding:0 20px 60px}
+  .domain-section.active{display:block}
+  .domain-section h2{text-align:center;font-size:1.25em;margin-bottom:28px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+  .cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:50px 36px;justify-items:center}
+
+  .card-set{text-align:center}
+  .skin-badge{display:inline-block;padding:5px 20px;border-radius:20px;font-size:.72em;font-weight:700;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase}
+  .skin-badge.cyber{background:rgba(0,229,255,.1);color:var(--cyber-accent);border:1px solid rgba(0,229,255,.35)}
+  .skin-badge.anime{background:rgba(255,107,157,.1);color:var(--anime-accent);border:1px solid rgba(255,107,157,.35)}
+
+  .card{
+    width:380px;border-radius:16px;background:var(--card-inner);
+    position:relative;text-align:left;
+    box-shadow:0 16px 48px rgba(0,0,0,.55);
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+    border:2.5px solid transparent;background-clip:padding-box;
+  }
+  .card::before{content:'';position:absolute;inset:-3px;border-radius:18px;z-index:-1}
+  .card:hover{transform:translateY(-6px)}
+  .card:active{transform:translateY(-2px)}
+
+  .card.force{border-color:var(--force-dark);box-shadow:0 16px 48px rgba(0,0,0,.55)}
+  .card.force::before{background:linear-gradient(135deg,var(--force-dark),var(--force),var(--force-light),var(--force),var(--force-dark));opacity:.3}
+  .card.electric{border-color:var(--electric-dark);box-shadow:0 16px 48px rgba(0,0,0,.55)}
+  .card.electric::before{background:linear-gradient(135deg,var(--electric-dark),var(--electric),var(--electric-light),var(--electric),var(--electric-dark));opacity:.3}
+
+  /* Sound domain */
+  .card.sound{border-color:var(--sound-dark);box-shadow:0 16px 48px rgba(0,0,0,.55)}
+  .card.sound::before{background:linear-gradient(135deg,var(--sound-dark),var(--sound),var(--sound-light),var(--sound),var(--sound-dark));opacity:.3}
+
+  /* Light domain */
+  .card.light-domain{border-color:var(--light-dark);box-shadow:0 16px 48px rgba(0,0,0,.55)}
+  .card.light-domain::before{background:linear-gradient(135deg,var(--light-dark),var(--light-color),#fff3a0,var(--light-color),var(--light-dark));opacity:.3}
+
+  /* Heat domain */
+  .card.heat{border-color:var(--heat-dark);box-shadow:0 16px 48px rgba(0,0,0,.55)}
+  .card.heat::before{background:linear-gradient(135deg,var(--heat-dark),var(--heat),var(--heat-light),var(--heat),var(--heat-dark));opacity:.3}
+  .card.anime.heat::before{background:linear-gradient(135deg,#8a3d0a,#E67E22,#f0a04d,#E67E22,#8a3d0a);opacity:.3}
+  .card.anime{background:linear-gradient(175deg,#2a1e3c 0%,#211630 25%,#1f142e 50%,#231832 100%)}
+  .card.anime::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,107,157,.08);pointer-events:none;z-index:1}
+  .card.anime.a-sakura{background:linear-gradient(175deg,#3a1e2e 0%,#2a1630 30%,#1e1428 55%,#2a1830 100%)}
+  .card.anime.a-yuyake{background:linear-gradient(175deg,#3a2a1e 0%,#2a1e30 30%,#1e283a 55%,#2a1e30 100%)}
+  .card.anime.a-hoshi{background:linear-gradient(175deg,#1a1e3a 0%,#1e1a30 30%,#221e38 55%,#1a1e3a 100%)}
+  .card.cyber::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,255,255,.06);pointer-events:none;z-index:1}
+
+  /* ===== RARITY BORDER — 边框材质区分稀有度 ===== */
+  .card.common{border-color:#5a6675;box-shadow:0 0 1px rgba(90,102,117,.15),0 16px 48px rgba(0,0,0,.55)}
+  .card.common::before{background:#5a6675;opacity:.4}
+  .card.rare{border-color:#c47a38;box-shadow:0 0 6px rgba(196,122,56,.3),0 16px 48px rgba(0,0,0,.55)}
+  .card.rare::before{background:linear-gradient(135deg,#6b3a0a,#c47a38,#e0a858,#c47a38,#6b3a0a);opacity:.47}
+  .card.epic{border-color:#8868a8;box-shadow:0 0 10px rgba(136,104,168,.4),0 16px 48px rgba(0,0,0,.55)}
+  .card.epic::before{background:linear-gradient(135deg,#3a1a6a,#8868a8,#c8a0e8,#8868a8,#3a1a6a);opacity:.51}
+  .card.legendary{border-color:#d49030;box-shadow:0 0 14px rgba(212,144,48,.45),0 16px 48px rgba(0,0,0,.55)}
+  .card.legendary::before{background:linear-gradient(135deg,#5a2a00,#d49030,#ffe080,#d49030,#5a2a00);opacity:.55}
+  @property --m-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+  @keyframes mythic-spin{to{--m-angle:360deg}}
+  .card.mythic{border-color:#ff6bff;box-shadow:0 0 18px rgba(255,160,220,.45),0 16px 48px rgba(0,0,0,.55)}
+  .card.mythic::before{
+    background:conic-gradient(from var(--m-angle,0deg),#ff6bff,#ffb070,#70d0ff,#90ff90,#ff6bff,#ffb070,#70d0ff,#ff6bff);
+    opacity:.6;animation:mythic-spin 4s linear infinite;
+  }
+
+  /* === HEADER: Cost · Name+Rune · Rarity === */
+  .card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;gap:8px;position:relative;z-index:2}
+  .cost-gem{width:40px;height:40px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15em;position:relative;background:radial-gradient(circle at 35% 35%,#1a1a2e,#0a0a14);box-shadow:inset 0 0 8px rgba(0,0,0,.6)}
+  .cost-gem::before{content:'';position:absolute;inset:-2.5px;border-radius:50%;background:conic-gradient(from 0deg,var(--gold-dark),var(--gold-bright),var(--gold),var(--gold-bright),var(--gold-dark));z-index:-1;-webkit-mask:radial-gradient(circle,transparent 19px,#000 19.5px);mask:radial-gradient(circle,transparent 19px,#000 19.5px)}
+  .card.force .cost-gem{color:var(--force-light)}
+  .card.electric .cost-gem{color:var(--electric-light)}
+  .card.sound .cost-gem{color:var(--sound-light)}
+  .card.light-domain .cost-gem{color:var(--light-color)}
+  .card.heat .cost-gem{color:var(--heat-light)}
+
+  .card-title-bar{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+  .card-title{font-size:1.05em;font-weight:800;letter-spacing:3px;white-space:nowrap;padding:2px 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .card.force .card-title{color:var(--force-light)}
+  .card.electric .card-title{color:var(--electric-light)}
+  .card.sound .card-title{color:var(--sound-light)}
+  .card.light-domain .card-title{color:#ffe080}
+  .card.heat .card-title{color:var(--heat-light)}
+  .rune-img{width:100%;height:100%;object-fit:contain;display:block}
+.domain-rune{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center}
+
+
+
+
+  /* === TYPE TAG (snug under header) === */
+  .type-ribbon{display:flex;justify-content:center;padding:1px 0 8px;position:relative;z-index:2}
+  .type-pip{padding:2px 10px;border-radius:3px;font-size:.66em;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  .type-pip.attack{background:rgba(224,96,80,.2);color:var(--attack-red);border:1px solid rgba(224,96,80,.3)}
+  .type-pip.support{background:rgba(60,179,113,.2);color:var(--support-green);border:1px solid rgba(60,179,113,.3)}
+  .type-pip.summon{background:rgba(240,192,64,.2);color:var(--rare-gold);border:1px solid rgba(240,192,64,.3)}
+
+  /* === ART === */
+  .art-frame{margin:0;position:relative;z-index:2;height:340px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#1a1d28 0%,#0d0e16 100%)}
+  .art-frame img{width:calc(100% - 16px);height:calc(100% - 16px);object-fit:cover;object-position:50% 20%;display:block;border-radius:2px}
+  .card.anime .art-frame{background:radial-gradient(ellipse at 50% 40%,#2a1e35 0%,#1a1025 100%)}
+  .art-corner{position:absolute;width:16px;height:16px;z-index:3;pointer-events:none;border-color:rgba(212,168,83,.45)}
+  .art-corner.tl{top:8px;left:8px;border-top:2px solid;border-left:2px solid}
+  .art-corner.tr{top:8px;right:8px;border-top:2px solid;border-right:2px solid}
+  .art-corner.bl{bottom:8px;left:8px;border-bottom:2px solid;border-left:2px solid}
+  .art-corner.br{bottom:8px;right:8px;border-bottom:2px solid;border-right:2px solid}
+  .card.cyber .art-frame::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.04) 2px,rgba(0,229,255,.04) 4px)}
+  .card.anime .art-frame::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;background:radial-gradient(ellipse at 50% 25%,rgba(255,107,157,.05),transparent 55%),radial-gradient(ellipse at 30% 70%,rgba(255,184,140,.04),transparent 50%)}
+
+  .ornate-divider{display:flex;align-items:center;gap:6px;padding:6px 20px 2px;position:relative;z-index:2}
+  .ornate-divider .line{flex:1;height:1px}
+  .card.force .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--force-dark),var(--force),var(--force-dark),transparent)}
+  .card.electric .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--electric-dark),var(--electric),var(--electric-dark),transparent)}
+  .ornate-divider .gem{width:6px;height:6px;border-radius:1px;transform:rotate(45deg)}
+  .card.force .ornate-divider .gem{background:var(--force);box-shadow:0 0 6px var(--force)}
+  .card.electric .ornate-divider .gem{background:var(--electric);box-shadow:0 0 6px var(--electric)}
+  .card.sound .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--sound-dark),var(--sound),var(--sound-dark),transparent)}
+  .card.sound .ornate-divider .gem{background:var(--sound);box-shadow:0 0 6px var(--sound)}
+  .card.light-domain .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--light-dark),var(--light-color),var(--light-dark),transparent)}
+  .card.light-domain .ornate-divider .gem{background:var(--light-color);box-shadow:0 0 6px var(--light-color)}
+  .card.heat .ornate-divider .line{background:linear-gradient(90deg,transparent,var(--heat-dark),var(--heat),var(--heat-dark),transparent)}
+  .card.heat .ornate-divider .gem{background:var(--heat);box-shadow:0 0 6px var(--heat)}
+
+  .card-stats{padding:0 20px 4px;position:relative;z-index:2;display:flex;align-items:center;gap:10px}
+  .main-stat{display:flex;align-items:baseline;gap:6px}
+  .main-stat .stat-num{font-size:1.5em;font-weight:900;line-height:1;font-family:'Segoe UI',sans-serif}
+  .card.force .main-stat .stat-num{color:var(--force);text-shadow:0 0 10px rgba(231,76,60,.4)}
+  .card.electric .main-stat .stat-num{color:var(--electric);text-shadow:0 0 10px rgba(155,89,182,.4)}
+  .card.sound .main-stat .stat-num{color:var(--sound);text-shadow:0 0 10px rgba(22,160,133,.4)}
+  .card.light-domain .main-stat .stat-num{color:var(--light-color);text-shadow:0 0 10px rgba(243,156,18,.4)}
+  .card.heat .main-stat .stat-num{color:var(--heat);text-shadow:0 0 10px rgba(230,126,34,.4)}
+  .main-stat .stat-unit{font-size:.68em;color:var(--text-dim)}
+  .hp-stat{margin-left:auto;display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;background:rgba(78,205,196,.08);border:1px solid rgba(78,205,196,.2)}
+  .hp-stat .hp-num{font-weight:800;font-size:.9em;color:var(--summon-hp)}
+
+  .card-desc-box{margin:0 20px 14px;padding:10px 10px 8px;position:relative;z-index:2;border-radius:4px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.05);border-left:2px solid}
+  .card.force .card-desc-box{border-left-color:rgba(231,76,60,.4)}
+  .card.electric .card-desc-box{border-left-color:rgba(155,89,182,.4)}
+  .card.sound .card-desc-box{border-left-color:rgba(22,160,133,.4)}
+  .card.light-domain .card-desc-box{border-left-color:rgba(243,156,18,.4)}
+  .card.heat .card-desc-box{border-left-color:rgba(230,126,34,.4)}
+  .card.anime .card-desc-box{background:rgba(255,255,255,.03)}
+  .card-desc-box{height:90px;overflow:hidden}
+  .card-desc{font-size:.72em;color:#e0e0e0;line-height:1.65;margin-bottom:6px;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .card-principle{font-family:'Consolas','Courier New',monospace;font-size:.7em;font-weight:700;letter-spacing:.5px;padding:3px 6px;border-radius:3px;display:inline-block}
+  .card.force .card-principle{background:rgba(231,76,60,.12);color:var(--force-light);border:1px solid rgba(231,76,60,.2)}
+  .card.electric .card-principle{background:rgba(155,89,182,.12);color:var(--electric-light);border:1px solid rgba(155,89,182,.2)}
+  .card.sound .card-principle{background:rgba(22,160,133,.12);color:var(--sound-light);border:1px solid rgba(22,160,133,.2)}
+  .card.light-domain .card-principle{background:rgba(243,156,18,.12);color:var(--light-color);border:1px solid rgba(243,156,18,.2)}
+  .card.heat .card-principle{background:rgba(230,126,34,.12);color:var(--heat-light);border:1px solid rgba(230,126,34,.2)}
+  .card.anime.force .card-principle{background:rgba(231,76,60,.18)}
+  .card.anime.electric .card-principle{background:rgba(155,89,182,.18)}
+  .card.anime.sound .card-principle{background:rgba(22,160,133,.18)}
+  .card.anime.light-domain .card-principle{background:rgba(243,156,18,.18)}
+  .card.anime.heat .card-principle{background:rgba(230,126,34,.18)}
+
+  @media(max-width:1050px){.cards-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:680px){.cards-grid{grid-template-columns:1fr}.card{width:100%;max-width:360px}}
+
+  .card-v3 .rune-img{width:100%;height:100%;object-fit:contain;display:block}
+  .card-v3.skin-cyber::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,255,255,.06);pointer-events:none;z-index:1}
+  .card-v3 .v3-art-frame img{width:calc(100% - 8px);height:calc(100% - 8px);object-fit:cover;object-position:50% 20%;display:block;border-radius:2px}
+  
+.card.common{border-color:#5a6675!important}
+.card.common::before{background:#5a6675!important;opacity:.4}
+.card.rare{border-color:#c47a38!important;box-shadow:0 0 6px rgba(196,122,56,.3),0 16px 48px rgba(0,0,0,.55)}
+.card.rare::before{background:linear-gradient(135deg,#6b3a0a,#c47a38,#e0a858,#c47a38,#6b3a0a)!important;opacity:.47}
+.card.epic{border-color:#8868a8!important;box-shadow:0 0 10px rgba(136,104,168,.4),0 16px 48px rgba(0,0,0,.55)}
+.card.epic::before{background:linear-gradient(135deg,#3a1a6a,#8868a8,#c8a0e8,#8868a8,#3a1a6a)!important;opacity:.51}
+.card.legendary{border-color:#d49030!important;box-shadow:0 0 14px rgba(212,144,48,.45),0 16px 48px rgba(0,0,0,.55)}
+.card.legendary::before{background:linear-gradient(135deg,#5a2a00,#d49030,#ffe080,#d49030,#5a2a00)!important;opacity:.55}
+@property --m-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes mythic-spin{to{--m-angle:360deg}}
+.card.mythic{border-color:#ff6bff!important}
+.card.mythic::before{background:conic-gradient(from var(--m-angle,0deg),#ff6bff,#ffb070,#70d0ff,#90ff90,#ff6bff)!important;opacity:.6;animation:mythic-spin 4s linear infinite}
+
+</style>
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a12;margin:0;padding:20px 0;font-family:sans-serif;">
+<div class="card-v3 domain-light epic skin-cyber" style="width:380px;">
+  <div class="v3-header">
+    <div class="v3-cost">26</div>
+    <div class="v3-name">伽利略</div>
+    <div class="v3-rune"><img src="data:image/png;base64,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" class="rune-img" alt=""></div>
+  </div>
+  <div class="v3-type-ribbon"><span class="v3-type-pip summon">召唤</span></div>
+  <div class="v3-art-frame"><img src="../card_art/C09.png" alt="伽利略"><div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+  <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+  <div class="v3-stats"><div class="v3-hp">❤ 280/280</div></div>
+  <div class="v3-desc-box" style="max-height:200px;overflow-y:auto;">
+    <div>光系攻击+8伤害；己方场上每有一张持续生效的辅助卡，光系攻击额外+3伤害。</div>
+    <span class="principle">望远镜——聚焦放大，辅助卡=透镜。</span>
+  </div>
+  <div style="font-size:10px;padding:4px 12px 8px;color:#8890a4;text-align:center;">望远镜</div>
+  <span class="v3-badge" style="position:absolute;bottom:8px;right:12px;font-size:9px;color:rgba(255,255,255,.2);">C09</span>
+</div>
+</body>
+</html>

@@ -1314,7 +1314,9 @@ class GameUI {
           const rot = cards.length > 1 ? startAngle + (totalAngle / (cards.length - 1)) * i : 0;
           const artUrl = this.artMap[card.id] || '';
           const typeLabel = this.getTypeLabel(card.type);
-          const runeEmoji = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡' }[this.getDomainLabel(card.domain)] || '⚛';
+          const emojiMap = { '力':'💪','声':'🔊','光':'💡','热':'🔥','电':'⚡' };
+          const domains = Array.isArray(card.domain) ? card.domain : [card.domain];
+          const runeEmoji = domains.map(d => emojiMap[d] || '⚛').join('');
           const descRaw = String(card.description || '').substring(0, 30);
           const hasDesc = descRaw.length > 0;
           html += `
@@ -2864,7 +2866,9 @@ class GameUI {
     const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[cardData.type] || '🃏';
 
     const artUrl = this.artMap[cardData.id] || '';
-    const runeEmoji = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' }[domainLabel] || '⚛';
+    const emojiMap = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' };
+    const domains = Array.isArray(cardData.domain) ? cardData.domain : [cardData.domain];
+    const runeEmoji = domains.map(d => emojiMap[d] || '⚛').join('');
     const descRaw = String(cardData.description || '暂无描述');
     const principleIdx = descRaw.indexOf('原理：');
     const summary = principleIdx > 0 ? descRaw.substring(0, principleIdx) : descRaw;
@@ -3079,7 +3083,9 @@ class GameUI {
     const hpText = cardData.hp !== undefined
       ? `❤️ ${cardData.hp}/${cardData.maxHp}` : '';
 
-    const runeEmoji = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' }[domainLabel] || '⚛';
+    const emojiMap2 = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' };
+    const domains2 = Array.isArray(cardData.domain) ? cardData.domain : [cardData.domain];
+    const runeEmoji = domains2.map(d => emojiMap2[d] || '⚛').join('');
     const artUrl = this.artMap[cardData.id] || '';
     const hasHp = cardData.hp !== undefined;
 
