@@ -75,8 +75,7 @@ class GameUI {
       { id: '声', name: '声', icon: '🔊', color: '#3498DB', desc: '声学领域' },
       { id: '光', name: '光', icon: '💡', color: '#F1C40F', desc: '光学领域' },
       { id: '热', name: '热', icon: '🔥', color: '#E67E22', desc: '热学领域' },
-      { id: '电', name: '电', icon: '⚡', color: '#9B59B6', desc: '电学领域' },
-      { id: '混沌', name: '混沌', icon: '🌌', color: '#7B2FBE', desc: '混沌领域' }
+      { id: '电', name: '电', icon: '⚡', color: '#9B59B6', desc: '电学领域' }
     ];
 
     const domainButtons = domains.map((d, i) => `
