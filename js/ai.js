@@ -41,7 +41,7 @@ const COMBO_POTENTIAL_WEIGHT = 0.15;
 
 /** 灭杀型攻击卡 ID 集合 */
 const SUMMON_ELIMINATOR_IDS = new Set([
-  'A18', 'A25', 'A30', 'A07', 'A35'
+  'A18', 'A25', 'A30', 'A35'
 ]);
 
 /** 高价值召唤物 ID */
@@ -1213,8 +1213,8 @@ class AIEngine {
     const scored = hand.map(card => {
       let value = this._estimateAttackDamage(card);
 
-      const special = card.effect.special || '';
-      if (special.includes('消灭') && special.includes('驻场')) {
+      const desc = card.description || '';
+      if (desc.includes('消灭') && desc.includes('驻场')) {
         if (opp.fieldSupports.length > 0 || opp.fieldDomain) {
           value += 30;
         }
@@ -1222,13 +1222,13 @@ class AIEngine {
       if (card.effect.burnLayers) {
         value += card.effect.burnLayers * 20;
       }
-      if (special.includes('弹回')) {
+      if (desc.includes('弹回')) {
         value += 25;
       }
-      if (special.includes('查看') && special.includes('手牌')) {
+      if (desc.includes('查看') && desc.includes('手牌')) {
         value += 15;
       }
-      if (special.includes('偷取') && special.includes('精神力')) {
+      if (desc.includes('偷取') && desc.includes('精神力')) {
         value += 20;
       }
       if (card.id === 'A49' &&
@@ -1444,16 +1444,16 @@ class AIEngine {
         value += card.effect.spiritRestore * 1.2;
       }
 
-      const special = card.effect.special || '';
-      if (special.includes('附加') && special.includes('灼烧')) {
-        const match = special.match(/(\d+)层灼烧/);
+      const desc = card.description || '';
+      if (desc.includes('附加') && desc.includes('灼烧')) {
+        const match = desc.match(/(\d+)层灼烧/);
         if (match) value += parseInt(match[1]) * 25;
       }
-      if (special.includes('查看') && special.includes('手牌')) {
+      if (desc.includes('查看') && desc.includes('手牌')) {
         value += 20;
       }
       // 消灭驻场
-      if (special.includes('消灭') && special.includes('驻场')) {
+      if (desc.includes('消灭') && desc.includes('驻场')) {
         if (opp.fieldSupports.length > 0 || opp.fieldDomain) {
           value += 35;
         }
@@ -1465,11 +1465,6 @@ class AIEngine {
       if (card.id === 'S27') {
         const hasElec = self.fieldSupports.some(s => s.card.domain.includes('电'));
         if (!hasElec) value = 0;
-      }
-      if (card.id === 'S35') {
-        const oppHasField = opp.fieldSummons.length > 0 ||
-          opp.fieldDomain || opp.fieldSupports.length > 0;
-        if (!oppHasField) value *= 0.3;
       }
 
       const efficiency = value / Math.max(1, card.cost);
@@ -1551,7 +1546,7 @@ class AIEngine {
   // ==========================================================
   _handleDiscard() {
     const self = this._getSelf();
-    const maxSize = 5;
+    const maxSize = 7;  // 对齐 engine.js 中的 MAX_HAND_SIZE
 
     if (self.hand.length <= maxSize) return;
 

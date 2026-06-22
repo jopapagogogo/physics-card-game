@@ -1215,7 +1215,7 @@ class GameEngine {
     // 惠更斯(C11)闪避检查
     for (const s of opponent.fieldSummons) {
       if (s.card.id === 'C11' && s.card.effect.dodgeChance) {
-        if (Math.random() * 100 < s.card.effect.dodgeChance) {
+        if (Math.random() < s.card.effect.dodgeChance) {
           this._addLog(`[惠更斯] 闪避了攻击！`);
           damage = 0;
           effects.push({ type: 'dodge', msg: '惠更斯闪避了攻击' });
@@ -1370,6 +1370,26 @@ class GameEngine {
       const maxBurn = MAX_BURN_DEFAULT + this._burnCapIncrease[attackerIdx];
       opponent.burnLayers = Math.min(opponent.burnLayers, maxBurn);
       effects.push({ type: 'burn', layers: card.effect.burn });
+    }
+
+    // 对方下回合每卡额外消耗 (A33, A43)
+    if (card.effect.opponentExtraCost) {
+      opponent.extraCost = Math.max(opponent.extraCost || 0, card.effect.opponentExtraCost);
+      effects.push({ type: 'extra_cost', value: card.effect.opponentExtraCost });
+    }
+
+    // 对方下回合精神力恢复减半 (A42)
+    if (card.effect.halveSpiritRecovery) {
+      opponent.spiritDebuff = Math.max(-10, opponent.spiritDebuff - Math.floor(SPIRIT_PER_TURN / 2));
+      effects.push({ type: 'spirit_halve', msg: '对方下回合精神力恢复减半' });
+    }
+
+    // 偷取精神力 (A25, A34)
+    if (card.effect.stealSpirit) {
+      const actual = Math.min(opponent.spirit, card.effect.stealSpirit);
+      opponent.spirit -= actual;
+      attacker.spirit = Math.min(MAX_SPIRIT, attacker.spirit + actual);
+      effects.push({ type: 'steal_spirit', value: actual });
     }
 
     // P2: A11 啸叫 — 叠加声压 + 驻场
@@ -1809,8 +1829,9 @@ class GameEngine {
         effects.push({ type: 'spirit_debuff', value: -3 });
       }
 
-      // 对方下回合每出卡+费 (A33, A43, S08)
-      if (spec.includes('每出卡+') || spec.includes('每出一张卡额外消耗')) {
+      // 对方下回合每出卡+费 (A33, A43, S08等)
+      if (spec.includes('每出卡+') || spec.includes('每出一张卡额外消耗') || 
+          spec.includes('每张卡') && spec.includes('精神力消耗')) {
         const match = spec.match(/\+(\d+)/);
         if (match) {
           opponent.extraCost = parseInt(match[1], 10);
@@ -2001,11 +2022,11 @@ class GameEngine {
         effects.push({ type: 'spirit_halve', msg: '对方下回合精神力恢复减半' });
       }
 
-      // 下回合每出卡额外消耗
-      if (spec.includes('每出卡') && spec.includes('费')) {
+      // 下回合每出卡额外消耗 (备用文本匹配)
+      if ((spec.includes('每出卡') || spec.includes('每张卡')) && spec.includes('费')) {
         const match = spec.match(/\+(\d+)/);
         if (match) {
-          opponent.extraCost = parseInt(match[1], 10);
+          opponent.extraCost = Math.max(opponent.extraCost || 0, parseInt(match[1], 10));
         }
       }
 
@@ -2100,7 +2121,7 @@ class GameEngine {
       // A10次声震荡：DOT递增（含S08→A10 combo加成）
       let dmg = dot.dmg;
       if (dot.cardId === 'A10') {
-        const increment = 13 + this._dotIncrementBoost[playerIdx];  // S08→A10 combo +3
+        const increment = 10 + this._dotIncrementBoost[playerIdx];  // 基础递增10 + S08→A10 combo +3
         dmg = dot.dmg + (dot.initialTurns - dot.turnsRemaining) * increment || dot.dmg;
       }
       player.hp = Math.max(0, player.hp - dmg);
@@ -2461,7 +2482,7 @@ class GameEngine {
     // 光领域棱镜界(D03)失败概率
     const oppDomain = opponent.fieldDomain;
     if (oppDomain?.card?.id === 'D03' && oppDomain.card.effect.opponentFailChance) {
-      if (Math.random() * 100 < oppDomain.card.effect.opponentFailChance) {
+      if (Math.random() < oppDomain.card.effect.opponentFailChance) {
         return { can: false, reason: '棱镜界：出牌有20%概率失效。' };
       }
     }
