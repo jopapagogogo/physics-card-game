@@ -73,6 +73,7 @@
 
 | 日期 | 内容 | 说明 |
 |------|------|------|
+| 6/22 | **P0: 手牌卡比例修复** | 根因：inline height:200px + 子元素固定高度。修复：aspect-ratio:1/1.43 + art-frame flex:1 + desc-box 固定高 + overflow:hidden。Playwright 实测 1.4299 PASS |
 | 6/22 | 项目文档修正 | 修正手牌上限(5→7)、补充待办问题、新增铁律(8-11)、添加serve.cjs |
 | 6/22 | 代码审查修复（6项） | 概率Bug + A10 DOT递增 + AI无效引用 + 手牌上限 + 文本解析迁移 |
 | 6/17 | 全面测试（34→136） | 31 combo全覆盖 + 47攻击卡 + 灼烧/麻痹/边界/领域 |
@@ -111,7 +112,8 @@
 
 | 优先级 | 问题 | 描述 |
 |:------:|------|------|
-| P0 | 手牌卡比例修复 | mini 卡（128px 宽）严格保持 1:1.43 高宽比，hover 放大后（~147px）也保持同比例。之前 AI 尝试 aspect-ratio/固定高度/移除 inline height 均失败 |
+| P0 | 手牌卡比例修复 | mini 卡（128px 宽）严格保持 1:1.43 高宽比，hover 放大后（~147px）也保持同比例。之前 AI 尝试 aspect-ratio/固定高度/移除 inline height 均失败 | ✅ 6/22 完成 |
+| P1 | 稀有度边框替换 | 手牌卡边框应从领域色改为稀有度色（common 灰蓝/rare 铜橙/epic 紫/legendary 金/mythic 彩虹动效）。需给 DOM 添加 card.rarity 类名 |
 | P1 | 稀有度边框替换 | 手牌卡边框应从领域色改为稀有度色（common 灰蓝/rare 铜橙/epic 紫/legendary 金/mythic 彩虹动效）。需给 DOM 添加 card.rarity 类名 |
 | P2 | Hover 裁剪修复 | 手牌 hover 放大时被上方战场区域遮挡，根因是 `.battle-grid` 的 `overflow:hidden` |
 | P3 | 界面布局重构 | ABC+D 区新布局（详见 AI_CONTEXT.md），对手区与己方区镜像对称 |

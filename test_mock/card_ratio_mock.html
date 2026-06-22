@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卡牌比例 Mock — 1:1.43 验证</title>
+<style>
+/* 基础重置 */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family: sans-serif; background:#1a1a2e; color:#eee; padding:40px; }
+
+h1 { font-size:18px; margin-bottom:8px; }
+.info { color:#999; font-size:13px; margin-bottom:24px; }
+.info span { color:#2ecc71; font-weight:bold; }
+
+/* === 游戏 CSS 复刻（从 game.css 提取 mini 卡相关） === */
+:root {
+  --dm:#E74C3C; --dm-glow:rgba(231,76,60,.3);
+}
+
+/* .card-v3 基础 */
+.card-v3 {
+  --dm:#E74C3C; --dm-glow:rgba(231,76,60,.3);
+  border-radius:16px; background:#14161e;
+  position:relative; text-align:left;
+  box-shadow:0 16px 48px rgba(0,0,0,.55);
+  border:2.5px solid transparent; background-clip:padding-box; color:#e8ecf1;
+  display:flex; flex-direction:column;
+}
+
+/* ===== 修复前版本：inline height:200px ===== */
+.card-v3.mini.old { 
+  width:128px; font-size:9px; margin:0 10px;
+  /* 无 aspect-ratio，高度由 inline height 控制 */ 
+}
+.card-v3.mini.old .v3-art-frame { margin:0 6px; height:90px; }
+.card-v3.mini.old .v3-art-frame img { width:calc(100% - 4px); height:calc(100% - 4px); }
+.card-v3.mini.old .v3-desc-box { min-height:20px; font-size:.55em; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ===== 修复后版本：aspect-ratio + overflow ===== */
+.card-v3.mini.new { 
+  width:128px; font-size:9px; margin:0 10px;
+  aspect-ratio: 1/1.43;
+  height: auto;
+  overflow: hidden;
+}
+.card-v3.mini.new .v3-art-frame { margin:0 6px; flex:1; min-height:0; }
+.card-v3.mini.new .v3-art-frame img { width:calc(100% - 4px); height:calc(100% - 4px); }
+.card-v3.mini.new .v3-desc-box { height:20px; font-size:.55em; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* 共享子元素样式 */
+.card-v3.mini .v3-header { padding:6px 8px 2px; gap:4px; display:flex; align-items:center; }
+.card-v3.mini .v3-cost { width:24px; height:24px; font-size:.8em; background:#E74C3C; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+.card-v3.mini .v3-name { font-size:.65em; letter-spacing:1px; padding:1px 0; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-v3.mini .v3-rune { width:18px; height:18px; font-size:14px; flex-shrink:0; }
+.card-v3.mini .v3-type-ribbon { padding:0 0 3px; text-align:center; }
+.card-v3.mini .v3-type-pip { font-size:.55em; padding:1px 6px; background:rgba(255,255,255,.1); border-radius:3px; }
+.card-v3.mini .v3-art-frame { position:relative; }
+.card-v3.mini .v3-art-frame img { object-fit:cover; display:block; border-radius:4px; margin:auto; }
+.card-v3.mini .v3-art-corner { width:10px; height:10px; position:absolute; border:1.5px solid rgba(255,255,255,.3); }
+.card-v3.mini .v3-art-corner.tl { top:4px; left:4px; border-right:none; border-bottom:none; }
+.card-v3.mini .v3-art-corner.tr { top:4px; right:4px; border-left:none; border-bottom:none; }
+.card-v3.mini .v3-art-corner.bl { bottom:4px; left:4px; border-right:none; border-top:none; }
+.card-v3.mini .v3-art-corner.br { bottom:4px; right:4px; border-left:none; border-top:none; }
+.card-v3.mini .v3-divider { padding:2px 8px; gap:3px; display:flex; align-items:center; justify-content:center; }
+.card-v3.mini .v3-divider .line { flex:1; height:1px; background:rgba(255,255,255,.15); }
+.card-v3.mini .v3-divider .gem { width:4px; height:4px; background:#E74C3C; border-radius:50%; }
+.card-v3.mini .v3-stats { padding:0 8px 2px; text-align:center; }
+.card-v3.mini .v3-stat-num { font-size:1em; font-weight:bold; }
+.card-v3.mini .v3-stat-unit { font-size:.6em; color:#999; }
+.card-v3.mini .v3-badge { padding:1px 6px; font-size:.45em; background:rgba(255,255,255,.08); border-radius:3px; display:block; text-align:center; }
+
+/* hover 效果 */
+.card-v3.mini:hover { z-index:50; transform:rotate(0deg) scale(1.15) translateY(-12px) !important; }
+.card-v3.mini.new:hover { transform:scale(1.15) translateY(-12px) !important; }
+
+/* 布局 */
+.cards-row { display:flex; flex-direction:row; align-items:flex-end; gap:20px; margin-bottom:30px; flex-wrap:wrap; }
+.card-wrapper { display:flex; flex-direction:column; align-items:center; gap:8px; }
+.card-label { font-size:12px; color:#999; }
+.measure { font-size:11px; color:#2ecc71; }
+.measure.bad { color:#e74c3c; }
+</style>
+</head>
+<body>
+
+<h1>🎴 手牌卡比例 Mock 验证 — 目标 1:1.43</h1>
+<div class="info">目标：128px 宽 → 高度应 ≈ <span>183px</span>（128 × 1.43）<br>hover scale(1.15) 后 ≈ <span>147×210px</span>，比例仍为 1:1.43</div>
+
+<h2 style="margin-top:24px;">修复前（inline height:200px）</h2>
+<div class="cards-row">
+  <div class="card-wrapper">
+    <div class="card-v3 mini old domain-li" style="height:200px;">
+      <div class="v3-header">
+        <div class="v3-cost">12</div>
+        <div class="v3-name">重力锤击</div>
+        <div class="v3-rune">💪</div>
+      </div>
+      <div class="v3-type-ribbon"><span class="v3-type-pip attack">⚔️ 攻击</span></div>
+      <div class="v3-art-frame"><div style="width:100%;height:100%;background:linear-gradient(135deg,#E74C3C22,#E74C3C44);display:flex;align-items:center;justify-content:center;color:#E74C3C88;font-size:20px;">⚡</div><div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+      <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="v3-stats"><span class="v3-stat-num">75</span><span class="v3-stat-unit">伤害</span></div>
+      <div class="v3-desc-box">物体所受重力与质量成正比</div>
+      <span class="v3-badge">赛博</span>
+    </div>
+    <div class="card-label">宽128px × 高200px<br><span class="measure bad">实际比例：200/128 = 1.56 ❌</span></div>
+  </div>
+</div>
+
+<h2 style="margin-top:24px;">修复后（aspect-ratio + overflow）</h2>
+<div class="cards-row">
+  <div class="card-wrapper">
+    <div class="card-v3 mini new domain-li">
+      <div class="v3-header">
+        <div class="v3-cost">12</div>
+        <div class="v3-name">重力锤击</div>
+        <div class="v3-rune">💪</div>
+      </div>
+      <div class="v3-type-ribbon"><span class="v3-type-pip attack">⚔️ 攻击</span></div>
+      <div class="v3-art-frame"><div style="width:100%;height:100%;background:linear-gradient(135deg,#E74C3C22,#E74C3C44);display:flex;align-items:center;justify-content:center;color:#E74C3C88;font-size:20px;">⚡</div><div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+      <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="v3-stats"><span class="v3-stat-num">75</span><span class="v3-stat-unit">伤害</span></div>
+      <div class="v3-desc-box">物体所受重力与质量成正比</div>
+      <span class="v3-badge">赛博</span>
+    </div>
+    <div class="card-label">宽128px × 高auto<br><span class="measure" id="new-ratio">计算中...</span></div>
+  </div>
+  <div class="card-wrapper">
+    <div class="card-v3 mini new domain-li">
+      <div class="v3-header">
+        <div class="v3-cost">16</div>
+        <div class="v3-name">压强穿刺很长标题测试</div>
+        <div class="v3-rune">💪</div>
+      </div>
+      <div class="v3-type-ribbon"><span class="v3-type-pip attack">⚔️ 攻击</span></div>
+      <div class="v3-art-frame"><div style="width:100%;height:100%;background:linear-gradient(135deg,#9B59B622,#9B59B644);display:flex;align-items:center;justify-content:center;color:#9B59B688;font-size:20px;">⚡</div><div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+      <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="v3-stats"><span class="v3-stat-num">80</span><span class="v3-stat-unit">伤害</span></div>
+      <div class="v3-desc-box">受力面积越小压强越大P=F/S</div>
+      <span class="v3-badge">赛博</span>
+    </div>
+    <div class="card-label">无伤害值的卡<br><span class="measure" id="new-ratio2">计算中...</span></div>
+  </div>
+</div>
+
+<script>
+// 页面加载后自动测量比例
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const newCard = document.querySelector('.card-v3.mini.new');
+    if (newCard) {
+      const w = newCard.getBoundingClientRect().width;
+      const h = newCard.getBoundingClientRect().height;
+      const ratio = h / w;
+      const pass = Math.abs(ratio - 1.43) < 0.02;
+      document.getElementById('new-ratio').innerHTML = 
+        `实际比例：${ratio.toFixed(3)} (${w.toFixed(0)}×${h.toFixed(0)}) ${pass ? '✅' : '❌'}`;
+      document.getElementById('new-ratio').className = pass ? 'measure' : 'measure bad';
+    }
+    const newCard2 = document.querySelectorAll('.card-v3.mini.new')[1];
+    if (newCard2) {
+      const w = newCard2.getBoundingClientRect().width;
+      const h = newCard2.getBoundingClientRect().height;
+      const ratio = h / w;
+      const pass = Math.abs(ratio - 1.43) < 0.02;
+      document.getElementById('new-ratio2').innerHTML = 
+        `实际比例：${ratio.toFixed(3)} (${w.toFixed(0)}×${h.toFixed(0)}) ${pass ? '✅' : '❌'}`;
+      document.getElementById('new-ratio2').className = pass ? 'measure' : 'measure bad';
+    }
+  }, 300);
+});
+</script>
+
+</body>
+</html>

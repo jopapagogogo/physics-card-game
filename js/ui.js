@@ -1322,7 +1322,7 @@ class GameUI {
           html += `
             <div class="card-v3 mini ${this._domainClass(card.domain)} skin-cyber ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
                  data-card-id="${this._escapeAttr(card.id)}"
-                 style="--rot:${rot}deg;transform:rotate(var(--rot));transform-origin:bottom center;transition:all .2s ease;flex-shrink:0;height:200px;">
+                 style="--rot:${rot}deg;transform:rotate(var(--rot));transform-origin:bottom center;transition:all .2s ease;flex-shrink:0;">
               <div class="v3-header">
                 <div class="v3-cost">${card.cost ?? '-'}</div>
                 <div class="v3-name">${this._escapeHtml(card.name)}</div>
