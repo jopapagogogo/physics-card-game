@@ -1033,7 +1033,7 @@ body {
 
 /* 手牌 playable 高亮 */
 .card-v3.mini.playable { border-color:#2ecc71 !important; }
-.card-v3.mini:hover { z-index:50; transform:rotate(var(--rot)) scale(1.15) translateY(-12px) !important; }
+.card-v3.mini:hover { z-index:50; transform-origin:center center !important; transform:rotate(var(--rot)) scale(1.15) translateY(-8px) !important; }
 .card-v3.mini.selected { z-index:20; transform:rotate(var(--rot)) scale(1.08) !important; filter:brightness(1.15) drop-shadow(0 4px 12px var(--dm-glow)); }
 
 /* === 手牌稀有度边框 — 覆盖领域色 === */
