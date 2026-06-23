@@ -1114,7 +1114,7 @@ class GameUI {
       .card-tooltip .card-v3::before,.card-tooltip .card-v3::after{display:none!important}
       .card-tooltip .card-v3.skin-cyber{box-shadow:0 0 6px rgba(0,0,0,.5)!important}
       .card-tooltip .card-v3{background-clip:border-box!important}
-      .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important}
+      .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important;pointer-events:auto!important}
       .card-tooltip::before{display:none!important}
       .card-tooltip .card-v3 .v3-art-frame img{object-fit:cover;object-position:50% 20%}
       .card-tooltip .card-v3 .v3-desc-box{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:4px 10px!important;margin:0 12px 4px!important;line-height:1.35}
