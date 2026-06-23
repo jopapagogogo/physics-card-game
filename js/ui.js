@@ -1296,8 +1296,8 @@ class GameUI {
       return;
     }
     // 己方手牌
+    const cards = (gs.players[0].hand || []);
     if (selfHand) {
-      const cards = gs.players[0].hand || [];
       console.log('[renderHand] cards:', cards.length);
       let html = '';
       if (cards.length === 0) {
@@ -1331,8 +1331,8 @@ class GameUI {
               <div class="v3-type-ribbon"><span class="v3-type-pip ${card.type}">${typeLabel}</span></div>
               <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
               <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-              <div class="v3-stats" style="min-height:18px;">${card.effect?.dmg ? `<span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}</div>
-              <div class="v3-desc-box" style="min-height:16px;font-size:.6em;">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
+              <div class="v3-stats">${card.effect?.dmg ? `<span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}</div>
+              <div class="v3-desc-box">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
               <span class="v3-badge">赛博</span>
             </div>
           `;
