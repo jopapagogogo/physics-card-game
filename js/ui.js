@@ -2890,14 +2890,14 @@ class GameUI {
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:280px;height:400px;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:320px;height:430px;display:flex;flex-direction:column;overflow:hidden;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
           <div class="v3-rune">${runeHtml}</div>
         </div>
         <div class="v3-type-ribbon"><span class="v3-type-pip ${cardData.type}">${typeLabel}</span></div>
-        <div class="v3-art-frame" style="height:250px;flex-shrink:0;">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:28px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+        <div class="v3-art-frame" style="height:270px;flex-shrink:0;">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:28px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
         <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
         <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
         <div class="v3-desc-box"><div>${this._escapeHtml(summary)}</div>${principle ? `<span class="principle">${this._escapeHtml(principle)}</span>` : ''}</div>
@@ -2924,16 +2924,16 @@ class GameUI {
     // 定位：手牌卡上方展开，水平居中
     const tooltipH = tooltip.offsetHeight || 400;
     let top = rect.top - tooltipH - 8;
-    let left = rect.left + rect.width / 2 - 140; // 280/2
+    let left = rect.left + rect.width / 2 - 160; // 320/2
 
     // 边界修正
-    tooltip.style.maxWidth = '280px';
+    tooltip.style.maxWidth = '320px';
     tooltip.style.position = 'fixed';
     tooltip.style.zIndex = '999';
     if (top < 4) top = 4;
     if (top + tooltipH > window.innerHeight - 4) top = window.innerHeight - tooltipH - 4;
     if (left < 4) left = 4;
-    if (left + 280 > window.innerWidth - 4) left = window.innerWidth - 284;
+    if (left + 320 > window.innerWidth - 4) left = window.innerWidth - 324;
 
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
