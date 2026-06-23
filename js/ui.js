@@ -1108,6 +1108,9 @@ class GameUI {
     style.id = 'battle-screen-styles';
     style.textContent = `
       .battle-grid{display:flex;flex-direction:column;height:100vh;width:100vw;background:#0a0a1a;overflow:visible;color:var(--lt)}
+      .card-v3.mini::before,.card-v3.mini::after{display:none!important}
+      .card-v3.mini{box-shadow:0 0 4px rgba(0,0,0,.3)!important}
+      .card-v3.mini.skin-cyber{box-shadow:0 0 4px var(--dm-glow)!important}
       .battle-top{flex-shrink:0;display:flex;align-items:center;padding:4px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
       .opponent-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
       .self-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
