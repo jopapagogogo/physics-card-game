@@ -1107,7 +1107,7 @@ class GameUI {
     const style = document.createElement('style');
     style.id = 'battle-screen-styles';
     style.textContent = `
-      .battle-grid{display:flex;flex-direction:column;height:100vh;width:100vw;background:#0a0a1a;overflow:hidden;color:var(--lt)}
+      .battle-grid{display:flex;flex-direction:column;height:100vh;width:100vw;background:#0a0a1a;overflow:visible;color:var(--lt)}
       .battle-top{flex-shrink:0;display:flex;align-items:center;padding:4px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
       .opponent-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
       .self-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
