@@ -1117,7 +1117,7 @@ class GameUI {
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important;pointer-events:auto!important}
       .card-tooltip::before{display:none!important}
       .card-tooltip .card-v3 .v3-art-frame img{object-fit:cover}
-      .card-tooltip .card-v3 .v3-desc-box{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:4px 10px!important;margin:0 12px 4px!important;line-height:1.35}
+      .card-tooltip .card-v3 .v3-desc-box{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:4px 10px!important;margin:0 12px 4px!important;line-height:1.4;font-size:.65em!important}
       .card-tooltip .card-v3 .v3-header{flex-shrink:0}
       .card-tooltip .card-v3 .v3-type-ribbon{flex-shrink:0}
       .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
@@ -2920,21 +2920,6 @@ class GameUI {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
     document.body.appendChild(tooltip);
-
-    // 描述文字太长时自动缩小字号，确保完整显示
-    const descBox = tooltip.querySelector('.v3-desc-box');
-    if (descBox) {
-      let size = 0.7;
-      descBox.style.fontSize = size + 'em';
-      // 给浏览器一点时间渲染，然后检查溢出
-      requestAnimationFrame(() => {
-        let s = 0.7;
-        while (descBox.scrollHeight > descBox.clientHeight + 1 && s > 0.4) {
-          s -= 0.02;
-          descBox.style.fontSize = s + 'em';
-        }
-      });
-    }
 
     // 定位：手牌卡上方展开，水平居中
     const tooltipH = tooltip.offsetHeight || 400;
