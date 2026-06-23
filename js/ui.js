@@ -1111,6 +1111,15 @@ class GameUI {
       .card-v3.mini::before,.card-v3.mini::after{display:none!important}
       .card-v3.mini{box-shadow:0 0 4px rgba(0,0,0,.3)!important}
       .card-v3.mini.skin-cyber{box-shadow:0 0 4px var(--dm-glow)!important}
+      .card-tooltip .card-v3::before,.card-tooltip .card-v3::after{display:none!important}
+      .card-tooltip .card-v3.skin-cyber{box-shadow:0 0 6px rgba(0,0,0,.5)!important}
+      .card-tooltip .card-v3 .v3-art-frame{flex:1 1 0!important;min-height:0!important}
+      .card-tooltip .card-v3 .v3-desc-box{max-height:75px;overflow-y:auto!important;flex-shrink:0}
+      .card-tooltip .card-v3 .v3-header{flex-shrink:0}
+      .card-tooltip .card-v3 .v3-type-ribbon{flex-shrink:0}
+      .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
+      .card-tooltip .card-v3 .v3-stats{flex-shrink:0;min-height:auto}
+      .card-tooltip .card-v3 .v3-badge{position:absolute}
       .battle-top{flex-shrink:0;display:flex;align-items:center;padding:4px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
       .opponent-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
       .self-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
@@ -2879,7 +2888,7 @@ class GameUI {
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;height:315px;display:flex;flex-direction:column;overflow:hidden;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
