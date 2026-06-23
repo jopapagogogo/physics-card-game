@@ -1036,6 +1036,20 @@ body {
 .card-v3.mini:hover { z-index:50; transform:rotate(var(--rot)) scale(1.15) translateY(-12px) !important; }
 .card-v3.mini.selected { z-index:20; transform:rotate(var(--rot)) scale(1.08) !important; filter:brightness(1.15) drop-shadow(0 4px 12px var(--dm-glow)); }
 
+/* === 手牌稀有度边框 — 覆盖领域色 === */
+.card-v3.mini.rarity-common     { border-color:#6b7b8d; }                       /* 灰蓝 */
+.card-v3.mini.rarity-rare       { border-color:#cd7f32; }                       /* 铜橙 */
+.card-v3.mini.rarity-epic       { border-color:#a335ee; box-shadow:0 0 8px rgba(163,53,238,.25); }  /* 紫 + 微光 */
+.card-v3.mini.rarity-legendary  { border-color:#ffd700; box-shadow:0 0 10px rgba(255,215,0,.3); }   /* 金 + 微光 */
+.card-v3.mini.rarity-mythic     { border-color:transparent; }
+.card-v3.mini.rarity-mythic::before {
+  content:''; position:absolute; inset:-2px; border-radius:18px; z-index:-1;
+  background:conic-gradient(from 0deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000);
+  animation:rarity-rainbow 3s linear infinite;
+  opacity:1 !important;
+}
+@keyframes rarity-rainbow { to { filter:hue-rotate(360deg); } }
+
 /* === 皮肤 B: 二次元幻境（柔光+星点+圆角）=== */
 .skin-anime {
   border-radius:18px;

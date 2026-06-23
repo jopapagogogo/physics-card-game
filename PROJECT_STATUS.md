@@ -113,8 +113,7 @@
 | 优先级 | 问题 | 描述 |
 |:------:|------|------|
 | P0 | 手牌卡比例修复 | mini 卡（128px 宽）严格保持 1:1.43 高宽比，hover 放大后（~147px）也保持同比例。之前 AI 尝试 aspect-ratio/固定高度/移除 inline height 均失败 | ✅ 6/22 完成 |
-| P1 | 稀有度边框替换 | 手牌卡边框应从领域色改为稀有度色（common 灰蓝/rare 铜橙/epic 紫/legendary 金/mythic 彩虹动效）。需给 DOM 添加 card.rarity 类名 |
-| P1 | 稀有度边框替换 | 手牌卡边框应从领域色改为稀有度色（common 灰蓝/rare 铜橙/epic 紫/legendary 金/mythic 彩虹动效）。需给 DOM 添加 card.rarity 类名 |
+| P1 | 稀有度边框替换 | 手牌卡边框应从领域色改为稀有度色（common 灰蓝/rare 铜橙/epic 紫/legendary 金/mythic 彩虹动效）。需给 DOM 添加 card.rarity 类名。根因：getGameState() 手牌投影漏了 rarity 字段 | ✅ 6/22 完成 |
 | P2 | Hover 裁剪修复 | 手牌 hover 放大时被上方战场区域遮挡，根因是 `.battle-grid` 的 `overflow:hidden` |
 | P3 | 界面布局重构 | ABC+D 区新布局（详见 AI_CONTEXT.md），对手区与己方区镜像对称 |
 
@@ -140,8 +139,8 @@
 
 | 任务 | 内容 | 状态 |
 |------|------|:--:|
-| P0 | 手牌卡比例修复：mini 卡 1:1.43 高宽比 | ⏳ |
-| P1 | 稀有度边框替换：领域色 → 稀有度色 | ⏳ |
+| P0 | 手牌卡比例修复：mini 卡 1:1.43 高宽比 | ✅ |
+| P1 | 稀有度边框替换：领域色 → 稀有度色 | ✅ |
 | P2 | Hover 裁剪修复：放大卡牌不被遮挡 | ⏳ |
 | P3 | 界面布局重构：ABC+D 区新布局 | ⏳ |
 

@@ -2558,7 +2558,7 @@ class GameEngine {
         hp: p.hp,
         maxHp: p.maxHp,
         spirit: p.spirit,
-        hand: p.hand.map(c => ({ id: c.id, name: c.name, type: c.type, domain: c.domain, cost: c.cost, description: c.description, effect: c.effect })),
+        hand: p.hand.map(c => ({ id: c.id, name: c.name, type: c.type, domain: c.domain, cost: c.cost, description: c.description, effect: c.effect, rarity: c.rarity, formula: c.formula })),
         handSize: p.hand.length,
         deckSize: p.deck.length,
         discardSize: p.discardPile.length,
