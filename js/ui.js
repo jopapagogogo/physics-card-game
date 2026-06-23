@@ -1116,8 +1116,8 @@ class GameUI {
       .card-tooltip .card-v3{background-clip:border-box!important}
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important}
       .card-tooltip::before{display:none!important}
-      .card-tooltip .card-v3 .v3-art-frame{flex:1 1 0!important;min-height:0!important}
-      .card-tooltip .card-v3 .v3-desc-box{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden!important;flex-shrink:0;height:auto!important;min-height:40px}
+      .card-tooltip .card-v3 .v3-art-frame img{object-fit:cover;object-position:50% 20%}
+      .card-tooltip .card-v3 .v3-desc-box{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:4px 10px!important;margin:0 12px 4px!important;line-height:1.35}
       .card-tooltip .card-v3 .v3-header{flex-shrink:0}
       .card-tooltip .card-v3 .v3-type-ribbon{flex-shrink:0}
       .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
@@ -2890,14 +2890,14 @@ class GameUI {
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;height:315px;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:260px;height:372px;display:flex;flex-direction:column;overflow:hidden;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
           <div class="v3-rune">${runeHtml}</div>
         </div>
         <div class="v3-type-ribbon"><span class="v3-type-pip ${cardData.type}">${typeLabel}</span></div>
-        <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:28px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+        <div class="v3-art-frame" style="height:190px;flex-shrink:0;">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:28px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
         <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
         <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
         <div class="v3-desc-box"><div>${this._escapeHtml(summary)}</div>${principle ? `<span class="principle">${this._escapeHtml(principle)}</span>` : ''}</div>
@@ -2921,30 +2921,34 @@ class GameUI {
 
     document.body.appendChild(tooltip);
 
-    // 定位：手牌和己方场地在上方显示，对方场地在下方显示
-    const isTopArea = cardEl.closest('#opponent-area') || cardEl.closest('.opponent-field') || cardEl.closest('#opp-field');
-    const tooltipH = tooltip.offsetHeight;
-    const gap = 12;
-
-    let top, left;
-    if (isTopArea) {
-      top = rect.bottom + gap;
-    } else {
-      // 己方手牌 → tooltip在卡片上方
-      top = rect.top - tooltipH - gap - 4;
+    // 描述文字太长时自动缩小字号，确保完整显示
+    const descBox = tooltip.querySelector('.v3-desc-box');
+    if (descBox) {
+      let size = 0.7;
+      descBox.style.fontSize = size + 'em';
+      // 给浏览器一点时间渲染，然后检查溢出
+      requestAnimationFrame(() => {
+        let s = 0.7;
+        while (descBox.scrollHeight > descBox.clientHeight + 1 && s > 0.4) {
+          s -= 0.02;
+          descBox.style.fontSize = s + 'em';
+        }
+      });
     }
 
-    // 水平居中于卡片（宽度200）
-    left = rect.left + rect.width / 2 - 100;
+    // 定位：手牌卡上方展开，水平居中
+    const tooltipH = tooltip.offsetHeight || 400;
+    let top = rect.top - tooltipH - 8;
+    let left = rect.left + rect.width / 2 - 130; // 260/2
 
-    // 边界修正 + 确保在视口内
-    tooltip.style.maxWidth = '220px';
+    // 边界修正
+    tooltip.style.maxWidth = '260px';
     tooltip.style.position = 'fixed';
     tooltip.style.zIndex = '999';
-    if (top < 8) top = 8;
-    if (top + tooltipH > window.innerHeight - 8) top = window.innerHeight - tooltipH - 8;
+    if (top < 4) top = 4;
+    if (top + tooltipH > window.innerHeight - 4) top = window.innerHeight - tooltipH - 4;
     if (left < 4) left = 4;
-    left = Math.min(left, window.innerWidth - 208);
+    if (left + 260 > window.innerWidth - 4) left = window.innerWidth - 264;
 
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
