@@ -1006,8 +1006,9 @@ body {
 .card-v3.skin-cyber .v3-cost{font-family:monospace;border:2px solid var(--dm)}
 
 /* === MINI — 手牌用缩小版 === */
-.card-v3.mini { width:128px; height:183px; font-size:9px; margin-left:-14px; margin-right:-14px; display:flex; flex-direction:column; overflow:hidden; }
+.card-v3.mini { width:128px; height:183px; font-size:9px; margin-left:-14px; margin-right:-14px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 0 4px rgba(0,0,0,.3); }
 .card-v3.mini::before, .card-v3.mini::after { display:none; }  /* overflow:hidden会裁掉外沿辉光，直接关闭防重影 */
+.card-v3.mini.skin-cyber { box-shadow:0 0 4px var(--dm-glow); }  /* mini卡缩小发光半径防重影 */
 .card-v3.mini:first-child { margin-left:0; }
 .card-v3.mini:last-child { margin-right:0; }
 .card-v3.mini .v3-header { padding:6px 8px 2px; gap:4px; flex-shrink:0; }
