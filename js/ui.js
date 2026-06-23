@@ -1117,7 +1117,7 @@ class GameUI {
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important;pointer-events:auto!important}
       .card-tooltip::before{display:none!important}
       .card-tooltip .card-v3 .v3-art-frame img{object-fit:cover}
-      .card-tooltip .card-v3 .v3-desc-box{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:4px 10px!important;margin:0 12px 4px!important;line-height:1.4;font-size:.65em!important}
+      .card-tooltip .card-v3 .v3-desc-box{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:6px 12px!important;margin:0 12px 4px!important;line-height:1.45;font-size:.72em!important}
       .card-tooltip .card-v3 .v3-header{flex-shrink:0}
       .card-tooltip .card-v3 .v3-type-ribbon{flex-shrink:0}
       .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
@@ -2890,7 +2890,7 @@ class GameUI {
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:320px;height:430px;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:320px;height:460px;display:flex;flex-direction:column;overflow:hidden;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
