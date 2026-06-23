@@ -1117,7 +1117,7 @@ class GameUI {
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important}
       .card-tooltip::before{display:none!important}
       .card-tooltip .card-v3 .v3-art-frame{flex:1 1 0!important;min-height:0!important}
-      .card-tooltip .card-v3 .v3-desc-box{max-height:75px;overflow-y:auto!important;flex-shrink:0}
+      .card-tooltip .card-v3 .v3-desc-box{height:auto!important;overflow:visible!important;flex-shrink:0}
       .card-tooltip .card-v3 .v3-header{flex-shrink:0}
       .card-tooltip .card-v3 .v3-type-ribbon{flex-shrink:0}
       .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
@@ -1764,11 +1764,10 @@ class GameUI {
       gameContainer.addEventListener('mouseout', (e) => {
         const cardEl = e.target.closest('.card-v3.mini, .card.small');
         if (cardEl && cardEl === hoverCardEl) {
-          // 检查鼠标是否真的离开了卡牌（不是移到子元素）
-          if (!e.relatedTarget || !cardEl.contains(e.relatedTarget)) {
-            this._hideHoverTooltip();
-            hoverCardEl = null;
-          }
+          // 鼠标移到 tooltip 上时不关闭
+          if (e.relatedTarget && (e.relatedTarget.closest('.card-tooltip') || cardEl.contains(e.relatedTarget))) return;
+          this._hideHoverTooltip();
+          hoverCardEl = null;
         }
       });
     }
@@ -2891,7 +2890,7 @@ class GameUI {
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;height:315px;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;min-height:315px;display:flex;flex-direction:column;overflow:visible;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
