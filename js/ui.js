@@ -1117,7 +1117,7 @@ class GameUI {
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important}
       .card-tooltip::before{display:none!important}
       .card-tooltip .card-v3 .v3-art-frame{flex:1 1 0!important;min-height:0!important}
-      .card-tooltip .card-v3 .v3-desc-box{height:auto!important;overflow:visible!important;flex-shrink:0}
+      .card-tooltip .card-v3 .v3-desc-box{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden!important;flex-shrink:0;height:auto!important;min-height:40px}
       .card-tooltip .card-v3 .v3-header{flex-shrink:0}
       .card-tooltip .card-v3 .v3-type-ribbon{flex-shrink:0}
       .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
@@ -2890,7 +2890,7 @@ class GameUI {
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;min-height:315px;display:flex;flex-direction:column;overflow:visible;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:220px;height:315px;display:flex;flex-direction:column;overflow:hidden;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
