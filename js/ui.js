@@ -1079,6 +1079,7 @@ class GameUI {
             <span id="hand-count" class="hand-counter">🃏5</span>
           </div>
           <button id="btn-end-turn" class="btn btn-end-turn" disabled>结束回合</button>
+          <button id="btn-fullscreen" class="btn btn-fullscreen" title="全屏模式">⛶</button>
         </div>
 
         <!-- 日志（悬浮气泡） -->
@@ -1160,6 +1161,8 @@ class GameUI {
       .battle-bottom{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:4px 10px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.06)}
       .btn-end-turn{flex-shrink:0;padding:8px 20px;border-radius:8px;background:var(--grn);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer}
       .btn-end-turn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+      .btn-fullscreen{flex-shrink:0;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);font-size:16px;cursor:pointer;margin-left:4px}
+      .btn-fullscreen:hover{background:rgba(255,255,255,.12);color:#fff}
       .summon-hp{position:relative;height:5px;border-radius:3px;background:#444;overflow:hidden;margin-top:2px}
       .summon-hp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--grn),var(--ylw),var(--red));transition:width .4s ease}
       .summon-card{font-size:10px;padding:3px 5px;border-radius:5px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);min-width:50px;flex-shrink:0}
@@ -1545,6 +1548,18 @@ class GameUI {
         if (this.phase !== 'play') return; // 防重入守卫
         btnEnd.disabled = true;
         this.endPlayerTurn();
+      });
+    }
+
+    // 全屏按钮
+    const btnFS = document.getElementById('btn-fullscreen');
+    if (btnFS) {
+      btnFS.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen();
+        }
       });
     }
 
