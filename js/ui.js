@@ -1113,6 +1113,7 @@ class GameUI {
       .card-v3.mini.skin-cyber{box-shadow:0 0 4px var(--dm-glow)!important}
       .card-tooltip .card-v3::before,.card-tooltip .card-v3::after{display:none!important}
       .card-tooltip .card-v3.skin-cyber{box-shadow:0 0 6px rgba(0,0,0,.5)!important}
+      .card-tooltip .card-v3{background-clip:border-box!important}
       .card-tooltip .card-v3 .v3-art-frame{flex:1 1 0!important;min-height:0!important}
       .card-tooltip .card-v3 .v3-desc-box{max-height:75px;overflow-y:auto!important;flex-shrink:0}
       .card-tooltip .card-v3 .v3-header{flex-shrink:0}
