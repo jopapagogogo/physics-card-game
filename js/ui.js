@@ -1120,6 +1120,7 @@ class GameUI {
       .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
       .card-tooltip .card-v3 .v3-stats{flex-shrink:0;min-height:auto}
       .card-tooltip .card-v3 .v3-badge{position:absolute}
+      .card-v3.mini.no-hover-scale:hover{transform:none!important}
       .battle-top{flex-shrink:0;display:flex;align-items:center;padding:4px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
       .opponent-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
       .self-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
@@ -2909,6 +2910,10 @@ class GameUI {
     this._hideHoverTooltip();
     if (!cardData || !cardEl) return;
 
+    // 关闭原卡hover放大，避免和tooltip叠成重影
+    cardEl.classList.add('no-hover-scale');
+    this._hoverTooltipCardEl = cardEl;
+
     const rect = cardEl.getBoundingClientRect();
     const tooltip = document.createElement('div');
     tooltip.className = 'card-tooltip';
@@ -2953,6 +2958,11 @@ class GameUI {
   /** 隐藏悬停tooltip */
   _hideHoverTooltip() {
     if (this._hoverTooltip) {
+      // 恢复原卡的hover放大
+      const cardEl = this._hoverTooltipCardEl;
+      if (cardEl) cardEl.classList.remove('no-hover-scale');
+      this._hoverTooltipCardEl = null;
+
       this._hoverTooltip.remove();
       this._hoverTooltip = null;
     }
