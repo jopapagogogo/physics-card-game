@@ -1116,7 +1116,7 @@ class GameUI {
       .card-tooltip .card-v3{background-clip:border-box!important}
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important;pointer-events:auto!important}
       .card-tooltip::before{display:none!important}
-      .card-tooltip .card-v3 .v3-art-frame img{object-fit:cover;object-position:50% 20%}
+      .card-tooltip .card-v3 .v3-art-frame img{object-fit:cover;object-position:50% 35%}
       .card-tooltip .card-v3 .v3-desc-box{flex:1 1 auto;min-height:0;overflow-y:auto!important;padding:4px 10px!important;margin:0 12px 4px!important;line-height:1.35}
       .card-tooltip .card-v3 .v3-header{flex-shrink:0}
       .card-tooltip .card-v3 .v3-type-ribbon{flex-shrink:0}
