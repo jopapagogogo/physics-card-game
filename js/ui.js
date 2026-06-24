@@ -1085,10 +1085,10 @@ class GameUI {
 
         <!-- ===== 己方 ABC 行 ===== -->
         <div class="abc-row self">
-          <div class="zone-b">
-            <div id="grave-self" class="grave-stack">
-              <span class="grave-icon">💀</span>
-              <span id="grave-self-count">0</span>
+          <div class="zone-c">
+            <div id="deck-self" class="deck-stack">
+              <span class="deck-icon">🂠</span>
+              <span id="deck-self-count">20</span>
             </div>
           </div>
           <div class="zone-a">
@@ -1107,10 +1107,10 @@ class GameUI {
             </div>
             <div id="self-hand" class="card-hand self-hand-main"></div>
           </div>
-          <div class="zone-c">
-            <div id="deck-self" class="deck-stack">
-              <span class="deck-icon">🂠</span>
-              <span id="deck-self-count">20</span>
+          <div class="zone-b">
+            <div id="grave-self" class="grave-stack">
+              <span class="grave-icon">💀</span>
+              <span id="grave-self-count">0</span>
             </div>
           </div>
         </div>
@@ -1150,6 +1150,8 @@ class GameUI {
       /* === 各区 === */
       .zone-b{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.04)}
       .zone-c{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(255,255,255,.04)}
+      .abc-row.self .zone-c{border-left:none;border-right:1px solid rgba(255,255,255,.04)}
+      .abc-row.self .zone-b{border-right:none;border-left:1px solid rgba(255,255,255,.04)}
       .zone-a{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible}
       .zone-a-upper{display:flex;align-items:center;justify-content:center;padding:2px 8px;gap:4px;flex-shrink:0}
       .summon-slots{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:0}
