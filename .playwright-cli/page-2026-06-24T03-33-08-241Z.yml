@@ -1,0 +1,146 @@
+- generic [ref=e2]:
+  - generic [ref=e43]:
+    - generic [ref=e44]:
+      - generic [ref=e46]:
+        - generic [ref=e47]: 💀
+        - generic [ref=e48]: "0"
+      - generic [ref=e51]:
+        - generic [ref=e52]: 🤖
+        - generic [ref=e53]: AI对手
+        - generic [ref=e54]:
+          - generic: 1200/1200
+        - generic [ref=e56]:
+          - generic: 50/100
+        - generic [ref=e58]: 🃏5
+      - generic [ref=e66]:
+        - generic [ref=e67]: 🂠
+        - generic [ref=e68]: "25"
+    - generic [ref=e70]:
+      - generic [ref=e72]:
+        - generic [ref=e73]: 🏟️
+        - text: 对方场上暂无卡牌
+      - generic [ref=e74]:
+        - generic [ref=e75]: AI本轮出牌
+        - generic [ref=e76]: 暂无出牌
+    - generic [ref=e77]:
+      - button "📜" [ref=e78] [cursor=pointer]
+      - generic [ref=e81]: 30s
+      - button "结束回合" [disabled]
+      - button "⛶" [ref=e82] [cursor=pointer]
+    - generic [ref=e84]:
+      - generic [ref=e86]:
+        - generic [ref=e87]: 🏟️
+        - text: 场上暂无卡牌
+      - generic [ref=e88]:
+        - generic [ref=e89]: 本轮出牌
+        - generic [ref=e90]: 暂无出牌
+    - generic [ref=e91]:
+      - generic [ref=e93]:
+        - generic [ref=e94]: 💀
+        - generic [ref=e95]: "0"
+      - generic [ref=e96]:
+        - generic [ref=e98]:
+          - generic [ref=e99]: 👤
+          - generic [ref=e100]: 你
+          - generic [ref=e101]:
+            - generic [ref=e102]:
+              - generic: 1200/1200
+            - generic [ref=e104]:
+              - generic: 60/100
+          - generic [ref=e106]: 🃏8
+        - generic [ref=e107]:
+          - generic [ref=e108]:
+            - generic [ref=e109]:
+              - generic [ref=e110]: "12"
+              - generic [ref=e111]: 重力锤击
+              - img [ref=e113]
+            - generic [ref=e115]: 攻击
+            - generic [ref=e121]:
+              - generic [ref=e122]: "75"
+              - generic [ref=e123]: 伤害
+            - generic [ref=e124]: 造成75点伤害。原理：物体所受重力与质量成正比（G=mg），
+            - generic [ref=e125]: 赛博
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - generic [ref=e128]: "15"
+              - generic [ref=e129]: 光压推击
+              - generic [ref=e130]:
+                - img [ref=e131]
+                - img [ref=e132]
+            - generic [ref=e134]: 攻击
+            - generic [ref=e140]:
+              - generic [ref=e141]: "70"
+              - generic [ref=e142]: 伤害
+            - generic [ref=e143]: 造成70点伤害 + 己方选择将对方一张驻场卡弹回手牌（若无驻
+            - generic [ref=e144]: 赛博
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e147]: "30"
+              - generic [ref=e148]: 能量守恒
+              - generic [ref=e149]: 🌌
+            - generic [ref=e151]: 相变
+            - generic [ref=e158]: 将己方已损失HP的30%转化为精神力（最多恢复60点）。原理
+            - generic [ref=e159]: 赛博
+          - generic [ref=e160]:
+            - generic [ref=e161]:
+              - generic [ref=e162]: "16"
+              - generic [ref=e163]: 动能冲击
+              - img [ref=e165]
+            - generic [ref=e167]: 攻击
+            - generic [ref=e173]:
+              - generic [ref=e174]: "60"
+              - generic [ref=e175]: 伤害
+            - generic [ref=e176]: 造成60点伤害，接下来2个己方回合每回合额外造成30点延续伤
+            - generic [ref=e177]: 赛博
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - generic [ref=e180]: "5"
+              - generic [ref=e181]: 能量蓄积
+              - img [ref=e183]
+            - generic [ref=e185]: 辅助
+            - generic [ref=e192]: 己方下次力系攻击+18伤害。原理：运动的物体具有动能（Ek=
+            - generic [ref=e193]: 赛博
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - generic [ref=e196]: "8"
+              - generic [ref=e197]: 静电吸附
+              - img [ref=e199]
+            - generic [ref=e201]: 辅助
+            - generic [ref=e208]: 弃1张手牌，抽2张牌，清除己方1种负面状态（本回合生效）。原
+            - generic [ref=e209]: 赛博
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - generic [ref=e212]: "16"
+              - generic [ref=e213]: 压强穿刺
+              - img [ref=e215]
+            - generic [ref=e217]: 攻击
+            - generic [ref=e223]:
+              - generic [ref=e224]: "80"
+              - generic [ref=e225]: 伤害
+            - generic [ref=e226]: 造成80点伤害，无视本领域防御。原理：受力面积越小压强越大（
+            - generic [ref=e227]: 赛博
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - generic [ref=e230]: "20"
+              - generic [ref=e231]: 共振爆破
+              - generic [ref=e232]:
+                - img [ref=e233]
+                - img [ref=e234]
+            - generic [ref=e236]: 攻击
+            - generic [ref=e242]:
+              - generic [ref=e243]: "50"
+              - generic [ref=e244]: 伤害
+            - generic [ref=e245]: 造成50点伤害 + 对方场上每有一张卡额外造成55伤害。原理
+            - generic [ref=e246]: 赛博
+      - generic [ref=e248]:
+        - generic [ref=e249]: 🂠
+        - generic [ref=e250]: "22"
+    - generic "战斗记录" [ref=e251] [cursor=pointer]: 📜
+  - generic [ref=e253]:
+    - generic [ref=e256]: 第 1 / 3 题
+    - generic [ref=e257]: 以下哪种方法可以增大压强？
+    - generic [ref=e258]:
+      - button "A. 增大受力面积" [ref=e259] [cursor=pointer]
+      - button "B. 减小压力" [ref=e260] [cursor=pointer]
+      - button "C. 减小受力面积" [ref=e261] [cursor=pointer]
+      - button "D. 增大接触面粗糙程度" [ref=e262] [cursor=pointer]

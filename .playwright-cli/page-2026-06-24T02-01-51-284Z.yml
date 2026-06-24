@@ -1,0 +1,125 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic: B 墓地
+    - generic [ref=e4]:
+      - generic [ref=e5]: 📜
+      - generic [ref=e6]: 3 张
+    - generic: A 手牌·角色
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]: 🤖
+        - generic [ref=e10]:
+          - generic [ref=e11]: 电荷精灵
+          - generic [ref=e12]: HP 80
+        - generic [ref=e13]: 空位
+      - generic [ref=e14]:
+        - generic [ref=e16]:
+          - generic [ref=e17]: "8"
+          - generic [ref=e18]: 卡背
+        - generic [ref=e21]:
+          - generic [ref=e22]: "5"
+          - generic [ref=e23]: 卡背
+        - generic [ref=e26]:
+          - generic [ref=e27]: "6"
+          - generic [ref=e28]: 卡背
+        - generic [ref=e31]:
+          - generic [ref=e32]: "4"
+          - generic [ref=e33]: 卡背
+        - generic [ref=e36]:
+          - generic [ref=e37]: "7"
+          - generic [ref=e38]: 卡背
+    - generic: C 牌组
+    - generic [ref=e45]: 22 张
+  - generic [ref=e46]:
+    - generic: D 驻场区
+    - generic [ref=e47]:
+      - generic: 对手驻场
+      - generic [ref=e48]:
+        - generic [ref=e49]: 🌍
+        - generic [ref=e50]: 引力场
+      - generic [ref=e51]:
+        - generic [ref=e52]: 重力锤击
+        - generic [ref=e53]: ⚔75
+        - generic [ref=e54]: ❤120
+      - generic [ref=e55]:
+        - generic [ref=e56]: 电磁炮
+        - generic [ref=e57]: ⚔60
+        - generic [ref=e58]: ❤140
+      - generic [ref=e59]: 空
+      - generic [ref=e60]: 空
+    - generic: ⚡ VS ⚡
+    - generic [ref=e61]:
+      - generic: 己方驻场
+      - generic [ref=e62]:
+        - generic [ref=e63]: ⚡
+        - generic [ref=e64]: 电场
+      - generic [ref=e65]:
+        - generic [ref=e66]: 电流冲击
+        - generic [ref=e67]: ⚔45
+        - generic [ref=e68]: ❤95
+      - generic [ref=e69]:
+        - generic [ref=e70]: 热能核心
+        - generic [ref=e71]: ⚔30
+        - generic [ref=e72]: ❤110
+      - generic [ref=e73]: 空
+      - generic [ref=e74]: 空
+  - generic [ref=e75]:
+    - generic: B 墓地
+    - generic [ref=e76]:
+      - generic [ref=e77]: 📜
+      - generic [ref=e78]: 1 张
+    - generic: A 手牌·角色
+    - generic [ref=e79]:
+      - generic [ref=e80]:
+        - generic [ref=e81]: 👤
+        - generic [ref=e82]:
+          - generic [ref=e83]: 热能核心
+          - generic [ref=e84]: HP 110
+        - generic [ref=e85]: 空位
+      - generic [ref=e86]:
+        - generic [ref=e87] [cursor=pointer]:
+          - generic [ref=e88]:
+            - generic [ref=e89]: "12"
+            - generic [ref=e90]: 重力锤击
+          - generic [ref=e92]: 伤害 75
+        - generic [ref=e93] [cursor=pointer]:
+          - generic [ref=e94]:
+            - generic [ref=e95]: "8"
+            - generic [ref=e96]: 声波共振
+          - generic [ref=e98]: 伤害 45
+        - generic [ref=e99] [cursor=pointer]:
+          - generic [ref=e100]:
+            - generic [ref=e101]: "14"
+            - generic [ref=e102]: 光速打击
+          - generic [ref=e104]: 伤害 90
+        - generic [ref=e105] [cursor=pointer]:
+          - generic [ref=e106]:
+            - generic [ref=e107]: "10"
+            - generic [ref=e108]: 烈焰灼蚀
+          - generic [ref=e110]: 灼烧 +3
+        - generic [ref=e111] [cursor=pointer]:
+          - generic [ref=e112]:
+            - generic [ref=e113]: "16"
+            - generic [ref=e114]: 超导风暴
+          - generic [ref=e116]: 伤害 120
+        - generic [ref=e117] [cursor=pointer]:
+          - generic [ref=e118]:
+            - generic [ref=e119]: "9"
+            - generic [ref=e120]: 惯性屏障
+          - generic [ref=e122]: 防御 60
+        - generic [ref=e123] [cursor=pointer]:
+          - generic [ref=e124]:
+            - generic [ref=e125]: "7"
+            - generic [ref=e126]: 折射护盾
+          - generic [ref=e128]: 护盾 40
+    - generic: C 牌组
+    - generic [ref=e134]: 18 张
+  - generic [ref=e135]:
+    - generic [ref=e136]:
+      - generic [ref=e137]: 👤
+      - generic [ref=e138]:
+        - generic [ref=e139]: ❤ 1200 / 1200
+        - generic [ref=e140]: ⚡ 50 / 100
+    - generic [ref=e143]: 0:38
+    - button "结束回合" [ref=e144] [cursor=pointer]
+    - button "⛶" [ref=e145] [cursor=pointer]

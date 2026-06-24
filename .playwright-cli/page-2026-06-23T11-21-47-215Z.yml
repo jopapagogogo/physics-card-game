@@ -1,0 +1,108 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic: B 墓地
+    - generic [ref=e4]:
+      - generic [ref=e5]: 📜
+      - generic [ref=e6]: 3 张
+    - generic: A 手牌+角色
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]: 🤖
+        - generic [ref=e10]:
+          - text: ⚡
+          - text: 电荷精灵
+          - generic [ref=e11]: HP 80
+        - generic [ref=e12]: +
+      - generic [ref=e13]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: "8"
+          - generic [ref=e17]: 卡背
+        - generic [ref=e20]:
+          - generic [ref=e21]: "5"
+          - generic [ref=e22]: 卡背
+        - generic [ref=e25]:
+          - generic [ref=e26]: "6"
+          - generic [ref=e27]: 卡背
+        - generic [ref=e30]:
+          - generic [ref=e31]: "4"
+          - generic [ref=e32]: 卡背
+    - generic: C 牌组
+    - generic [ref=e39]: 剩 22 张
+  - generic [ref=e40]:
+    - generic: 对手 D 驻场区
+    - generic [ref=e41]:
+      - generic [ref=e42]: 🌍
+      - generic [ref=e43]: 引力场
+    - generic [ref=e44]:
+      - generic [ref=e45]: 重力锤击
+      - generic [ref=e46]: HP 120
+    - generic [ref=e47]:
+      - generic [ref=e48]: 电磁炮
+      - generic [ref=e49]: HP 140
+    - generic [ref=e50]: 空
+  - generic [ref=e51]:
+    - generic [ref=e54]: 0:38
+    - button "结束回合" [ref=e55] [cursor=pointer]
+    - button "⛶" [ref=e56] [cursor=pointer]
+  - generic [ref=e57]:
+    - generic: 己方 D 驻场区
+    - generic [ref=e58]:
+      - generic [ref=e59]: ⚡
+      - generic [ref=e60]: 电场
+    - generic [ref=e61]:
+      - generic [ref=e62]: 电流冲击
+      - generic [ref=e63]: HP 95
+    - generic [ref=e64]: 空
+    - generic [ref=e65]: 空
+  - generic [ref=e66]:
+    - generic: B 墓地
+    - generic [ref=e67]:
+      - generic [ref=e68]: 📜
+      - generic [ref=e69]: 1 张
+    - generic: A 手牌+角色
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - generic [ref=e72]: 👤
+        - generic [ref=e73]:
+          - text: 🔥
+          - text: 热能核心
+          - generic [ref=e74]: HP 110
+        - generic [ref=e75]: +
+      - generic [ref=e76]:
+        - generic [ref=e77] [cursor=pointer]:
+          - generic [ref=e78]:
+            - generic [ref=e79]: "12"
+            - generic [ref=e80]: 重力锤击
+          - generic [ref=e82]: 伤害 75
+        - generic [ref=e83] [cursor=pointer]:
+          - generic [ref=e84]:
+            - generic [ref=e85]: "8"
+            - generic [ref=e86]: 声波共振
+          - generic [ref=e88]: 伤害 45
+        - generic [ref=e89] [cursor=pointer]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: "14"
+            - generic [ref=e92]: 光速打击
+          - generic [ref=e94]: 伤害 90
+        - generic [ref=e95] [cursor=pointer]:
+          - generic [ref=e96]:
+            - generic [ref=e97]: "10"
+            - generic [ref=e98]: 烈焰灼蚀
+          - generic [ref=e100]: 灼烧 +3
+        - generic [ref=e101] [cursor=pointer]:
+          - generic [ref=e102]:
+            - generic [ref=e103]: "16"
+            - generic [ref=e104]: 超导风暴
+          - generic [ref=e106]: 伤害 120
+        - generic [ref=e107] [cursor=pointer]:
+          - generic [ref=e108]:
+            - generic [ref=e109]: "9"
+            - generic [ref=e110]: 惯性屏障
+          - generic [ref=e112]: 防御 60
+        - generic [ref=e113] [cursor=pointer]:
+          - generic [ref=e114]:
+            - generic [ref=e115]: "7"
+            - generic [ref=e116]: 折射护盾
+          - generic [ref=e118]: 护盾 40
+    - generic: C 牌组
+    - generic [ref=e124]: 剩 18 张

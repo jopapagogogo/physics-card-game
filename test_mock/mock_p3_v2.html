@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P3 布局 Mock v2 — 炉石比例参考</title>
+<style>
+  :root {
+    --frc:#E74C3C; --snd:#3498DB; --lgt:#F1C40F; --het:#E67E22; --elc:#9B59B6;
+    --grn:#2ecc71; --ylw:#f39c12; --red:#e74c3c;
+    --bg:#0a0a1a; --pnl:#16213e; --lt:#eee; --mt:#999;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    margin:0;overflow:hidden;font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+    background:#050510;color:var(--lt);font-size:13px;
+    user-select:none;-webkit-user-select:none;
+  }
+
+  .p3-grid {
+    display:flex;flex-direction:column;
+    width:100vw;height:100vh;
+    background:var(--bg);
+  }
+
+  /* ====== 顶栏：对手信息条（~5%） ====== */
+  .info-bar {
+    flex-shrink:0;
+    display:flex;align-items:center;gap:8px;
+    padding:4px 10px;
+    background:rgba(255,255,255,.02);
+    border-bottom:1px solid rgba(255,255,255,.04);
+    height:36px;
+  }
+  .info-bar.opponent { flex-direction:row; }
+  .info-bar .avatar {
+    width:26px;height:26px;border-radius:50%;
+    background:var(--pnl);
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;flex-shrink:0;
+  }
+  .info-bar .name {
+    font-size:10px;font-weight:700;color:var(--lt);
+    flex-shrink:0;min-width:40px;
+  }
+  .info-bar .hp-mini {
+    font-size:10px;font-weight:700;color:var(--grn);
+    flex-shrink:0;
+  }
+  .info-bar .spirit-mini {
+    font-size:9px;color:#9b59b6;
+    flex-shrink:0;
+  }
+  .info-bar .divider-dot {
+    width:3px;height:3px;border-radius:50%;
+    background:rgba(255,255,255,.1);flex-shrink:0;
+  }
+  .info-bar .deck-icon {
+    width:22px;height:28px;
+    background:linear-gradient(135deg,#2c3e50,#1a252f);
+    border:1px solid #34495e;border-radius:3px;
+    flex-shrink:0;margin-left:auto;
+    display:flex;align-items:center;justify-content:center;
+    font-size:8px;color:var(--mt);
+  }
+  .info-bar .grave-icon {
+    width:22px;height:28px;
+    background:rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.06);border-radius:3px;
+    flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:8px;color:var(--mt);
+  }
+  .info-bar .count-tag {
+    font-size:8px;color:var(--mt);
+    padding:1px 5px;background:rgba(0,0,0,.2);
+    border-radius:3px;flex-shrink:0;
+  }
+
+  /* ====== 手牌区（对手 ~8%，己方 ~15%） ====== */
+  .hand-strip {
+    flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    padding:0 8px;
+  }
+  .hand-strip.opponent-hand-strip {
+    height:52px;
+  }
+  .hand-strip.self-hand-strip {
+    height:100px;
+  }
+
+  /* ====== D区：战场（核心，flex:1 吃满剩余空间） ====== */
+  .d-zone {
+    flex:1;
+    display:flex;flex-direction:column;
+    min-height:0;
+    position:relative;
+  }
+  .d-half {
+    flex:1;
+    display:flex;align-items:center;gap:8px;
+    padding:6px 10px;
+    position:relative;
+  }
+  .d-half.opponent-d {
+    border-bottom:1px dashed rgba(255,255,255,.05);
+  }
+  .d-half.self-d {
+    /* 下方己方 */;
+  }
+  .d-label {
+    position:absolute;top:2px;left:8px;
+    font-size:8px;font-weight:700;color:rgba(46,204,113,.25);
+    letter-spacing:1px;pointer-events:none;
+  }
+  .d-half.opponent-d .d-label {color:rgba(231,76,60,.25);}
+
+  /* 领域卡（最左） */
+  .field-card {
+    width:56px;height:72px;
+    background:rgba(0,0,0,.35);
+    border-radius:6px;
+    border-left:3px solid var(--grn);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    font-size:8px;font-weight:700;color:#fff;
+    gap:4px;flex-shrink:0;
+    text-align:center;
+  }
+  .field-card.domain-card {
+    border-left-color:#F1C40F;
+    border-left-width:4px;
+  }
+  .field-card .fc-icon{font-size:16px}
+  .field-card .fc-name{font-size:7px;line-height:1.1}
+  .field-card .fc-hp{font-size:8px;color:var(--grn)}
+  .field-card .fc-atk{font-size:8px;color:var(--ylw)}
+  .field-card.empty{
+    border-left-color:rgba(255,255,255,.06);
+    color:var(--mt);opacity:.15;
+    border-style:dashed;
+  }
+
+  /* ====== 底栏：己方信息条（~7%） ====== */
+  .info-bar.self-bar {
+    height:40px;
+    border-top:1px solid rgba(255,255,255,.06);
+    border-bottom:none;
+    background:rgba(255,255,255,.03);
+  }
+  .timer-wrap {
+    flex:1;height:3px;
+    background:rgba(255,255,255,.06);
+    border-radius:2px;overflow:hidden;
+    margin:0 8px;
+  }
+  .timer-fill {
+    width:60%;height:100%;
+    background:linear-gradient(90deg,#3498db,#2ecc71);
+    border-radius:2px;
+  }
+  .btn-sm {
+    padding:4px 12px;border-radius:5px;
+    border:none;font-size:10px;font-weight:700;
+    cursor:pointer;flex-shrink:0;
+  }
+  .btn-end {background:var(--grn);color:#fff;}
+  .btn-fs {
+    background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);
+    border:1px solid rgba(255,255,255,.08);
+    font-size:12px;padding:4px 6px;
+  }
+
+  /* ====== Mini 卡牌 ====== */
+  .mini-card {
+    width:56px;height:80px;
+    background:linear-gradient(180deg,#1a1a2e,#16213e);
+    border-radius:5px;
+    border:1.5px solid rgba(255,255,255,.1);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    flex-shrink:0;
+    cursor:pointer;
+    margin:0 -6px;
+    transition:transform .15s;
+    position:relative;
+  }
+  .mini-card:hover{transform:translateY(-6px) scale(1.1);z-index:20}
+  .mini-card .mc-head{
+    display:flex;align-items:center;gap:2px;
+    padding:2px 3px 0;
+  }
+  .mini-card .mc-cost{
+    width:12px;height:12px;border-radius:50%;
+    font-size:6px;font-weight:900;color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .mini-card .mc-name{
+    font-size:5.5px;font-weight:700;color:#fff;
+    flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .mini-card .mc-art{
+    flex:1;min-height:0;
+    background-size:cover;background-position:center;
+    margin:1px 3px;border-radius:2px;
+  }
+  .mini-card .mc-stat{
+    text-align:center;font-size:5.5px;color:var(--mt);
+    padding-bottom:1px;
+  }
+
+  /* 卡背 */
+  .mini-card.card-back-face {
+    background:linear-gradient(135deg,#2c3e50,#1a252f);
+    border-color:rgba(255,255,255,.06);
+    cursor:default;opacity:.6;
+  }
+  .mini-card.card-back-face .mc-art {
+    background:linear-gradient(135deg,#2c3e50,#1a252f) !important;
+  }
+
+  /* 稀有度 */
+  .mini-card.rarity-common{border-left-color:#5a6675}
+  .mini-card.rarity-rare{border-left-color:#c47a38}
+  .mini-card.rarity-epic{border-left-color:#8868a8}
+  .mini-card.rarity-legendary{border-left-color:#d49030}
+
+  /* 费用颜色 */
+  .cost-force{background:#E74C3C}
+  .cost-sound{background:#3498DB}
+  .cost-light{background:#F1C40F;color:#333!important}
+  .cost-heat{background:#E67E22}
+  .cost-electric{background:#9B59B6}
+
+  /* ====== VS 分隔线 ====== */
+  .vs-divider {
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font-size:9px;color:rgba(255,255,255,.06);
+    letter-spacing:6px;pointer-events:none;
+    z-index:1;
+  }
+
+  /* ====== 占位召唤物（在D区内） ====== */
+  .summon-placeholder {
+    width:56px;height:72px;
+    border-radius:6px;border:1px dashed rgba(255,255,255,.08);
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;color:var(--mt);opacity:.2;
+    flex-shrink:0;
+  }
+</style>
+</head>
+<body>
+
+<div class="p3-grid">
+
+  <!-- ====== 对手信息条 ====== -->
+  <div class="info-bar opponent">
+    <div class="grave-icon" style="border-left:3px solid #c47a38;">📜</div>
+    <span class="count-tag">3</span>
+    <div class="divider-dot"></div>
+    <div class="avatar">🤖</div>
+    <span class="name">AI对手</span>
+    <span class="hp-mini">❤ 1200/1200</span>
+    <div class="divider-dot"></div>
+    <span class="spirit-mini">⚡ 50/100</span>
+    <span class="count-tag" style="margin-left:auto;">🃏5</span>
+    <div class="deck-icon">22</div>
+  </div>
+
+  <!-- ====== 对手手牌（卡背） ====== -->
+  <div class="hand-strip opponent-hand-strip">
+    <div class="mini-card card-back-face"></div>
+    <div class="mini-card card-back-face"></div>
+    <div class="mini-card card-back-face"></div>
+    <div class="mini-card card-back-face"></div>
+    <div class="mini-card card-back-face"></div>
+  </div>
+
+  <!-- ====== D区：战场 ====== -->
+  <div class="d-zone">
+    <!-- 对手 D -->
+    <div class="d-half opponent-d">
+      <span class="d-label">对手驻场</span>
+      <div class="field-card domain-card">
+        <span class="fc-icon">🌍</span>
+        <span class="fc-name">引力场</span>
+      </div>
+      <div class="field-card">
+        <span class="fc-name">重力锤击</span>
+        <span class="fc-atk">⚔75</span>
+        <span class="fc-hp">❤120</span>
+      </div>
+      <div class="field-card">
+        <span class="fc-name">电磁炮</span>
+        <span class="fc-atk">⚔60</span>
+        <span class="fc-hp">❤140</span>
+      </div>
+      <div class="summon-placeholder">+</div>
+      <div class="summon-placeholder">+</div>
+    </div>
+
+    <div class="vs-divider">⚡ VS ⚡</div>
+
+    <!-- 己方 D -->
+    <div class="d-half self-d">
+      <span class="d-label">己方驻场</span>
+      <div class="field-card domain-card">
+        <span class="fc-icon">⚡</span>
+        <span class="fc-name">电场</span>
+      </div>
+      <div class="field-card">
+        <span class="fc-name">电流冲击</span>
+        <span class="fc-atk">⚔45</span>
+        <span class="fc-hp">❤95</span>
+      </div>
+      <div class="field-card">
+        <span class="fc-name">热能核心</span>
+        <span class="fc-atk">⚔30</span>
+        <span class="fc-hp">❤110</span>
+      </div>
+      <div class="summon-placeholder">+</div>
+      <div class="summon-placeholder">+</div>
+    </div>
+  </div>
+
+  <!-- ====== 己方手牌（大扇形，可交互） ====== -->
+  <div class="hand-strip self-hand-strip">
+    <div class="mini-card rarity-rare" style="transform:rotate(-10deg);z-index:1;">
+      <div class="mc-head">
+        <div class="mc-cost cost-force">12</div>
+        <div class="mc-name">重力锤击</div>
+      </div>
+      <div class="mc-art" style="background:linear-gradient(135deg,#E74C3C33,#E74C3C55);"></div>
+      <div class="mc-stat">伤害 75</div>
+    </div>
+    <div class="mini-card rarity-common" style="transform:rotate(-7deg);z-index:2;">
+      <div class="mc-head">
+        <div class="mc-cost cost-sound">8</div>
+        <div class="mc-name">声波共振</div>
+      </div>
+      <div class="mc-art" style="background:linear-gradient(135deg,#3498DB33,#3498DB55);"></div>
+      <div class="mc-stat">伤害 45</div>
+    </div>
+    <div class="mini-card rarity-epic" style="transform:rotate(-3deg);z-index:3;">
+      <div class="mc-head">
+        <div class="mc-cost cost-light">14</div>
+        <div class="mc-name">光速打击</div>
+      </div>
+      <div class="mc-art" style="background:linear-gradient(135deg,#F1C40F33,#F1C40F55);"></div>
+      <div class="mc-stat">伤害 90</div>
+    </div>
+    <div class="mini-card rarity-common" style="transform:rotate(0deg);z-index:5;">
+      <div class="mc-head">
+        <div class="mc-cost cost-heat">10</div>
+        <div class="mc-name">烈焰灼蚀</div>
+      </div>
+      <div class="mc-art" style="background:linear-gradient(135deg,#E67E2233,#E67E2255);"></div>
+      <div class="mc-stat">灼烧 +3</div>
+    </div>
+    <div class="mini-card rarity-legendary" style="transform:rotate(3deg);z-index:3;">
+      <div class="mc-head">
+        <div class="mc-cost cost-electric">16</div>
+        <div class="mc-name">超导风暴</div>
+      </div>
+      <div class="mc-art" style="background:linear-gradient(135deg,#9B59B633,#9B59B655);"></div>
+      <div class="mc-stat">伤害 120</div>
+    </div>
+    <div class="mini-card rarity-rare" style="transform:rotate(7deg);z-index:2;">
+      <div class="mc-head">
+        <div class="mc-cost cost-force">9</div>
+        <div class="mc-name">惯性屏障</div>
+      </div>
+      <div class="mc-art" style="background:linear-gradient(135deg,#E74C3C33,#E74C3C55);"></div>
+      <div class="mc-stat">防御 60</div>
+    </div>
+    <div class="mini-card rarity-common" style="transform:rotate(10deg);z-index:1;">
+      <div class="mc-head">
+        <div class="mc-cost cost-light">7</div>
+        <div class="mc-name">折射护盾</div>
+      </div>
+      <div class="mc-art" style="background:linear-gradient(135deg,#F1C40F33,#F1C40F55);"></div>
+      <div class="mc-stat">护盾 40</div>
+    </div>
+  </div>
+
+  <!-- ====== 底栏：己方信息条 ====== -->
+  <div class="info-bar self-bar">
+    <div class="grave-icon" style="border-left:3px solid #8868a8;">📜</div>
+    <span class="count-tag">1</span>
+    <div class="divider-dot"></div>
+    <div class="avatar">👤</div>
+    <span class="name">你</span>
+    <span class="hp-mini">❤ 1200/1200</span>
+    <div class="divider-dot"></div>
+    <span class="spirit-mini">⚡ 50/100</span>
+    <div class="timer-wrap">
+      <div class="timer-fill"></div>
+    </div>
+    <span class="count-tag">🃏7</span>
+    <div class="deck-icon">18</div>
+    <button class="btn-sm btn-end">结束回合</button>
+    <button class="btn-sm btn-fs">⛶</button>
+  </div>
+
+</div>
+
+</body>
+</html>

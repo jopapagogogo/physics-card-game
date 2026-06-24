@@ -1009,6 +1009,12 @@ class GameUI {
             : 'linear-gradient(90deg, #3498db, #2ecc71)';
       }
 
+      const timerNum = document.getElementById('timer-num');
+      if (timerNum) {
+        timerNum.textContent = Math.ceil(remaining / 1000) + 's';
+        timerNum.style.color = remaining < 5000 ? '#e74c3c' : remaining < 10000 ? '#f39c12' : 'var(--mt)';
+      }
+
       if (remaining <= 0) {
         clearInterval(this.playTimer);
         this.playTimer = null;
@@ -1021,75 +1027,98 @@ class GameUI {
 
   renderBattleScreen() {
     this.container.innerHTML = `
-      <div class="battle-grid">
-        <!-- 顶栏：AI信息 -->
-        <div class="battle-top" id="opponent-area">
-          <div class="player-info opponent-info">
-            <span class="avatar">🤖</span>
-            <span class="label">AI对手</span>
-            <div class="hp-bar">
-              <div id="opp-hp-fill" class="hp-bar-fill"></div>
-              <span id="opp-hp-text" class="hp-text">1200/1200</span>
+      <div class="p3-grid">
+        <!-- ===== 对方 ABC 行 ===== -->
+        <div class="abc-row opponent">
+          <div class="zone-b">
+            <div id="grave-opp" class="grave-stack">
+              <span class="grave-icon">💀</span>
+              <span id="grave-opp-count">0</span>
             </div>
-            <div class="spirit-bar">
-              <div id="opp-spirit-fill" class="spirit-bar-fill"></div>
-              <span id="opp-spirit-text" class="hp-text" style="font-size:9px;">50/100</span>
+          </div>
+          <div class="zone-a">
+            <div class="zone-a-upper" id="opponent-area">
+              <div class="player-info opponent-info">
+                <span class="avatar">🤖</span>
+                <span class="label">AI对手</span>
+                <div class="hp-bar"><div id="opp-hp-fill" class="hp-bar-fill"></div><span id="opp-hp-text" class="hp-text">1200/1200</span></div>
+                <div class="spirit-bar"><div id="opp-spirit-fill" class="spirit-bar-fill"></div><span id="opp-spirit-text" class="hp-text">50/100</span></div>
+                <span id="opp-hand-count" class="hand-counter">🃏5</span>
+              </div>
             </div>
-            <span id="opp-hand-count" class="hand-counter">🃏5</span>
+            <div id="opp-hand" class="card-hand opponent-hand"></div>
+          </div>
+          <div class="zone-c">
+            <div id="deck-opp" class="deck-stack">
+              <span class="deck-icon">🂠</span>
+              <span id="deck-opp-count">20</span>
+            </div>
           </div>
         </div>
 
-        <!-- 对方场地行 -->
-        <div class="battle-row opponent-row">
-          <div id="opp-hand" class="card-hand opponent-hand"></div>
-          <div id="opp-field" class="card-field opponent-field"></div>
-          <div id="opp-play-zone" class="play-zone opponent-play-zone"></div>
-        </div>
-
-        <!-- VS 分隔 -->
-        <div class="battle-vs"><span>⚡ VS ⚡</span></div>
-
-        <!-- 己方场地行 -->
-        <div class="battle-row self-row">
-          <div class="battle-row-spacer"></div>
-          <div id="self-field" class="card-field self-field"></div>
-          <div id="self-play-zone" class="play-zone self-play-zone"></div>
-        </div>
-
-        <!-- 手牌区域（跨列） -->
-        <div id="self-hand" class="card-hand self-hand-main"></div>
-
-        <!-- 计时器 + 领域效果 -->
-        <div class="timer-container"><div id="timer-bar" class="timer-bar"></div></div>
-        <div id="domain-zone" class="domain-effect-zone"></div>
-
-        <!-- 底栏 -->
-        <div class="battle-bottom">
-          <div class="player-info self-info">
-            <span class="avatar">👤</span>
-            <span class="label">你</span>
-            <div class="hp-bar">
-              <div id="self-hp-fill" class="hp-bar-fill"></div>
-              <span id="self-hp-text" class="hp-text">1200/1200</span>
-            </div>
-            <div class="spirit-bar">
-              <div id="self-spirit-fill" class="spirit-bar-fill"></div>
-              <span id="self-spirit-text" class="hp-text" style="font-size:9px;">50/100</span>
-            </div>
-            <span id="hand-count" class="hand-counter">🃏5</span>
+        <!-- ===== 对方 D 区 ===== -->
+        <div class="d-zone">
+          <div class="d-half opponent-d-half">
+            <div id="opp-field" class="card-field opponent-field"></div>
+            <div id="opp-play-zone" class="play-zone opponent-play-zone"></div>
           </div>
+        </div>
+
+        <!-- ===== 中央分割栏 ===== -->
+        <div class="divider-row">
+          <button id="log-btn" class="log-btn" title="战斗记录">📜</button>
+          <div class="timer-wrap"><div id="timer-bar" class="timer-bar"></div></div>
+          <span class="timer-num" id="timer-num">30s</span>
           <button id="btn-end-turn" class="btn btn-end-turn" disabled>结束回合</button>
-          <button id="btn-fullscreen" class="btn btn-fullscreen" title="全屏模式">⛶</button>
+          <button id="btn-fullscreen" class="btn btn-fullscreen" title="全屏">⛶</button>
         </div>
 
-        <!-- 日志（悬浮气泡） -->
+        <!-- ===== 己方 D 区 ===== -->
+        <div class="d-zone">
+          <div class="d-half self-d-half">
+            <div id="self-field" class="card-field self-field"></div>
+            <div id="self-play-zone" class="play-zone self-play-zone"></div>
+          </div>
+        </div>
+
+        <!-- ===== 己方 ABC 行 ===== -->
+        <div class="abc-row self">
+          <div class="zone-b">
+            <div id="grave-self" class="grave-stack">
+              <span class="grave-icon">💀</span>
+              <span id="grave-self-count">0</span>
+            </div>
+          </div>
+          <div class="zone-a">
+            <div class="zone-a-upper">
+              <div class="player-info self-info">
+                <span class="avatar">👤</span>
+                <span class="label">你</span>
+                <div class="avatar-stats">
+                  <div class="hp-bar"><div id="self-hp-fill" class="hp-bar-fill"></div><span id="self-hp-text" class="hp-text">1200/1200</span></div>
+                  <div class="spirit-bar"><div id="self-spirit-fill" class="spirit-bar-fill"></div><span id="self-spirit-text" class="hp-text">50/100</span></div>
+                </div>
+                <span id="hand-count" class="hand-counter">🃏5</span>
+              </div>
+            </div>
+            <div id="self-hand" class="card-hand self-hand-main"></div>
+          </div>
+          <div class="zone-c">
+            <div id="deck-self" class="deck-stack">
+              <span class="deck-icon">🂠</span>
+              <span id="deck-self-count">20</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 域效果（隐藏） -->
+        <div id="domain-zone" style="display:none"></div>
+
+        <!-- 日志（悬浮） -->
         <div id="log-area" class="log-area"></div>
         <div id="log-drawer-toggle" class="log-drawer-toggle" title="战斗记录">📜</div>
         <div id="log-drawer" class="log-drawer">
-          <div class="log-drawer-header">
-            <span>战斗记录</span>
-            <span id="log-drawer-close" style="cursor:pointer;font-size:14px;">✕</span>
-          </div>
+          <div class="log-drawer-header"><span>战斗记录</span><span id="log-drawer-close" style="cursor:pointer;font-size:14px;">✕</span></div>
           <div id="log-drawer-body" class="log-drawer-body"></div>
         </div>
       </div>
@@ -1108,7 +1137,67 @@ class GameUI {
     const style = document.createElement('style');
     style.id = 'battle-screen-styles';
     style.textContent = `
-      .battle-grid{display:flex;flex-direction:column;height:100vh;width:100vw;background:#0a0a1a;overflow:visible;color:var(--lt)}
+      /* === P3 网格布局 === */
+      .p3-grid{display:flex;flex-direction:column;width:100vw;height:100vh;background:#0a0a1a;color:var(--lt);overflow:hidden}
+      /* === ABC 行 === */
+      .abc-row{display:flex;flex-shrink:0;background:rgba(255,255,255,.02);overflow:visible}
+      .abc-row.opponent{flex-basis:16%;border-bottom:1px solid rgba(255,255,255,.06)}
+      .abc-row.self{flex-basis:22%;border-top:1px solid rgba(255,255,255,.06)}
+      /* === 各区 === */
+      .zone-b{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.04)}
+      .zone-c{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(255,255,255,.04)}
+      .zone-a{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible}
+      .zone-a-upper{display:flex;align-items:center;justify-content:center;padding:2px 8px;gap:6px;flex-shrink:0}
+      /* === 墓地/牌库 === */
+      .grave-stack,.deck-stack{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;background:rgba(0,0,0,.3);border-radius:6px;border:1px solid rgba(255,255,255,.06)}
+      .grave-icon,.deck-icon{font-size:16px;opacity:.6}
+      .grave-stack span:last-child,.deck-stack span:last-child{font-size:9px;color:var(--mt)}
+      /* === D 区 === */
+      .d-zone{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px 72px}
+      .d-half{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;width:100%}
+      /* === 中央分隔栏 === */
+      .divider-row{flex-shrink:0;display:flex;align-items:center;gap:10px;height:30px;padding:0 16px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
+      .divider-row .timer-wrap{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;display:flex;justify-content:flex-end}
+      .divider-row .timer-bar{height:100%;width:100%;background:linear-gradient(90deg,var(--red),var(--ylw));transition:width .1s linear}
+      .timer-num{font-size:11px;color:var(--mt);min-width:30px;flex-shrink:0}
+      .divider-row .log-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--mt);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+      .divider-row .log-btn:hover{color:#fff;border-color:rgba(255,255,255,.2)}
+      .divider-row .btn-end-turn{flex-shrink:0;padding:3px 14px;border-radius:6px;background:var(--grn);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer}
+      .divider-row .btn-end-turn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+      .divider-row .btn-fullscreen{flex-shrink:0;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.08);font-size:12px;cursor:pointer}
+      .divider-row .btn-fullscreen:hover{background:rgba(255,255,255,.12);color:#fff}
+      /* === avatar-stats === */
+      .avatar-stats{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+      /* === player-info === */
+      .player-info{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+      .player-info .avatar{font-size:18px;flex-shrink:0}
+      .player-info .label{font-size:10px;font-weight:700;color:var(--mt);flex-shrink:0}
+      .abc-row .hp-bar{position:relative;width:70px;height:12px;border-radius:6px;background:#2c3e50;overflow:hidden;flex-shrink:0}
+      .abc-row .hp-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--red),var(--grn));transition:width .4s ease}
+      .abc-row .spirit-bar{width:48px;height:5px;border-radius:3px;background:#1a2a40;overflow:hidden;flex-shrink:0;position:relative}
+      .abc-row .spirit-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3498db,#9b59b6);transition:width .3s ease}
+      .hp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;pointer-events:none}
+      .hand-counter{font-size:9px;color:var(--mt);padding:1px 5px;background:rgba(0,0,0,.2);border-radius:4px;flex-shrink:0}
+      /* === 手牌 === */
+      .abc-row .card-hand{flex:1;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0 4px;min-height:0;overflow-x:auto;overflow-y:visible;gap:0}
+      .abc-row.opponent .card-hand{min-height:24px;padding:1px 4px}
+      .abc-row.self .card-hand{padding:2px 4px 4px}
+      .abc-row .card-back{background:linear-gradient(135deg,#2c3e50,#1a252f);border:1.5px solid #34495e;border-radius:5px;width:36px;height:48px;flex-shrink:0;cursor:default}
+      /* === 场上区 === */
+      .d-half .card-field{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;flex:1;min-width:0;padding:3px 6px;min-height:48px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01)}
+      .d-half .opponent-field{border-color:rgba(231,76,60,.12)}
+      .d-half .self-field{border-color:rgba(46,204,113,.12)}
+      .d-half .play-zone{width:110px;flex-shrink:0;display:flex;flex-direction:column;padding:3px 6px;border-radius:8px;border:1px dashed transparent;min-height:48px;overflow-y:auto;max-height:100px}
+      .d-half .opponent-play-zone{border-color:rgba(231,76,60,.15)}
+      .d-half .self-play-zone{border-color:rgba(46,204,113,.15)}
+      .d-half .play-zone.has-cards{background:rgba(255,255,255,.02)}
+      .d-half .opponent-play-zone.has-cards{border-color:rgba(231,76,60,.3);background:rgba(231,76,60,.04)}
+      .d-half .self-play-zone.has-cards{border-color:rgba(46,204,113,.3);background:rgba(46,204,113,.04)}
+      .play-zone-label{font-size:9px;font-weight:700;color:rgba(46,204,113,.4);margin-bottom:2px}
+      .play-zone-label.opponent{color:rgba(231,76,60,.4)}
+      .play-zone-cards{display:flex;flex-wrap:wrap;gap:4px;overflow-x:auto}
+      .play-zone-empty{font-size:9px;color:var(--mt);opacity:.4;text-align:center}
+      /* === tooltip / mini 卡保留样式 === */
       .card-v3.mini::before,.card-v3.mini::after{display:none!important}
       .card-v3.mini{box-shadow:0 0 4px rgba(0,0,0,.3)!important}
       .card-v3.mini.skin-cyber{box-shadow:0 0 4px var(--dm-glow)!important}
@@ -1124,50 +1213,28 @@ class GameUI {
       .card-tooltip .card-v3 .v3-divider{flex-shrink:0}
       .card-tooltip .card-v3 .v3-stats{flex-shrink:0;min-height:auto}
       .card-tooltip .card-v3 .v3-badge{position:absolute}
-      .battle-top{flex-shrink:0;display:flex;align-items:center;padding:4px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06)}
-      .opponent-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
-      .self-row{flex-shrink:0;display:flex;gap:6px;padding:3px 8px}
-      .battle-vs{flex-shrink:0;text-align:center;padding:1px 0;font-size:11px;color:rgba(255,255,255,.1)}
-      .battle-row-spacer{width:100px;flex-shrink:0}
-      .player-info{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;min-width:0}
-      .player-info .avatar{font-size:20px;flex-shrink:0}
-      .player-info .label{font-size:11px;font-weight:700;color:var(--lt);flex-shrink:0}
-      .hp-bar{position:relative;width:100px;height:16px;border-radius:8px;background:#2c3e50;overflow:hidden;flex-shrink:0}
-      .hp-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--red),var(--grn));transition:width .4s ease}
-      .hp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;pointer-events:none}
-      .spirit-bar{width:64px;height:6px;border-radius:3px;background:#1a2a40;overflow:hidden;flex-shrink:0;position:relative}
-      .spirit-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3498db,#9b59b6);transition:width .3s ease}
-      .hand-counter{font-size:10px;color:var(--mt);padding:2px 6px;background:rgba(0,0,0,.2);border-radius:4px;flex-shrink:0}
-      .card-back{background:linear-gradient(135deg,#2c3e50,#1a252f);border:1.5px solid #34495e;border-radius:5px;width:40px;height:52px;flex-shrink:0;cursor:default;margin-left:0}
-      .card-field{flex:1;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;padding:3px 6px;min-height:48px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01);overflow-x:auto}
-      .opponent-field{border-color:rgba(231,76,60,.12)}
-      .self-field{border-color:rgba(46,204,113,.12);flex:2}
-      .play-zone{width:130px;flex-shrink:0;display:flex;flex-direction:column;padding:3px 6px;border-radius:8px;border:1px dashed transparent;min-height:48px;overflow-y:auto;max-height:120px}
-      .opponent-play-zone{border-color:rgba(231,76,60,.15)}
-      .self-play-zone{border-color:rgba(46,204,113,.15)}
-      .play-zone.has-cards{background:rgba(255,255,255,.02)}
-      .opponent-play-zone.has-cards{border-color:rgba(231,76,60,.3);background:rgba(231,76,60,.04)}
-      .self-play-zone.has-cards{border-color:rgba(46,204,113,.3);background:rgba(46,204,113,.04)}
-      .play-zone-label{font-size:9px;font-weight:700;color:rgba(46,204,113,.4);margin-bottom:2px}
-      .play-zone-label.opponent{color:rgba(231,76,60,.4)}
-      .play-zone-cards{display:flex;flex-wrap:wrap;gap:4px;overflow-x:auto}
-      .play-zone-empty{font-size:9px;color:var(--mt);opacity:.4;text-align:center}
+      .card-v3.mini.no-hover-scale:hover{transform:none!important}
+      /* === Log / Damage / Combo / Quiz（保留） === */
+      .log-area{position:fixed;bottom:16px;right:16px;z-index:250;display:flex;flex-direction:column-reverse;gap:4px;max-width:260px;pointer-events:none}
+      .log-message{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+      .log-drawer-toggle{position:fixed;bottom:16px;right:16px;z-index:251;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:var(--lt);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+      .log-drawer-toggle:hover{background:rgba(0,0,0,.7)}
+      .log-drawer{position:fixed;right:0;top:0;bottom:0;width:280px;z-index:300;background:var(--pnl);border-left:1px solid var(--bd);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;padding:16px}
+      .log-drawer.open{transform:translateX(0)}
+      .log-drawer-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--lt);font-weight:700}
+      .log-drawer-body{font-size:12px;color:var(--mt);line-height:1.6}
       .play-card.small{width:50px;height:62px;margin-left:0;cursor:default;animation:playCardIn .3s ease both;position:relative;display:flex;flex-direction:column;overflow:hidden;background:#1a1a2e;border-radius:6px;border-left:3px solid}
       .play-card .card-cost{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;font-size:8px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;z-index:2}
       .play-card .card-name{font-size:8px;font-weight:700;padding:18px 2px 2px;text-align:center;line-height:1.1;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .play-card .card-type{font-size:7px;color:var(--mt);text-align:center}
-      .log-area{position:fixed;bottom:16px;right:66px;z-index:250;display:flex;flex-direction:column-reverse;gap:4px;max-width:260px;pointer-events:none}
-      .log-message{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-      .battle-bottom{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:4px 10px;background:rgba(255,255,255,.03);border-top:1px solid rgba(255,255,255,.06)}
-      .btn-end-turn{flex-shrink:0;padding:8px 20px;border-radius:8px;background:var(--grn);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer}
-      .btn-end-turn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
-      .btn-fullscreen{flex-shrink:0;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1);font-size:16px;cursor:pointer;margin-left:4px}
-      .btn-fullscreen:hover{background:rgba(255,255,255,.12);color:#fff}
       .summon-hp{position:relative;height:5px;border-radius:3px;background:#444;overflow:hidden;margin-top:2px}
       .summon-hp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--grn),var(--ylw),var(--red));transition:width .4s ease}
       .summon-card{font-size:10px;padding:3px 5px;border-radius:5px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);min-width:50px;flex-shrink:0}
       .summon-card.enemy{cursor:pointer;border-color:var(--red);border-style:dashed}
       .summon-card.enemy:hover{box-shadow:0 0 8px rgba(231,76,60,.3)}
+      .domain-card{padding:4px 8px;border-radius:5px;font-size:10px;font-weight:700;border:2px solid;flex-shrink:0}
+      .domain-label{font-size:7px;opacity:.7}
+      /* Overlay styles */
       .lightspeed-overlay{position:fixed;inset:0;z-index:220;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center}
       .lightspeed-card{background:var(--pnl);color:var(--lt);border-radius:16px;padding:28px 20px;width:calc(100% - 32px);max-width:420px;position:relative;overflow:hidden;animation:popIn .4s ease}
       .ls-header{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px}
@@ -1188,24 +1255,20 @@ class GameUI {
       .discard-card{background:var(--pnl);color:var(--lt);border-radius:16px;padding:24px;width:calc(100%-32px);max-width:380px}
       .discard-card h3{font-size:15px;text-align:center;margin-bottom:16px}
       .lightSpeed-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(241,196,15,.2);color:#F1C40F;border:1px solid rgba(241,196,15,.3);animation:lsPulse 1.5s ease-in-out infinite;flex-shrink:0}
-      .timer-container{flex-shrink:0;height:4px;background:rgba(255,255,255,.06)}
-      .timer-bar{height:100%;width:100%;background:linear-gradient(90deg,#3498db,#2ecc71);transition:width .1s linear,background .3s ease}
+      .quiz-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;animation:fadeIn .3s ease}
+      .quiz-badge.knowledge-reduce{background:rgba(46,204,113,.15);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
+      .quiz-badge.knowledge-penalty{background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
+      .quiz-progress{text-align:center;font-size:13px;color:var(--mt);margin-bottom:12px}
+      .combo-physics{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 4px;padding:8px 16px;background:rgba(46,204,113,.08);border-radius:12px;border:1px solid rgba(46,204,113,.2)}
+      .physics-from,.physics-to{font-size:22px;font-weight:900;color:#2ecc71;text-shadow:0 0 12px rgba(46,204,113,.5);letter-spacing:1px}
+      .physics-arrow{font-size:16px;color:rgba(46,204,113,.6)}
+      .combo-effect-text{font-size:14px;color:#bdc3c7;margin-top:4px;text-align:center}
+      /* === Animations === */
       @keyframes lsPulse{0%,100%{box-shadow:0 0 4px rgba(241,196,15,.2)}50%{box-shadow:0 0 12px rgba(241,196,15,.5)}}
       @keyframes cardReady{0%,100%{box-shadow:0 0 4px rgba(46,204,113,.3)}50%{box-shadow:0 0 14px rgba(46,204,113,.6)}}
       @keyframes fadeIn{from{opacity:0}to{opacity:1}}
       @keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
       @keyframes playCardIn{from{opacity:0;transform:translateY(-40px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
-      /* Combo physics highlight */
-      .combo-physics{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 4px;padding:8px 16px;background:rgba(46,204,113,.08);border-radius:12px;border:1px solid rgba(46,204,113,.2)}
-      .physics-from,.physics-to{font-size:22px;font-weight:900;color:#2ecc71;text-shadow:0 0 12px rgba(46,204,113,.5);letter-spacing:1px}
-      .physics-arrow{font-size:16px;color:rgba(46,204,113,.6)}
-      .combo-effect-text{font-size:14px;color:#bdc3c7;margin-top:4px;text-align:center}
-      .quiz-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;animation:fadeIn .3s ease}
-      .quiz-badge.knowledge-reduce{background:rgba(46,204,113,.15);color:#2ecc71;border:1px solid rgba(46,204,113,.3)}
-      .quiz-badge.knowledge-penalty{background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid rgba(231,76,60,.3)}
-      .quiz-progress{text-align:center;font-size:13px;color:var(--mt);margin-bottom:12px}
-      .domain-card{padding:4px 8px;border-radius:5px;font-size:10px;font-weight:700;border:2px solid;flex-shrink:0}
-      .domain-label{font-size:7px;opacity:.7}
     `;
     document.head.appendChild(style);
   }
@@ -1226,9 +1289,23 @@ class GameUI {
       this.renderHand();
       this.renderField();
       this.renderDomainEffects();
+      this._updateCounters(gs);
     } catch (e) {
       console.error('[updateAllDisplay] error:', e.message, e.stack);
     }
+  }
+
+  /** 更新墓地/牌库计数 */
+  _updateCounters(gs) {
+    const graveSelf = document.getElementById('grave-self-count');
+    const graveOpp = document.getElementById('grave-opp-count');
+    if (graveSelf) graveSelf.textContent = gs.players[0].discardSize || '0';
+    if (graveOpp) graveOpp.textContent = gs.players[1].discardSize || '0';
+
+    const deckSelf = document.getElementById('deck-self-count');
+    const deckOpp = document.getElementById('deck-opp-count');
+    if (deckSelf) deckSelf.textContent = gs.players[0].deckSize || '20';
+    if (deckOpp) deckOpp.textContent = gs.players[1].deckSize || '20';
   }
 
   /** 光速传播(S14) 激活状态指示器 */
@@ -1560,6 +1637,15 @@ class GameUI {
         } else {
           document.exitFullscreen();
         }
+      });
+    }
+
+    // 中央分隔栏日志按钮
+    const logBtn = document.getElementById('log-btn');
+    if (logBtn) {
+      logBtn.addEventListener('click', () => {
+        const ld = document.getElementById('log-drawer');
+        if (ld) ld.classList.toggle('open');
       });
     }
 

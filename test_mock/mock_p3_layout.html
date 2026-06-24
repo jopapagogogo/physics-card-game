@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P3 布局 Mock — ABC+D 四区新布局</title>
+<style>
+  :root {
+    --frc:#E74C3C; --snd:#3498DB; --lgt:#F1C40F; --het:#E67E22; --elc:#9B59B6;
+    --grn:#2ecc71; --ylw:#f39c12; --red:#e74c3c; --blu:#3498db;
+    --bg:#0a0a1a; --pnl:#16213e; --lt:#eee; --mt:#999; --dm:#2a2a4a;
+    --dm-glow:rgba(100,180,255,.25);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    margin:0;overflow:hidden;font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+    background:#050510;color:var(--lt);font-size:13px;
+    user-select:none;-webkit-user-select:none;
+  }
+
+  /* ======== 整体网格 ======== */
+  .p3-grid {
+    display:flex;flex-direction:column;
+    width:100vw;height:100vh;
+    background:var(--bg);
+    overflow:hidden;
+  }
+
+  /* ======== 标签区 ======== */
+  .zone-label {
+    position:absolute;top:2px;left:50%;transform:translateX(-50%);
+    font-size:9px;font-weight:700;letter-spacing:1px;opacity:.35;
+    z-index:5;pointer-events:none;
+  }
+  .zone-label.A{color:#F1C40F}
+  .zone-label.B{color:#BDC3C7}
+  .zone-label.C{color:#3498DB}
+  .zone-label.D{color:#2ECC71}
+
+  /* ======== 三区行 ======== */
+  .abc-row {
+    flex:1; /* ABC三区等高 */
+    display:flex;gap:0;
+    position:relative;
+    min-height:0;
+  }
+
+  /* B区：墓地 */
+  .zone-b {
+    width:72px;flex-shrink:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.015);
+    border-right:1px solid rgba(255,255,255,.04);
+    position:relative;
+  }
+  .zone-b .grave-card {
+    width:46px;height:62px;
+    background:linear-gradient(135deg,#1a1a2e,#2c3e50);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:7px;color:var(--mt);
+    position:relative;
+  }
+  .grave-count {
+    position:absolute;bottom:-14px;
+    font-size:8px;color:var(--mt);opacity:.5;
+  }
+
+  /* A区：角色+召唤物+手牌 */
+  .zone-a {
+    flex:1;
+    display:flex;flex-direction:column;
+    position:relative;
+    min-width:0;
+  }
+  .zone-a .avatar-row {
+    flex:1;
+    display:flex;align-items:center;gap:10px;
+    padding:4px 0;
+  }
+  .avatar-circle {
+    width:42px;height:42px;border-radius:50%;
+    background:var(--pnl);
+    border:2px solid rgba(255,255,255,.15);
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex-shrink:0;
+  }
+  .summon-slot {
+    width:42px;height:52px;
+    border-radius:6px;
+    border:1px dashed rgba(255,255,255,.1);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;color:var(--mt);opacity:.3;
+    flex-shrink:0;
+  }
+  .summon-slot.active {
+    border-style:solid;
+    border-color:rgba(46,204,113,.3);
+    background:rgba(46,204,113,.06);
+    opacity:1;
+    font-size:8px;font-weight:700;color:var(--grn);
+  }
+
+  /* A区的手牌扇形 */
+  .zone-a .hand-row {
+    height:92px;flex-shrink:0;
+    display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:4px;
+    position:relative;
+  }
+
+  /* C区：牌组 */
+  .zone-c {
+    width:72px;flex-shrink:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.015);
+    border-left:1px solid rgba(255,255,255,.04);
+    position:relative;
+  }
+  .deck-stack {
+    position:relative;
+    width:46px;height:62px;
+  }
+  .deck-card {
+    position:absolute;
+    width:46px;height:62px;
+    background:linear-gradient(135deg,#2c3e50,#1a252f);
+    border:1.5px solid #34495e;
+    border-radius:5px;
+    box-shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  .deck-card:nth-child(1){top:0;left:0}
+  .deck-card:nth-child(2){top:1px;left:1px}
+  .deck-card:nth-child(3){top:2px;left:2px}
+  .deck-count {
+    position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);
+    font-size:8px;color:var(--mt);opacity:.5;
+  }
+
+  /* ======== D区：驻场卡+领域卡 ======== */
+  .zone-d {
+    flex-shrink:0;
+    min-height:64px;
+    display:flex;align-items:center;gap:6px;
+    padding:6px 10px;
+    background:rgba(255,255,255,.02);
+    border-top:1px solid rgba(255,255,255,.04);
+    border-bottom:1px solid rgba(255,255,255,.04);
+    position:relative;
+  }
+  .field-card {
+    width:52px;height:66px;
+    background:rgba(0,0,0,.3);
+    border-radius:6px;
+    border-left:3px solid var(--grn);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    font-size:7px;font-weight:700;color:#fff;
+    gap:3px;flex-shrink:0;
+  }
+  .field-card .fc-name{font-size:7px;text-align:center;line-height:1.2}
+  .field-card .fc-hp{font-size:8px;color:var(--grn)}
+  .field-card.domain-card{border-left-color:#F1C40F}
+  .field-card.empty{
+    border-left-color:rgba(255,255,255,.08);
+    color:var(--mt);opacity:.3;
+  }
+  .d-divider {
+    width:1px;height:32px;
+    background:rgba(255,255,255,.06);
+    margin:0 4px;flex-shrink:0;
+  }
+
+  /* ======== 计时器行 ======== */
+  .timer-row {
+    flex-shrink:0;
+    height:32px;
+    display:flex;align-items:center;gap:10px;
+    padding:0 10px;
+  }
+  .timer-bar-wrap {
+    flex:1;height:4px;
+    background:rgba(255,255,255,.06);
+    border-radius:2px;overflow:hidden;
+  }
+  .timer-bar-fill {
+    width:60%;height:100%;
+    background:linear-gradient(90deg,#3498db,#2ecc71);
+    border-radius:2px;
+    transition:width .1s linear;
+  }
+  .btn-end-turn {
+    padding:4px 16px;
+    border-radius:6px;
+    background:var(--grn);
+    color:#fff;border:none;
+    font-size:12px;font-weight:700;
+    cursor:pointer;flex-shrink:0;
+  }
+  .btn-fullscreen {
+    padding:4px 8px;
+    border-radius:6px;
+    background:rgba(255,255,255,.06);
+    color:rgba(255,255,255,.5);
+    border:1px solid rgba(255,255,255,.1);
+    font-size:14px;cursor:pointer;flex-shrink:0;
+  }
+
+  /* ======== Mini 卡牌（简化版） ======== */
+  .mini-card {
+    width:64px;height:92px;
+    background:linear-gradient(180deg,#1a1a2e,#16213e);
+    border-radius:6px;
+    border:1.5px solid rgba(255,255,255,.12);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    flex-shrink:0;
+    cursor:pointer;
+    margin:0 -4px;
+    transition:transform .15s;
+    position:relative;
+  }
+  .mini-card:hover{transform:translateY(-8px) scale(1.12);z-index:10}
+  .mini-card .mc-header {
+    display:flex;align-items:center;gap:2px;
+    padding:3px 4px 0;
+  }
+  .mini-card .mc-cost {
+    width:14px;height:14px;border-radius:50%;
+    font-size:7px;font-weight:900;color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .mini-card .mc-name {
+    font-size:6.5px;font-weight:700;color:#fff;
+    flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .mini-card .mc-art {
+    flex:1;min-height:0;
+    background-size:cover;background-position:center;
+    margin:1px 4px;border-radius:3px;
+  }
+  .mini-card .mc-stat {
+    text-align:center;font-size:6px;color:var(--mt);
+    padding-bottom:2px;
+  }
+
+  /* 对手三区镜像 */
+  .abc-row.opponent .zone-a {
+    /* 对手手牌朝向不同 */;
+  }
+  .abc-row.opponent .mini-card {
+    background:linear-gradient(180deg,#16213e,#1a1a2e);
+    border-color:rgba(255,255,255,.08);
+  }
+  .abc-row.opponent .avatar-circle {
+    border-color:rgba(231,76,60,.2);
+  }
+
+  /* 对手 D区 */
+  .zone-d.opponent .field-card {
+    border-left-color:rgba(231,76,60,.4);
+  }
+
+  /* 分割线标签 */
+  .row-sep {
+    flex-shrink:0;height:0;
+    border-top:1px dashed rgba(255,255,255,.04);
+    margin:0 10px;
+    position:relative;
+  }
+  .row-sep span {
+    position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+    font-size:8px;color:rgba(255,255,255,.1);
+    background:var(--bg);padding:0 8px;
+  }
+
+  /* vs分隔 */
+  .vs-sep {
+    flex-shrink:0;
+    text-align:center;
+    padding:0;
+    font-size:10px;
+    color:rgba(255,255,255,.08);
+    letter-spacing:4px;
+  }
+
+  /* A区空状态 */
+  .zone-a-empty {
+    flex:1;display:flex;align-items:center;justify-content:center;
+    font-size:10px;color:var(--mt);opacity:.15;
+  }
+
+  /* 稀有度边框色（手牌 mini 卡左侧） */
+  .mini-card.rarity-common{border-left-color:#5a6675}
+  .mini-card.rarity-rare{border-left-color:#c47a38}
+  .mini-card.rarity-epic{border-left-color:#8868a8}
+  .mini-card.rarity-legendary{border-left-color:#d49030}
+  .mini-card.rarity-mythic{border-left-color:#F1C40F}
+
+  /* 费用颜色 */
+  .cost-force{background:#E74C3C}
+  .cost-sound{background:#3498DB}
+  .cost-light{background:#F1C40F;color:#333!important}
+  .cost-heat{background:#E67E22}
+  .cost-electric{background:#9B59B6}
+</style>
+</head>
+<body>
+
+<div class="p3-grid">
+
+  <!-- ========== AI 对手 ABC 三区 ========== -->
+  <div class="abc-row opponent">
+    <span class="zone-label B">B 墓地</span>
+    <div class="zone-b">
+      <div class="grave-card" style="border-left:3px solid #c47a38;">📜</div>
+      <div class="grave-count">3 张</div>
+    </div>
+
+    <span class="zone-label A">A 手牌+角色</span>
+    <div class="zone-a">
+      <div class="avatar-row" style="justify-content:center;">
+        <div class="avatar-circle" style="font-size:22px;">🤖</div>
+        <div class="summon-slot active">⚡<br>电荷精灵<br><span style="font-size:7px;color:var(--grn)">HP 80</span></div>
+        <div class="summon-slot">+</div>
+      </div>
+      <div class="hand-row" style="height:64px;align-items:center;">
+        <div class="mini-card rarity-common" style="cursor:default;opacity:.5;">
+          <div class="mc-header">
+            <div class="mc-cost cost-force">8</div>
+            <div class="mc-name">卡背</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#2c3e50,#1a252f);"></div>
+        </div>
+        <div class="mini-card rarity-common" style="cursor:default;opacity:.5;">
+          <div class="mc-header">
+            <div class="mc-cost cost-sound">5</div>
+            <div class="mc-name">卡背</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#2c3e50,#1a252f);"></div>
+        </div>
+        <div class="mini-card rarity-common" style="cursor:default;opacity:.5;">
+          <div class="mc-header">
+            <div class="mc-cost cost-light">6</div>
+            <div class="mc-name">卡背</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#2c3e50,#1a252f);"></div>
+        </div>
+        <div class="mini-card rarity-common" style="cursor:default;opacity:.4;">
+          <div class="mc-header">
+            <div class="mc-cost cost-heat">4</div>
+            <div class="mc-name">卡背</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#2c3e50,#1a252f);"></div>
+        </div>
+      </div>
+    </div>
+
+    <span class="zone-label C">C 牌组</span>
+    <div class="zone-c">
+      <div class="deck-stack">
+        <div class="deck-card"></div>
+        <div class="deck-card"></div>
+        <div class="deck-card"></div>
+        <div class="deck-count">剩 22 张</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 对手 D区 ========== -->
+  <div class="zone-d opponent">
+    <span class="zone-label D">对手 D 驻场区</span>
+    <div class="field-card domain-card">
+      <span style="font-size:9px;">🌍</span>
+      <div class="fc-name">引力场</div>
+    </div>
+    <div class="field-card">
+      <div class="fc-name">重力锤击</div>
+      <div class="fc-hp">HP 120</div>
+    </div>
+    <div class="field-card">
+      <div class="fc-name">电磁炮</div>
+      <div class="fc-hp">HP 140</div>
+    </div>
+    <div class="field-card empty">空</div>
+  </div>
+
+  <!-- ========== 计时器行 ========== -->
+  <div class="timer-row">
+    <div class="timer-bar-wrap">
+      <div class="timer-bar-fill"></div>
+    </div>
+    <span style="font-size:10px;color:var(--mt);flex-shrink:0;">0:38</span>
+    <button class="btn-end-turn">结束回合</button>
+    <button class="btn-fullscreen">⛶</button>
+  </div>
+
+  <!-- ========== 己方 D区 ========== -->
+  <div class="zone-d">
+    <span class="zone-label D">己方 D 驻场区</span>
+    <div class="field-card domain-card">
+      <span style="font-size:9px;">⚡</span>
+      <div class="fc-name">电场</div>
+    </div>
+    <div class="field-card">
+      <div class="fc-name">电流冲击</div>
+      <div class="fc-hp">HP 95</div>
+    </div>
+    <div class="field-card empty">空</div>
+    <div class="field-card empty">空</div>
+  </div>
+
+  <!-- ========== 己方 ABC 三区 ========== -->
+  <div class="abc-row">
+    <span class="zone-label B">B 墓地</span>
+    <div class="zone-b">
+      <div class="grave-card" style="border-left:3px solid #8868a8;">📜</div>
+      <div class="grave-count">1 张</div>
+    </div>
+
+    <span class="zone-label A">A 手牌+角色</span>
+    <div class="zone-a">
+      <div class="avatar-row" style="justify-content:center;">
+        <div class="avatar-circle">👤</div>
+        <div class="summon-slot active">🔥<br>热能核心<br><span style="font-size:7px;color:var(--grn)">HP 110</span></div>
+        <div class="summon-slot">+</div>
+      </div>
+      <div class="hand-row">
+        <!-- 7张手牌，扇形展开 -->
+        <div class="mini-card rarity-rare" style="transform:rotate(-9deg);z-index:1;">
+          <div class="mc-header">
+            <div class="mc-cost cost-force">12</div>
+            <div class="mc-name">重力锤击</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#E74C3C22,#E74C3C44);"></div>
+          <div class="mc-stat">伤害 75</div>
+        </div>
+        <div class="mini-card rarity-common" style="transform:rotate(-6deg);z-index:2;">
+          <div class="mc-header">
+            <div class="mc-cost cost-sound">8</div>
+            <div class="mc-name">声波共振</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#3498DB22,#3498DB44);"></div>
+          <div class="mc-stat">伤害 45</div>
+        </div>
+        <div class="mini-card rarity-epic" style="transform:rotate(-3deg);z-index:3;">
+          <div class="mc-header">
+            <div class="mc-cost cost-light">14</div>
+            <div class="mc-name">光速打击</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#F1C40F22,#F1C40F44);"></div>
+          <div class="mc-stat">伤害 90</div>
+        </div>
+        <div class="mini-card rarity-common" style="transform:rotate(0deg);z-index:4;">
+          <div class="mc-header">
+            <div class="mc-cost cost-heat">10</div>
+            <div class="mc-name">烈焰灼蚀</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#E67E2222,#E67E2244);"></div>
+          <div class="mc-stat">灼烧 +3</div>
+        </div>
+        <div class="mini-card rarity-legendary" style="transform:rotate(3deg);z-index:3;">
+          <div class="mc-header">
+            <div class="mc-cost cost-electric">16</div>
+            <div class="mc-name">超导风暴</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#9B59B622,#9B59B644);"></div>
+          <div class="mc-stat">伤害 120</div>
+        </div>
+        <div class="mini-card rarity-rare" style="transform:rotate(6deg);z-index:2;">
+          <div class="mc-header">
+            <div class="mc-cost cost-force">9</div>
+            <div class="mc-name">惯性屏障</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#E74C3C22,#E74C3C44);"></div>
+          <div class="mc-stat">防御 60</div>
+        </div>
+        <div class="mini-card rarity-common" style="transform:rotate(9deg);z-index:1;">
+          <div class="mc-header">
+            <div class="mc-cost cost-light">7</div>
+            <div class="mc-name">折射护盾</div>
+          </div>
+          <div class="mc-art" style="background:linear-gradient(135deg,#F1C40F22,#F1C40F44);"></div>
+          <div class="mc-stat">护盾 40</div>
+        </div>
+      </div>
+    </div>
+
+    <span class="zone-label C">C 牌组</span>
+    <div class="zone-c">
+      <div class="deck-stack">
+        <div class="deck-card"></div>
+        <div class="deck-card"></div>
+        <div class="deck-card"></div>
+        <div class="deck-count">剩 18 张</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
