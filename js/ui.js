@@ -1030,10 +1030,10 @@ class GameUI {
       <div class="p3-grid">
         <!-- ===== 对方 ABC 行 ===== -->
         <div class="abc-row opponent">
-          <div class="zone-b">
-            <div id="grave-opp" class="grave-stack">
-              <span class="grave-icon">💀</span>
-              <span id="grave-opp-count">0</span>
+          <div class="zone-c">
+            <div id="deck-opp" class="deck-stack">
+              <span class="deck-icon">🂠</span>
+              <span id="deck-opp-count">20</span>
             </div>
           </div>
           <div class="zone-a">
@@ -1050,10 +1050,10 @@ class GameUI {
             </div>
             <div id="opp-hand" class="card-hand opponent-hand"></div>
           </div>
-          <div class="zone-c">
-            <div id="deck-opp" class="deck-stack">
-              <span class="deck-icon">🂠</span>
-              <span id="deck-opp-count">20</span>
+          <div class="zone-b">
+            <div id="grave-opp" class="grave-stack">
+              <span class="grave-icon">💀</span>
+              <span id="grave-opp-count">0</span>
             </div>
           </div>
         </div>
@@ -1085,10 +1085,10 @@ class GameUI {
 
         <!-- ===== 己方 ABC 行 ===== -->
         <div class="abc-row self">
-          <div class="zone-c">
-            <div id="deck-self" class="deck-stack">
-              <span class="deck-icon">🂠</span>
-              <span id="deck-self-count">20</span>
+          <div class="zone-b">
+            <div id="grave-self" class="grave-stack">
+              <span class="grave-icon">💀</span>
+              <span id="grave-self-count">0</span>
             </div>
           </div>
           <div class="zone-a">
@@ -1107,10 +1107,10 @@ class GameUI {
             </div>
             <div id="self-hand" class="card-hand self-hand-main"></div>
           </div>
-          <div class="zone-b">
-            <div id="grave-self" class="grave-stack">
-              <span class="grave-icon">💀</span>
-              <span id="grave-self-count">0</span>
+          <div class="zone-c">
+            <div id="deck-self" class="deck-stack">
+              <span class="deck-icon">🂠</span>
+              <span id="deck-self-count">20</span>
             </div>
           </div>
         </div>
@@ -1150,8 +1150,8 @@ class GameUI {
       /* === 各区 === */
       .zone-b{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.04)}
       .zone-c{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(255,255,255,.04)}
-      .abc-row.self .zone-c{border-left:none;border-right:1px solid rgba(255,255,255,.04)}
-      .abc-row.self .zone-b{border-right:none;border-left:1px solid rgba(255,255,255,.04)}
+      .abc-row.opponent .zone-c{border-left:none;border-right:1px solid rgba(255,255,255,.04)}
+      .abc-row.opponent .zone-b{border-right:none;border-left:1px solid rgba(255,255,255,.04)}
       .zone-a{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible}
       .zone-a-upper{display:flex;align-items:center;justify-content:center;padding:2px 8px;gap:4px;flex-shrink:0}
       .summon-slots{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:0}
@@ -1174,7 +1174,7 @@ class GameUI {
       .timer-num{font-size:11px;color:var(--mt);min-width:30px;flex-shrink:0}
       .divider-row .log-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--mt);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
       .divider-row .log-btn:hover{color:#fff;border-color:rgba(255,255,255,.2)}
-      .divider-row .btn-end-turn{flex-shrink:0;padding:3px 14px;border-radius:6px;background:var(--grn);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer}
+      .divider-row .btn-end-turn{flex-shrink:0;padding:3px 10px;border-radius:6px;background:var(--grn);color:#fff;border:none;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
       .divider-row .btn-end-turn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
       .divider-row .btn-fullscreen{flex-shrink:0;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.08);font-size:12px;cursor:pointer}
       .divider-row .btn-fullscreen:hover{background:rgba(255,255,255,.12);color:#fff}
