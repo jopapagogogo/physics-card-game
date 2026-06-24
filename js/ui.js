@@ -1120,7 +1120,6 @@ class GameUI {
 
         <!-- 日志（悬浮） -->
         <div id="log-area" class="log-area"></div>
-        <div id="log-drawer-toggle" class="log-drawer-toggle" title="战斗记录">📜</div>
         <div id="log-drawer" class="log-drawer">
           <div class="log-drawer-header"><span>战斗记录</span><span id="log-drawer-close" style="cursor:pointer;font-size:14px;">✕</span></div>
           <div id="log-drawer-body" class="log-drawer-body"></div>
@@ -1229,8 +1228,6 @@ class GameUI {
       /* === Log / Damage / Combo / Quiz（保留） === */
       .log-area{position:fixed;bottom:16px;right:16px;z-index:250;display:flex;flex-direction:column-reverse;gap:4px;max-width:260px;pointer-events:none}
       .log-message{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-      .log-drawer-toggle{position:fixed;bottom:16px;right:16px;z-index:251;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:var(--lt);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-      .log-drawer-toggle:hover{background:rgba(0,0,0,.7)}
       .log-drawer{position:fixed;right:0;top:0;bottom:0;width:280px;z-index:300;background:var(--pnl);border-left:1px solid var(--bd);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;padding:16px}
       .log-drawer.open{transform:translateX(0)}
       .log-drawer-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--lt);font-weight:700}
@@ -1664,15 +1661,11 @@ class GameUI {
       });
     }
 
-    // 战斗记录抽屉toggle
-    const logToggle = document.getElementById('log-drawer-toggle');
+    // 战斗记录抽屉关闭按钮
     const logDrawer = document.getElementById('log-drawer');
     const logDrawerClose = document.getElementById('log-drawer-close');
-    if (logToggle && logDrawer) {
-      logToggle.addEventListener('click', () => {
-        logDrawer.classList.toggle('open');
-      });
-      logDrawerClose?.addEventListener('click', () => {
+    if (logDrawer && logDrawerClose) {
+      logDrawerClose.addEventListener('click', () => {
         logDrawer.classList.remove('open');
       });
     }
