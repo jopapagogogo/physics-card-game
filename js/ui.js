@@ -1038,6 +1038,7 @@ class GameUI {
           </div>
           <div class="zone-a">
             <div class="zone-a-upper" id="opponent-area">
+              <div id="opp-summons" class="summon-slots"></div>
               <div class="player-info opponent-info">
                 <span class="avatar">🤖</span>
                 <span class="label">AI对手</span>
@@ -1045,6 +1046,7 @@ class GameUI {
                 <div class="spirit-bar"><div id="opp-spirit-fill" class="spirit-bar-fill"></div><span id="opp-spirit-text" class="hp-text">50/100</span></div>
                 <span id="opp-hand-count" class="hand-counter">🃏5</span>
               </div>
+              <div id="opp-summons-r" class="summon-slots"></div>
             </div>
             <div id="opp-hand" class="card-hand opponent-hand"></div>
           </div>
@@ -1091,6 +1093,7 @@ class GameUI {
           </div>
           <div class="zone-a">
             <div class="zone-a-upper">
+              <div id="self-summons" class="summon-slots"></div>
               <div class="player-info self-info">
                 <span class="avatar">👤</span>
                 <span class="label">你</span>
@@ -1100,6 +1103,7 @@ class GameUI {
                 </div>
                 <span id="hand-count" class="hand-counter">🃏5</span>
               </div>
+              <div id="self-summons-r" class="summon-slots"></div>
             </div>
             <div id="self-hand" class="card-hand self-hand-main"></div>
           </div>
@@ -1147,7 +1151,13 @@ class GameUI {
       .zone-b{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.04)}
       .zone-c{flex-shrink:0;width:60px;display:flex;align-items:center;justify-content:center;border-left:1px solid rgba(255,255,255,.04)}
       .zone-a{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible}
-      .zone-a-upper{display:flex;align-items:center;justify-content:center;padding:2px 8px;gap:6px;flex-shrink:0}
+      .zone-a-upper{display:flex;align-items:center;justify-content:center;padding:2px 8px;gap:4px;flex-shrink:0}
+      .summon-slots{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:0}
+      .summon-slots .summon-mini{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 6px;border-radius:5px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);font-size:8px;font-weight:700;color:#fff;gap:1px;min-width:40px;flex-shrink:0;cursor:default}
+      .summon-slots .summon-mini .sn-name{font-size:7px;text-align:center;line-height:1.1}
+      .summon-slots .summon-mini .sn-hp{font-size:7px;color:var(--grn)}
+      .summon-slots .summon-mini.enemy{cursor:pointer;border-color:rgba(231,76,60,.3)}
+      .summon-slots .summon-mini.enemy:hover{box-shadow:0 0 6px rgba(231,76,60,.3)}
       /* === 墓地/牌库 === */
       .grave-stack,.deck-stack{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;background:rgba(0,0,0,.3);border-radius:6px;border:1px solid rgba(255,255,255,.06)}
       .grave-icon,.deck-icon{font-size:16px;opacity:.6}
@@ -1167,9 +1177,9 @@ class GameUI {
       .divider-row .btn-fullscreen{flex-shrink:0;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.08);font-size:12px;cursor:pointer}
       .divider-row .btn-fullscreen:hover{background:rgba(255,255,255,.12);color:#fff}
       /* === avatar-stats === */
-      .avatar-stats{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+      .avatar-stats{display:flex;flex-direction:column;gap:1px;min-width:0;flex-shrink:0}
       /* === player-info === */
-      .player-info{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+      .player-info{display:flex;align-items:center;gap:6px;min-width:0;flex-shrink:0}
       .player-info .avatar{font-size:18px;flex-shrink:0}
       .player-info .label{font-size:10px;font-weight:700;color:var(--mt);flex-shrink:0}
       .abc-row .hp-bar{position:relative;width:70px;height:12px;border-radius:6px;background:#2c3e50;overflow:hidden;flex-shrink:0}
@@ -1288,6 +1298,7 @@ class GameUI {
       this.renderPlayZones();
       this.renderHand();
       this.renderField();
+      this._renderSummons();
       this.renderDomainEffects();
       this._updateCounters(gs);
     } catch (e) {
@@ -1530,20 +1541,7 @@ class GameUI {
           </div>
         `;
       }
-      // 召唤物
-      const summons = gs.players[0].fieldSummons || [];
-      for (const s of summons) {
-        const hpPct = s.maxHp > 0 ? (s.hp / s.maxHp * 100) : 0;
-        html += `
-          <div class="card summon-card small" data-summon-id="${this._escapeAttr(s.id)}">
-            <span class="card-name">${this._escapeHtml(s.name)}</span>
-            <div class="summon-hp">
-              <div class="summon-hp-fill" style="width:${hpPct}%"></div>
-              <span>${s.hp}/${s.maxHp}</span>
-            </div>
-          </div>
-        `;
-      }
+      // 召唤物 → 已移至 A 区 zone-a-upper 渲染
       // 驻场辅助卡
       const selfSupports = gs.players[0].fieldSupports || [];
       for (const sup of selfSupports) {
@@ -1566,22 +1564,7 @@ class GameUI {
           </div>
         `;
       }
-      const summons = gs.players[1].fieldSummons || [];
-      for (let i = 0; i < summons.length; i++) {
-        const s = summons[i];
-        const hpPct = s.maxHp > 0 ? (s.hp / s.maxHp * 100) : 0;
-        html += `
-          <div class="card summon-card enemy small"
-               data-summon-index="${i}"
-               data-summon-id="${this._escapeAttr(s.id)}">
-            <span class="card-name">${this._escapeHtml(s.name)}</span>
-            <div class="summon-hp">
-              <div class="summon-hp-fill" style="width:${hpPct}%"></div>
-              <span>${s.hp}/${s.maxHp}</span>
-            </div>
-          </div>
-        `;
-      }
+      // 召唤物 → 已移至 A 区 zone-a-upper 渲染
       // 驻场辅助卡
       const oppSupports = gs.players[1].fieldSupports || [];
       for (const sup of oppSupports) {
@@ -1589,6 +1572,36 @@ class GameUI {
         html += `<div class="card support-card small" style="border-left-color:${style.color}"><span class="card-name">${this._escapeHtml(sup.name)}</span><span class="card-type">辅助·${sup.turns}回合</span></div>`;
       }
       oppField.innerHTML = html || '<div class="empty-state"><span class="empty-icon">🏟️</span>对方场上暂无卡牌</div>';
+    }
+  }
+
+  /** 在 A 区渲染召唤物（头像左右两侧） */
+  _renderSummons() {
+    const gs = this.engine?.getGameState();
+    if (!gs || !gs.players) return;
+
+    // 己方召唤物
+    const selfL = document.getElementById('self-summons');
+    const selfR = document.getElementById('self-summons-r');
+    if (selfL && selfR) {
+      const summons = gs.players[0].fieldSummons || [];
+      const mid = Math.ceil(summons.length / 2);
+      const left = summons.slice(0, mid);
+      const right = summons.slice(mid);
+      selfL.innerHTML = left.map(s => `<div class="summon-mini" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
+      selfR.innerHTML = right.map(s => `<div class="summon-mini" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
+    }
+
+    // 对方召唤物
+    const oppL = document.getElementById('opp-summons');
+    const oppR = document.getElementById('opp-summons-r');
+    if (oppL && oppR) {
+      const summons = gs.players[1].fieldSummons || [];
+      const mid = Math.ceil(summons.length / 2);
+      const left = summons.slice(0, mid);
+      const right = summons.slice(mid);
+      oppL.innerHTML = left.map(s => `<div class="summon-mini enemy" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
+      oppR.innerHTML = right.map(s => `<div class="summon-mini enemy" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
     }
   }
 
