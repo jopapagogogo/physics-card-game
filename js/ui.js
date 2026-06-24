@@ -1174,7 +1174,7 @@ class GameUI {
       .timer-num{font-size:11px;color:var(--mt);min-width:30px;flex-shrink:0}
       .divider-row .log-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--mt);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
       .divider-row .log-btn:hover{color:#fff;border-color:rgba(255,255,255,.2)}
-      .divider-row .btn-end-turn{flex-shrink:0;padding:3px 10px;border-radius:6px;background:var(--grn);color:#fff;border:none;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+      .divider-row .btn-end-turn{flex-shrink:0;width:auto;padding:3px 10px;border-radius:6px;background:var(--grn);color:#fff;border:none;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
       .divider-row .btn-end-turn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
       .divider-row .btn-fullscreen{flex-shrink:0;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.08);font-size:12px;cursor:pointer}
       .divider-row .btn-fullscreen:hover{background:rgba(255,255,255,.12);color:#fff}

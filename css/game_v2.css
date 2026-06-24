@@ -712,7 +712,6 @@ body {
   .card .name { font-size:13px; }
   .card.small .name { font-size:10px; }
   .card-field .summon, .card-field .domain-card { width:80px; height:110px; }
-  .btn-end-turn { width:200px; margin:8px auto; }
 }
 
 /* ============================================================
@@ -726,7 +725,6 @@ body {
   .card-field .summon, .card-field .domain-card { width:88px; height:120px; }
   .quiz-card { max-width:440px; padding:32px; }
   .quiz-option { min-height:56px; font-size:16px; }
-  .btn-end-turn { width:240px; }
 }
 
 /* ============================================================
