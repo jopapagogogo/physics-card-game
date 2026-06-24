@@ -2382,7 +2382,7 @@ class GameUI {
     const gs = this.engine?.getGameState();
     if (!gs || !gs.players[0].hand) return;
 
-    const toDiscard = gs.players[0].hand.length - 5;
+    const toDiscard = gs.players[0].hand.length - 7;
     if (toDiscard <= 0) {
       this._afterPlayerDiscard();
       return;
@@ -2395,7 +2395,7 @@ class GameUI {
     overlay.className = 'discard-overlay';
     overlay.innerHTML = `
       <div class="discard-card">
-        <h3>手牌超过5张，请选择 <span style="color:#e74c3c;font-size:20px;">${toDiscard}</span> 张弃掉</h3>
+        <h3>手牌超过7张，请选择 <span style="color:#e74c3c;font-size:20px;">${toDiscard}</span> 张弃掉</h3>
         <div class="discard-timer">剩余 <span id="discard-countdown">${discardSeconds}</span> 秒（超时自动弃牌）</div>
         <div id="discard-options"></div>
         <button id="btn-discard-confirm" class="btn btn-primary" disabled>确认弃牌（需选 ${toDiscard} 张）</button>
