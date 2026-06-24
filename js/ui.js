@@ -2378,7 +2378,9 @@ class GameUI {
   }
 
   showDiscardScreen() {
-    clearInterval(this.discardTimer);  // 防止重复进入导致旧定时器泄漏
+    clearInterval(this.discardTimer);
+    // 清理残留的旧弃牌弹窗
+    document.querySelectorAll('.discard-overlay').forEach(el => el.remove());
     const gs = this.engine?.getGameState();
     if (!gs || !gs.players[0].hand) return;
 
