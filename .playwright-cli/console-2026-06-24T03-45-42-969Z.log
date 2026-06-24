@@ -1,0 +1,8 @@
+[      21ms] [LOG] [init] 插画映射: 109 张 @ http://localhost:8080/js/ui.js?v=4:64
+[      70ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8080/favicon.ico:0
+[    2290ms] [LOG] [renderPlayZones] selfZone: JSHandle@node playZoneSelf: 0 playZoneAi: 0 @ http://localhost:8080/js/ui.js?v=4:1470
+[    2291ms] [LOG] [renderHand] cards: 5 @ http://localhost:8080/js/ui.js?v=4:1406
+[    2293ms] [LOG] [renderPlayZones] selfZone: JSHandle@node playZoneSelf: 0 playZoneAi: 0 @ http://localhost:8080/js/ui.js?v=4:1470
+[    2293ms] [LOG] [renderHand] cards: 8 @ http://localhost:8080/js/ui.js?v=4:1406
+[   17296ms] [LOG] [renderPlayZones] selfZone: JSHandle@node playZoneSelf: 0 playZoneAi: 0 @ http://localhost:8080/js/ui.js?v=4:1470
+[   17296ms] [LOG] [renderHand] cards: 8 @ http://localhost:8080/js/ui.js?v=4:1406

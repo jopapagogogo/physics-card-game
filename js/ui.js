@@ -1686,7 +1686,39 @@ class GameUI {
       });
     }
 
-    // 对方召唤物点击（选择攻击目标 / 放大查看）
+    // 对方 A 区召唤物点击（攻击目标选择 / 放大查看）
+    const opponentArea = document.getElementById('opponent-area');
+    if (opponentArea) {
+      opponentArea.addEventListener('click', (e) => {
+        const mini = e.target.closest('.summon-mini.enemy');
+        if (!mini) return;
+        const summonId = mini.dataset.summonId;
+        const gs = this.engine?.getGameState();
+        if (!gs || !summonId) return;
+
+        // 攻击目标选择模式
+        if (this.selectedCard && this.selectedCard.type === 'attack') {
+          const idx = (gs.players[1].fieldSummons || []).findIndex(s => s.id === summonId);
+          if (idx >= 0) {
+            this.playSelectedCard('summon_' + idx);
+          }
+          return;
+        }
+
+        // 放大查看
+        const summon = (gs.players[1].fieldSummons || []).find(s => s.id === summonId);
+        if (summon) {
+          const cardData = this.engine?.getCardById?.(summon.id) || summon.card;
+          if (cardData) {
+            if (summon.hp !== undefined) { cardData.hp = summon.hp; cardData.maxHp = summon.maxHp || summon.maxHp; }
+            cardData._fromHand = false; cardData.type = 'summon'; cardData.cost = cardData.cost || '-';
+            this._showCardDetail(cardData);
+          }
+        }
+      });
+    }
+
+    // 对方召唤物点击（选择攻击目标 / 放大查看）- 保留 D 区兼容
     const oppField = document.getElementById('opp-field');
     if (oppField) {
       oppField.addEventListener('click', (e) => {
@@ -1744,7 +1776,7 @@ class GameUI {
       oppArea.addEventListener('click', (e) => {
         // 攻击目标选择模式：点击玩家区域攻击玩家
         if (this.selectedCard && this.selectedCard.type === 'attack') {
-          if (e.target.closest('.summon-card')) return;
+          if (e.target.closest('.summon-mini')) return;
           if (e.target.closest('.card-hand')) return;
           this.playSelectedCard('player');
           return;
