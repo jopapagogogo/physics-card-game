@@ -2378,14 +2378,7 @@ class GameUI {
     el.className = `turn-transition ${className}`;
     el.innerHTML = `<div class="turn-banner">${text}</div>`;
     document.body.appendChild(el);
-
-    // 半透明遮罩
-    const overlay = document.createElement('div');
-    overlay.className = 'turn-overlay';
-    document.body.appendChild(overlay);
-    setTimeout(() => overlay.remove(), 600);
-
-    setTimeout(() => el.remove(), 900);
+    setTimeout(() => el.remove(), 1000);
   }
 
   /** AI卡牌飞行动画（从对手手牌→AI出牌区） */

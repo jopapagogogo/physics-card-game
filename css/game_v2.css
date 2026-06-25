@@ -683,38 +683,40 @@ body {
    回合切换过渡动画
    ============================================================ */
 .turn-transition {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 290;
-  pointer-events: none; text-align: center;
-  animation: turnBannerSlide .8s ease-out forwards;
+  position: fixed; inset: 0; z-index: 290; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.55);
+  animation: turnOverlayIn .15s ease-out forwards;
+}
+@keyframes turnOverlayIn {
+  from { background: rgba(0,0,0,0); }
+  to   { background: rgba(0,0,0,.55); }
 }
 .turn-transition .turn-banner {
-  display: inline-block; padding: 8px 28px; border-radius: 0 0 14px 14px;
-  font-size: 15px; font-weight: 800; letter-spacing: 2px;
-  color: #fff; margin: 0 auto;
+  font-size: 64px; font-weight: 900; letter-spacing: 6px;
+  text-align: center; line-height: 1.1;
+  animation: turnBannerPop .9s cubic-bezier(.34,1.56,.64,1) forwards;
+  text-shadow: 0 0 40px currentColor;
+}
+@keyframes turnBannerPop {
+  0%   { transform: scale(.3); opacity: 0; filter: blur(8px); }
+  15%  { transform: scale(1.1); opacity: 1; filter: blur(0); }
+  25%  { transform: scale(.95); }
+  35%  { transform: scale(1); }
+  75%  { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.05); opacity: 0; }
 }
 .turn-transition.your .turn-banner {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-  box-shadow: 0 4px 20px rgba(46,204,113,.4);
+  color: #2ecc71;
+  text-shadow: 0 0 60px rgba(46,204,113,.6), 0 0 120px rgba(46,204,113,.3);
 }
 .turn-transition.opponent .turn-banner {
-  background: linear-gradient(135deg, #c0392b, #e74c3c);
-  box-shadow: 0 4px 20px rgba(231,76,60,.4);
+  color: #e74c3c;
+  text-shadow: 0 0 60px rgba(231,76,60,.6), 0 0 120px rgba(231,76,60,.3);
 }
-@keyframes turnBannerSlide {
-  0%   { opacity: 0; transform: translateY(-40px); }
-  20%  { opacity: 1; transform: translateY(0); }
-  70%  { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-10px); }
-}
-/* 战场背景遮罩过渡 */
-.turn-overlay {
-  position: fixed; inset: 0; z-index: 285; pointer-events: none;
-  animation: turnDim 0.5s ease-out;
-}
-@keyframes turnDim {
-  0%   { background: rgba(0,0,0,.3); }
-  100% { background: transparent; }
-}
+/* 旧 turn-overlay 不再需要，保留兼容 */
+.turn-overlay { display: none; }
+@keyframes turnDim {}
 
 /* ---- 辅助类 ---- */
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
