@@ -1076,12 +1076,19 @@ body {
 .card-v3.mini:hover { z-index:50; transform-origin:center center !important; transform:rotate(var(--rot)) scale(1.15) translateY(-8px) !important; }
 .card-v3.mini.selected { z-index:20; transform:rotate(var(--rot)) scale(1.08) !important; filter:brightness(1.15); }
 
-/* === 手牌稀有度边框 — 覆盖领域色 === */
-.card-v3.mini.rarity-common     { border-color:#6b7b8d; }                       /* 灰蓝 */
-.card-v3.mini.rarity-rare       { border-color:#cd7f32; }                       /* 铜橙 */
-.card-v3.mini.rarity-epic       { border-color:#a335ee; box-shadow:0 0 8px rgba(163,53,238,.25); }  /* 紫 + 微光 */
-.card-v3.mini.rarity-legendary  { border-color:#ffd700; box-shadow:0 0 10px rgba(255,215,0,.3); }   /* 金 + 微光 */
-.card-v3.mini.rarity-mythic     { border-color:transparent; }
+/* === 手牌边框：按领域色，稀有度仅微调亮度 === */
+.card-v3.mini{ border-width:1.5px; border-style:solid; }
+.card-v3.mini.domain-force{ border-color:#e74c3c; }
+.card-v3.mini.domain-sound{ border-color:#3498db; }
+.card-v3.mini.domain-light{ border-color:#f1c40f; }
+.card-v3.mini.domain-heat{ border-color:#e67e22; }
+.card-v3.mini.domain-elec{ border-color:#9b59b6; }
+.card-v3.mini.domain-chaos{ border-color:#7b2fbe; }
+/* 稀有度微调：高稀有度边框更亮 */
+.card-v3.mini.rarity-common     { filter:brightness(.85); }
+.card-v3.mini.rarity-epic       { filter:brightness(1.1); }
+.card-v3.mini.rarity-legendary  { filter:brightness(1.2); }
+.card-v3.mini.rarity-mythic     { filter:brightness(1.3); }
 .card-v3.mini.rarity-mythic::before {
   content:''; position:absolute; inset:-2px; border-radius:18px; z-index:-1;
   background:conic-gradient(from 0deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000);
