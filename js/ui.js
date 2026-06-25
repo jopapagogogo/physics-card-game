@@ -1077,6 +1077,9 @@ class GameUI {
     this.updateAllDisplay();
     this.bindBattleEvents();
     this._injectBattleStyles();
+    // V6: 战场底纹
+    const texture = this._domainTextureCSS(this.mainDomain);
+    document.querySelectorAll('.d-zone').forEach(el => el.style.setProperty('--bg-texture', texture));
   }
 
   /** 注入战斗界面专有样式 */
@@ -1111,7 +1114,8 @@ class GameUI {
       .grave-icon,.deck-icon{font-size:16px;opacity:.6}
       .grave-stack span:last-child,.deck-stack span:last-child{font-size:9px;color:var(--mt)}
       /* === D 区 === */
-      .d-zone{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px 72px}
+      .d-zone{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px 72px;position:relative}
+      .d-zone::before{content:'';position:absolute;inset:0;background-image:var(--bg-texture);background-size:180px;opacity:.07;pointer-events:none;z-index:0}
       .d-half{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;width:100%}
       /* === 中央分隔栏 === */
       .divider-row{flex-shrink:0;display:flex;align-items:center;gap:10px;height:30px;padding:0 16px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
@@ -1227,6 +1231,42 @@ class GameUI {
       @keyframes playCardIn{from{opacity:0;transform:translateY(-40px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
     `;
     document.head.appendChild(style);
+  }
+
+  /** 生成领域战场纹理（SVG data URI） */
+  _domainTextureCSS(domain) {
+    const patterns = {
+      力: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+        <line x1="0" y1="60" x2="60" y2="0" stroke="rgba(231,76,60,.3)" stroke-width=".5"/>
+        <line x1="30" y1="60" x2="60" y2="30" stroke="rgba(231,76,60,.15)" stroke-width=".3"/>
+        <line x1="0" y1="30" x2="30" y2="0" stroke="rgba(231,76,60,.15)" stroke-width=".3"/>
+        <circle cx="45" cy="15" r="2" fill="none" stroke="rgba(231,76,60,.2)" stroke-width=".3"/>
+      </svg>`,
+      声: `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40">
+        <path d="M0,20 Q10,5 20,20 T40,20 T60,20 T80,20" fill="none" stroke="rgba(52,152,219,.25)" stroke-width=".6"/>
+        <path d="M40,20 Q50,8 60,20 T80,20" fill="none" stroke="rgba(52,152,219,.15)" stroke-width=".4"/>
+      </svg>`,
+      光: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+        <circle cx="30" cy="30" r="8" fill="none" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
+        <circle cx="30" cy="30" r="16" fill="none" stroke="rgba(241,196,15,.1)" stroke-width=".3"/>
+        <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(241,196,15,.06)" stroke-width=".2"/>
+        <line x1="30" y1="6" x2="30" y2="0" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
+        <line x1="30" y1="54" x2="30" y2="60" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
+        <line x1="6" y1="30" x2="0" y2="30" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
+        <line x1="54" y1="30" x2="60" y2="30" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
+      </svg>`,
+      热: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
+        <path d="M0,20 Q5,5 10,20 T20,20 T30,20 T40,20 T50,20 T60,20" fill="none" stroke="rgba(230,126,34,.2)" stroke-width=".5"/>
+        <path d="M15,30 Q20,15 25,30 T35,30 T45,30 T55,30" fill="none" stroke="rgba(230,126,34,.1)" stroke-width=".4"/>
+      </svg>`,
+      电: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
+        <polyline points="0,20 12,5 16,20 28,5 32,20 44,5 48,20 60,5" fill="none" stroke="rgba(155,89,182,.25)" stroke-width=".5"/>
+        <polyline points="20,35 28,20 32,35 40,20" fill="none" stroke="rgba(155,89,182,.12)" stroke-width=".4"/>
+      </svg>`
+    };
+    const svg = patterns[domain] || patterns['力'];
+    const encoded = btoa(svg);
+    return `url("data:image/svg+xml;base64,${encoded}")`;
   }
 
   /** 更新所有战斗显示 */
