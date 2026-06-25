@@ -2363,6 +2363,7 @@ class GameUI {
   }
 
   endPlayerTurn() {
+    try {
     this._clearAutoPlayTimeout();
     clearInterval(this.playTimer);
     this.playTimer = null;
@@ -2376,6 +2377,10 @@ class GameUI {
     }
 
     this.finishPlayerTurn();
+    } catch (err) {
+      console.error('[endPlayerTurn] error:', err.message);
+      this.updateAllDisplay();
+    }
   }
 
   showDiscardScreen() {
@@ -2454,16 +2459,17 @@ class GameUI {
       this._afterPlayerDiscard();
     });
 
-    // 倒计时
+    // 倒计时（用时间戳，后台标签页不漂移）
     const countdownEl = document.getElementById('discard-countdown');
+    const discardDeadline = Date.now() + discardSeconds * 1000;
     this.discardTimer = setInterval(() => {
-      discardSeconds--;
-      if (countdownEl) countdownEl.textContent = discardSeconds;
-      if (discardSeconds <= 2 && countdownEl) {
+      const remaining = Math.ceil((discardDeadline - Date.now()) / 1000);
+      if (countdownEl) countdownEl.textContent = remaining;
+      if (remaining <= 2 && countdownEl) {
         countdownEl.style.color = '#e74c3c';
         countdownEl.style.fontWeight = '900';
       }
-      if (discardSeconds <= 0) {
+      if (remaining <= 0) {
         clearInterval(this.discardTimer);
         // 超时：自动随机弃牌
         const allIndices = gs.players[0].hand.map((_, i) => i);
@@ -2967,11 +2973,11 @@ class GameUI {
     if (!domain) return { color: '#999', bg: '#999' };
     const d = Array.isArray(domain) ? domain[0] : domain;
     const styles = {
-      '力': { color: '#E74C3C', bg: '#E74C3C' },
-      '声': { color: '#3498DB', bg: '#3498DB' },
-      '光': { color: '#F1C40F', bg: '#F1C40F' },
-      '热': { color: '#E67E22', bg: '#E67E22' },
-      '电': { color: '#9B59B6', bg: '#9B59B6' }
+      '力': { color: '#E74C3C', bg: 'rgba(231,76,60,.25)' },
+      '声': { color: '#3498DB', bg: 'rgba(52,152,219,.25)' },
+      '光': { color: '#F1C40F', bg: 'rgba(241,196,15,.2)' },
+      '热': { color: '#E67E22', bg: 'rgba(230,126,34,.25)' },
+      '电': { color: '#9B59B6', bg: 'rgba(155,89,182,.25)' }
     };
     return styles[d] || { color: '#999', bg: '#999' };
   }

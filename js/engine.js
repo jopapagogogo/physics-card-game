@@ -514,8 +514,11 @@ class GameEngine {
     }
 
     if (!Array.isArray(discardIndices) || discardIndices.length === 0) {
-      this._addLog(`[${this.currentPlayer === 0 ? '玩家' : 'AI'}] 未指定弃牌，跳过。`);
-      return;
+      // 自动随机弃牌兜底：手牌超上限但无指定索引
+      const over = player.hand.length - MAX_HAND_SIZE;
+      const shuffled = [...Array(player.hand.length).keys()].sort(() => Math.random() - 0.5);
+      discardIndices = shuffled.slice(0, over);
+      this._addLog(`[${this.currentPlayer === 0 ? '玩家' : 'AI'}] 手牌超上限，自动随机弃 ${over} 张。`);
     }
 
     // 弃置指定索引的牌（按降序处理避免索引偏移）
