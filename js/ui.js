@@ -1130,7 +1130,7 @@ class GameUI {
       .grave-stack span:last-child,.deck-stack span:last-child{font-size:9px;color:var(--mt)}
       /* === D 区 === */
       .d-zone{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px 72px;position:relative}
-      .d-zone::before{content:'';position:absolute;inset:0;background-image:var(--bg-texture);background-size:180px;opacity:.07;pointer-events:none;z-index:0}
+      .d-zone::before{content:'';position:absolute;inset:0;background-image:var(--bg-texture);background-size:180px;opacity:.12;pointer-events:none;z-index:0}
       .d-half{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;width:100%}
       /* === 中央分隔栏 === */
       .divider-row{flex-shrink:0;display:flex;align-items:center;gap:10px;height:30px;padding:0 16px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
