@@ -4,12 +4,27 @@
  * 键值格式："此前打出的卡ID→刚才打出的卡ID"
  * 方向重要：S01→A01（先出辅助，再出攻击）才能触发
  * 
- * effect.type 列表：
- *   extra_damage       — 追加固定伤害（最常用）
- *   extra_burn         — 追加灼烧层数
- *   extra_dot          — 追加DOT（{dmg, turns}）
- *   view_hand         — 查看对方手牌（count: number|'all'）
- *   return_to_hand   — 将卡弹回手牌
+ * effect.type 列表（共18种）：
+ *   extra_damage              — 追加固定伤害
+ *   extra_damage_per_burn     — 每层灼烧追加伤害
+ *   extra_damage_per_force_card — 每张力系卡追加伤害
+ *   extra_damage_ignore_block — 追加无视防御伤害
+ *   extra_burn                — 追加灼烧层数
+ *   extra_burn_after_detonate — 引爆后追加灼烧
+ *   extra_dot                 — 追加DOT（{dmg, turns}）
+ *   extend_dot_turns          — 延长DOT持续回合
+ *   boost_dot_increment       — 提升DOT递增幅度
+ *   boost_burn_cap            — 提升灼烧上限
+ *   boost_burn_dmg            — 提升单层灼烧伤害
+ *   boost_mirror_maze         — 提升镜面迷宫概率
+ *   boost_clear_debuff        — 清除己方DOT
+ *   boost_ignore_defense      — 追加无视防御值
+ *   view_hand                 — 查看对方手牌
+ *   steal_spirit              — 偷取精神力
+ *   heal_hp                   — 恢复HP
+ *   modify_flag               — 设置特殊标记
+ *   modify_height             — 修改高度加成
+ *   set_return_to_hand        — 弹回手牌
  *   modify_card_dmg   — 修改本次卡牌的伤害
  *   modify_height     — 影响A05重力势能蓄能高度
  *   steal_spirit      — 偷取精神力
