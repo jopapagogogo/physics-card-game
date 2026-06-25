@@ -68,6 +68,7 @@ const CARDS = [
     rarity: "common",
     effect: {"dmg":60,"dotDmg":30,"dotTurns":2}
   },
+  // A07 预留，暂空缺
   {
     id: "A08",
     name: "做功打击",
@@ -112,6 +113,7 @@ const CARDS = [
     rarity: "epic",
     effect: {"dmg":25,"applyOnCast":1,"applyPerTurn":1,"maxStacks":3,"sonicDmgPerStack":10,"detonateDmg":60}
   },
+  // A12 预留，暂空缺
   {
     id: "A13",
     name: "驻波共振",
