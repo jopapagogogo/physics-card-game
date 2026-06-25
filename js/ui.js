@@ -38,6 +38,7 @@ class GameUI {
     this.playZoneSelf = []; // 己方出牌展示区
     this.playZoneAi = [];   // AI出牌展示区
     this.customDeck = null; // 玩家自定义卡组
+    this._lastHandIds = []; // renderHand 局部更新追踪
   }
 
   // ==================== 初始化 ====================
@@ -1392,6 +1393,45 @@ class GameUI {
     }
   }
 
+  /** 构建单张卡牌的 DOM 元素 */
+  _buildCardElement(card, index, totalCards, isPlayable, isSelected) {
+    const totalAngle = Math.min(totalCards * 3.5, 40);
+    const startAngle = -(totalAngle / 2);
+    const rot = totalCards > 1 ? startAngle + (totalAngle / (totalCards - 1)) * index : 0;
+    const artUrl = this.artMap[card.id] || '';
+    const typeLabel = this.getTypeLabel(card.type);
+    const domains = Array.isArray(card.domain) ? card.domain : [card.domain];
+    const runeHtml = domains.map(d => DOMAIN_RUNES[d] ? `<img src="${DOMAIN_RUNES[d]}" class="rune-img">` : (d === '混沌' ? '🌌' : '⚛')).join('');
+    const descRaw = String(card.description || '').substring(0, 30);
+    const hasDesc = descRaw.length > 0;
+
+    const el = document.createElement('div');
+    el.className = `card-v3 mini ${this._domainClass(card.domain)} rarity-${card.rarity} skin-cyber ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}`;
+    el.setAttribute('data-card-id', card.id);
+    el.style.cssText = `--rot:${rot}deg;transform:rotate(var(--rot));transform-origin:bottom center;transition:all .2s ease;flex-shrink:0;`;
+    el.innerHTML = `
+      <div class="v3-header">
+        <div class="v3-cost">${card.cost ?? '-'}</div>
+        <div class="v3-name">${this._escapeHtml(card.name)}</div>
+        <div class="v3-rune">${runeHtml}</div>
+      </div>
+      <div class="v3-type-ribbon"><span class="v3-type-pip ${card.type}">${typeLabel}</span></div>
+      <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+      <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="v3-stats">${card.effect?.dmg ? `<span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}</div>
+      <div class="v3-desc-box">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
+      <span class="v3-badge">赛博</span>
+    `;
+    return el;
+  }
+
+  /** 更新卡牌元素的可变状态（不重建DOM） */
+  _updateCardState(el, isPlayable, isSelected, rot) {
+    el.style.setProperty('--rot', rot + 'deg');
+    el.classList.toggle('playable', isPlayable);
+    el.classList.toggle('selected', isSelected);
+  }
+
   renderHand() {
     try {
     const selfHand = document.getElementById('self-hand');
@@ -1401,58 +1441,64 @@ class GameUI {
       console.warn('[renderHand] no state');
       return;
     }
-    // 己方手牌
+    // 己方手牌 —— 局部更新
     const cards = (gs.players[0].hand || []);
     if (selfHand) {
-      console.log('[renderHand] cards:', cards.length);
-      let html = '';
-      if (cards.length === 0) {
-        html = '<div class="empty-state"><span class="empty-icon">🃏</span>暂无手牌</div>';
+      const totalCards = cards.length;
+
+      if (totalCards === 0) {
+        if (!selfHand.querySelector('.empty-state')) {
+          selfHand.innerHTML = '<div class="empty-state"><span class="empty-icon">🃏</span>暂无手牌</div>';
+          this._lastHandIds = [];
+        }
       } else {
-        const totalAngle = Math.min(cards.length * 3.5, 40);
+        const emptyState = selfHand.querySelector('.empty-state');
+        if (emptyState) emptyState.remove();
+
+        const totalAngle = Math.min(totalCards * 3.5, 40);
         const startAngle = -(totalAngle / 2);
-        for (let i = 0; i < cards.length; i++) {
+
+        const existingMap = new Map();
+        const existingEls = selfHand.querySelectorAll('[data-card-id]');
+        for (const el of existingEls) {
+          existingMap.set(el.getAttribute('data-card-id'), el);
+        }
+
+        for (let i = 0; i < totalCards; i++) {
           const card = cards[i];
           const cpResult = this.phase === 'play' && this.engine.canPlay
             ? this.engine.canPlay(0, card)
             : { can: false };
           const isPlayable = cpResult.can;
           const isSelected = this.selectedCard && this.selectedCard.id === card.id;
-          const rot = cards.length > 1 ? startAngle + (totalAngle / (cards.length - 1)) * i : 0;
-          const artUrl = this.artMap[card.id] || '';
-          const typeLabel = this.getTypeLabel(card.type);
-          const domains = Array.isArray(card.domain) ? card.domain : [card.domain];
-          const runeHtml = domains.map(d => DOMAIN_RUNES[d] ? `<img src="${DOMAIN_RUNES[d]}" class="rune-img">` : (d === '混沌' ? '🌌' : '⚛')).join('');
-          const descRaw = String(card.description || '').substring(0, 30);
-          const hasDesc = descRaw.length > 0;
-          html += `
-            <div class="card-v3 mini ${this._domainClass(card.domain)} rarity-${card.rarity} skin-cyber ${isPlayable ? 'playable' : ''} ${isSelected ? 'selected' : ''}"
-                 data-card-id="${this._escapeAttr(card.id)}"
-                 style="--rot:${rot}deg;transform:rotate(var(--rot));transform-origin:bottom center;transition:all .2s ease;flex-shrink:0;">
-              <div class="v3-header">
-                <div class="v3-cost">${card.cost ?? '-'}</div>
-                <div class="v3-name">${this._escapeHtml(card.name)}</div>
-                <div class="v3-rune">${runeHtml}</div>
-              </div>
-              <div class="v3-type-ribbon"><span class="v3-type-pip ${card.type}">${typeLabel}</span></div>
-              <div class="v3-art-frame">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : ''}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
-              <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
-              <div class="v3-stats">${card.effect?.dmg ? `<span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}</div>
-              <div class="v3-desc-box">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
-              <span class="v3-badge">赛博</span>
-            </div>
-          `;
+          const rot = totalCards > 1 ? startAngle + (totalAngle / (totalCards - 1)) * i : 0;
+
+          let el = existingMap.get(card.id);
+          if (el) {
+            this._updateCardState(el, isPlayable, isSelected, rot);
+            existingMap.delete(card.id);
+          } else {
+            el = this._buildCardElement(card, i, totalCards, isPlayable, isSelected);
+            selfHand.appendChild(el);
+          }
         }
+
+        for (const [, staleEl] of existingMap) {
+          staleEl.remove();
+        }
+        this._lastHandIds = cards.map(c => c.id);
       }
-      selfHand.innerHTML = html;
     }
 
-    // 对方手牌（卡背）
+    // 对方手牌（卡背）—— 仅数量变化时更新
     if (oppHand) {
       const count = (gs.players[1].hand || []).length;
-      oppHand.innerHTML = Array.from({ length: count }, () =>
-        '<div class="card card-back"></div>'
-      ).join('');
+      const currentBacks = oppHand.querySelectorAll('.card-back').length;
+      if (currentBacks !== count) {
+        oppHand.innerHTML = Array.from({ length: count }, () =>
+          '<div class="card card-back"></div>'
+        ).join('');
+      }
     }
     // 更新手牌计数
     const oppCnt = document.getElementById('opp-hand-count');
