@@ -1156,10 +1156,12 @@ class GameUI {
       .player-info{display:flex;align-items:center;gap:6px;min-width:0;flex-shrink:0}
       .player-info .avatar{font-size:18px;flex-shrink:0}
       .player-info .label{font-size:10px;font-weight:700;color:var(--mt);flex-shrink:0}
-      .abc-row .hp-bar{position:relative;width:70px;height:12px;border-radius:6px;background:#2c3e50;overflow:hidden;flex-shrink:0}
-      .abc-row .hp-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--red),var(--grn));transition:width .4s ease}
-      .abc-row .spirit-bar{width:48px;height:5px;border-radius:3px;background:#1a2a40;overflow:hidden;flex-shrink:0;position:relative}
-      .abc-row .spirit-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3498db,#9b59b6);transition:width .3s ease}
+      .abc-row .hp-bar{position:relative;width:70px;height:12px;border-radius:6px;background:linear-gradient(180deg,#1a2a36,#2c3e50);overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.08)}
+      .abc-row .hp-bar::after{content:'';position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.02) 3px,rgba(255,255,255,.02) 4px);pointer-events:none;z-index:2}
+      .abc-row .hp-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--red),var(--grn));transition:width .4s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+      .abc-row .spirit-bar{width:48px;height:5px;border-radius:3px;background:linear-gradient(180deg,#0d1a2a,#1a2a40);overflow:hidden;flex-shrink:0;position:relative;border:1px solid rgba(255,255,255,.06)}
+      .abc-row .spirit-bar::after{content:'';position:absolute;inset:0;border-radius:3px;background:repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(255,255,255,.03) 2px,rgba(255,255,255,.03) 3px);pointer-events:none;z-index:2}
+      .abc-row .spirit-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#3498db,#9b59b6);transition:width .3s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
       .hp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;pointer-events:none}
       .hand-counter{font-size:9px;color:var(--mt);padding:1px 5px;background:rgba(0,0,0,.2);border-radius:4px;flex-shrink:0}
       /* === 手牌 === */
