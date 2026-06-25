@@ -1202,6 +1202,17 @@ class GameUI {
       .card-v3.mini::before,.card-v3.mini::after{display:none!important}
       .card-v3.mini{box-shadow:0 0 4px rgba(0,0,0,.3)!important}
       .card-v3.mini.skin-cyber{box-shadow:0 0 4px var(--dm-glow)!important}
+      /* === V7: 领域特效——可打出卡牌领域色微光 === */
+      .card-v3.mini.playable{box-shadow:0 0 8px var(--dg, rgba(255,255,255,.1))!important}
+      .card-v3.mini.playable.domain-force{--dg:rgba(231,76,60,.3)}
+      .card-v3.mini.playable.domain-sound{--dg:rgba(52,152,219,.3)}
+      .card-v3.mini.playable.domain-light{--dg:rgba(241,196,15,.3)}
+      .card-v3.mini.playable.domain-heat{--dg:rgba(230,126,34,.3)}
+      .card-v3.mini.playable.domain-elec{--dg:rgba(155,89,182,.3)}
+      .card-v3.mini.playable.selected{box-shadow:0 0 16px var(--dg)!important;transform:rotate(var(--rot)) translateY(-6px)}
+      /* === V13: 角色idle呼吸动画 === */
+      .avatar-stats .avatar{animation:idleBreathe 3s ease-in-out infinite}
+      @keyframes idleBreathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
       .card-tooltip .card-v3::before,.card-tooltip .card-v3::after{display:none!important}
       .card-tooltip .card-v3.skin-cyber{box-shadow:0 0 6px rgba(0,0,0,.5)!important}
       .card-tooltip .card-v3{background-clip:border-box!important}
