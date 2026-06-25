@@ -2016,12 +2016,10 @@ class GameUI {
       return;
     }
 
-    // 攻击卡：先弹窗查看详情，确认后再选目标
+    // 攻击卡：直接进入选目标模式（想查看详情用悬停tooltip）
     if (card.type === 'attack') {
-      card._fromHand = true;
-      this._showCardDetail(card);
-      // 注意：此时不设置 selectedCard，也不进入 targeting
-      // "打出"按钮触发 _enterAttackTargeting
+      this.selectedCard = card;
+      this._enterAttackTargeting(card);
     }
   }
 
