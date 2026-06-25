@@ -1178,11 +1178,14 @@ class GameUI {
       .abc-row .card-back::after{
         content:'';position:absolute;inset:4px;border-radius:3px;
         border:1px solid rgba(52,152,219,.12);
-        background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(52,152,219,.04) 3px,rgba(52,152,219,.04) 4px);
+        background:
+          repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(52,152,219,.04) 3px,rgba(52,152,219,.04) 4px);
       }
       .abc-row .card-back::before{
-        content:'⚛';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-        font-size:14px;opacity:.25;color:#3498db;
+        content:'F=ma';position:absolute;inset:2px;display:flex;align-items:center;justify-content:center;
+        font-size:10px;font-weight:900;font-style:italic;opacity:.35;
+        color:#3498db;letter-spacing:.5px;
+        text-shadow:0 0 4px rgba(52,152,219,.3);
       }
       /* === 场上区 === */
       .d-half .card-field{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;flex:1;min-width:0;padding:3px 6px;min-height:48px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01)}

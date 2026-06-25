@@ -530,6 +530,12 @@ class GameEngine {
         this._addLog(`[${this.currentPlayer === 0 ? '玩家' : 'AI'}] 弃置了「${card.name}」。`);
       }
     }
+    // 兜底：确保不会超过上限
+    while (player.hand.length > MAX_HAND_SIZE) {
+      const card = player.hand.pop();
+      player.discardPile.push(card);
+      this._addLog(`[${this.currentPlayer === 0 ? '玩家' : 'AI'}] 兜底弃置「${card.name}」。`);
+    }
   }
 
   /** 结束回合 */
