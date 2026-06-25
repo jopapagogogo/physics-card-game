@@ -400,7 +400,7 @@ class GameUI {
       <div class="db-topbar">
         <h2>🃏 卡组构建器</h2>
         <div class="db-count"><span id="db-count">${selected.size}</span>/30 张</div>
-        <button id="db-save" class="db-btn-save" ${selected.size < 30 ? 'disabled' : ''}>💾 保存卡组</button>
+        <button id="db-save" class="db-btn-save">✅ 确认卡组（<span id="db-save-count">${selected.size}</span>/30）</button>
         <button id="db-auto" class="db-btn-auto">🤖 快速自动组牌</button>
         <button id="db-clear" class="db-btn-clear">🗑 清空</button>
         <button id="db-cancel" class="db-btn-cancel">← 返回</button>
@@ -536,9 +536,15 @@ class GameUI {
       const count = overlay.querySelector('#db-count');
       count.textContent = selected.size;
       count.style.color = selected.size === 30 ? '#4CAF50' : selected.size > 0 ? '#FFA500' : '#f44336';
+      const saveCount = overlay.querySelector('#db-save-count');
+      if (saveCount) saveCount.textContent = selected.size;
       const saveBtn = overlay.querySelector('#db-save');
-      saveBtn.disabled = selected.size !== 30;
-      saveBtn.textContent = selected.size === 30 ? '💾 保存卡组' : `还需${30 - selected.size}张`;
+      saveBtn.disabled = selected.size === 0;
+      if (selected.size < 30 && selected.size > 0) {
+        saveBtn.classList.add('warn');
+      } else {
+        saveBtn.classList.remove('warn');
+      }
     }
 
     // 事件绑定
@@ -556,9 +562,19 @@ class GameUI {
     });
 
     overlay.querySelector('#db-save').addEventListener('click', () => {
-      if (selected.size !== MAX_CARDS) {
-        alert('卡组必须恰好30张（当前' + selected.size + '张）');
-        return;
+      if (selected.size === 0) return;
+      
+      // 不满30张：自动补齐
+      if (selected.size < MAX_CARDS) {
+        const pool = allCards.filter(c => !selected.has(c.id));
+        const shuffled = pool.sort(() => Math.random() - 0.5);
+        for (const c of shuffled) {
+          if (selected.size >= MAX_CARDS) break;
+          selected.add(c.id);
+        }
+        renderCards();
+        renderDeckPanel();
+        updateCount();
       }
       
       // 领域验证

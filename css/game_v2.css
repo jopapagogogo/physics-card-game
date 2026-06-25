@@ -1162,6 +1162,7 @@ body {
 .db-count { color:#fff; font-size:18px; font-weight:bold; min-width:60px; text-align:center; }
 .db-topbar button { padding:6px 14px; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:bold; }
 .db-btn-save { background:#7c3aed; color:#fff; }
+.db-btn-save.warn { background:#e67e22; }
 .db-btn-save:disabled { opacity:.3; cursor:not-allowed; }
 .db-btn-auto { background:rgba(0,229,255,.15); color:#00e5ff; border:1px solid rgba(0,229,255,.3); }
 .db-btn-clear { background:rgba(244,67,54,.15); color:#f44336; border:1px solid rgba(244,67,54,.3); }

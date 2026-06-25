@@ -1,0 +1,70 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - heading "⚛️ 物理卡牌对战 ⚛️" [level=1] [ref=e5]:
+      - generic [ref=e6]: ⚛️
+      - text: 物理卡牌对战
+      - generic [ref=e7]: ⚛️
+    - paragraph [ref=e8]: 选择你的物理领域，用知识战胜对手！
+  - generic [ref=e9]:
+    - heading "① 选择主领域" [level=2] [ref=e10]:
+      - generic [ref=e11]: ①
+      - text: 选择主领域
+    - generic [ref=e12]:
+      - button "💪 力" [ref=e13] [cursor=pointer]:
+        - generic: 💪
+        - generic: 力
+      - button "🔊 声" [ref=e14] [cursor=pointer]:
+        - generic: 🔊
+        - generic: 声
+      - button "💡 光" [ref=e15] [cursor=pointer]:
+        - generic: 💡
+        - generic: 光
+      - button "🔥 热" [ref=e16] [cursor=pointer]:
+        - generic: 🔥
+        - generic: 热
+      - button "⚡ 电" [ref=e17] [cursor=pointer]:
+        - generic: ⚡
+        - generic: 电
+  - generic [ref=e18]:
+    - heading "② 选择副领域" [level=2] [ref=e19]:
+      - generic [ref=e20]: ②
+      - text: 选择副领域
+    - paragraph [ref=e21]: 选择另一个领域作为辅助
+    - generic [ref=e22]:
+      - button "💪 力" [disabled] [ref=e23]:
+        - generic: 💪
+        - generic: 力
+      - button "🔊 声" [ref=e24] [cursor=pointer]:
+        - generic: 🔊
+        - generic: 声
+      - button "💡 光" [ref=e25] [cursor=pointer]:
+        - generic: 💡
+        - generic: 光
+      - button "🔥 热" [ref=e26] [cursor=pointer]:
+        - generic: 🔥
+        - generic: 热
+      - button "⚡ 电" [ref=e27] [cursor=pointer]:
+        - generic: ⚡
+        - generic: 电
+  - generic [ref=e28]:
+    - heading "③ 选择难度" [level=2] [ref=e29]:
+      - generic [ref=e30]: ③
+      - text: 选择难度
+    - generic [ref=e31]:
+      - button "🌱 简单" [ref=e32] [cursor=pointer]:
+        - generic: 🌱
+        - generic: 简单
+      - button "🌿 普通" [active] [ref=e33] [cursor=pointer]:
+        - generic: 🌿
+        - generic: 普通
+      - button "🌳 困难" [ref=e34] [cursor=pointer]:
+        - generic: 🌳
+        - generic: 困难
+  - generic [ref=e35]:
+    - generic [ref=e36]:
+      - button "🃏 自定义卡组" [ref=e37] [cursor=pointer]:
+        - generic [ref=e38]: 🃏 自定义卡组
+      - button "开始战斗 →" [ref=e39] [cursor=pointer]:
+        - generic [ref=e40]: 开始战斗
+        - generic [ref=e41]: →
+    - paragraph [ref=e42]: "主领域「力」+ 副领域「电」· 难度: 普通"

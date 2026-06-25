@@ -16,5 +16,8 @@
   "license": "ISC",
   "devDependencies": {
     "vitest": "^4.1.8"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
   }
 }
