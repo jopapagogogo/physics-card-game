@@ -538,12 +538,10 @@ class GameUI {
       count.style.color = selected.size === 30 ? '#4CAF50' : selected.size > 0 ? '#FFA500' : '#f44336';
       const saveCount = overlay.querySelector('#db-save-count');
       if (saveCount) saveCount.textContent = selected.size;
-      const saveBtn = overlay.querySelector('#db-save');
-      saveBtn.disabled = selected.size === 0;
       if (selected.size < 30 && selected.size > 0) {
-        saveBtn.classList.add('warn');
+        overlay.querySelector('#db-save').classList.add('warn');
       } else {
-        saveBtn.classList.remove('warn');
+        overlay.querySelector('#db-save').classList.remove('warn');
       }
     }
 
@@ -562,7 +560,10 @@ class GameUI {
     });
 
     overlay.querySelector('#db-save').addEventListener('click', () => {
-      if (selected.size === 0) return;
+      if (selected.size === 0) {
+        alert('请先选择至少1张卡牌，或点击「快速自动组牌」。');
+        return;
+      }
       
       // 不满30张：自动补齐
       if (selected.size < MAX_CARDS) {
