@@ -1079,9 +1079,6 @@ class GameUI {
     this.updateAllDisplay();
     this.bindBattleEvents();
     this._injectBattleStyles();
-    // V6: 战场底纹
-    const texture = this._domainTextureCSS(this.mainDomain);
-    document.querySelectorAll('.d-zone').forEach(el => el.style.setProperty('--bg-texture', texture));
   }
 
   /** 注入战斗界面专有样式 */
@@ -1345,6 +1342,7 @@ class GameUI {
       this.renderField();
       this._renderSummons();
       this.renderDomainEffects();
+      this._updateBattleTexture(gs);
       this._updateCounters(gs);
     } catch (e) {
       console.error('[updateAllDisplay] error:', e.message, e.stack);
@@ -1724,6 +1722,23 @@ class GameUI {
     }
     html += '</div>';
     zone.innerHTML = html;
+  }
+
+  /** 根据场上领域卡更新战场底纹 */
+  _updateBattleTexture(gs) {
+    const dZones = document.querySelectorAll('.d-zone');
+    if (dZones.length === 0) return;
+
+    // 己方领域优先 → 对手领域 → 无纹理
+    let domain = null;
+    if (gs?.players?.[0]?.fieldDomain?.domain) {
+      domain = gs.players[0].fieldDomain.domain;
+    } else if (gs?.players?.[1]?.fieldDomain?.domain) {
+      domain = gs.players[1].fieldDomain.domain;
+    }
+
+    const texture = domain ? this._domainTextureCSS(domain) : 'none';
+    dZones.forEach(el => el.style.setProperty('--bg-texture', texture));
   }
 
   // ==================== 事件绑定 ====================
