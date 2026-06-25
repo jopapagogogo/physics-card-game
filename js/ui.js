@@ -1293,31 +1293,31 @@ class GameUI {
   _domainTextureCSS(domain) {
     const patterns = {
       力: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
-        <line x1="0" y1="60" x2="60" y2="0" stroke="rgba(231,76,60,.3)" stroke-width=".5"/>
-        <line x1="30" y1="60" x2="60" y2="30" stroke="rgba(231,76,60,.15)" stroke-width=".3"/>
-        <line x1="0" y1="30" x2="30" y2="0" stroke="rgba(231,76,60,.15)" stroke-width=".3"/>
-        <circle cx="45" cy="15" r="2" fill="none" stroke="rgba(231,76,60,.2)" stroke-width=".3"/>
+        <line x1="0" y1="60" x2="60" y2="0" stroke="#e74c3c" stroke-width=".8" stroke-opacity=".7"/>
+        <line x1="30" y1="60" x2="60" y2="30" stroke="#e74c3c" stroke-width=".5" stroke-opacity=".5"/>
+        <line x1="0" y1="30" x2="30" y2="0" stroke="#e74c3c" stroke-width=".5" stroke-opacity=".5"/>
+        <circle cx="45" cy="15" r="2" fill="none" stroke="#e74c3c" stroke-width=".4" stroke-opacity=".6"/>
       </svg>`,
       声: `<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40">
-        <path d="M0,20 Q10,5 20,20 T40,20 T60,20 T80,20" fill="none" stroke="rgba(52,152,219,.25)" stroke-width=".6"/>
-        <path d="M40,20 Q50,8 60,20 T80,20" fill="none" stroke="rgba(52,152,219,.15)" stroke-width=".4"/>
+        <path d="M0,20 Q10,5 20,20 T40,20 T60,20 T80,20" fill="none" stroke="#3498db" stroke-width=".8" stroke-opacity=".7"/>
+        <path d="M40,20 Q50,8 60,20 T80,20" fill="none" stroke="#3498db" stroke-width=".5" stroke-opacity=".45"/>
       </svg>`,
       光: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
-        <circle cx="30" cy="30" r="8" fill="none" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
-        <circle cx="30" cy="30" r="16" fill="none" stroke="rgba(241,196,15,.1)" stroke-width=".3"/>
-        <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(241,196,15,.06)" stroke-width=".2"/>
-        <line x1="30" y1="6" x2="30" y2="0" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
-        <line x1="30" y1="54" x2="30" y2="60" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
-        <line x1="6" y1="30" x2="0" y2="30" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
-        <line x1="54" y1="30" x2="60" y2="30" stroke="rgba(241,196,15,.15)" stroke-width=".4"/>
+        <circle cx="30" cy="30" r="8" fill="none" stroke="#f1c40f" stroke-width=".6" stroke-opacity=".5"/>
+        <circle cx="30" cy="30" r="16" fill="none" stroke="#f1c40f" stroke-width=".5" stroke-opacity=".35"/>
+        <circle cx="30" cy="30" r="24" fill="none" stroke="#f1c40f" stroke-width=".4" stroke-opacity=".2"/>
+        <line x1="30" y1="6" x2="30" y2="0" stroke="#f1c40f" stroke-width=".5" stroke-opacity=".5"/>
+        <line x1="30" y1="54" x2="30" y2="60" stroke="#f1c40f" stroke-width=".5" stroke-opacity=".5"/>
+        <line x1="6" y1="30" x2="0" y2="30" stroke="#f1c40f" stroke-width=".5" stroke-opacity=".5"/>
+        <line x1="54" y1="30" x2="60" y2="30" stroke="#f1c40f" stroke-width=".5" stroke-opacity=".5"/>
       </svg>`,
       热: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
-        <path d="M0,20 Q5,5 10,20 T20,20 T30,20 T40,20 T50,20 T60,20" fill="none" stroke="rgba(230,126,34,.2)" stroke-width=".5"/>
-        <path d="M15,30 Q20,15 25,30 T35,30 T45,30 T55,30" fill="none" stroke="rgba(230,126,34,.1)" stroke-width=".4"/>
+        <path d="M0,20 Q5,5 10,20 T20,20 T30,20 T40,20 T50,20 T60,20" fill="none" stroke="#e67e22" stroke-width=".8" stroke-opacity=".7"/>
+        <path d="M15,30 Q20,15 25,30 T35,30 T45,30 T55,30" fill="none" stroke="#e67e22" stroke-width=".5" stroke-opacity=".4"/>
       </svg>`,
       电: `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="40">
-        <polyline points="0,20 12,5 16,20 28,5 32,20 44,5 48,20 60,5" fill="none" stroke="rgba(155,89,182,.25)" stroke-width=".5"/>
-        <polyline points="20,35 28,20 32,35 40,20" fill="none" stroke="rgba(155,89,182,.12)" stroke-width=".4"/>
+        <polyline points="0,20 12,5 16,20 28,5 32,20 44,5 48,20 60,5" fill="none" stroke="#9b59b6" stroke-width=".8" stroke-opacity=".7"/>
+        <polyline points="20,35 28,20 32,35 40,20" fill="none" stroke="#9b59b6" stroke-width=".5" stroke-opacity=".4"/>
       </svg>`
     };
     const svg = patterns[domain] || patterns['力'];
