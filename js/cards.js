@@ -1,6 +1,52 @@
 // 物理卡牌对战 - 卡牌数据 v4.0
 // 对齐原始 v3.24 设计：53攻 + 34辅 + 5域 + 14召 + 3相 = 109张
 // 生成日期: 2026-06-09
+
+// ============================================================
+// Effect 键名类型枚举 (共 123 个键，分 10 大类)
+// 引擎 _applySpecialEffects 严格按此分类读取 effect 字段
+// ============================================================
+const EFFECT_TYPE = {
+  // ── 核心数值 ──
+  DAMAGE:      ['dmg','delayedDmg','dotDmg','dotSequence','sonicDmgPerStack','stackingForceDmg'],
+  HEAL:        ['heal','overflowHeal'],
+  BURN:        ['burn','extraBurn','perBurnDmg','perBurnBonus','perBurnNextSound','burnPerParalyze','detonateBurn','consumeBurn','burnEnhancePerDmg','burnImmune','perSupportBurn','maxBurn'],
+  DOT:         ['dotTurns','debuffTurns'],
+
+  // ── 攻击修正 ──
+  ATK_BONUS:   ['domainBonus','forceDomainBonus','heatDomainBonus','perSupportBonus','perOppFieldCard','heightBonus','hpLossBonus','perSoundFieldBonus','perDomain','perElectricAtkBonus','soundLightBonus','nextAtkBonus','nextForceBonus','nextSoundBonus','forceDmgBonus','soundDmgBonus','lightDmgBonus','heatDmgBonus','electricDmgBonus','perSupportLightBonus','perParalysisBonus','paralysisBonusDmg','perElectricCard','forceDotBonus','bonusDmgPerPair','afterElectricDmg','antiBarrier'],
+  ATK_SPECIAL: ['ignoreDefense','ignoreElectricDefense','doubleDmg','halveFirstAttack','bounceField','bounceHand','fallbackBounceHand'],
+
+  // ── 费用/资源 ──
+  RESOURCE:    ['spiritRestore','stealSpirit','spiritDebuff','spiritPerTurn','spiritPerCard','overflowSpirit','hpToSpirit','maxSpiritGain','opponentExtraCost','extraCost','costReduction','reduceElectricCost','reduceAllElectricCost','supportCostReduction','forceSupportExtra','electricCostReduction','halveSpiritRecovery','soundBonusSpirit'],
+
+  // ── 防御/生存 ──
+  DEFENSE:     ['forceDefense','soundDefense','electricDefense','dodgeChance'],
+
+  // ── 手牌/抽牌 ──
+  HAND:        ['viewHand','draw','discard','discardOpponent','replaceHand','scry','scryOpponent','filterDomain'],
+
+  // ── 控场 ──
+  FIELD:       ['destroyField','destroySummon','turnBlock','shadowBind','polarize','mirrorMaze','opponentFailChance','failChance','tries'],
+
+  // ── 特殊机制 ──
+  SPECIAL:     ['inertiaCarry','carryRatio','nextCarryRatio','energyStore','releaseRatio','maxStore','spectrum','lightSpeed','mirageTurns','mirageChance','schrodinger','swapHP','selfSpiritZero','oppSpiritFull','returnOnSurvive','applyOnCast','applyPerTurn','detonateDmg','delayTurns'],
+
+  // ── 状态标记 ──
+  STATE:       ['isFieldCard','clearDebuff','maxStacking','maxStacks','maxTurns','turns','triggerThreshold'],
+
+  // ── 复合/嵌套 ──
+  COMPOSITE:   ['choice','convexLens','triggerElectric1','triggerElectric2','triggerElectric3','dualDomain'],
+};
+
+// 快速查询：键名 → 分类名
+const EFFECT_CATEGORY = {};
+for (const [cat, keys] of Object.entries(EFFECT_TYPE)) {
+  for (const k of keys) {
+    EFFECT_CATEGORY[k] = cat;
+  }
+}
+
 const CARDS = [
   {
     id: "A01",
