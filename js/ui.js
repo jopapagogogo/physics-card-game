@@ -3181,7 +3181,7 @@ class GameUI {
     const formula = cardData.formula && cardData.formula !== '-' ? cardData.formula : null;
     const hasHp = cardData.hp !== undefined;
     return `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:320px;height:460px;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} rarity-${cardData.rarity || 'common'} skin-cyber" style="width:320px;height:460px;display:flex;flex-direction:column;overflow:hidden;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
@@ -3384,7 +3384,7 @@ class GameUI {
     const hasHp = cardData.hp !== undefined;
 
     overlay.innerHTML = `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} skin-cyber" style="width:300px; max-height:90vh; overflow-y:auto; margin:auto;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} rarity-${cardData.rarity || 'common'} skin-cyber" style="width:300px; max-height:90vh; overflow-y:auto; margin:auto;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>

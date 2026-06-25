@@ -1086,30 +1086,12 @@ body {
 .card-v3.mini.domain-heat{ border-color:#e67e22; }
 .card-v3.mini.domain-elec{ border-color:#9b59b6; }
 .card-v3.mini.domain-chaos{ border-color:#7b2fbe; }
-/* 稀有度展示 — 仅在 tooltip 详情卡上显色 */
-.card-tooltip .card-v3.rarity-common::before {
-  content:''; position:absolute; inset:0; border-radius:16px; z-index:0; pointer-events:none;
-  background:linear-gradient(180deg,rgba(107,123,141,.08),rgba(107,123,141,.02));
-}
-.card-tooltip .card-v3.rarity-rare::before {
-  content:''; position:absolute; inset:0; border-radius:16px; z-index:0; pointer-events:none;
-  background:linear-gradient(180deg,rgba(205,127,50,.12),rgba(205,127,50,.03));
-}
-.card-tooltip .card-v3.rarity-epic::before {
-  content:''; position:absolute; inset:0; border-radius:16px; z-index:0; pointer-events:none;
-  background:linear-gradient(180deg,rgba(163,53,238,.15),rgba(163,53,238,.04));
-  box-shadow:inset 0 0 60px rgba(163,53,238,.08);
-}
-.card-tooltip .card-v3.rarity-legendary::before {
-  content:''; position:absolute; inset:0; border-radius:16px; z-index:0; pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,215,0,.18),rgba(255,215,0,.04));
-  box-shadow:inset 0 0 80px rgba(255,215,0,.1);
-}
-.card-tooltip .card-v3.rarity-mythic::before {
-  content:''; position:absolute; inset:-2px; border-radius:18px; z-index:-1;
-  background:conic-gradient(from 0deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000);
-  animation:rarity-rainbow 3s linear infinite;
-}
+/* 稀有度展示 — 全尺寸卡牌底色（tooltip+详情弹窗） */
+.card-v3:not(.mini).rarity-common     { background:linear-gradient(180deg,#13131f,#0a0a12) !important; }
+.card-v3:not(.mini).rarity-rare       { background:linear-gradient(180deg,rgba(205,127,50,.1),#13131f 40%,#0a0a12) !important; }
+.card-v3:not(.mini).rarity-epic       { background:linear-gradient(180deg,rgba(163,53,238,.15),#13131f 40%,#0a0a12) !important; }
+.card-v3:not(.mini).rarity-legendary  { background:linear-gradient(180deg,rgba(255,215,0,.2),#13131f 40%,#0a0a12) !important; }
+.card-v3:not(.mini).rarity-mythic     { background:linear-gradient(180deg,rgba(255,0,128,.12),rgba(0,200,255,.12),#13131f 50%,#0a0a12) !important; }
 @keyframes rarity-rainbow { to { filter:hue-rotate(360deg); } }
 
 /* === 皮肤 B: 二次元幻境（柔光+星点+圆角）=== */
