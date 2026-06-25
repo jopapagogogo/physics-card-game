@@ -150,22 +150,22 @@ class GameUI {
         background-image:
           radial-gradient(ellipse at 30% 50%, rgba(52,152,219,.05) 0%, transparent 60%),
           radial-gradient(ellipse at 70% 50%, rgba(155,89,182,.05) 0%, transparent 60%);
-        display:flex; align-items:center; padding:20px 40px; gap:40px;
+        display:flex; align-items:center; padding:20px 60px; gap:40px;
         overflow:hidden;
       }
       .start-left { flex-shrink:0; max-width:260px; }
-      .start-title { font-size:22px; font-weight:900; color:#fff; margin-bottom:6px; }
-      .start-subtitle { font-size:12px; color:var(--mt); }
+      .start-title { font-size:32px; font-weight:900; color:#fff; margin-bottom:8px; letter-spacing:1px; }
+      .start-subtitle { font-size:14px; color:var(--mt); }
       .start-right { flex:1; display:flex; flex-direction:column; justify-content:center; gap:20px; min-width:0; }
-      .start-row { display:flex; gap:24px; justify-content:center; }
+      .start-row { display:flex; gap:36px; justify-content:center; }
       .start-col { display:flex; flex-direction:column; align-items:center; gap:8px; }
-      .section-title { font-size:12px; font-weight:700; color:var(--mt); text-align:center; }
-      .domain-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
+      .section-title { font-size:16px; font-weight:700; color:var(--mt); text-align:center; letter-spacing:1px; }
+      .domain-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
       .btn-domain {
         width:72px; height:72px; display:flex; flex-direction:column; align-items:center;
         justify-content:center; gap:4px; background:rgba(255,255,255,.04);
         border:2px solid rgba(255,255,255,.08); border-radius:10px;
-        color:var(--lt); cursor:pointer; transition:all .2s; font-size:11px;
+        color:var(--lt); cursor:pointer; transition:all .2s;         font-size:13px;
       }
       .btn-domain:hover:not(.disabled) { border-color:var(--dc); transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,.3); }
       .btn-domain.selected { border-color:var(--dc) !important; box-shadow:0 0 20px color-mix(in srgb, var(--dc) 40%, transparent); background:color-mix(in srgb, var(--dc) 15%, rgba(0,0,0,.3)); }
@@ -173,8 +173,8 @@ class GameUI {
       .btn-domain.disabled.selected { opacity:1 !important; filter:none !important; }
       .domain-rune { width:28px; height:28px; display:flex; align-items:center; justify-content:center; }
       .domain-rune img { width:100%; height:100%; object-fit:contain; }
-      .domain-label { font-size:11px; font-weight:700; }
-      .difficulty-col { display:flex; flex-direction:column; gap:6px; }
+      .domain-label { font-size:13px; font-weight:700; }
+      .difficulty-col { display:flex; flex-direction:column; gap:10px; }
       .btn-diff {
         width:96px; padding:8px; background:rgba(255,255,255,.04); color:var(--mt);
         border:2px solid rgba(255,255,255,.06); border-radius:8px;
