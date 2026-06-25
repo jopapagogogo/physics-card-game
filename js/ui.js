@@ -115,8 +115,8 @@ class GameUI {
             <div class="start-col">
               <h2 class="section-title">③ 难度</h2>
               <div id="difficulty-btns" class="difficulty-col">
-                <button class="btn-diff active" data-diff="normal">🥈 砺剑</button>
                 <button class="btn-diff" data-diff="easy">🥉 启航</button>
+                <button class="btn-diff active" data-diff="normal">🥈 砺剑</button>
                 <button class="btn-diff" data-diff="hard">🥇 巅峰</button>
               </div>
             </div>
