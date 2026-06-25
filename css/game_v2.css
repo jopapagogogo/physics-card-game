@@ -1086,11 +1086,12 @@ body {
 .card-v3.mini.domain-heat{ border-color:#e67e22; }
 .card-v3.mini.domain-elec{ border-color:#9b59b6; }
 .card-v3.mini.domain-chaos{ border-color:#7b2fbe; }
-/* 稀有度微调：高稀有度边框更亮 */
-.card-v3.mini.rarity-common     { filter:brightness(.85); }
-.card-v3.mini.rarity-epic       { filter:brightness(1.1); }
-.card-v3.mini.rarity-legendary  { filter:brightness(1.2); }
-.card-v3.mini.rarity-mythic     { filter:brightness(1.3); }
+/* 稀有度背景——透过卡面边缘可见的底色 */
+.card-v3.mini.rarity-common     { background:linear-gradient(180deg,rgba(107,123,141,.1),rgba(107,123,141,.04)); }
+.card-v3.mini.rarity-rare       { background:linear-gradient(180deg,rgba(205,127,50,.15),rgba(205,127,50,.06)); }
+.card-v3.mini.rarity-epic       { background:linear-gradient(180deg,rgba(163,53,238,.18),rgba(163,53,238,.06)); }
+.card-v3.mini.rarity-legendary  { background:linear-gradient(180deg,rgba(255,215,0,.2),rgba(255,215,0,.06)); }
+.card-v3.mini.rarity-mythic     { background:linear-gradient(180deg,rgba(255,0,128,.22),rgba(0,200,255,.22),rgba(255,215,0,.06)); }
 .card-v3.mini.rarity-mythic::before {
   content:''; position:absolute; inset:-2px; border-radius:18px; z-index:-1;
   background:conic-gradient(from 0deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff,#ff0000);
