@@ -1079,7 +1079,7 @@ body {
 .card-v3.mini.selected { z-index:20; transform:rotate(var(--rot)) scale(1.08) !important; filter:brightness(1.15); }
 
 /* === 手牌边框：按领域色，稀有度仅微调亮度 === */
-.card-v3.mini{ border-width:1.5px; border-style:solid; }
+.card-v3.mini{ border-width:2px; border-style:solid; }
 .card-v3.mini.domain-force{ border-color:#e74c3c; }
 .card-v3.mini.domain-sound{ border-color:#3498db; }
 .card-v3.mini.domain-light{ border-color:#f1c40f; }
