@@ -2484,7 +2484,7 @@ class GameUI {
       this.engine.settlePhase();
     }
     const gs = this.engine.getGameState();
-    if (gs && gs.players[0].hand.length > 5) {
+    if (gs && gs.players[0].hand.length > 7) {
       this.showDiscardScreen();
       return; // 弃牌完成后 _afterDiscardContinue 会继续
     }

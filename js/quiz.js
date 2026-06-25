@@ -488,7 +488,7 @@ class QuizSystem {
         id: "Q_L_01", domain: "光", difficulty: "basic",
         question: "影子的形成说明了光具有什么性质？",
         options: ["A. 光的反射", "B. 光的折射", "C. 光沿直线传播", "D. 光的色散"],
-        answer: 2, knowledge: "光沿直线传播", relatedCard: "S35"
+        answer: 2, knowledge: "光沿直线传播", relatedCard: "S16"
       },
       {
         id: "Q_L_02", domain: "光", difficulty: "basic",
@@ -518,7 +518,7 @@ class QuizSystem {
         id: "Q_L_06", domain: "光", difficulty: "basic",
         question: "凹透镜对光线有什么作用？",
         options: ["A. 发散作用", "B. 会聚作用", "C. 平行射出", "D. 吸收光线"],
-        answer: 0, knowledge: "凹透镜发散光线", relatedCard: "S37"
+        answer: 0, knowledge: "凹透镜发散光线", relatedCard: "S16"
       },
       {
         id: "Q_L_07", domain: "光", difficulty: "basic",
@@ -536,13 +536,13 @@ class QuizSystem {
         id: "Q_L_09", domain: "光", difficulty: "basic",
         question: "日食现象可以用什么原理来解释？",
         options: ["A. 光的折射", "B. 光的反射", "C. 光沿直线传播", "D. 光的色散"],
-        answer: 2, knowledge: "光沿直线传播", relatedCard: "S35"
+        answer: 2, knowledge: "光沿直线传播", relatedCard: "S16"
       },
       {
         id: "Q_L_10", domain: "光", difficulty: "basic",
         question: "以下哪个透镜对光有发散作用？",
         options: ["A. 凸透镜", "B. 凹透镜", "C. 平面镜", "D. 凸面镜"],
-        answer: 1, knowledge: "凹透镜发散", relatedCard: "S37"
+        answer: 1, knowledge: "凹透镜发散", relatedCard: "S16"
       },
 
       // ======================================================
@@ -552,7 +552,7 @@ class QuizSystem {
         id: "Q_L_11", domain: "光", difficulty: "advanced",
         question: "物体放在凸透镜的2倍焦距处，在光屏上会得到什么样的像？",
         options: ["A. 倒立放大的实像", "B. 倒立缩小的实像", "C. 倒立等大的实像", "D. 正立放大的虚像"],
-        answer: 2, knowledge: "凸透镜成像：u=2f时成倒立等大实像", relatedCard: "S37"
+        answer: 2, knowledge: "凸透镜成像：u=2f时成倒立等大实像", relatedCard: "S16"
       },
       {
         id: "Q_L_12", domain: "光", difficulty: "advanced",
@@ -564,7 +564,7 @@ class QuizSystem {
         id: "Q_L_13", domain: "光", difficulty: "advanced",
         question: "近视眼应该佩戴什么类型的透镜来矫正？",
         options: ["A. 凸透镜", "B. 凹透镜", "C. 平面镜", "D. 凸面镜"],
-        answer: 1, knowledge: "近视眼用凹透镜矫正", relatedCard: "S37"
+        answer: 1, knowledge: "近视眼用凹透镜矫正", relatedCard: "S16"
       },
       {
         id: "Q_L_14", domain: "光", difficulty: "advanced",
@@ -598,7 +598,7 @@ class QuizSystem {
         id: "Q_L_18", domain: "光", difficulty: "challenge",
         question: "物体放在凸透镜前15cm处，在光屏上得到放大的实像，已知焦距f=10cm。若将物体移到距透镜25cm处，此时成像情况是？",
         options: ["A. 倒立放大的虚像", "B. 倒立缩小的实像", "C. 正立放大的虚像", "D. 倒立等大的实像"],
-        answer: 1, knowledge: "凸透镜成像规律：u>2f时成缩小实像", relatedCard: "S37"
+        answer: 1, knowledge: "凸透镜成像规律：u>2f时成缩小实像", relatedCard: "S16"
       },
       {
         id: "Q_L_19", domain: "光", difficulty: "challenge",
@@ -610,7 +610,7 @@ class QuizSystem {
         id: "Q_L_20", domain: "光", difficulty: "challenge",
         question: "显微镜的目镜和物镜分别相当于什么透镜？最终人眼看到的是什么像？",
         options: ["A. 都是凸透镜，最终看到正立虚像", "B. 都是凹透镜，最终看到倒立实像", "C. 目镜凹透镜、物镜凸透镜，看到正立虚像", "D. 都是凸透镜，最终看到倒立虚像"],
-        answer: 3, knowledge: "显微镜：物镜成放大实像，目镜成放大虚像", relatedCard: "S37"
+        answer: 3, knowledge: "显微镜：物镜成放大实像，目镜成放大虚像", relatedCard: "S16"
       },
 
       // ======================================================
@@ -654,7 +654,7 @@ class QuizSystem {
         id: "Q_L_26", domain: "光", difficulty: "advanced",
         question: "近视眼的晶状体太厚，成像在视网膜的什么位置？",
         options: ["A. 视网膜上", "B. 视网膜前", "C. 视网膜后", "D. 视神经上"],
-        answer: 1, knowledge: "近视眼成像原理", relatedCard: "S37"
+        answer: 1, knowledge: "近视眼成像原理", relatedCard: "S16"
       },
       {
         id: "Q_L_27", domain: "光", difficulty: "advanced",
@@ -666,13 +666,13 @@ class QuizSystem {
         id: "Q_L_28", domain: "光", difficulty: "advanced",
         question: "放电影时，银幕上的像是？",
         options: ["A. 正立放大的实像", "B. 倒立放大的实像", "C. 正立缩小的虚像", "D. 倒立缩小的虚像"],
-        answer: 1, knowledge: "投影仪成像", relatedCard: "S37"
+        answer: 1, knowledge: "投影仪成像", relatedCard: "S16"
       },
       {
         id: "Q_L_29", domain: "光", difficulty: "advanced",
         question: "凸透镜的焦距为10cm，当物体距透镜15cm时，所成的像是？",
         options: ["A. 倒立缩小的实像", "B. 倒立放大的实像", "C. 正立放大的虚像", "D. 倒立等大的实像"],
-        answer: 1, knowledge: "f<u<2f 倒立放大实像", relatedCard: "S37"
+        answer: 1, knowledge: "f<u<2f 倒立放大实像", relatedCard: "S16"
       },
       {
         id: "Q_L_30", domain: "光", difficulty: "advanced",
@@ -700,7 +700,7 @@ class QuizSystem {
         id: "Q_L_33", domain: "光", difficulty: "challenge",
         question: "物体在凸透镜前20cm处，在光屏上得到清晰等大的像，该凸透镜的焦距为？",
         options: ["A. 20cm", "B. 10cm", "C. 40cm", "D. 5cm"],
-        answer: 1, knowledge: "u=2f成等大实像", relatedCard: "S37"
+        answer: 1, knowledge: "u=2f成等大实像", relatedCard: "S16"
       },
       {
         id: "Q_L_34", domain: "光", difficulty: "challenge",
@@ -712,7 +712,7 @@ class QuizSystem {
         id: "Q_L_35", domain: "光", difficulty: "challenge",
         question: "显微镜观察微小物体时，第一次放大是由什么完成的？",
         options: ["A. 目镜", "B. 物镜", "C. 反光镜", "D. 聚光镜"],
-        answer: 1, knowledge: "显微镜物镜成放大实像", relatedCard: "S37"
+        answer: 1, knowledge: "显微镜物镜成放大实像", relatedCard: "S16"
       },
       // ======================================================
       // 热 领域 — basic (10) Q_H_01 ~ Q_H_10

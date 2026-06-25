@@ -11,8 +11,8 @@ import { COMBO_TABLE } from './combo_table.js';
 // 常量定义
 // ============================================================
 
-/** 每回合灼烧基础伤害 */
-const BURN_DMG = 10;
+/** 每回合灼烧基础伤害，需与 engine.js BURN_BASE_DMG=30 一致 */
+const BURN_DMG = 30;
 
 /** 每层麻痹伤害 */
 const PARALYSIS_DMG = 15;
@@ -1546,7 +1546,7 @@ class AIEngine {
   // ==========================================================
   _handleDiscard() {
     const self = this._getSelf();
-    const maxSize = 7;  // 对齐 engine.js 中的 MAX_HAND_SIZE
+    const maxSize = 7;  // = engine.js MAX_HAND_SIZE
 
     if (self.hand.length <= maxSize) return;
 

@@ -15,6 +15,7 @@ const INITIAL_HP = 1200;
 const INITIAL_SPIRIT = 50;
 const MAX_HAND_SIZE = 7;
 const DRAW_PER_TURN = 3;
+const INITIAL_DRAW = 5;
 const SPIRIT_PER_TURN = 10;
 const MAX_SUMMONS = 2;
 const BURN_BASE_DMG = 30;       // 灼烧每层基础伤害
@@ -154,7 +155,7 @@ class GameEngine {
     // 初始化：洗牌库，抽初始手牌
     for (let i = 0; i < 2; i++) {
       this.players[i].deck = this.shuffleDeck([...this.players[i].deck]);
-      this.drawCards(i, 5);
+      this.drawCards(i, INITIAL_DRAW);
     }
 
     this._addLog('游戏开始！双方各抽5张初始手牌。');
@@ -599,7 +600,7 @@ class GameEngine {
    * @param {number} comboBonus - 组合加成（固定值）
    * @returns {number} 最终伤害
    */
-  calculateDamage(card, attackerIdx, defenderIdx, comboBonus = 0) {
+  calculateDamage(card, attackerIdx, defenderIdx, comboBonus = 0, skipDefense = false) {
     const attacker = this.players[attackerIdx];
     const defender = this.players[defenderIdx];
     let damage = card.effect.dmg || 0;
@@ -836,7 +837,7 @@ class GameEngine {
       }
     }
 
-    damage = Math.max(0, damage - totalDefense);
+    damage = Math.max(0, damage - (skipDefense ? 0 : totalDefense));
 
     // 7. 最终取整
     damage = Math.floor(damage);
@@ -2646,58 +2647,7 @@ class GameEngine {
 
   /** 不计算防御的原始伤害（无视防御效果使用） */
   _calcRawDamage(card, attackerIdx, defenderIdx) {
-    const attacker = this.players[attackerIdx];
-    const defender = this.players[defenderIdx];
-    let damage = card.effect.dmg || 0;
-
-    // 领域加成
-    if (attacker.fieldDomain) {
-      const dCard = attacker.fieldDomain.card;
-      const dmgBonus = dCard.effect.bonusDmg || dCard.effect.forceDmgBonus;
-      if (dmgBonus && card.domain.some(d => dCard.domain.includes(d))) {
-        damage += dmgBonus;
-      }
-    }
-
-    // 召唤物加成
-    for (const s of attacker.fieldSummons) {
-      if (s.card.effect.dmgBonus) {
-        damage += s.card.effect.dmgBonus;
-      }
-    }
-
-    // 串联增压
-    if (card.domain.includes('电')) {
-      const electricCount = attacker.fieldSupports.filter(s => s.card.domain.includes('电')).length;
-      damage += electricCount * 15;
-    }
-
-    // 条件加成
-    if (card.effect.conditional) {
-      const cond = card.effect.conditional;
-      if (cond.condition.includes('己方辅助卡')) {
-        damage += attacker.fieldSupports.length * (cond.bonusDmg || 0);
-      }
-      if (cond.condition.includes('灼烧')) {
-        damage += defender.burnLayers * (cond.bonusDmg || 0);
-      }
-      if (cond.condition.includes('对方场上每张卡')) {
-        const df = defender.fieldSummons.length + (defender.fieldDomain ? 1 : 0) + defender.fieldSupports.length;
-        damage += df * (cond.bonusDmg || 0);
-      }
-      if (cond.condition.includes('己方有') && cond.condition.includes('领域')) {
-        if (attacker.fieldDomain) damage += cond.bonusDmg || 0;
-      }
-      if (cond.condition.includes('电辅助')) {
-        const ec = attacker.fieldSupports.filter(s => s.card.domain.includes('电')).length;
-        const m = cond.condition.match(/≥(\d+)/);
-        if (ec >= (m ? parseInt(m[1]) : 1)) damage += cond.bonusDmg || 0;
-      }
-    }
-
-    // 答题增益
-    damage = Math.floor(damage * (1 + (this.quizResult.bonus || 0)));
-    return Math.floor(damage);
+    return this.calculateDamage(card, attackerIdx, defenderIdx, 0, true);
   }
 
   /** 检查是否为本回合首次攻击 */
