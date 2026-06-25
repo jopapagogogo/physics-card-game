@@ -1105,12 +1105,28 @@ class GameUI {
       .abc-row.opponent .zone-b{border-right:none;border-left:1px solid rgba(255,255,255,.04)}
       .zone-a{flex:1;display:flex;flex-direction:column;min-width:0;overflow:visible}
       .zone-a-upper{display:flex;align-items:center;justify-content:center;padding:2px 8px;gap:4px;flex-shrink:0}
-      .summon-slots{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:0}
-      .summon-slots .summon-mini{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 6px;border-radius:5px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);font-size:8px;font-weight:700;color:#fff;gap:1px;min-width:40px;flex-shrink:0;cursor:default}
-      .summon-slots .summon-mini .sn-name{font-size:7px;text-align:center;line-height:1.1}
-      .summon-slots .summon-mini .sn-hp{font-size:7px;color:var(--grn)}
-      .summon-slots .summon-mini.enemy{cursor:pointer;border-color:rgba(231,76,60,.3)}
-      .summon-slots .summon-mini.enemy:hover{box-shadow:0 0 6px rgba(231,76,60,.3)}
+      .summon-slots{display:flex;align-items:center;gap:4px;flex-shrink:0;min-width:0}
+      .summon-slots .summon-mini{
+        display:flex;flex-direction:column;align-items:center;gap:2px;
+        padding:4px 7px;border-radius:7px;min-width:48px;max-width:60px;
+        flex-shrink:0;cursor:default;position:relative;overflow:hidden;
+        background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(0,0,0,.3) 100%);
+        border:1.5px solid var(--dc, #9b59b6);
+        box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+        color:#fff;
+      }
+      .summon-slots .summon-mini::after{
+        content:'';position:absolute;inset:0;border-radius:6px;
+        background:var(--sc, transparent);pointer-events:none;z-index:0;
+      }
+      .summon-slots .summon-mini>*{position:relative;z-index:1}
+      .summon-slots .summon-mini .sn-icon{font-size:13px;line-height:1}
+      .summon-slots .summon-mini .sn-name{font-size:8px;text-align:center;line-height:1.15;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .summon-slots .summon-mini .sn-hp-bar{width:100%;height:3px;border-radius:2px;background:rgba(0,0,0,.4);overflow:hidden}
+      .summon-slots .summon-mini .sn-hp-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#e74c3c,var(--grn));transition:width .3s}
+      .summon-slots .summon-mini .sn-hp-text{font-size:6px;color:rgba(255,255,255,.5)}
+      .summon-slots .summon-mini.enemy{cursor:pointer}
+      .summon-slots .summon-mini.enemy:hover{box-shadow:0 0 14px rgba(231,76,60,.4),inset 0 1px 0 rgba(255,255,255,.06);transform:translateY(-1px)}
       /* === 墓地/牌库 === */
       .grave-stack,.deck-stack{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;background:rgba(0,0,0,.3);border-radius:6px;border:1px solid rgba(255,255,255,.06)}
       .grave-icon,.deck-icon{font-size:16px;opacity:.6}
@@ -1631,6 +1647,18 @@ class GameUI {
   _renderSummons() {
     const gs = this.engine?.getGameState();
     if (!gs || !gs.players) return;
+    const domainIcons = { 力: '💪', 声: '🔊', 光: '✨', 热: '🔥', 电: '⚡' };
+    const domainColors = { 力: '#E74C3C', 声: '#3498DB', 光: '#F1C40F', 热: '#E67E22', 电: '#9B59B6' };
+    const summonHTML = (s, isEnemy) => {
+      const hpPct = Math.max(0, Math.min(100, (s.hp / (s.maxHp || 300)) * 100));
+      const dc = domainColors[s.domain] || '#9b59b6';
+      return `<div class="summon-mini${isEnemy ? ' enemy' : ''}" data-summon-id="${this._escapeAttr(s.id)}" style="--dc:${dc}88;--sc:${dc}1a">
+        <span class="sn-icon">${domainIcons[s.domain] || '🃏'}</span>
+        <span class="sn-name">${this._escapeHtml(s.name)}</span>
+        <div class="sn-hp-bar"><div class="sn-hp-fill" style="width:${hpPct}%"></div></div>
+        <span class="sn-hp-text">${s.hp}/${s.maxHp || '?'}</span>
+      </div>`;
+    };
 
     // 己方召唤物
     const selfL = document.getElementById('self-summons');
@@ -1638,10 +1666,8 @@ class GameUI {
     if (selfL && selfR) {
       const summons = gs.players[0].fieldSummons || [];
       const mid = Math.ceil(summons.length / 2);
-      const left = summons.slice(0, mid);
-      const right = summons.slice(mid);
-      selfL.innerHTML = left.map(s => `<div class="summon-mini" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
-      selfR.innerHTML = right.map(s => `<div class="summon-mini" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
+      selfL.innerHTML = summons.slice(0, mid).map(s => summonHTML(s, false)).join('');
+      selfR.innerHTML = summons.slice(mid).map(s => summonHTML(s, false)).join('');
     }
 
     // 对方召唤物
@@ -1650,10 +1676,8 @@ class GameUI {
     if (oppL && oppR) {
       const summons = gs.players[1].fieldSummons || [];
       const mid = Math.ceil(summons.length / 2);
-      const left = summons.slice(0, mid);
-      const right = summons.slice(mid);
-      oppL.innerHTML = left.map(s => `<div class="summon-mini enemy" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
-      oppR.innerHTML = right.map(s => `<div class="summon-mini enemy" data-summon-id="${this._escapeAttr(s.id)}"><span class="sn-name">${this._escapeHtml(s.name)}</span><span class="sn-hp">${s.hp}/${s.maxHp}</span></div>`).join('');
+      oppL.innerHTML = summons.slice(0, mid).map(s => summonHTML(s, true)).join('');
+      oppR.innerHTML = summons.slice(mid).map(s => summonHTML(s, true)).join('');
     }
   }
 
