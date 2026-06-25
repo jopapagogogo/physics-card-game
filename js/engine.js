@@ -116,6 +116,9 @@ class GameEngine {
     // C04 薛定谔的猫：C03↔C04 combo 玩家选择标记
     this._c04PlayerChoose = false;
 
+    // C04 玩家选择待处理状态
+    this.c04ChoicePending = null;  // { playerIdx, opponentIdx, dmg, heal, overflowSpirit }
+
     // A10次声震荡DOT递增基准
     this.a10DotBaseTurns = [null, null];
 
@@ -449,28 +452,43 @@ class GameEngine {
   settlePhase() {
     this.phase = 'settle';
 
-    // 处理薛定谔的猫(C04)随机效果
+    // 处理薛定谔的猫(C04)效果
     const player = this.players[this.currentPlayer];
     for (const s of player.fieldSummons) {
       if (s.card.id === 'C04') {
-        // C03↔C04 combo: 可让玩家选择伤害或治疗（当前：随机50/50，TODO: UI交互）
+        const dmg = s.card.effect.dmg || 100;
+        const heal = s.card.effect.heal || 100;
+        const overflowSpirit = s.card.effect.overflowSpirit || 30;
+
+        // 玩家回合 + combo标记 → 弹窗选择
+        if (this.currentPlayer === 0 && this._c04PlayerChoose) {
+          this.c04ChoicePending = {
+            playerIdx: this.currentPlayer,
+            opponentIdx: 1 - this.currentPlayer,
+            dmg, heal, overflowSpirit
+          };
+          this._c04PlayerChoose = false;
+          return; // 暂停 settle，等待 UI 调用 resolveC04Choice
+        }
+
+        // AI 回合 或 无选择标记 → 50/50 随机
         const isDamage = Math.random() < 0.5;
         if (isDamage) {
           const opponent = this.players[1 - this.currentPlayer];
-          opponent.hp = Math.max(0, opponent.hp - 100);
-          this._addLog(`[薛定谔的猫] 造成 100 点伤害！`);
+          opponent.hp = Math.max(0, opponent.hp - dmg);
+          this._addLog(`[薛定谔的猫] 造成 ${dmg} 点伤害！`);
         } else {
-          const heal = Math.min(MAX_HP - player.hp, 100);
-          player.hp += heal;
-          if (heal < 100) {
-            player.spirit = Math.min(MAX_SPIRIT, player.spirit + 30);
-            this._addLog(`[薛定谔的猫] HP已满，恢复 30 点精神力。`);
+          const actualHeal = Math.min(MAX_HP - player.hp, heal);
+          player.hp += actualHeal;
+          if (actualHeal < heal) {
+            player.spirit = Math.min(MAX_SPIRIT, player.spirit + overflowSpirit);
+            this._addLog(`[薛定谔的猫] HP已满，恢复 ${overflowSpirit} 点精神力。`);
           } else {
-            this._addLog(`[薛定谔的猫] 恢复 ${heal} 点HP。`);
+            this._addLog(`[薛定谔的猫] 恢复 ${actualHeal} 点HP。`);
           }
         }
         if (this.checkWinCondition()) return;
-        this._c04PlayerChoose = false; // 重置标记
+        this._c04PlayerChoose = false;
       }
     }
 
@@ -530,6 +548,43 @@ class GameEngine {
         this._addLog(`[${this.currentPlayer === 0 ? '玩家' : 'AI'}] 弃置了「${card.name}」。`);
       }
     }
+  }
+
+  /**
+   * C04 薛定谔的猫：玩家选择伤害或治疗（由 UI 弹窗调用）
+   * @param {boolean} isDamage - true=造成伤害, false=恢复HP
+   */
+  resolveC04Choice(isDamage) {
+    if (!this.c04ChoicePending) return;
+    const { playerIdx, opponentIdx, dmg, heal, overflowSpirit } = this.c04ChoicePending;
+    const player = this.players[playerIdx];
+    const opponent = this.players[opponentIdx];
+
+    if (isDamage) {
+      opponent.hp = Math.max(0, opponent.hp - dmg);
+      this._addLog(`[薛定谔的猫] 玩家选择：造成 ${dmg} 点伤害！`);
+    } else {
+      const actualHeal = Math.min(MAX_HP - player.hp, heal);
+      player.hp += actualHeal;
+      if (actualHeal < heal) {
+        player.spirit = Math.min(MAX_SPIRIT, player.spirit + overflowSpirit);
+        this._addLog(`[薛定谔的猫] 玩家选择：HP已满，恢复 ${overflowSpirit} 点精神力。`);
+      } else {
+        this._addLog(`[薛定谔的猫] 玩家选择：恢复 ${actualHeal} 点HP。`);
+      }
+    }
+
+    this.c04ChoicePending = null;
+    this.checkWinCondition();
+
+    // 继续 settle 剩余流程（驻场递减等）
+    this._tickFieldCards(playerIdx);
+    this._tickFieldCards(opponentIdx);
+    const opp = this.players[opponentIdx];
+    if (opp.spiritDebuff < 0) {
+      opp.spiritDebuff = Math.min(0, opp.spiritDebuff + 1);
+    }
+    if (this.mirageTurns[playerIdx] > 0) this.mirageTurns[playerIdx]--;
   }
 
   /** 结束回合 */

@@ -2532,16 +2532,68 @@ class GameUI {
   }
 
   finishPlayerTurn() {
-    // 玩家回合：执行结算和弃牌
+    // 玩家回合：执行结算
     if (this.engine.settlePhase) {
       this.engine.settlePhase();
     }
+
+    // C04 薛定谔的猫：玩家需要选择伤害或治疗
+    if (this.engine.c04ChoicePending) {
+      this._showC04ChoiceModal();
+      return;
+    }
+
+    // 弃牌阶段
     const gs = this.engine.getGameState();
     if (gs && gs.players[0].hand.length > 7) {
       this.showDiscardScreen();
-      return; // 弃牌完成后 _afterDiscardContinue 会继续
+      return;
     }
     this._afterPlayerDiscard();
+  }
+
+  /** C04 薛定谔的猫：玩家选择弹窗 */
+  _showC04ChoiceModal() {
+    const pending = this.engine.c04ChoicePending;
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay c04-overlay';
+    overlay.innerHTML = `
+      <div class="modal-card c04-modal">
+        <div class="c04-header">
+          <span class="c04-icon">🐱</span>
+          <h2>薛定谔的猫</h2>
+          <p class="c04-subtitle">量子叠加态坍缩 —— 请做出你的观测</p>
+        </div>
+        <div class="c04-options">
+          <button class="c04-btn damage-btn" id="c04-choice-damage">
+            <span class="c04-btn-icon">⚔️</span>
+            <span class="c04-btn-label">造成伤害</span>
+            <span class="c04-btn-detail">对对手造成 ${pending.dmg} 点伤害</span>
+          </button>
+          <button class="c04-btn heal-btn" id="c04-choice-heal">
+            <span class="c04-btn-icon">💚</span>
+            <span class="c04-btn-label">恢复生命</span>
+            <span class="c04-btn-detail">恢复 ${pending.heal} 点HP（满HP则恢复 ${pending.overflowSpirit} 精神力）</span>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const resolve = (isDamage) => {
+      overlay.remove();
+      this.engine.resolveC04Choice(isDamage);
+      this.updateAllDisplay();
+      const gs = this.engine.getGameState();
+      if (gs && gs.players[0].hand.length > 7) {
+        this.showDiscardScreen();
+      } else {
+        this._afterPlayerDiscard();
+      }
+    };
+
+    overlay.querySelector('#c04-choice-damage').addEventListener('click', () => resolve(true));
+    overlay.querySelector('#c04-choice-heal').addEventListener('click', () => resolve(false));
   }
 
   _afterPlayerDiscard() {
