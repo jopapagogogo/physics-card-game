@@ -1220,7 +1220,7 @@ class GameUI {
       .card-v3.mini.playable.selected{box-shadow:0 0 18px var(--dg)!important;transform:rotate(var(--rot)) translateY(-6px)}
       .card-v3.mini:hover{opacity:1!important}
       /* === V13: 角色idle呼吸动画 === */
-      .avatar-stats .avatar{animation:idleBreathe 3s ease-in-out infinite}
+      .player-info .avatar{animation:idleBreathe 3s ease-in-out infinite}
       @keyframes idleBreathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
       .card-tooltip .card-v3.skin-cyber::before,.card-tooltip .card-v3.skin-cyber::after{display:none!important}
       .card-tooltip .card-v3.skin-cyber{box-shadow:0 0 6px rgba(0,0,0,.5)!important}
