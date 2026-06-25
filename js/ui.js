@@ -986,6 +986,7 @@ class GameUI {
             </div>
           </div>
           <div class="zone-a">
+            <div id="opp-hand" class="card-hand opponent-hand"></div>
             <div class="zone-a-upper" id="opponent-area">
               <div id="opp-summons" class="summon-slots"></div>
               <div class="player-info opponent-info">
@@ -997,7 +998,6 @@ class GameUI {
               </div>
               <div id="opp-summons-r" class="summon-slots"></div>
             </div>
-            <div id="opp-hand" class="card-hand opponent-hand"></div>
           </div>
           <div class="zone-b">
             <div id="grave-opp" class="grave-stack">
