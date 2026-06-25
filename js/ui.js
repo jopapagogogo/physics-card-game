@@ -954,12 +954,14 @@ class GameUI {
           : remaining < 10000
             ? '#f39c12'
             : 'linear-gradient(90deg, #3498db, #2ecc71)';
+        timerBar.classList.toggle('urgent', remaining < 5000);
       }
 
       const timerNum = document.getElementById('timer-num');
       if (timerNum) {
         timerNum.textContent = Math.ceil(remaining / 1000) + 's';
         timerNum.style.color = remaining < 5000 ? '#e74c3c' : remaining < 10000 ? '#f39c12' : 'var(--mt)';
+        timerNum.classList.toggle('urgent', remaining < 5000);
       }
 
       if (remaining <= 0) {
@@ -1122,6 +1124,10 @@ class GameUI {
       .divider-row .timer-wrap{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;display:flex;justify-content:flex-end}
       .divider-row .timer-bar{height:100%;width:100%;background:linear-gradient(90deg,var(--red),var(--ylw));transition:width .1s linear}
       .timer-num{font-size:11px;color:var(--mt);min-width:30px;flex-shrink:0}
+      .timer-num.urgent{animation:timerBlink .5s ease-in-out infinite}
+      .timer-bar.urgent{animation:timerBarPulse .5s ease-in-out infinite}
+      @keyframes timerBlink{0%,100%{opacity:1}50%{opacity:.3}}
+      @keyframes timerBarPulse{0%,100%{box-shadow:0 0 4px rgba(231,76,60,.3)}50%{box-shadow:0 0 12px rgba(231,76,60,.7)}}
       .divider-row .log-btn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--mt);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
       .divider-row .log-btn:hover{color:#fff;border-color:rgba(255,255,255,.2)}
       .divider-row .btn-end-turn{flex-shrink:0;width:auto;padding:3px 10px;border-radius:6px;background:var(--grn);color:#fff;border:none;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
@@ -1144,7 +1150,22 @@ class GameUI {
       .abc-row .card-hand{flex:1;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0 4px;min-height:0;overflow-x:auto;overflow-y:visible;gap:0}
       .abc-row.opponent .card-hand{min-height:24px;padding:1px 4px}
       .abc-row.self .card-hand{padding:2px 4px 4px}
-      .abc-row .card-back{background:linear-gradient(135deg,#2c3e50,#1a252f);border:1.5px solid #34495e;border-radius:5px;width:36px;height:48px;flex-shrink:0;cursor:default}
+      .abc-row .card-back{
+        background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+        border:1.5px solid rgba(52,152,219,.25);border-radius:6px;
+        width:36px;height:48px;flex-shrink:0;cursor:default;
+        position:relative;overflow:hidden;
+        box-shadow:0 0 8px rgba(52,152,219,.08);
+      }
+      .abc-row .card-back::after{
+        content:'';position:absolute;inset:4px;border-radius:3px;
+        border:1px solid rgba(52,152,219,.12);
+        background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(52,152,219,.04) 3px,rgba(52,152,219,.04) 4px);
+      }
+      .abc-row .card-back::before{
+        content:'⚛';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+        font-size:14px;opacity:.25;color:#3498db;
+      }
       /* === 场上区 === */
       .d-half .card-field{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;flex:1;min-width:0;padding:3px 6px;min-height:48px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.01)}
       .d-half .opponent-field{border-color:rgba(231,76,60,.12)}
