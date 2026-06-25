@@ -115,9 +115,9 @@ class GameUI {
             <div class="start-col">
               <h2 class="section-title">③ 难度</h2>
               <div id="difficulty-btns" class="difficulty-col">
-                <button class="btn-diff active" data-diff="normal">🌿 普通</button>
-                <button class="btn-diff" data-diff="easy">🌱 简单</button>
-                <button class="btn-diff" data-diff="hard">🌳 困难</button>
+                <button class="btn-diff active" data-diff="normal">🥈 砺剑</button>
+                <button class="btn-diff" data-diff="easy">🥉 启航</button>
+                <button class="btn-diff" data-diff="hard">🥇 巅峰</button>
               </div>
             </div>
           </div>
@@ -176,9 +176,9 @@ class GameUI {
       .domain-label { font-size:13px; font-weight:700; }
       .difficulty-col { display:flex; flex-direction:column; gap:10px; }
       .btn-diff {
-        width:96px; padding:8px; background:rgba(255,255,255,.04); color:var(--mt);
-        border:2px solid rgba(255,255,255,.06); border-radius:8px;
-        cursor:pointer; font-size:12px; transition:all .2s; text-align:center;
+        width:120px; padding:12px 8px; background:rgba(255,255,255,.04); color:var(--mt);
+        border:2px solid rgba(255,255,255,.06); border-radius:10px;
+        cursor:pointer; font-size:14px; font-weight:700; transition:all .2s; text-align:center;
       }
       .btn-diff:hover { border-color:rgba(255,255,255,.15); }
       .btn-diff.active { border-color:var(--blu); color:#fff; box-shadow:0 0 12px rgba(52,152,219,.2); }
@@ -542,7 +542,7 @@ class GameUI {
   }
 
   _diffLabel(diff) {
-    const map = { easy: '简单', normal: '普通', hard: '困难' };
+    const map = { easy: '启航', normal: '砺剑', hard: '巅峰' };
     return map[diff] || '普通';
   }
 
