@@ -2144,11 +2144,18 @@ class GameUI {
       });
     }
 
-    // 动画结束移除
+    // 动画结束移除 + 命中粒子
+    const flyDuration = card.type === 'attack' ? 650 : 450;
     setTimeout(() => {
+      // 攻击卡命中时爆发粒子
+      if (card.type === 'attack') {
+        const destX = targetRect.left + targetRect.width / 2;
+        const destY = targetRect.top + targetRect.height / 2;
+        this._spawnParticles(destX, destY, ['#ff4444', '#ff6b35', '#ffaa00', '#ffffff'], 10, 50);
+      }
       clone.style.opacity = '0';
       setTimeout(() => clone.remove(), 200);
-    }, card.type === 'attack' ? 650 : 450);
+    }, flyDuration);
   }
 
   /** 处理效果动画（伤害数字弹出） */
@@ -2180,6 +2187,10 @@ class GameUI {
         const x = rect.left + rect.width / 2 + (Math.random() - 0.5) * 60;
         const y = rect.top + rect.height / 2;
         this._showDamageNumber(value, x, y, type);
+        // V15: 命中冲击特效
+        if (type !== 'heal') {
+          this._showHitImpact(targetEl, value);
+        }
       }
     }
   }
@@ -2195,6 +2206,47 @@ class GameUI {
 
     // 动画结束后移除
     setTimeout(() => el.remove(), 1200);
+  }
+
+  /** V15: 命中视觉反馈——闪烁+震动+粒子 */
+  _showHitImpact(targetEl, damage) {
+    if (!targetEl) return;
+
+    // 闪烁
+    targetEl.classList.add('hit-flash');
+    setTimeout(() => targetEl.classList.remove('hit-flash'), 500);
+
+    // 大伤害震动
+    if (damage >= 30) {
+      targetEl.classList.add('hit-shake');
+      setTimeout(() => targetEl.classList.remove('hit-shake'), 500);
+    }
+
+    // 粒子爆发
+    const rect = targetEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    this._spawnParticles(cx, cy, ['#ff4444', '#ff6b35', '#ffaa00', '#ff2266', '#ffdd44'], 8, 40);
+  }
+
+  /** 粒子爆发工具方法 */
+  _spawnParticles(cx, cy, colors, count = 8, radius = 40) {
+    for (let i = 0; i < count; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'impact-particle';
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+      const dist = radius * (0.5 + Math.random() * 0.5);
+      particle.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        width:${3 + Math.random() * 5}px;
+        height:${3 + Math.random() * 5}px;
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        --px:${Math.cos(angle) * dist}px;
+        --py:${Math.sin(angle) * dist}px;
+      `;
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 600);
+    }
   }
 
   /** 显示 Combo 触发特效 — 物理原理突出展示 */
