@@ -1803,249 +1803,216 @@ class GameEngine {
   _applySpecialEffects(card, playerIdx, opponent, effects) {
     const player = this.players[playerIdx];
     const oIdx = 1 - playerIdx;
+    const eff = card.effect || {};
 
-    // --- 共通效果（基于卡牌描述文本匹配）---
-    const spec = card.description || card.condition || '';
-    {
+    // --- 共通效果（基于 card.effect 字段）---
 
-      // 查看手牌
-      if (spec.includes('查看对方') && spec.includes('手牌')) {
-        const count = card.id === 'A52' || card.id === 'S18' ? 'all' : 2;
-        effects.push({ type: 'view_hand', count, player: oIdx });
+    // 查看手牌 (effect.viewHand)
+    if (eff.viewHand) {
+      const count = eff.viewHand === 'all' ? 'all' : eff.viewHand;
+      effects.push({ type: 'view_hand', count, player: oIdx });
+    }
+
+    // 弃置对方手牌 (effect.discardOpponent)
+    if (eff.discardOpponent) {
+      effects.push({ type: 'discard_opponent', count: eff.discardOpponent });
+    }
+
+    // 清除负面状态 (effect.clearDebuff)
+    if (eff.clearDebuff) {
+      opponent.burnLayers = Math.max(0, opponent.burnLayers - 1);
+      if (opponent.paralysis > 0) opponent.paralysis = Math.max(0, opponent.paralysis - 1);
+      if (opponent.dotEffects.length > 0) opponent.dotEffects.shift();
+      effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });
+    }
+
+    // 精神力恢复减益 (effect.spiritDebuff, e.g. A24)
+    if (eff.spiritDebuff && eff.spiritDebuff < 0) {
+      opponent.spiritDebuff = Math.max(-10, opponent.spiritDebuff + eff.spiritDebuff);
+      effects.push({ type: 'spirit_debuff', value: eff.spiritDebuff });
+    }
+
+    // 对方下回合每出卡额外消耗 (effect.opponentExtraCost)
+    if (eff.opponentExtraCost) {
+      opponent.extraCost = eff.opponentExtraCost;
+      effects.push({ type: 'extra_cost', value: eff.opponentExtraCost });
+    }
+
+    // 偷取精神力 (effect.stealSpirit, e.g. A25, A34)
+    if (eff.stealSpirit) {
+      const actual = Math.min(opponent.spirit, eff.stealSpirit);
+      opponent.spirit -= actual;
+      player.spirit = Math.min(MAX_SPIRIT, player.spirit + actual);
+      effects.push({ type: 'steal_spirit', value: actual });
+    }
+
+    // 凝固封锁 (effect.consumeBurn + turnBlock, e.g. A26)
+    if (eff.consumeBurn && eff.turnBlock) {
+      if (opponent.burnLayers >= eff.consumeBurn) {
+        opponent.burnLayers -= eff.consumeBurn;
+        opponent.turnBlocked = true;
+        effects.push({ type: 'freeze_lock', msg: '对方下回合被凝固封锁' });
       }
+    }
 
-      // 弃置对方手牌
-      if (card.effect.discardOpponent) {
-        effects.push({ type: 'discard_opponent', count: card.effect.discardOpponent });
+    // 消耗灼烧发动的辅助 (S23消耗对方, S25消耗己方)
+    if (eff.consumeBurn && card.type === 'support') {
+      if (card.id === 'S23' && opponent.burnLayers >= eff.consumeBurn) {
+        opponent.burnLayers -= eff.consumeBurn;
+        player.spirit = Math.min(MAX_SPIRIT, player.spirit + (eff.spiritRestore || 15));
+        effects.push({ type: 'heat_engine', spiritRestore: eff.spiritRestore || 15 });
       }
+      if (card.id === 'S25' && player.burnLayers >= eff.consumeBurn) {
+        player.burnLayers -= eff.consumeBurn;
+        player.hp = Math.min(MAX_HP, player.hp + (eff.heal || 80));
+        if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
+        if (player.dotEffects.length > 0) player.dotEffects.shift();
+        effects.push({ type: 'latent_heat', heal: eff.heal || 80 });
+      }
+    }
 
-      // 清除负面状态
-      if (spec.includes('清除') && spec.includes('负面状态')) {
-        opponent.burnLayers = Math.max(0, opponent.burnLayers - 1);
-        if (opponent.paralysis > 0) opponent.paralysis = Math.max(0, opponent.paralysis - 1);
-        if (opponent.dotEffects.length > 0) opponent.dotEffects.shift();
-        effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });
-      }
+    // 给对手附加灼烧 (effect.burn, support类型, e.g. S26)
+    if (eff.burn && card.type === 'support') {
+      opponent.burnLayers += eff.burn;
+      effects.push({ type: 'burn', layers: eff.burn });
+    }
 
-      // 精神力恢复减益 (A24/A36)
-      if (spec.includes('精神力恢复-3')) {
-        opponent.spiritDebuff = Math.max(-10, opponent.spiritDebuff - 3);
-        effects.push({ type: 'spirit_debuff', value: -3 });
+    // 温度升高 (S24)
+    if (card.id === 'S24') {
+      for (let i = 0; i < 2; i++) {
+        this.players[i].burnEnhanced = true;
       }
+      player.fieldSupports.push({ card, turnsRemaining: eff.turns || 3 });
+      effects.push({ type: 'temperature_rise', msg: '灼烧伤害提升至36/层（持续3回合）' });
+    }
 
-      // 对方下回合每出卡+费 (A33, A43, S08等)
-      if (spec.includes('每出卡+') || spec.includes('每出一张卡额外消耗') || 
-          spec.includes('每张卡') && spec.includes('精神力消耗')) {
-        const match = spec.match(/\+(\d+)/);
-        if (match) {
-          opponent.extraCost = parseInt(match[1], 10);
-          effects.push({ type: 'extra_cost', value: opponent.extraCost });
-        }
-      }
+    // 比热护盾 (S22)
+    if (card.id === 'S22') {
+      player.burnImmune = eff.turns || 3;
+      effects.push({ type: 'burn_immune', turns: eff.turns || 3 });
+    }
 
-      // 偷取精神力 (A25, A34)
-      if (spec.includes('偷取') && spec.includes('精神力')) {
-        const match = spec.match(/(\d+)\s*精神力/);
-        if (match) {
-          const steal = parseInt(match[1]);
-          const actual = Math.min(opponent.spirit, steal);
-          opponent.spirit -= actual;
-          player.spirit = Math.min(MAX_SPIRIT, player.spirit + actual);
-          effects.push({ type: 'steal_spirit', value: actual });
-        }
-      }
+    // 光速传播 (S16)
+    if (card.id === 'S16') {
+      this.lightSpeedActive[playerIdx] = true;
+      this.lightSpeedTurns[playerIdx] = eff.turns || 4;
+      effects.push({ type: 'light_speed', turns: eff.turns || 4 });
+    }
 
-      // 凝固封锁 (A26)
-      if (spec.includes('无法出牌')) {
-        if (opponent.burnLayers >= 2) {
-          opponent.burnLayers -= 2;
-          opponent.turnBlocked = true;
-          effects.push({ type: 'freeze_lock', msg: '对方下回合被凝固封锁' });
-        }
-      }
+    // 恢复HP (effect.heal, e.g. A47)
+    if (eff.heal) {
+      const heal = Math.min(MAX_HP - player.hp, eff.heal);
+      player.hp += heal;
+      effects.push({ type: 'heal', value: heal });
+    }
 
-      // 消耗灼烧发动的辅助 (S25消耗己方, S23消耗对方)
-      if (spec.includes('消耗2层灼烧') || spec.includes('消耗对方2层灼烧')) {
-        // S23 热机驱动：消耗对方2层灼烧
-        if (card.id === 'S23' && opponent.burnLayers >= 2) {
-          opponent.burnLayers -= 2;
-          player.spirit = Math.min(MAX_SPIRIT, player.spirit + 15);
-          effects.push({ type: 'heat_engine', spiritRestore: 15 });
-        }
-        // S25 潜热释放：消耗己方2层灼烧
-        if (card.id === 'S25' && player.burnLayers >= 2) {
-          player.burnLayers -= 2;
-          player.hp = Math.min(MAX_HP, player.hp + 80);
-          if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
-          if (player.dotEffects.length > 0) player.dotEffects.shift();
-          effects.push({ type: 'latent_heat', heal: 80 });
-        }
-      }
+    // 对方精神力恢复减半 (effect.halveSpiritRecovery, e.g. A42)
+    if (eff.halveSpiritRecovery) {
+      opponent.spiritDebuff = Math.max(-10, opponent.spiritDebuff - Math.floor(SPIRIT_PER_TURN / 2));
+      effects.push({ type: 'spirit_halve', msg: '对方下回合精神力恢复减半' });
+    }
 
-      // 给对附加灼烧 (S26)
-      if (spec.includes('附加') && spec.includes('层灼烧') && card.type === 'support') {
-        const match = spec.match(/(\d+)层灼烧/);
-        if (match) {
-          opponent.burnLayers += parseInt(match[1]);
-          effects.push({ type: 'burn', layers: parseInt(match[1]) });
-        }
-      }
+    // 海市蜃楼 (A50)
+    if (card.id === 'A50') {
+      this.mirageTurns[oIdx] = 4;
+      effects.push({ type: 'mirage', turns: 4 });
+    }
 
-      // 温度升高 (S24)：灼烧伤害从30提升到36，影响双方灼烧结算
-      if (card.id === 'S24') {
-        // S24为全局效果，双方灼烧结算时每层伤害提升至36
-        for (let i = 0; i < 2; i++) {
-          this.players[i].burnEnhanced = true;
-        }
-        // 3回合后由processFieldEffects清除
-        player.fieldSupports.push({ card, turnsRemaining: 3 });
-        effects.push({ type: 'temperature_rise', msg: '灼烧伤害提升至36/层（持续3回合）' });
-      }
+    // 声速激增 (A51)
+    if (card.id === 'A51') {
+      const buff = player.burnLayers * 6;
+      this.soundSpeedBuff[playerIdx] += buff;
+      effects.push({ type: 'sound_speed_buff', value: buff });
+    }
 
-      // 比热护盾 (S22)
-      if (card.id === 'S22') {
-        player.burnImmune = 3;
-        effects.push({ type: 'burn_immune', turns: 3 });
-      }
+    // 镜面回声 (A53)
+    if (card.id === 'A53') {
+      effects.push({ type: 'mirror_echo', msg: '本回合声系和光系攻击+10伤害' });
+    }
 
-      // 光速传播 (S16)
-      if (card.id === 'S16') {
-        this.lightSpeedActive[playerIdx] = true;
-        this.lightSpeedTurns[playerIdx] = card.effect.turns || 4;
-        effects.push({ type: 'light_speed', turns: card.effect.turns || 4 });
+    // 偏振过滤 (S15)
+    if (card.id === 'S15') {
+      opponent.extraCost = 0;
+      if (eff.polarize) {
+        this.polarizeRestriction[oIdx] = 'restricted';
       }
+      effects.push({ type: 'polarize', msg: '对方下回合只能出一种类型的卡' });
+    }
 
-      // 恢复HP (A47)
-      if (spec.includes('恢复') && spec.includes('HP')) {
-        const match = spec.match(/(\d+)/);
-        if (match) {
-          const heal = Math.min(MAX_HP - player.hp, parseInt(match[1]));
-          player.hp += heal;
-          effects.push({ type: 'heal', value: heal });
-        }
+    // 光谱叠加 (S17)
+    if (card.id === 'S17') {
+      const uniqueDomains = new Set();
+      for (const s of player.fieldSupports) {
+        s.card.domain.forEach(d => uniqueDomains.add(d));
       }
+      if (player.fieldDomain?.card?.domain) {
+        player.fieldDomain.card.domain.forEach(d => uniqueDomains.add(d));
+      }
+      this.spectrumBonus[playerIdx] = uniqueDomains.size * 10;
+      effects.push({ type: 'spectrum', bonus: this.spectrumBonus[playerIdx] });
+    }
 
-      // 海市蜃楼 (A50)
-      if (card.id === 'A50') {
-        this.mirageTurns[oIdx] = 4;
-        effects.push({ type: 'mirage', turns: 4 });
-      }
+    // 镜面迷宫 (S19)
+    if (card.id === 'S19') {
+      this.mirrorMaze[oIdx] = 3;
+      effects.push({ type: 'mirror_maze', msg: '对方3次出牌有35%概率失败' });
+    }
 
-      // 声速激增 (A51)
-      if (card.id === 'A51') {
-        const buff = player.burnLayers * 6;
-        this.soundSpeedBuff[playerIdx] += buff;
-        effects.push({ type: 'sound_speed_buff', value: buff });
+    // 影子束缚 (S20)
+    if (card.id === 'S20') {
+      if (opponent.fieldSupports.length > 0 || opponent.fieldSummons.length > 0 || opponent.fieldDomain) {
+        this.shadowBindTurns[oIdx] = 2;
+        effects.push({ type: 'shadow_bind', msg: '对方下2回合不能出辅助卡' });
       }
+    }
 
-      // 镜面回声 (A53)
-      if (card.id === 'A53') {
-        effects.push({ type: 'mirror_echo', msg: '本回合声系和光系攻击+10伤害' });
+    // 短路开关 (S30)
+    if (card.id === 'S30') {
+      const elecIdx = player.fieldSupports.findIndex(s => s.card.domain.includes('电'));
+      if (elecIdx !== -1) {
+        player.fieldSupports.splice(elecIdx, 1);
+        this.shortCircuitActive[playerIdx] = true;
+        effects.push({ type: 'short_circuit', msg: '牺牲电辅助卡，本回合电攻+20' });
       }
+    }
 
-      // 偏振过滤 (S15)
-      if (card.id === 'S15') {
-        // 对方下回合只能出攻击卡或辅助卡
-        opponent.extraCost = 0; // 不影响费用，限制类型
-        if (card.effect.polarize) {
-          this.polarizeRestriction[oIdx] = 'restricted';
-        }
-        effects.push({ type: 'polarize', msg: '对方下回合只能出一种类型的卡' });
-      }
+    // 高压击穿 (S31)
+    if (card.id === 'S31') {
+      this.highVoltagePierce[playerIdx] = 3;
+      effects.push({ type: 'high_voltage', msg: '电攻无视20点防御，持续3回合' });
+    }
 
-      // 光谱叠加 (S17)
-      if (card.id === 'S17') {
-        const uniqueDomains = new Set();
-        // 检查攻击方场上所有卡的领域
-        for (const s of player.fieldSupports) {
-          s.card.domain.forEach(d => uniqueDomains.add(d));
-        }
-        if (player.fieldDomain?.card?.domain) {
-          player.fieldDomain.card.domain.forEach(d => uniqueDomains.add(d));
-        }
-        this.spectrumBonus[playerIdx] = uniqueDomains.size * 10;
-        effects.push({ type: 'spectrum', bonus: this.spectrumBonus[playerIdx] });
-      }
+    // 多路放电 (S33)
+    if (card.id === 'S33') {
+      this.multiDischarge[playerIdx] = true;
+      effects.push({ type: 'multi_discharge', msg: '本回合所有电攻费用-2' });
+    }
 
-      // 镜面迷宫 (S19)
-      if (card.id === 'S19') {
-        this.mirrorMaze[oIdx] = 3;
-        effects.push({ type: 'mirror_maze', msg: '对方3次出牌有35%概率失败' });
-      }
+    // 噪音干扰 (S08)
+    if (card.id === 'S08') {
+      opponent.extraCost = eff.opponentExtraCost || 5;
+      effects.push({ type: 'noise', msg: '对方下回合每出卡+5费' });
+    }
 
-      // 影子束缚 (S20)
-      if (card.id === 'S20') {
-        if (opponent.fieldSupports.length > 0 || opponent.fieldSummons.length > 0 || opponent.fieldDomain) {
-          this.shadowBindTurns[oIdx] = 2;
-          effects.push({ type: 'shadow_bind', msg: '对方下2回合不能出辅助卡' });
-        }
-      }
+    // S07 回声消声：查看手牌+清除负面
+    if (card.id === 'S07') {
+      effects.push({ type: 'view_hand', count: eff.viewHand || 2, player: oIdx });
+      const p = this.players[playerIdx];
+      if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
+      if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
+      if (p.dotEffects.length > 0) p.dotEffects.shift();
+      effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });
+    }
 
-      // 短路开关 (S30)
-      if (card.id === 'S30') {
-        const elecIdx = player.fieldSupports.findIndex(s => s.card.domain.includes('电'));
-        if (elecIdx !== -1) {
-          player.fieldSupports.splice(elecIdx, 1);
-          this.shortCircuitActive[playerIdx] = true;
-          effects.push({ type: 'short_circuit', msg: '牺牲电辅助卡，本回合电攻+20' });
-        }
-      }
-
-      // 高压击穿 (S31)
-      if (card.id === 'S31') {
-        this.highVoltagePierce[playerIdx] = 3;
-        effects.push({ type: 'high_voltage', msg: '电攻无视20点防御，持续3回合' });
-      }
-
-      // 多路放电 (S33)
-      if (card.id === 'S33') {
-        this.multiDischarge[playerIdx] = true;
-        effects.push({ type: 'multi_discharge', msg: '本回合所有电攻费用-2' });
-      }
-
-      // 噪音干扰 (S08)
-      if (card.id === 'S08') {
-        opponent.extraCost = 5;
-        effects.push({ type: 'noise', msg: '对方下回合每出卡+5费' });
-      }
-
-      // S07 查看手牌+清除负面
-      if (card.id === 'S07') {
-        effects.push({ type: 'view_hand', count: 2, player: oIdx });
-        // 清除己方1种负面状态
-        const p = this.players[playerIdx];
-        if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
-        if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
-        if (p.dotEffects.length > 0) p.dotEffects.shift();
-        effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });
-      }
-
-      // 噪声/干扰效果 (S07 回声消声)
-      if (spec.includes('对方下回合') && spec.includes('恢复减半')) {
-        opponent.spiritDebuff = Math.max(-10, opponent.spiritDebuff - Math.floor(SPIRIT_PER_TURN / 2));
-        effects.push({ type: 'spirit_halve', msg: '对方下回合精神力恢复减半' });
-      }
-
-      // 下回合每出卡额外消耗 (备用文本匹配)
-      if ((spec.includes('每出卡') || spec.includes('每张卡')) && spec.includes('费')) {
-        const match = spec.match(/\+(\d+)/);
-        if (match) {
-          opponent.extraCost = Math.max(opponent.extraCost || 0, parseInt(match[1], 10));
-        }
-      }
-
-      // 抽卡效果 (S29静电吸附)
-      if (card.effect.draw && card.id === 'S29') {
-        // 需要先弃1张（由UI处理）
-        effects.push({ type: 'need_discard', msg: '需先弃1张手牌' });
-        this.drawCards(playerIdx, card.effect.draw);
-        // 清除负面
-        const p = this.players[playerIdx];
-        if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
-        if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
-        if (p.dotEffects.length > 0) p.dotEffects.shift();
-        effects.push({ type: 'draw', count: card.effect.draw });
-      }
+    // S29 静电吸附：抽卡（需先弃1张）
+    if (card.id === 'S29' && eff.draw) {
+      effects.push({ type: 'need_discard', msg: '需先弃1张手牌' });
+      this.drawCards(playerIdx, eff.draw);
+      const p = this.players[playerIdx];
+      if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
+      if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
+      if (p.dotEffects.length > 0) p.dotEffects.shift();
+      effects.push({ type: 'draw', count: eff.draw });
     }
   }
 
