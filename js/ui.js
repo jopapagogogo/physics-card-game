@@ -1008,7 +1008,7 @@ class GameUI {
         </div>
 
         <!-- ===== 对方 D 区 ===== -->
-        <div class="d-zone">
+        <div class="d-zone" id="opp-d-zone">
           <div class="d-half opponent-d-half">
             <div id="opp-field" class="card-field opponent-field"></div>
             <div id="opp-play-zone" class="play-zone opponent-play-zone"></div>
@@ -1025,7 +1025,7 @@ class GameUI {
         </div>
 
         <!-- ===== 己方 D 区 ===== -->
-        <div class="d-zone">
+        <div class="d-zone" id="self-d-zone">
           <div class="d-half self-d-half">
             <div id="self-field" class="card-field self-field"></div>
             <div id="self-play-zone" class="play-zone self-play-zone"></div>
@@ -1724,21 +1724,19 @@ class GameUI {
     zone.innerHTML = html;
   }
 
-  /** 根据场上领域卡更新战场底纹 */
+  /** 根据场上领域卡更新战场底纹（各D区独立） */
   _updateBattleTexture(gs) {
-    const dZones = document.querySelectorAll('.d-zone');
-    if (dZones.length === 0) return;
+    const oppZone = document.getElementById('opp-d-zone');
+    const selfZone = document.getElementById('self-d-zone');
 
-    // 己方领域优先 → 对手领域 → 无纹理
-    let domain = null;
-    if (gs?.players?.[0]?.fieldDomain?.domain) {
-      domain = gs.players[0].fieldDomain.domain;
-    } else if (gs?.players?.[1]?.fieldDomain?.domain) {
-      domain = gs.players[1].fieldDomain.domain;
+    if (oppZone) {
+      const oppDomain = gs?.players?.[1]?.fieldDomain?.domain;
+      oppZone.style.setProperty('--bg-texture', oppDomain ? this._domainTextureCSS(oppDomain) : 'none');
     }
-
-    const texture = domain ? this._domainTextureCSS(domain) : 'none';
-    dZones.forEach(el => el.style.setProperty('--bg-texture', texture));
+    if (selfZone) {
+      const selfDomain = gs?.players?.[0]?.fieldDomain?.domain;
+      selfZone.style.setProperty('--bg-texture', selfDomain ? this._domainTextureCSS(selfDomain) : 'none');
+    }
   }
 
   // ==================== 事件绑定 ====================
