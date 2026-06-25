@@ -276,7 +276,7 @@ body {
   background:rgba(10,15,25,.92); border-left:3px solid var(--mt);
   border-radius:6px; padding:6px 10px; font-size:11px; color:#ccc;
   line-height:1.5; pointer-events:auto;
-  animation: toastIn .3s ease, toastOut .5s ease 3.2s forwards;
+  animation: logToastIn .3s ease, logToastOut .5s ease 3.2s forwards;
   box-shadow:0 4px 16px rgba(0,0,0,.5);
 }
 .log-toast.damage { border-left-color:var(--red); }
@@ -286,11 +286,11 @@ body {
 .log-toast.summon { border-left-color:var(--blu); }
 .log-toast.combo  { border-left-color:#e84393; background:rgba(15,10,25,.95); font-weight:700; font-size:12px; }
 
-@keyframes toastIn {
+@keyframes logToastIn {
   0% { opacity:0; transform:translateX(40px); }
   100% { opacity:1; transform:translateX(0); }
 }
-@keyframes toastOut {
+@keyframes logToastOut {
   0% { opacity:1; transform:translateX(0); }
   100% { opacity:0; transform:translateX(20px); }
 }

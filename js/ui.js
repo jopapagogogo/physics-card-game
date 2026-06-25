@@ -25,6 +25,7 @@ class GameUI {
     this.quizTimerSeconds = 15;
     this.quizTimer = null;
     this.playTimer = null;
+    this.discardTimer = null;
     this.timerSeconds = 0;
     this.logMessages = [];
     this.lastPlayedCard = null;

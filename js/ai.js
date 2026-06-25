@@ -17,6 +17,9 @@ const BURN_DMG = 30;
 /** 每层麻痹伤害 */
 const PARALYSIS_DMG = 15;
 
+/** 麻痹每卡额外费用，需与 engine.js PARALYSIS_COST=2 一致 */
+const PARALYSIS_COST = 2;
+
 /** 高威胁召唤物伤害阈值 */
 const HIGH_THREAT_SUMMON_DMG = 15;
 
@@ -340,15 +343,17 @@ const SpiritBudgetManager = {
    * 计算精神力预算方案
    * @returns {{ thisTurnMax: number, reserved: number, strategy: string }}
    */
-  compute(hand, spirit, threatLevel, difficulty) {
+  compute(hand, spirit, threatLevel, difficulty, paralysis = 0) {
+    // 麻痹每张卡额外+2费，预留对应精神力缓冲
+    const effectiveSpirit = paralysis > 0 ? Math.max(0, spirit - paralysis * PARALYSIS_COST * 2) : spirit;
     if (difficulty === 'easy') {
-      return { thisTurnMax: spirit, reserved: 0, strategy: 'full_send' };
+      return { thisTurnMax: effectiveSpirit, reserved: 0, strategy: 'full_send' };
     }
 
     if (difficulty === 'normal') {
-      const reserved = Math.min(SPIRIT_RESERVE_NORMAL, Math.floor(spirit * 0.3));
+      const reserved = Math.min(SPIRIT_RESERVE_NORMAL, Math.floor(effectiveSpirit * 0.3));
       return {
-        thisTurnMax: spirit - reserved,
+        thisTurnMax: effectiveSpirit - reserved,
         reserved,
         strategy: 'balanced'
       };
@@ -359,7 +364,7 @@ const SpiritBudgetManager = {
 
     if (threatLevel > THREAT_FULL_SEND) {
       // 高威胁：全火力应对
-      return { thisTurnMax: spirit, reserved: 0, strategy: 'full_send' };
+      return { thisTurnMax: effectiveSpirit, reserved: 0, strategy: 'full_send' };
     }
 
     if (threatLevel > THREAT_SAVE) {
@@ -367,18 +372,18 @@ const SpiritBudgetManager = {
       const avgCost = handCosts.length > 0
         ? handCosts.reduce((a, b) => a + b, 0) / handCosts.length
         : 20;
-      const reserved = Math.min(SPIRIT_RESERVE_LOW, Math.floor(spirit * 0.25));
+      const reserved = Math.min(SPIRIT_RESERVE_LOW, Math.floor(effectiveSpirit * 0.25));
       return {
-        thisTurnMax: Math.max(avgCost, spirit - reserved),
+        thisTurnMax: Math.max(avgCost, effectiveSpirit - reserved),
         reserved,
         strategy: 'balanced'
       };
     }
 
     // 低威胁：积蓄模式
-    const reserved = Math.min(SPIRIT_RESERVE_HIGH, Math.floor(spirit * 0.5));
+    const reserved = Math.min(SPIRIT_RESERVE_HIGH, Math.floor(effectiveSpirit * 0.5));
     return {
-      thisTurnMax: spirit - reserved,
+      thisTurnMax: effectiveSpirit - reserved,
       reserved,
       strategy: 'save'
     };
@@ -983,7 +988,7 @@ class AIEngine {
     const threat = ThreatAssessor.assess(self, opp, this.difficulty);
 
     // === 第 2 步：精神力预算 ===
-    const budget = SpiritBudgetManager.compute(hand, spirit, threat.level, this.difficulty);
+    const budget = SpiritBudgetManager.compute(hand, spirit, threat.level, this.difficulty, self.paralysis || 0);
 
     // === 第 3 步：防守检查 ===
     const defenseCheck = DefensePlanner.shouldDefend(self, opp, threat.level, comboIndex);
