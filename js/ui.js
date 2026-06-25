@@ -81,85 +81,55 @@ class GameUI {
       { id: '电', name: '电', icon: '⚡', color: '#9B59B6', desc: '电学领域' }
     ];
 
-    const domainButtons = domains.map((d, i) => `
-      <button class="btn btn-domain domain-${d.id}" 
+    const domainBtn = (d, disabled) => `
+      <button class="btn-domain ${disabled ? 'disabled' : ''}" 
               data-domain="${d.id}" 
-              style="--domain-color:${d.color}; animation-delay:${i * 0.08}s">
-        <span class="domain-icon">${d.icon}</span>
+              ${disabled ? 'disabled' : ''}
+              style="--dc:${d.color}">
+        <span class="domain-rune">${DOMAIN_RUNES[d.id] ? `<img src="${DOMAIN_RUNES[d.id]}">` : d.icon}</span>
         <span class="domain-label">${d.name}</span>
       </button>
-    `).join('');
+    `;
 
     this.container.innerHTML = `
       <div class="start-screen">
-        <div class="start-header">
-          <h1 class="start-title">
-            <span class="title-icon">⚛️</span>
-            物理卡牌对战
-            <span class="title-icon">⚛️</span>
-          </h1>
+        <div class="start-left">
+          <h1 class="start-title">⚛️ 物理卡牌对战</h1>
           <p class="start-subtitle">选择你的物理领域，用知识战胜对手！</p>
         </div>
 
-        <div class="start-section">
-          <h2 class="section-title">
-            <span class="section-num">①</span> 选择主领域
-          </h2>
-          <div id="main-domain-btns" class="domain-grid">
-            ${domainButtons}
+        <div class="start-right">
+          <div class="start-row">
+            <div class="start-col">
+              <h2 class="section-title">① 主领域</h2>
+              <div id="main-domain-btns" class="domain-grid">
+                ${domains.map(d => domainBtn(d, false)).join('')}
+              </div>
+            </div>
+            <div class="start-col">
+              <h2 class="section-title">② 副领域</h2>
+              <div id="sub-domain-btns" class="domain-grid">
+                ${domains.map(d => domainBtn(d, true)).join('')}
+              </div>
+            </div>
+            <div class="start-col">
+              <h2 class="section-title">③ 难度</h2>
+              <div id="difficulty-btns" class="difficulty-col">
+                <button class="btn-diff active" data-diff="normal">🌿 普通</button>
+                <button class="btn-diff" data-diff="easy">🌱 简单</button>
+                <button class="btn-diff" data-diff="hard">🌳 困难</button>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="start-section">
-          <h2 class="section-title">
-            <span class="section-num">②</span> 选择副领域
-          </h2>
-          <p class="section-hint">选择另一个领域作为辅助</p>
-          <div id="sub-domain-btns" class="domain-grid sub-grid">
-            ${domains.map((d, i) => `
-              <button class="btn btn-domain-sub domain-${d.id}" 
-                      data-domain="${d.id}"
-                      disabled
-                      style="--domain-color:${d.color}; animation-delay:${(i + 5) * 0.06}s">
-                <span class="domain-icon">${d.icon}</span>
-                <span class="domain-label">${d.name}</span>
-              </button>
-            `).join('')}
+          <div class="start-footer">
+            <div class="start-actions">
+              <button id="btn-deck-builder" class="btn-deck-builder" disabled>🃏 自定义卡组</button>
+              <button id="btn-start-game" class="btn-start" disabled>⚔ 开始战斗</button>
+            </div>
+            <p id="start-hint" class="start-hint">请先选择主领域和副领域</p>
+            <div id="deck-summary" class="deck-summary" style="display:none"></div>
           </div>
-        </div>
-
-        <div class="start-section">
-          <h2 class="section-title">
-            <span class="section-num">③</span> 选择难度
-          </h2>
-          <div id="difficulty-btns" class="difficulty-row">
-            <button class="btn btn-diff" data-diff="easy">
-              <span class="diff-icon">🌱</span>
-              <span class="diff-label">简单</span>
-            </button>
-            <button class="btn btn-diff active" data-diff="normal">
-              <span class="diff-icon">🌿</span>
-              <span class="diff-label">普通</span>
-            </button>
-            <button class="btn btn-diff" data-diff="hard">
-              <span class="diff-icon">🌳</span>
-              <span class="diff-label">困难</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="start-footer">
-          <div class="start-actions">
-            <button id="btn-deck-builder" class="btn btn-deck-builder" disabled>
-              <span>🃏 自定义卡组</span>
-            </button>
-            <button id="btn-start-game" class="btn btn-start" disabled>
-              <span>开始战斗</span>
-              <span class="btn-arrow">→</span>
-            </button>
-          </div>
-          <p id="start-hint" class="start-hint">请先选择主领域和副领域</p>
-          <div id="deck-summary" class="deck-summary" style="display:none"></div>
         </div>
       </div>
     `;
@@ -175,105 +145,63 @@ class GameUI {
     style.id = 'start-screen-styles';
     style.textContent = `
       .start-screen {
-        width:100%; max-width:480px; min-height:100vh; margin:0 auto;
-        background:var(--bg);
+        width:100vw; height:100vh;
+        background:#0a0a1a;
         background-image:
-          radial-gradient(ellipse at 50% 0%, rgba(52,152,219,.06) 0%, transparent 55%),
-          radial-gradient(ellipse at 80% 100%, rgba(155,89,182,.05) 0%, transparent 55%);
-        padding:24px 16px 40px;
-        display:flex; flex-direction:column; gap:24px;
-        border-left:1px solid var(--bd); border-right:1px solid var(--bd);
-        overflow-y:auto; max-height:100vh;
+          radial-gradient(ellipse at 30% 50%, rgba(52,152,219,.05) 0%, transparent 60%),
+          radial-gradient(ellipse at 70% 50%, rgba(155,89,182,.05) 0%, transparent 60%);
+        display:flex; align-items:center; padding:20px 40px; gap:40px;
+        overflow:hidden;
       }
-      .start-header { text-align:center; }
-      .start-title {
-        font-size:28px; font-weight:900; color:#fff; letter-spacing:3px;
-        display:flex; align-items:center; justify-content:center; gap:10px;
-        margin-bottom:8px;
-      }
-      .title-icon { font-size:24px; }
-      .start-subtitle { font-size:14px; color:var(--mt); }
-      .start-section { animation:slideUp .5s ease both; }
-      .section-title {
-        font-size:15px; font-weight:700; color:var(--lt); margin-bottom:12px;
-        display:flex; align-items:center; gap:8px;
-      }
-      .section-num {
-        width:24px; height:24px; border-radius:50%; background:var(--pnl);
-        display:inline-flex; align-items:center; justify-content:center;
-        font-size:12px; color:var(--mt);
-      }
-      .section-hint { font-size:11px; color:var(--mt); margin-bottom:12px; margin-left:32px; }
-      .domain-grid {
-        display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
-      }
+      .start-left { flex-shrink:0; max-width:260px; }
+      .start-title { font-size:22px; font-weight:900; color:#fff; margin-bottom:6px; }
+      .start-subtitle { font-size:12px; color:var(--mt); }
+      .start-right { flex:1; display:flex; flex-direction:column; justify-content:center; gap:20px; min-width:0; }
+      .start-row { display:flex; gap:24px; justify-content:center; }
+      .start-col { display:flex; flex-direction:column; align-items:center; gap:8px; }
+      .section-title { font-size:12px; font-weight:700; color:var(--mt); text-align:center; }
+      .domain-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
       .btn-domain {
-        width:calc((100% - 40px) / 5); min-width:54px; aspect-ratio:1;
-        flex-direction:column; gap:6px; background:var(--pnl); color:var(--lt);
-        border:2px solid transparent; border-radius:var(--r12);
-        font-size:12px; padding:8px 4px; transition:all var(--tn);
-        animation:popIn .4s cubic-bezier(.175,.885,.32,1.275) both;
+        width:72px; height:72px; display:flex; flex-direction:column; align-items:center;
+        justify-content:center; gap:4px; background:rgba(255,255,255,.04);
+        border:2px solid rgba(255,255,255,.08); border-radius:10px;
+        color:var(--lt); cursor:pointer; transition:all .2s; font-size:11px;
       }
-      .btn-domain:hover:not(:disabled) {
-        transform:translateY(-4px); box-shadow:0 6px 20px rgba(0,0,0,.3);
-        border-color:var(--domain-color, #fff);
-      }
-      .btn-domain.selected {
-        border-color:var(--domain-color, #fff) !important;
-        box-shadow:0 0 20px var(--domain-color, rgba(255,255,255,.3));
-        background:color-mix(in srgb, var(--domain-color, #333) 15%, var(--pnl));
-      }
-      .btn-domain-sub:disabled {
-        opacity:.35; cursor:not-allowed; filter:grayscale(40%);
-      }
-      .btn-domain-sub.selected {
-        opacity:1 !important; filter:none !important;
-        border-color:var(--domain-color, #fff) !important;
-        box-shadow:0 0 16px var(--domain-color, rgba(255,255,255,.2));
-        background:color-mix(in srgb, var(--domain-color, #333) 12%, var(--pnl));
-      }
-      .domain-icon { font-size:24px; pointer-events:none; }
-      .domain-label { font-size:12px; font-weight:700; pointer-events:none; letter-spacing:1px; }
-      .difficulty-row { display:flex; gap:12px; justify-content:center; }
+      .btn-domain:hover:not(.disabled) { border-color:var(--dc); transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,.3); }
+      .btn-domain.selected { border-color:var(--dc) !important; box-shadow:0 0 20px color-mix(in srgb, var(--dc) 40%, transparent); background:color-mix(in srgb, var(--dc) 15%, rgba(0,0,0,.3)); }
+      .btn-domain.disabled { opacity:.25; cursor:not-allowed; filter:grayscale(60%); }
+      .btn-domain.disabled.selected { opacity:1 !important; filter:none !important; }
+      .domain-rune { width:28px; height:28px; display:flex; align-items:center; justify-content:center; }
+      .domain-rune img { width:100%; height:100%; object-fit:contain; }
+      .domain-label { font-size:11px; font-weight:700; }
+      .difficulty-col { display:flex; flex-direction:column; gap:6px; }
       .btn-diff {
-        flex:1; max-width:120px; flex-direction:column; gap:4px;
-        background:var(--pnl); color:var(--mt); border:2px solid transparent;
-        border-radius:var(--r12); padding:12px 8px; font-size:13px;
-        transition:all var(--tn);
+        width:96px; padding:8px; background:rgba(255,255,255,.04); color:var(--mt);
+        border:2px solid rgba(255,255,255,.06); border-radius:8px;
+        cursor:pointer; font-size:12px; transition:all .2s; text-align:center;
       }
-      .btn-diff:hover { border-color:var(--mt); }
-      .btn-diff.active {
-        border-color:var(--blu); color:#fff;
-        box-shadow:0 0 16px rgba(52,152,219,.25);
-      }
-      .diff-icon { font-size:22px; pointer-events:none; }
-      .diff-label { font-weight:700; pointer-events:none; }
-      .start-footer { text-align:center; padding-top:8px; }
+      .btn-diff:hover { border-color:rgba(255,255,255,.15); }
+      .btn-diff.active { border-color:var(--blu); color:#fff; box-shadow:0 0 12px rgba(52,152,219,.2); }
+      .start-footer { text-align:center; }
+      .start-actions { display:flex; gap:10px; justify-content:center; }
       .btn-start {
-        width:100%; max-width:280px; min-height:56px; font-size:20px; font-weight:900;
-        background:linear-gradient(135deg, var(--scs), #1e8449);
-        color:#fff; border-radius:var(--r16); letter-spacing:2px;
-        box-shadow:0 4px 24px rgba(46,204,113,.3); transition:all var(--tn);
+        padding:10px 32px; font-size:16px; font-weight:900;
+        background:linear-gradient(135deg, var(--scs), #1e8449); color:#fff;
+        border:none; border-radius:10px; cursor:pointer; letter-spacing:1px;
+        box-shadow:0 4px 20px rgba(46,204,113,.25); transition:all .2s;
       }
-      .btn-start:hover:not(:disabled) {
-        transform:translateY(-2px);
-        box-shadow:0 8px 32px rgba(46,204,113,.45);
-      }
-      .btn-start:disabled { opacity:.4; cursor:not-allowed; }
-      .btn-arrow { font-size:18px; margin-left:8px; transition:transform var(--tf); }
-      .btn-start:hover:not(:disabled) .btn-arrow { transform:translateX(4px); }
-      .start-hint { font-size:12px; color:var(--mt); margin-top:8px; }
-      .sub-grid .btn-domain-sub { aspect-ratio:1; }
-      .start-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+      .btn-start:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 24px rgba(46,204,113,.4); }
+      .btn-start:disabled { opacity:.35; cursor:not-allowed; }
       .btn-deck-builder {
-        padding:12px 20px; font-size:15px; font-weight:700;
-        background:rgba(147,51,234,.15); color:#c084fc;
-        border:1.5px solid rgba(147,51,234,.35); border-radius:var(--r12);
-        cursor:pointer; transition:all .3s;
+        padding:10px 20px; font-size:14px; font-weight:700;
+        background:rgba(147,51,234,.12); color:#c084fc;
+        border:1.5px solid rgba(147,51,234,.3); border-radius:10px;
+        cursor:pointer; transition:all .2s;
       }
-      .btn-deck-builder:hover:not(:disabled) { background:rgba(147,51,234,.25); }
-      .btn-deck-builder:disabled { opacity:.4; cursor:not-allowed; }
-      .deck-summary { font-size:13px; color:#c084fc; margin-top:8px; }
+      .btn-deck-builder:hover:not(:disabled) { background:rgba(147,51,234,.22); }
+      .btn-deck-builder:disabled { opacity:.3; cursor:not-allowed; }
+      .start-hint { font-size:11px; color:var(--mt); margin-top:6px; }
+      .deck-summary { font-size:12px; color:#c084fc; margin-top:6px; }
     `;
     document.head.appendChild(style);
   }
@@ -289,7 +217,7 @@ class GameUI {
     });
 
     // 副领域选择
-    document.querySelectorAll('#sub-domain-btns .btn-domain-sub').forEach(btn => {
+    document.querySelectorAll('#sub-domain-btns .btn-domain').forEach(btn => {
       btn.addEventListener('click', () => {
         const domain = btn.dataset.domain;
         if (btn.disabled) return;
@@ -332,13 +260,13 @@ class GameUI {
     });
 
     // 更新副领域按钮（排除已选主领域，启用其余）
-    document.querySelectorAll('#sub-domain-btns .btn-domain-sub').forEach(b => {
+    document.querySelectorAll('#sub-domain-btns .btn-domain').forEach(b => {
       if (b.dataset.domain === domain) {
+        b.classList.add('disabled');
         b.disabled = true;
-        b.classList.add('excluded');
       } else {
+        b.classList.remove('disabled');
         b.disabled = false;
-        b.classList.remove('excluded');
         if (b.dataset.domain === this.subDomain) {
           b.classList.add('selected');
         }
@@ -351,7 +279,7 @@ class GameUI {
   selectSubDomain(domain) {
     this.subDomain = domain;
 
-    document.querySelectorAll('#sub-domain-btns .btn-domain-sub').forEach(b => {
+    document.querySelectorAll('#sub-domain-btns .btn-domain').forEach(b => {
       b.classList.toggle('selected', b.dataset.domain === domain);
     });
 
