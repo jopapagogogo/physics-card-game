@@ -20,6 +20,12 @@ const PARALYSIS_DMG = 15;
 /** 麻痹每卡额外费用，需与 engine.js PARALYSIS_COST=2 一致 */
 const PARALYSIS_COST = 2;
 
+/** 手牌上限（对齐 engine.js） */
+const MAX_HAND_SIZE = 7;
+
+/** 精神力上限（对齐 engine.js） */
+const MAX_SPIRIT = 100;
+
 /** 高威胁召唤物伤害阈值 */
 const HIGH_THREAT_SUMMON_DMG = 15;
 
@@ -285,11 +291,11 @@ const ThreatAssessor = {
     if (difficulty === 'easy') return { level: 0.3, details: {} };
     if (difficulty === 'normal') return { level: 0.5, details: {} };
 
-    // hard: 精确评估
+    // hard: 精确评估（7因子，总分≤1.0）
     let score = 0;
     const details = {};
 
-    // 因子1：对手场上进攻力 (0~0.3)
+    // 因子1：对手场上进攻力 (0~0.25)
     let oppOffense = 0;
     for (const s of opp.fieldSummons) {
       if (s.card?.effect?.dmgBonus) oppOffense += s.card.effect.dmgBonus;
@@ -298,16 +304,16 @@ const ThreatAssessor = {
       oppOffense += opp.fieldDomain.card.effect.bonusDmg;
     }
     oppOffense += opp.fieldSupports.length * 8;
-    details.offense = Math.min(0.3, oppOffense / 60);
+    details.offense = Math.min(0.25, oppOffense / 60);
 
-    // 因子2：对手 combo 潜力 (0~0.2)
-    const oppComboPotential = (opp.hand.length / 5) * 0.1 +
-      (opp.spirit / 100) * 0.1;
-    details.comboPotential = Math.min(0.2, oppComboPotential);
+    // 因子2：对手 combo 潜力 (0~0.15)
+    const oppComboPotential = (opp.hand.length / 5) * 0.08 +
+      (opp.spirit / 100) * 0.07;
+    details.comboPotential = Math.min(0.15, oppComboPotential);
 
-    // 因子3：己方脆弱度 (0~0.25)
+    // 因子3：己方脆弱度 (0~0.2)
     const hpRatio = self.hp / self.maxHp;
-    const fragility = (1 - hpRatio) * 0.25;
+    const fragility = (1 - hpRatio) * 0.2;
     // 无保护召唤物时更脆弱
     let protectedBySummon = false;
     for (const s of self.fieldSummons) {
@@ -318,18 +324,30 @@ const ThreatAssessor = {
     }
     details.fragility = protectedBySummon ? fragility * 0.5 : fragility;
 
-    // 因子4：对手驻场威胁 (0~0.15)
+    // 因子4：对手驻场威胁 (0~0.1)
     const oppFieldCount = opp.fieldSummons.length +
       (opp.fieldDomain ? 1 : 0) + opp.fieldSupports.length;
-    details.fieldThreat = Math.min(0.15, oppFieldCount * 0.05);
+    details.fieldThreat = Math.min(0.1, oppFieldCount * 0.033);
 
     // 因子5：DOT 累计 (0~0.1)
     const dotDmg = (self.burnLayers || 0) * BURN_DMG +
       (self.paralysis || 0) * PARALYSIS_DMG;
     details.dotThreat = Math.min(0.1, dotDmg / 200);
 
+    // 因子6：对手手牌攻击卡数量 (0~0.1)
+    let oppAttackCount = 0;
+    for (const c of opp.hand) {
+      if (c.type === 'attack') oppAttackCount++;
+    }
+    details.handAttack = Math.min(0.1, oppAttackCount / MAX_HAND_SIZE * 0.1);
+
+    // 因子7：对手精神力储备 (0~0.1)
+    const oppSpiritRatio = opp.spirit / MAX_SPIRIT;
+    details.spiritReserve = Math.min(0.1, oppSpiritRatio * 0.1);
+
     score = details.offense + details.comboPotential +
-      details.fragility + details.fieldThreat + details.dotThreat;
+      details.fragility + details.fieldThreat + details.dotThreat +
+      details.handAttack + details.spiritReserve;
 
     return { level: Math.min(1.0, Math.max(0, score)), details };
   }
