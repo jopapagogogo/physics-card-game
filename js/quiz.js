@@ -76,7 +76,7 @@ class QuizSystem {
         id: "Q_F_10", domain: "力", difficulty: "basic",
         question: "弹簧被拉伸后具有的能量叫做？",
         options: ["A. 动能", "B. 重力势能", "C. 弹性势能", "D. 内能"],
-        answer: 2, knowledge: "弹性势能 Ep=½kx²", relatedCard: "S32"
+        answer: 2, knowledge: "弹性势能 Ep=½kx²", relatedCard: "S06"
       },
 
       // ======================================================
@@ -319,7 +319,7 @@ class QuizSystem {
         id: "Q_S_11", domain: "声", difficulty: "advanced",
         question: "一辆救护车鸣笛向你驶来时，你听到的笛声音调变高，这是因为？",
         options: ["A. 声速增大", "B. 多普勒效应", "C. 救护车加快了振动频率", "D. 回声叠加"],
-        answer: 1, knowledge: "多普勒效应", relatedCard: "S33"
+        answer: 1, knowledge: "多普勒效应", relatedCard: "S13"
       },
       {
         id: "Q_S_12", domain: "声", difficulty: "advanced",
@@ -371,7 +371,7 @@ class QuizSystem {
         id: "Q_S_19", domain: "声", difficulty: "challenge",
         question: "当一辆火车鸣笛从你身边驶过时，你听到的笛声变化是？",
         options: ["A. 响度不变，音调不变", "B. 先变高后变低", "C. 先变低后变高", "D. 只变响度不变音调"],
-        answer: 1, knowledge: "多普勒效应：靠近时频率升高", relatedCard: "S33"
+        answer: 1, knowledge: "多普勒效应：靠近时频率升高", relatedCard: "S13"
       },
       {
         id: "Q_S_20", domain: "声", difficulty: "challenge",
@@ -494,13 +494,13 @@ class QuizSystem {
         id: "Q_L_02", domain: "光", difficulty: "basic",
         question: "光射到平面镜上，入射角为30°，反射角是多少？",
         options: ["A. 15°", "B. 30°", "C. 60°", "D. 90°"],
-        answer: 1, knowledge: "光的反射定律（反射角=入射角）", relatedCard: "S34"
+        answer: 1, knowledge: "光的反射定律（反射角=入射角）", relatedCard: "S16"
       },
       {
         id: "Q_L_03", domain: "光", difficulty: "basic",
         question: "关于平面镜成像，下列说法正确的是？",
         options: ["A. 成倒立实像", "B. 像与物大小相等", "C. 像比物大", "D. 像距不等于物距"],
-        answer: 1, knowledge: "平面镜成像：等大、等距、正立虚像", relatedCard: "S34"
+        answer: 1, knowledge: "平面镜成像：等大、等距、正立虚像", relatedCard: "S16"
       },
       {
         id: "Q_L_04", domain: "光", difficulty: "basic",
@@ -632,7 +632,7 @@ class QuizSystem {
         id: "Q_L_23", domain: "光", difficulty: "basic",
         question: "潜望镜利用了什么光学原理？",
         options: ["A. 光的折射", "B. 光的直线传播", "C. 光的反射（平面镜）", "D. 光的色散"],
-        answer: 2, knowledge: "平面镜反射", relatedCard: "S34"
+        answer: 2, knowledge: "平面镜反射", relatedCard: "S16"
       },
       {
         id: "Q_L_24", domain: "光", difficulty: "basic",
@@ -660,7 +660,7 @@ class QuizSystem {
         id: "Q_L_27", domain: "光", difficulty: "advanced",
         question: "关于光的反射定律，下列说法正确的是？",
         options: ["A. 入射角随反射角变化", "B. 光垂直入射时反射角为90°", "C. 反射光线、入射光线、法线在同一平面", "D. 反射光线不一定在入射光线和法线决定的平面内"],
-        answer: 2, knowledge: "反射定律三线共面", relatedCard: "S34"
+        answer: 2, knowledge: "反射定律三线共面", relatedCard: "S16"
       },
       {
         id: "Q_L_28", domain: "光", difficulty: "advanced",
@@ -1256,7 +1256,7 @@ class QuizSystem {
         id: "Q_C_12", domain: "混沌", difficulty: "advanced",
         question: "冰直接变成水蒸气跳过液态，这个过程叫做？",
         options: ["A. 熔化", "B. 凝固", "C. 升华", "D. 凝华"],
-        answer: 2, knowledge: "升华：固态→气态", relatedCard: "T02"
+        answer: 2, knowledge: "升华：固态→气态", relatedCard: "A47"
       },
 
       // ======================================================
