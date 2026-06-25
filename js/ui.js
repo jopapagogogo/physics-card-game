@@ -1222,7 +1222,7 @@ class GameUI {
       /* === V13: 角色idle呼吸动画 === */
       .avatar-stats .avatar{animation:idleBreathe 3s ease-in-out infinite}
       @keyframes idleBreathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
-      .card-tooltip .card-v3::before,.card-tooltip .card-v3::after{display:none!important}
+      .card-tooltip .card-v3.skin-cyber::before,.card-tooltip .card-v3.skin-cyber::after{display:none!important}
       .card-tooltip .card-v3.skin-cyber{box-shadow:0 0 6px rgba(0,0,0,.5)!important}
       .card-tooltip .card-v3{background-clip:border-box!important}
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important;pointer-events:auto!important}
