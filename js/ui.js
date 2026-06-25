@@ -2719,9 +2719,14 @@ class GameUI {
           // 获取AI下一张牌决策
           const decision = this.ai.getNextPlayDecision();
           if (!decision) break;
+          aiCardCount++;
 
           // AI 出牌 & 即时结算卡牌效果
           const _aiResult = this.engine.playCard(this.ai.aiIdx, decision.cardId, decision.target || 'player');
+          if (!_aiResult || !_aiResult.success) {
+            // 出牌失败（如费用不足、目标无效），跳过这张继续
+            continue;
+          }
 
           // 添加到AI出牌展示区
           const aiCard = this.engine.getCardById(decision.cardId);
