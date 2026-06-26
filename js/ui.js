@@ -1313,6 +1313,7 @@ class GameUI {
       @keyframes idleBreathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
       /* === V15: 费用不足抖动 === */
       @keyframes shake{0%,100%{transform:translateX(0)}10%,50%,90%{transform:translateX(-4px)}30%,70%{transform:translateX(4px)}}
+      @keyframes floatUp{0%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-24px)}}
       /* === Debuff 视觉反馈 === */
       .debuff-indicators{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:0}
       .debuff-badge{display:inline-flex;align-items:center;gap:1px;font-size:10px;font-weight:700;padding:1px 4px;border-radius:4px;animation:debuffPulse 2s ease-in-out infinite}
@@ -1719,7 +1720,7 @@ class GameUI {
           const style = this.getDomainStyle(card.domain);
           const typeClass = `card-type-${card.type}`;
           html += `
-            <div class="card play-card small ${typeClass}" style="border-left-color:${style.color}">
+            <div class="card play-card small ${typeClass}" style="border-left-color:${style.color}" data-card-id="${this._escapeAttr(card.id)}">
               <span class="card-cost" style="background:${style.bg}">${card.cost ?? '?'}</span>
               <span class="card-name">${this._escapeHtml(card.name)}</span>
               <span class="card-type">${this.getTypeLabel(card.type)}</span>
@@ -1744,7 +1745,7 @@ class GameUI {
           const style = this.getDomainStyle(card.domain);
           const typeClass = `card-type-${card.type}`;
           html += `
-            <div class="card play-card small ${typeClass}" style="border-left-color:${style.color}">
+            <div class="card play-card small ${typeClass}" style="border-left-color:${style.color}" data-card-id="${this._escapeAttr(card.id)}">
               <span class="card-cost" style="background:${style.bg}">${card.cost ?? '?'}</span>
               <span class="card-name">${this._escapeHtml(card.name)}</span>
               <span class="card-type">${this.getTypeLabel(card.type)}</span>
@@ -1773,8 +1774,9 @@ class GameUI {
       if (gs.players[0].fieldDomain) {
         const d = gs.players[0].fieldDomain;
         const style = this.getDomainStyle(d.domain);
+        const domainClass = this._domainClass(d.domain);
         html += `
-          <div class="domain-card" style="border-color:${style.color}; background:${style.bg}">
+          <div class="domain-card ${domainClass}" style="border-color:${style.color}; background:${style.bg}">
             <span class="card-name">${this._escapeHtml(d.name)}</span>
             <span class="domain-label">领域</span>
           </div>
@@ -1796,8 +1798,9 @@ class GameUI {
       if (gs.players[1].fieldDomain) {
         const d = gs.players[1].fieldDomain;
         const style = this.getDomainStyle(d.domain);
+        const domainClass = this._domainClass(d.domain);
         html += `
-          <div class="domain-card" style="border-color:${style.color}; background:${style.bg}">
+          <div class="domain-card ${domainClass}" style="border-color:${style.color}; background:${style.bg}">
             <span class="card-name">${this._escapeHtml(d.name)}</span>
             <span class="domain-label">领域</span>
           </div>
@@ -1980,7 +1983,7 @@ class GameUI {
     const oppField = document.getElementById('opp-field');
     if (oppField) {
       oppField.addEventListener('click', (e) => {
-        const cardEl = e.target.closest('.summon-card.enemy, .support-card');
+        const cardEl = e.target.closest('.summon-card.enemy, .support-card, .domain-card');
         if (!cardEl) return;
 
         // 攻击目标选择模式
@@ -2001,7 +2004,6 @@ class GameUI {
           const idx = parseInt(cardEl.dataset.summonIndex);
           const summon = (gs.players[1].fieldSummons || [])[idx];
           if (summon) {
-            // 构造完整卡牌数据供放大查看
             const cardData = this.engine?.getCardById?.(summon.id) || summon.card;
             if (cardData) {
               if (summon.hp !== undefined) {
@@ -2013,15 +2015,25 @@ class GameUI {
             }
           }
         } else if (cardEl.classList.contains('support-card')) {
-          // 驻场辅助卡：从DOM获取名称匹配
           const nameEl = cardEl.querySelector('.v3-name, .card-name');
           if (nameEl) {
             const supports = gs.players[1].fieldSupports || [];
-            const sup = supports.find(s => s.card && s.card.name === nameEl.textContent.trim());
-            if (sup?.card) {
-              sup.card._fromHand = false;
-              sup.card.turns = sup.turns;
-              this._showCardDetail(sup.card);
+            const sup = supports.find(s => (s.card && s.card.name === nameEl.textContent.trim()) || s.name === nameEl.textContent.trim());
+            if (sup) {
+              const cardData = sup.card || this.engine?.getCardById?.(sup.id);
+              if (cardData) {
+                cardData._fromHand = false;
+                cardData.turns = sup.turns;
+                this._showCardDetail(cardData);
+              }
+            }
+          }
+        } else if (cardEl.classList.contains('domain-card')) {
+          if (gs.players[1].fieldDomain) {
+            const domainCard = this.engine?.getCardById?.(gs.players[1].fieldDomain.cardId);
+            if (domainCard) {
+              domainCard._fromHand = false;
+              this._showCardDetail(domainCard);
             }
           }
         }
@@ -2075,17 +2087,19 @@ class GameUI {
           const nameEl = cardEl.querySelector('.v3-name, .card-name');
           if (nameEl) {
             const supports = gs.players[0].fieldSupports || [];
-            const sup = supports.find(s => s.card && s.card.name === nameEl.textContent.trim());
-            if (sup?.card) {
-              sup.card._fromHand = false;
-              sup.card.turns = sup.turns;
-              this._showCardDetail(sup.card);
+            const sup = supports.find(s => (s.card && s.card.name === nameEl.textContent.trim()) || s.name === nameEl.textContent.trim());
+            if (sup) {
+              const cardData = sup.card || this.engine?.getCardById?.(sup.id);
+              if (cardData) {
+                cardData._fromHand = false;
+                cardData.turns = sup.turns;
+                this._showCardDetail(cardData);
+              }
             }
           }
         } else if (cardEl.classList.contains('domain-card')) {
-          const nameEl = cardEl.querySelector('.v3-name, .card-name');
-          if (nameEl && gs.players[0].fieldDomain) {
-            const domainCard = this.engine?.getCardById?.(gs.players[0].fieldDomain.card?.id);
+          if (gs.players[0].fieldDomain) {
+            const domainCard = this.engine?.getCardById?.(gs.players[0].fieldDomain.cardId);
             if (domainCard) {
               domainCard._fromHand = false;
               this._showCardDetail(domainCard);
@@ -2094,6 +2108,25 @@ class GameUI {
         }
       });
     }
+
+    // 出牌区点击（查看详情）
+    const setupPlayZoneClick = (zoneId) => {
+      const zone = document.getElementById(zoneId);
+      if (!zone) return;
+      zone.addEventListener('click', (e) => {
+        const cardEl = e.target.closest('.play-card');
+        if (!cardEl) return;
+        const cardId = cardEl.dataset.cardId;
+        if (!cardId) return;
+        const cardData = this.engine?.getCardById?.(cardId);
+        if (cardData) {
+          cardData._fromHand = false;
+          this._showCardDetail(cardData);
+        }
+      });
+    };
+    setupPlayZoneClick('self-play-zone');
+    setupPlayZoneClick('opp-play-zone');
 
     // ---- 桌面端悬停放大tooltip ----
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
@@ -2202,13 +2235,21 @@ class GameUI {
     // 检查是否可打出
     const cpResult = this.engine.canPlay ? this.engine.canPlay(0, card) : { can: false, reason: '未知错误' };
     if (!cpResult.can) {
-      // 不可打出 — 卡牌抖动 + 显示原因
+      // 不可打出 — 卡牌抖动 + 费用闪红 + 原因提示
       const cardEl = document.querySelector(`#self-hand .card-v3[data-card-id="${this._escapeAttr(card.id)}"]`);
       if (cardEl) {
         cardEl.style.animation = 'shake .4s ease';
         setTimeout(() => cardEl.style.animation = '', 400);
+        // 费用数字闪红
+        const costEl = cardEl.querySelector('.v3-cost');
+        if (costEl) {
+          costEl.style.color = '#e74c3c';
+          costEl.style.textShadow = '0 0 8px rgba(231,76,60,.8)';
+          setTimeout(() => { costEl.style.color = ''; costEl.style.textShadow = ''; }, 600);
+        }
       }
-      this._showCardDetail(card);
+      // 浮动提示（不弹详情窗）
+      this._showFloatingToast(cardEl, cpResult.reason || '无法打出');
       return;
     }
 
@@ -3312,6 +3353,26 @@ class GameUI {
     const d = Array.isArray(domain) ? domain[0] : domain;
     const map = { '力':'domain-force','声':'domain-sound','光':'domain-light','热':'domain-heat','电':'domain-elec','混沌':'domain-chaos' };
     return map[d] || 'domain-force';
+  }
+
+  /** 浮动提示（不阻断操作，自动消失） */
+  _showFloatingToast(anchorEl, msg) {
+    if (!anchorEl) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const toast = document.createElement('div');
+    toast.className = 'floating-toast';
+    toast.textContent = msg;
+    toast.style.cssText = `
+      position:fixed;z-index:999;pointer-events:none;
+      left:${rect.left + rect.width/2}px;top:${rect.top - 28}px;
+      transform:translate(-50%,0);
+      background:rgba(231,76,60,.9);color:#fff;font-size:11px;font-weight:700;
+      padding:4px 10px;border-radius:6px;white-space:nowrap;
+      box-shadow:0 4px 16px rgba(231,76,60,.4);
+      animation:floatUp .8s ease-out forwards;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 800);
   }
 
   getTypeLabel(type) {
