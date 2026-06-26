@@ -538,13 +538,40 @@ class GameUI {
         return;
       }
       
-      // 不满30张：自动补齐
+      // 不满30张：按条件智能补齐
       if (selected.size < MAX_CARDS) {
+        const s = computeStats.call(self);
+        const needMain = Math.max(0, 12 - s.mainCount);
+        const needSub = Math.max(0, 6 - s.subCount);
         const pool = allCards.filter(c => !selected.has(c.id));
-        const shuffled = pool.sort(() => Math.random() - 0.5);
+        // 优先补副领域，再补主领域，最后随机
+        const priority = [];
+        const rest = [];
+        for (const c of pool) {
+          const hasMain = self._cardHasDomain(c, self.mainDomain);
+          const hasSub = self._cardHasDomain(c, self.subDomain);
+          if (hasSub && s.subCount + priority.filter(x => self._cardHasDomain(x, self.subDomain)).length < needSub + s.subCount) {
+            priority.push(c);
+          } else if (hasMain && s.mainCount + priority.filter(x => self._cardHasDomain(x, self.mainDomain)).length + rest.filter(x => self._cardHasDomain(x, self.mainDomain)).length < 18) {
+            rest.push(c);
+          } else if (!hasMain && !hasSub) {
+            rest.push(c);
+          } else {
+            rest.push(c);
+          }
+        }
+        const shuffled = [...priority, ...rest.sort(() => Math.random() - 0.5)];
         for (const c of shuffled) {
           if (selected.size >= MAX_CARDS) break;
           selected.add(c.id);
+        }
+        // 如果还不够，随便补
+        if (selected.size < MAX_CARDS) {
+          const remaining = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
+          for (const c of remaining) {
+            if (selected.size >= MAX_CARDS) break;
+            selected.add(c.id);
+          }
         }
         renderCards();
         renderDeckPanel();
