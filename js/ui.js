@@ -2058,7 +2058,12 @@ class GameUI {
     // 检查是否可打出
     const cpResult = this.engine.canPlay ? this.engine.canPlay(0, card) : { can: false, reason: '未知错误' };
     if (!cpResult.can) {
-      // 不可打出 — 显示放大查看
+      // 不可打出 — 卡牌抖动 + 显示原因
+      const cardEl = document.querySelector(`#self-hand .card-v3[data-card-id="${this._escapeAttr(card.id)}"]`);
+      if (cardEl) {
+        cardEl.style.animation = 'shake .4s ease';
+        setTimeout(() => cardEl.style.animation = '', 400);
+      }
       this._showCardDetail(card);
       return;
     }
@@ -3358,7 +3363,12 @@ class GameUI {
       document.removeEventListener('click', this._zoomOutsideHandler, true);
       this._zoomOutsideHandler = null;
     }
-    document.querySelectorAll('.card-zoom-overlay').forEach(el => el.remove());
+    const overlays = document.querySelectorAll('.card-zoom-overlay');
+    overlays.forEach(el => {
+      el.style.transition = 'opacity .15s ease';
+      el.style.opacity = '0';
+      setTimeout(() => el.remove(), 150);
+    });
     this._hideHoverTooltip();
   }
 
