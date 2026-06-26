@@ -1311,6 +1311,8 @@ class GameUI {
       /* === V13: 角色idle呼吸动画 === */
       .player-info .avatar{animation:idleBreathe 3s ease-in-out infinite}
       @keyframes idleBreathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
+      /* === V15: 费用不足抖动 === */
+      @keyframes shake{0%,100%{transform:translateX(0)}10%,50%,90%{transform:translateX(-4px)}30%,70%{transform:translateX(4px)}}
       /* === Debuff 视觉反馈 === */
       .debuff-indicators{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:0}
       .debuff-badge{display:inline-flex;align-items:center;gap:1px;font-size:10px;font-weight:700;padding:1px 4px;border-radius:4px;animation:debuffPulse 2s ease-in-out infinite}
@@ -3183,6 +3185,11 @@ class GameUI {
 
   _afterAITurn() {
     if (this.phase === 'gameover') return;
+
+    // 启动玩家回合（抽牌、处理灼烧/麻痹/领域衰减/精神恢复）
+    if (this.engine.startTurn) {
+      this.engine.startTurn();
+    }
 
     this.addLogMessage('═══ 你的回合 ═══');
     this.phase = 'quiz';
