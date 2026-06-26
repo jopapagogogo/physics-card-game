@@ -526,7 +526,23 @@ class GameUI {
     overlay.querySelector('#db-clear').addEventListener('click', () => { selected.clear(); renderCards(); renderDeckPanel(); updateCount(); });
 
     overlay.querySelector('#db-auto').addEventListener('click', () => {
-      selected = new Set(this.generateDeck(this.mainDomain, this.subDomain));
+      // 在已选基础上智能补全到30张，不覆盖已有选择
+      const s = computeStats.call(self);
+      const pool = allCards.filter(c => !selected.has(c.id));
+      const picked = [];
+      for (const c of pool.sort(() => Math.random() - 0.5)) {
+        if (selected.size + picked.length >= MAX_CARDS) break;
+        const curDomain = s.domC + picked.filter(x => x.type === 'domain').length;
+        const curMain = s.mainCount + picked.filter(x => self._cardHasDomain(x, self.mainDomain)).length;
+        const curSub = s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length;
+        if (c.type === 'domain' && curDomain >= 2) continue;
+        const hm = self._cardHasDomain(c, self.mainDomain);
+        const hs = self._cardHasDomain(c, self.subDomain);
+        if (hm && curMain >= 18) continue;
+        if (hs && curSub >= 12) continue;
+        picked.push(c);
+      }
+      for (const c of picked) selected.add(c.id);
       renderCards();
       renderDeckPanel();
       updateCount();
@@ -537,53 +553,9 @@ class GameUI {
         alert('请先选择至少1张卡牌，或点击「快速自动组牌」。');
         return;
       }
-      
-      // 不满30张：按条件智能补齐
       if (selected.size < MAX_CARDS) {
-        const s = computeStats.call(self);
-        const pool = allCards.filter(c => !selected.has(c.id));
-        const domainLimit = 2; // 领域卡上限
-        const mainLimit = 18;   // 主领域上限
-        const subNeed = 6;      // 副领域下限
-        const picked = [];
-        // 遍历池子，按条件挑选
-        for (const c of pool.sort(() => Math.random() - 0.5)) {
-          if (selected.size + picked.length >= MAX_CARDS) break;
-          const isDomain = c.type === 'domain';
-          const hasMain = self._cardHasDomain(c, self.mainDomain);
-          const hasSub = self._cardHasDomain(c, self.subDomain);
-          // 统计已选+已挑中的
-          const curDomain = s.domC + picked.filter(x => x.type === 'domain').length;
-          const curMain = s.mainCount + picked.filter(x => self._cardHasDomain(x, self.mainDomain)).length;
-          const curSub = s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length;
-          // 领域卡不能超
-          if (isDomain && curDomain >= domainLimit) continue;
-          // 主领域不能超
-          if (hasMain && curMain >= mainLimit) continue;
-          picked.push(c);
-        }
-        // 如果副领域不够且还有空间，优先补副领域
-        for (const c of pool.sort(() => Math.random() - 0.5)) {
-          if (selected.size + picked.length >= MAX_CARDS) break;
-          const hasSub = self._cardHasDomain(c, self.subDomain);
-          const curSub = s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length;
-          if (!hasSub || curSub >= subNeed) continue;
-          // 替换一个非副领域的
-          const replaceIdx = picked.findIndex(x => !self._cardHasDomain(x, self.subDomain));
-          if (replaceIdx >= 0) picked[replaceIdx] = c;
-        }
-        for (const c of picked) selected.add(c.id);
-        // 如果还不够，随便补（但跳过领域卡超限的）
-        if (selected.size < MAX_CARDS) {
-          const remaining = allCards.filter(c => !selected.has(c.id) && (c.type !== 'domain' || s.domC + [...selected].filter(x => allCards.find(ca => ca.id === x)?.type === 'domain').length < 2)).sort(() => Math.random() - 0.5);
-          for (const c of remaining) {
-            if (selected.size >= MAX_CARDS) break;
-            selected.add(c.id);
-          }
-        }
-        renderCards();
-        renderDeckPanel();
-        updateCount();
+        alert('卡组不足30张，请手动补全或点击「快速自动组牌」自动补齐。');
+        return;
       }
       
       // 领域验证
