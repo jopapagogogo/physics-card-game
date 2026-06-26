@@ -671,121 +671,71 @@ class GameUI {
       return [];
     }
 
-    // 主领域攻击卡（至少8张）
-    const mainAttacks = CARDS.filter(c =>
-      this._cardHasDomain(c, mainDomain) &&
-      c.type === 'attack' &&
-      c.rarity === 'common'
-    ).slice(0, 8);
-
-    // 副领域攻击卡（至少3张）
-    const subAttacks = CARDS.filter(c =>
-      this._cardHasDomain(c, subDomain) &&
-      !this._cardHasDomain(c, mainDomain) &&
-      c.type === 'attack'
-    ).slice(0, 3);
-
-    // 交叉领域攻击卡
-    const crossAttacks = CARDS.filter(c =>
-      this._cardHasDomain(c, mainDomain) &&
-      this._cardHasDomain(c, subDomain) &&
-      c.type === 'attack'
-    ).slice(0, 2);
-
-    // 主领域辅助卡
-    const mainSupports = CARDS.filter(c =>
-      this._cardHasDomain(c, mainDomain) &&
-      (Array.isArray(c.domain) && c.domain.length === 1) &&
-      c.type === 'support'
-    ).slice(0, 5);
-
-    // 副领域辅助卡
-    const subSupports = CARDS.filter(c =>
-      this._cardHasDomain(c, subDomain) &&
-      !this._cardHasDomain(c, mainDomain) &&
-      c.type === 'support'
-    ).slice(0, 3);
-
-    // 通用辅助卡
-    const universalSupports = CARDS.filter(c =>
-      c.type === 'support' &&
-      (!c.domain || (Array.isArray(c.domain) && c.domain.length === 0))
-    ).slice(0, 2);
-
-    // 领域卡
-    const domainCards = CARDS.filter(c =>
-      c.type === 'domain' &&
-      (this._cardHasDomain(c, mainDomain) || this._cardHasDomain(c, subDomain))
-    ).slice(0, 2);
-
-    // 召唤卡
-    const summons = CARDS.filter(c =>
-      c.type === 'summon' &&
-      (this._cardHasDomain(c, mainDomain) || this._cardHasDomain(c, subDomain))
-    ).slice(0, 2);
-
-    // 相变卡
-    const phaseCards = CARDS.filter(c => c.type === 'phase').slice(0, 1);
-
-    let deck = [
-      ...mainAttacks,
-      ...subAttacks,
-      ...crossAttacks,
-      ...mainSupports,
-      ...subSupports,
-      ...universalSupports,
-      ...domainCards,
-      ...summons,
-      ...phaseCards
-    ];
-
-    // 去重（同ID卡最多1张）
     const usedIds = new Set();
-    deck = deck.filter(c => {
-      if (usedIds.has(c.id)) return false;
-      usedIds.add(c.id);
-      return true;
-    });
+    const deck = [];
+    const MAX_MAIN = 18, MAX_SUB = 12, MAX_DOMAIN = 2, TOTAL = 30;
 
-    // 补足30张：按条件——主12-18，副6-12，领域≤2
     const stats = () => {
       let m = 0, s = 0, d = 0;
       for (const c of deck) {
         if (c.type === 'domain') d++;
-        const hm = this._cardHasDomain(c, mainDomain);
-        const hs = this._cardHasDomain(c, subDomain);
-        if (hm) m++;
-        if (hs) s++;
+        if (this._cardHasDomain(c, mainDomain)) m++;
+        if (this._cardHasDomain(c, subDomain)) s++;
       }
       return { main: m, sub: s, domain: d };
     };
-    const pool = CARDS.filter(c => !usedIds.has(c.id));
-    for (const c of pool.sort(() => Math.random() - 0.5)) {
-      if (deck.length >= 30) break;
+
+    const canAdd = (c) => {
       const st = stats();
-      if (c.type === 'domain' && st.domain >= 2) continue;
+      if (c.type === 'domain' && st.domain >= MAX_DOMAIN) return false;
       const hm = this._cardHasDomain(c, mainDomain);
       const hs = this._cardHasDomain(c, subDomain);
-      if (hm && st.main >= 18) continue;
-      if (!hm && !hs) continue; // 只补领域相关卡
-      deck.push(c);
-      usedIds.add(c.id);
-    }
-    // 还不够，放宽条件
-    if (deck.length < 30) {
-      for (const c of pool.sort(() => Math.random() - 0.5)) {
-        if (deck.length >= 30) break;
+      if (hm && st.main >= MAX_MAIN) return false;
+      if (hs && st.sub >= MAX_SUB) return false;
+      return true;
+    };
+
+    const addCards = (cards, max) => {
+      for (const c of cards) {
+        if (deck.length >= TOTAL) break;
         if (usedIds.has(c.id)) continue;
-        const st = stats();
-        if (c.type === 'domain' && st.domain >= 2) continue;
-        const hm = this._cardHasDomain(c, mainDomain);
-        if (hm && st.main >= 18) continue;
+        if (!canAdd(c)) continue;
+        const added = deck.filter(x => x.id === c.id).length;
+        if (added >= max) continue;
         deck.push(c);
         usedIds.add(c.id);
       }
+    };
+
+    // 按优先级取卡：攻击 > 辅助 > 召唤 > 领域 > 相变
+    const mainAtk = CARDS.filter(c => this._cardHasDomain(c, mainDomain) && c.type === 'attack' && c.rarity === 'common');
+    const subAtk = CARDS.filter(c => this._cardHasDomain(c, subDomain) && !this._cardHasDomain(c, mainDomain) && c.type === 'attack');
+    const crossAtk = CARDS.filter(c => this._cardHasDomain(c, mainDomain) && this._cardHasDomain(c, subDomain) && c.type === 'attack');
+    const mainSup = CARDS.filter(c => this._cardHasDomain(c, mainDomain) && !this._cardHasDomain(c, subDomain) && c.type === 'support');
+    const subSup = CARDS.filter(c => this._cardHasDomain(c, subDomain) && !this._cardHasDomain(c, mainDomain) && c.type === 'support');
+    const domain = CARDS.filter(c => c.type === 'domain' && (this._cardHasDomain(c, mainDomain) || this._cardHasDomain(c, subDomain)));
+    const summon = CARDS.filter(c => c.type === 'summon' && (this._cardHasDomain(c, mainDomain) || this._cardHasDomain(c, subDomain)));
+    const phase = CARDS.filter(c => c.type === 'phase');
+
+    addCards(mainAtk, 1);
+    addCards(subAtk, 1);
+    addCards(crossAtk, 1);
+    addCards(mainSup, 1);
+    addCards(subSup, 1);
+    addCards(domain, 1);
+    addCards(summon, 1);
+    addCards(phase, 1);
+
+    // 补到30张
+    const allPool = CARDS.filter(c => !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
+    for (const c of allPool) {
+      if (deck.length >= TOTAL) break;
+      if (!canAdd(c)) continue;
+      deck.push(c);
+      usedIds.add(c.id);
     }
 
-    return deck.slice(0, 30).map(c => c.id);
+    return deck.slice(0, TOTAL).map(c => c.id);
   }
 
   /** 检查卡牌是否属于指定领域 */
