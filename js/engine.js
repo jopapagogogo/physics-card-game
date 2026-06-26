@@ -572,7 +572,8 @@ class GameEngine {
     // 切换回合
     this.currentPlayer = 1 - this.currentPlayer;
     this.turnNumber++;
-    this.startTurn();
+    // 注意：不在此处调用 startTurn()，由调用方（UI层）在合适的时机显式调用
+    // 避免 processFieldEffects 双重递减领域卡回合
   }
 
   /** 拉普拉斯妖：重新排序对方牌库顶部（scry） */
@@ -2543,7 +2544,10 @@ class GameEngine {
         fieldDomain: p.fieldDomain ? { name: p.fieldDomain.card.name, turns: p.fieldDomain.turnsRemaining, domain: p.fieldDomain.card.domain } : null,
         fieldSupports: p.fieldSupports.map(s => ({ name: s.card.name, turns: s.turnsRemaining, id: s.card.id, domain: s.card.domain })),
         burnLayers: p.burnLayers,
+        burnEnhanced: p.burnEnhanced,
+        burnImmune: p.burnImmune,
         paralysis: p.paralysis,
+        spiritDebuff: p.spiritDebuff,
         dotEffects: p.dotEffects.map(d => ({ dmg: d.dmg, turns: d.turnsRemaining })),
         domain: p.domain,
         turnBlocked: p.turnBlocked,

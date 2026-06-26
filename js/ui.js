@@ -1080,8 +1080,11 @@ class GameUI {
               <div class="player-info opponent-info">
                 <span class="avatar">🤖</span>
                 <span class="label">AI对手</span>
-                <div class="hp-bar"><div id="opp-hp-fill" class="hp-bar-fill"></div><span id="opp-hp-text" class="hp-text">1200/1200</span></div>
-                <div class="spirit-bar"><div id="opp-spirit-fill" class="spirit-bar-fill"></div><span id="opp-spirit-text" class="hp-text">50/100</span></div>
+                <div class="avatar-stats">
+                  <div class="hp-bar"><div id="opp-hp-fill" class="hp-bar-fill"></div><span id="opp-hp-text" class="hp-text">1200/1200</span></div>
+                  <div class="spirit-bar"><div id="opp-spirit-fill" class="spirit-bar-fill"></div><span id="opp-spirit-text" class="hp-text">50/100</span></div>
+                </div>
+                <div class="debuff-indicators" id="opp-debuffs"></div>
                 <span id="opp-hand-count" class="hand-counter">🃏5</span>
               </div>
               <div id="opp-summons-r" class="summon-slots"></div>
@@ -1138,6 +1141,7 @@ class GameUI {
                   <div class="hp-bar"><div id="self-hp-fill" class="hp-bar-fill"></div><span id="self-hp-text" class="hp-text">1200/1200</span></div>
                   <div class="spirit-bar"><div id="self-spirit-fill" class="spirit-bar-fill"></div><span id="self-spirit-text" class="hp-text">50/100</span></div>
                 </div>
+                <div class="debuff-indicators" id="self-debuffs"></div>
                 <span id="hand-count" class="hand-counter">🃏5</span>
               </div>
               <div id="self-summons-r" class="summon-slots"></div>
@@ -1244,7 +1248,7 @@ class GameUI {
       .abc-row .hp-bar{position:relative;width:70px;height:12px;border-radius:6px;background:linear-gradient(180deg,#1a2a36,#2c3e50);overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.08)}
       .abc-row .hp-bar::after{content:'';position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.02) 3px,rgba(255,255,255,.02) 4px);pointer-events:none;z-index:2}
       .abc-row .hp-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--red),var(--grn));transition:width .4s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
-      .abc-row .spirit-bar{width:48px;height:7px;border-radius:4px;background:linear-gradient(180deg,#0d1a2a,#1a2a40);overflow:hidden;flex-shrink:0;position:relative;border:1px solid rgba(255,255,255,.06)}
+      .abc-row .spirit-bar{width:48px;height:10px;border-radius:4px;background:linear-gradient(180deg,#0d1a2a,#1a2a40);overflow:hidden;flex-shrink:0;position:relative;border:1px solid rgba(255,255,255,.06)}
       .abc-row .spirit-bar::after{content:'';position:absolute;inset:0;border-radius:4px;background:repeating-linear-gradient(90deg,transparent,transparent 2px,rgba(255,255,255,.03) 2px,rgba(255,255,255,.03) 3px);pointer-events:none;z-index:2}
       .abc-row .spirit-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#3498db,#9b59b6);transition:width .3s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
       .hp-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;pointer-events:none;z-index:3;text-shadow:0 0 4px rgba(0,0,0,.8),0 1px 2px rgba(0,0,0,.6)}
@@ -1307,7 +1311,16 @@ class GameUI {
       /* === V13: 角色idle呼吸动画 === */
       .player-info .avatar{animation:idleBreathe 3s ease-in-out infinite}
       @keyframes idleBreathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
-      .card-tooltip .card-v3.skin-cyber::before,.card-tooltip .card-v3.skin-cyber::after{display:none!important}
+      /* === Debuff 视觉反馈 === */
+      .debuff-indicators{display:flex;align-items:center;gap:3px;flex-shrink:0;min-width:0}
+      .debuff-badge{display:inline-flex;align-items:center;gap:1px;font-size:10px;font-weight:700;padding:1px 4px;border-radius:4px;animation:debuffPulse 2s ease-in-out infinite}
+      .debuff-badge.burn{background:rgba(231,76,60,.25);color:#e74c3c;border:1px solid rgba(231,76,60,.4);box-shadow:0 0 6px rgba(231,76,60,.2)}
+      .debuff-badge.paralysis{background:rgba(155,89,182,.25);color:#c39bdb;border:1px solid rgba(155,89,182,.4);box-shadow:0 0 6px rgba(155,89,182,.2)}
+      .debuff-badge.immune{background:rgba(46,204,113,.2);color:#2ecc71;border:1px solid rgba(46,204,113,.35);box-shadow:0 0 4px rgba(46,204,113,.15)}
+      .debuff-badge .debuff-icon{font-size:11px;line-height:1}
+      .debuff-badge .debuff-count{font-size:10px;line-height:1}
+      @keyframes debuffPulse{0%,100%{opacity:.85}50%{opacity:1}}
+      /* === tooltip 稀有度样式（保留） === */
       .card-tooltip .card-v3.skin-cyber{box-shadow:0 0 6px rgba(0,0,0,.5)!important}
       .card-tooltip .card-v3{background-clip:border-box!important}
       .card-tooltip{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;width:auto!important;pointer-events:auto!important}
@@ -1424,6 +1437,7 @@ class GameUI {
 
       this._updateHP(gs);
       this._updateSpirit(gs);
+      this._updateDebuffs(gs);
       this._updateLightSpeedIndicator();
       this.renderPlayZones();
       this.renderHand();
@@ -1467,6 +1481,53 @@ class GameUI {
       badge.textContent = `⚡ 光速传播 (${turns}回合)`;
       badge.title = '对方回合可打出光系卡（费用+3）';
       selfInfo.appendChild(badge);
+    }
+  }
+
+  /** 更新双方 Debuff 视觉指示器（灼烧/麻痹/免疫） */
+  _updateDebuffs(gs) {
+    const selfDebuffs = document.getElementById('self-debuffs');
+    const oppDebuffs = document.getElementById('opp-debuffs');
+    if (!gs || !gs.players) return;
+
+    for (let i = 0; i < 2; i++) {
+      const container = i === 0 ? selfDebuffs : oppDebuffs;
+      if (!container) continue;
+      const p = gs.players[i];
+      const burnPerLayer = p.burnEnhanced ? 36 : 30;
+      let html = '';
+
+      // 灼烧层数
+      if (p.burnLayers > 0) {
+        const tip = `灼烧: 每回合${p.burnLayers}层×${burnPerLayer}=${p.burnLayers * burnPerLayer}伤害`;
+        html += `<span class="debuff-badge burn" title="${tip}">
+          <span class="debuff-icon">🔥</span><span class="debuff-count">${p.burnLayers}</span>
+        </span>`;
+      }
+
+      // 灼烧免疫（比热护盾）
+      if (p.burnImmune > 0) {
+        html += `<span class="debuff-badge immune" title="比热护盾: 免疫灼烧伤害 ${p.burnImmune}回合（灼烧仍可附加和衰减）">
+          <span class="debuff-icon">🛡</span><span class="debuff-count">${p.burnImmune}t</span>
+        </span>`;
+      }
+
+      // 麻痹层数
+      if (p.paralysis > 0) {
+        const paraCost = p.paralysis * 2;
+        html += `<span class="debuff-badge paralysis" title="麻痹: 每卡额外消耗${paraCost}精神力 + 每回合${p.paralysis}×15伤害">
+          <span class="debuff-icon">⚡</span><span class="debuff-count">${p.paralysis}</span>
+        </span>`;
+      }
+
+      // 精神力减益
+      if (p.spiritDebuff < 0) {
+        html += `<span class="debuff-badge paralysis" title="精神力恢复减益: ${p.spiritDebuff}/回合">
+          <span class="debuff-icon">📉</span><span class="debuff-count">${p.spiritDebuff}</span>
+        </span>`;
+      }
+
+      container.innerHTML = html;
     }
   }
 
@@ -2746,9 +2807,13 @@ class GameUI {
   }
 
   _afterPlayerDiscard() {
-    // 引擎切换回合（endTurn会自动调用startTurn为AI）
+    // 引擎切换回合（endTurn只切换currentPlayer，不调startTurn）
     if (this.engine.endTurn) {
       this.engine.endTurn();
+    }
+    // 启动AI回合
+    if (this.engine.startTurn) {
+      this.engine.startTurn();
     }
     this.phase = 'ai';
     this.selectedCard = null;
