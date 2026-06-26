@@ -541,33 +541,41 @@ class GameUI {
       // 不满30张：按条件智能补齐
       if (selected.size < MAX_CARDS) {
         const s = computeStats.call(self);
-        const needMain = Math.max(0, 12 - s.mainCount);
-        const needSub = Math.max(0, 6 - s.subCount);
         const pool = allCards.filter(c => !selected.has(c.id));
-        // 优先补副领域，再补主领域，最后随机
-        const priority = [];
-        const rest = [];
-        for (const c of pool) {
+        const domainLimit = 2; // 领域卡上限
+        const mainLimit = 18;   // 主领域上限
+        const subNeed = 6;      // 副领域下限
+        const picked = [];
+        // 遍历池子，按条件挑选
+        for (const c of pool.sort(() => Math.random() - 0.5)) {
+          if (selected.size + picked.length >= MAX_CARDS) break;
+          const isDomain = c.type === 'domain';
           const hasMain = self._cardHasDomain(c, self.mainDomain);
           const hasSub = self._cardHasDomain(c, self.subDomain);
-          if (hasSub && s.subCount + priority.filter(x => self._cardHasDomain(x, self.subDomain)).length < needSub + s.subCount) {
-            priority.push(c);
-          } else if (hasMain && s.mainCount + priority.filter(x => self._cardHasDomain(x, self.mainDomain)).length + rest.filter(x => self._cardHasDomain(x, self.mainDomain)).length < 18) {
-            rest.push(c);
-          } else if (!hasMain && !hasSub) {
-            rest.push(c);
-          } else {
-            rest.push(c);
-          }
+          // 统计已选+已挑中的
+          const curDomain = s.domC + picked.filter(x => x.type === 'domain').length;
+          const curMain = s.mainCount + picked.filter(x => self._cardHasDomain(x, self.mainDomain)).length;
+          const curSub = s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length;
+          // 领域卡不能超
+          if (isDomain && curDomain >= domainLimit) continue;
+          // 主领域不能超
+          if (hasMain && curMain >= mainLimit) continue;
+          picked.push(c);
         }
-        const shuffled = [...priority, ...rest.sort(() => Math.random() - 0.5)];
-        for (const c of shuffled) {
-          if (selected.size >= MAX_CARDS) break;
-          selected.add(c.id);
+        // 如果副领域不够且还有空间，优先补副领域
+        for (const c of pool.sort(() => Math.random() - 0.5)) {
+          if (selected.size + picked.length >= MAX_CARDS) break;
+          const hasSub = self._cardHasDomain(c, self.subDomain);
+          const curSub = s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length;
+          if (!hasSub || curSub >= subNeed) continue;
+          // 替换一个非副领域的
+          const replaceIdx = picked.findIndex(x => !self._cardHasDomain(x, self.subDomain));
+          if (replaceIdx >= 0) picked[replaceIdx] = c;
         }
-        // 如果还不够，随便补
+        for (const c of picked) selected.add(c.id);
+        // 如果还不够，随便补（但跳过领域卡超限的）
         if (selected.size < MAX_CARDS) {
-          const remaining = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
+          const remaining = allCards.filter(c => !selected.has(c.id) && (c.type !== 'domain' || s.domC + [...selected].filter(x => allCards.find(ca => ca.id === x)?.type === 'domain').length < 2)).sort(() => Math.random() - 0.5);
           for (const c of remaining) {
             if (selected.size >= MAX_CARDS) break;
             selected.add(c.id);
