@@ -832,6 +832,12 @@ class GameUI {
     const optionsEl = document.getElementById('quiz-options');
     if (!optionsEl) return;
 
+    const quizCard = document.querySelector('.quiz-card');
+    if (quizCard) {
+      quizCard.classList.add(result.correct ? 'correct-flash' : 'wrong-flash');
+      setTimeout(() => quizCard.classList.remove('correct-flash', 'wrong-flash'), 400);
+    }
+
     const options = optionsEl.querySelectorAll('.quiz-option');
     const correctIdx = q.answer !== undefined ? q.answer : -1;
 
@@ -901,6 +907,7 @@ class GameUI {
       if (timerFill) {
         timerFill.style.width = pct + '%';
         timerFill.style.background = pct < 30 ? '#e74c3c' : pct < 60 ? '#f39c12' : '#3498db';
+        timerFill.classList.toggle('urgent', pct < 25);
       }
 
       if (remaining <= 0) {
