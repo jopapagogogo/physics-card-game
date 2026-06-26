@@ -314,6 +314,7 @@ class GameUI {
 
   /** 卡组构建器 — 全屏选牌界面 */
   showDeckBuilder() {
+    const self = this; // 保存UI实例引用，内部函数this可能丢失
     // 初始化选中卡组
     let selected = new Set(this.customDeck || []);
     const allCards = CARDS;
@@ -464,7 +465,7 @@ class GameUI {
       });
 
       // 统计
-      const s = computeStats.call(this);
+      const s = computeStats.call(self);
       const domStats = {};
       for (const id of selected) {
         const c = allCards.find(card => card.id === id);
@@ -499,7 +500,7 @@ class GameUI {
       const text = overlay.querySelector('#db-progress-text');
       if (text) { text.textContent = count + '/30 已选'; text.style.color = count === 30 ? '#4CAF50' : count > 0 ? '#FFA500' : '#999'; }
       // 条件指示器
-      const s = computeStats.call(this);
+      const s = computeStats.call(self);
       const condMain = overlay.querySelector('#db-cond-main');
       const condSub = overlay.querySelector('#db-cond-sub');
       const condDom = overlay.querySelector('#db-cond-domain');
