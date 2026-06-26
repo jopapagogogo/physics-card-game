@@ -739,37 +739,49 @@ class GameUI {
       ...phaseCards
     ];
 
-    // 去重（同ID卡最多2张）
-    const count = {};
+    // 去重（同ID卡最多1张）
+    const usedIds = new Set();
     deck = deck.filter(c => {
-      count[c.id] = (count[c.id] || 0) + 1;
-      return count[c.id] <= 2;
+      if (usedIds.has(c.id)) return false;
+      usedIds.add(c.id);
+      return true;
     });
 
-    // 补足30张
-    while (deck.length < 30) {
-      const filler = CARDS.find(c =>
-        c.type === 'attack' &&
-        this._cardHasDomain(c, mainDomain) &&
-        !deck.some(d => d.id === c.id)
-      );
-      if (filler) {
-        deck.push(filler);
-      } else {
-        break;
+    // 补足30张：按条件——主12-18，副6-12，领域≤2
+    const stats = () => {
+      let m = 0, s = 0, d = 0;
+      for (const c of deck) {
+        if (c.type === 'domain') d++;
+        const hm = this._cardHasDomain(c, mainDomain);
+        const hs = this._cardHasDomain(c, subDomain);
+        if (hm) m++;
+        if (hs) s++;
       }
+      return { main: m, sub: s, domain: d };
+    };
+    const pool = CARDS.filter(c => !usedIds.has(c.id));
+    for (const c of pool.sort(() => Math.random() - 0.5)) {
+      if (deck.length >= 30) break;
+      const st = stats();
+      if (c.type === 'domain' && st.domain >= 2) continue;
+      const hm = this._cardHasDomain(c, mainDomain);
+      const hs = this._cardHasDomain(c, subDomain);
+      if (hm && st.main >= 18) continue;
+      if (!hm && !hs) continue; // 只补领域相关卡
+      deck.push(c);
+      usedIds.add(c.id);
     }
-
-    // 去重后仍然不足，尝试任意攻击卡
-    while (deck.length < 30) {
-      const filler = CARDS.find(c =>
-        c.type === 'attack' &&
-        !deck.some(d => d.id === c.id)
-      );
-      if (filler) {
-        deck.push(filler);
-      } else {
-        break;
+    // 还不够，放宽条件
+    if (deck.length < 30) {
+      for (const c of pool.sort(() => Math.random() - 0.5)) {
+        if (deck.length >= 30) break;
+        if (usedIds.has(c.id)) continue;
+        const st = stats();
+        if (c.type === 'domain' && st.domain >= 2) continue;
+        const hm = this._cardHasDomain(c, mainDomain);
+        if (hm && st.main >= 18) continue;
+        deck.push(c);
+        usedIds.add(c.id);
       }
     }
 
