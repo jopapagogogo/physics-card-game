@@ -482,7 +482,9 @@ class GameUI {
 
     function updateCount() {
       const count = selected.size;
+      console.log('[updateCount] selected.size=', count, 'selected=', [...selected]);
       const countEl = overlay.querySelector('#db-count');
+      console.log('[updateCount] countEl=', !!countEl, 'textContent=', countEl?.textContent);
       countEl.textContent = count;
       countEl.style.color = count === 30 ? '#4CAF50' : count > 0 ? '#FFA500' : '#f44336';
       const saveCount = overlay.querySelector('#db-save-count');
