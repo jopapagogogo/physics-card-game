@@ -334,9 +334,28 @@ class GameUI {
         <button id="db-cancel" class="db-btn-cancel">← 返回</button>
       </div>
       <div class="db-filters">
+        <div class="db-domain-filters">
+          <button class="db-domain-btn active" data-domain="all">全部</button>
+          <button class="db-domain-btn" data-domain="力" style="--dc:#E74C3C">💪 力</button>
+          <button class="db-domain-btn" data-domain="声" style="--dc:#3498DB">🔊 声</button>
+          <button class="db-domain-btn" data-domain="光" style="--dc:#F1C40F">💡 光</button>
+          <button class="db-domain-btn" data-domain="热" style="--dc:#E67E22">🔥 热</button>
+          <button class="db-domain-btn" data-domain="电" style="--dc:#9B59B6">⚡ 电</button>
+        </div>
         <select id="db-filter-type"><option value="all">全部类型</option><option value="attack">攻击卡</option><option value="support">辅助卡</option><option value="summon">召唤卡</option><option value="domain">领域卡</option><option value="phase">相变卡</option></select>
         <select id="db-filter-rarity"><option value="all">全部稀有度</option><option value="common">普通</option><option value="rare">稀有</option><option value="epic">史诗</option><option value="legendary">传说</option><option value="mythic">神话</option></select>
         <input id="db-search" type="text" placeholder="🔍 搜索卡牌名称..." class="db-search">
+      </div>
+      <div class="db-progress">
+        <div class="db-progress-bar">
+          <div class="db-progress-fill" id="db-progress-fill"></div>
+        </div>
+        <div class="db-progress-text" id="db-progress-text">0/30 已选</div>
+        <div class="db-conditions">
+          <span id="db-cond-main">主领域12-18</span>
+          <span id="db-cond-sub">副领域6-12</span>
+          <span id="db-cond-domain">领域卡≤2</span>
+        </div>
       </div>
       <div class="db-main">
         <div class="db-card-list" id="db-card-list"></div>
@@ -364,6 +383,10 @@ class GameUI {
       let filtered = allCards.filter(c => {
         if (filterType !== 'all' && c.type !== filterType) return false;
         if (filterRarity !== 'all' && c.rarity !== filterRarity) return false;
+        if (filterDomain !== 'all') {
+          const d = Array.isArray(c.domain) ? c.domain : [c.domain];
+          if (!d.includes(filterDomain)) return false;
+        }
         if (searchText && !c.name.toLowerCase().includes(searchText)) return false;
         return true;
       });
@@ -461,16 +484,30 @@ class GameUI {
     }
 
     function updateCount() {
-      const count = overlay.querySelector('#db-count');
-      count.textContent = selected.size;
-      count.style.color = selected.size === 30 ? '#4CAF50' : selected.size > 0 ? '#FFA500' : '#f44336';
+      const count = selected.size;
+      const countEl = overlay.querySelector('#db-count');
+      countEl.textContent = count;
+      countEl.style.color = count === 30 ? '#4CAF50' : count > 0 ? '#FFA500' : '#f44336';
       const saveCount = overlay.querySelector('#db-save-count');
-      if (saveCount) saveCount.textContent = selected.size;
-      if (selected.size < 30 && selected.size > 0) {
+      if (saveCount) saveCount.textContent = count;
+      if (count < 30 && count > 0) {
         overlay.querySelector('#db-save').classList.add('warn');
       } else {
         overlay.querySelector('#db-save').classList.remove('warn');
       }
+      // 进度条
+      const pct = Math.min(100, (count / 30) * 100);
+      const fill = overlay.querySelector('#db-progress-fill');
+      if (fill) { fill.style.width = pct + '%'; fill.style.background = pct === 100 ? '#4CAF50' : pct > 50 ? '#FFA500' : '#f44336'; }
+      const text = overlay.querySelector('#db-progress-text');
+      if (text) { text.textContent = count + '/30 已选'; text.style.color = count === 30 ? '#4CAF50' : count > 0 ? '#FFA500' : '#999'; }
+      // 条件指示器
+      const condMain = overlay.querySelector('#db-cond-main');
+      const condSub = overlay.querySelector('#db-cond-sub');
+      const condDom = overlay.querySelector('#db-cond-domain');
+      if (condMain) { condMain.style.color = mainCount >= 12 && mainCount <= 18 ? '#4CAF50' : '#f44336'; condMain.textContent = `主${mainCount}/12-18`; }
+      if (condSub) { condSub.style.color = subCount >= 6 && subCount <= 12 ? '#4CAF50' : '#f44336'; condSub.textContent = `副${subCount}/6-12`; }
+      if (condDom) { condDom.style.color = domC <= 2 ? '#4CAF50' : '#f44336'; condDom.textContent = `领域${domC}/≤2`; }
     }
 
     // 事件绑定
@@ -478,6 +515,15 @@ class GameUI {
     overlay.querySelector('#db-search').addEventListener('input', renderCards);
     overlay.querySelector('#db-filter-type').addEventListener('change', (e) => { filterType = e.target.value; renderCards(); });
     overlay.querySelector('#db-filter-rarity').addEventListener('change', (e) => { filterRarity = e.target.value; renderCards(); });
+    // 领域筛选按钮
+    overlay.querySelectorAll('.db-domain-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        overlay.querySelectorAll('.db-domain-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterDomain = btn.dataset.domain;
+        renderCards();
+      });
+    });
     overlay.querySelector('#db-clear').addEventListener('click', () => { selected.clear(); renderCards(); renderDeckPanel(); updateCount(); });
 
     overlay.querySelector('#db-auto').addEventListener('click', () => {
