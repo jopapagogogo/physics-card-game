@@ -420,6 +420,22 @@ class GameUI {
       });
     }
 
+    function computeStats() {
+      const stats = { mainCount: 0, subCount: 0, domC: 0, totalDmg: 0 };
+      for (const id of selected) {
+        const c = allCards.find(card => card.id === id);
+        if (!c) continue;
+        stats.totalDmg += c.effect?.dmg || 0;
+        if (c.type === 'domain') stats.domC++;
+        const hasMain = this._cardHasDomain(c, this.mainDomain);
+        const hasSub = this._cardHasDomain(c, this.subDomain);
+        if (hasMain && hasSub) { stats.mainCount++; stats.subCount++; }
+        else if (hasMain) stats.mainCount++;
+        else if (hasSub) stats.subCount++;
+      }
+      return stats;
+    }
+
     // 渲染右侧卡组面板
     const selectedList = overlay.querySelector('#db-selected-list');
     function renderDeckPanel() {
@@ -448,39 +464,20 @@ class GameUI {
       });
 
       // 统计
-      const stats = {};
-      let totalDmg = 0;
+      const s = computeStats.call(this);
+      const domStats = {};
       for (const id of selected) {
         const c = allCards.find(card => card.id === id);
         if (!c) continue;
         const d = Array.isArray(c.domain) ? c.domain[0] : '力';
-        stats[d] = (stats[d] || 0) + 1;
-        totalDmg += c.effect?.dmg || 0;
+        domStats[d] = (domStats[d] || 0) + 1;
       }
-      // 统计数据（类型 + 领域）
-      let mainCount = 0, subCount = 0, otherCount = 0;
-      let atkC = 0, supC = 0, sumC = 0, domC = 0, phsC = 0;
-      for (const id of selected) {
-        const c = allCards.find(card => card.id === id);
-        if (!c) continue;
-        if (c.type === 'attack') atkC++;
-        else if (c.type === 'support') supC++;
-        else if (c.type === 'summon') sumC++;
-        else if (c.type === 'domain') domC++;
-        else if (c.type === 'phase') phsC++;
-        const hasMain = this._cardHasDomain(c, this.mainDomain);
-        const hasSub = this._cardHasDomain(c, this.subDomain);
-        if (hasMain && hasSub) { mainCount++; subCount++; }
-        else if (hasMain) mainCount++;
-        else if (hasSub) subCount++;
-        else otherCount++;
-      }
-      const statHTML = Object.entries(stats).map(([d, c]) =>
+      const statHTML = Object.entries(domStats).map(([d, c]) =>
         `<span style="color:${colorMap[d] || '#888'}">${d}×${c}</span>`
       ).join(' ');
-      const allValid = domC <= 2 && mainCount >= 12 && mainCount <= 18 && subCount >= 6 && subCount <= 12 && selected.size === 30;
+      const allValid = s.domC <= 2 && s.mainCount >= 12 && s.mainCount <= 18 && s.subCount >= 6 && s.subCount <= 12 && selected.size === 30;
       const ruleIcon = allValid ? '✅' : '⚠️';
-      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(totalDmg / selected.size) : 0}<br>${ruleIcon} 主${mainCount}(12-18) 副${subCount}(6-12) 领域${domC}(≤2) | 30张必须满`;
+      overlay.querySelector('#db-stats').innerHTML = `${statHTML} | 均伤≈${selected.size > 0 ? Math.round(s.totalDmg / selected.size) : 0}<br>${ruleIcon} 主${s.mainCount}(12-18) 副${s.subCount}(6-12) 领域${s.domC}(≤2) | 30张必须满`;
     }
 
     function updateCount() {
@@ -502,12 +499,13 @@ class GameUI {
       const text = overlay.querySelector('#db-progress-text');
       if (text) { text.textContent = count + '/30 已选'; text.style.color = count === 30 ? '#4CAF50' : count > 0 ? '#FFA500' : '#999'; }
       // 条件指示器
+      const s = computeStats.call(this);
       const condMain = overlay.querySelector('#db-cond-main');
       const condSub = overlay.querySelector('#db-cond-sub');
       const condDom = overlay.querySelector('#db-cond-domain');
-      if (condMain) { condMain.style.color = mainCount >= 12 && mainCount <= 18 ? '#4CAF50' : '#f44336'; condMain.textContent = `主${mainCount}/12-18`; }
-      if (condSub) { condSub.style.color = subCount >= 6 && subCount <= 12 ? '#4CAF50' : '#f44336'; condSub.textContent = `副${subCount}/6-12`; }
-      if (condDom) { condDom.style.color = domC <= 2 ? '#4CAF50' : '#f44336'; condDom.textContent = `领域${domC}/≤2`; }
+      if (condMain) { condMain.style.color = s.mainCount >= 12 && s.mainCount <= 18 ? '#4CAF50' : '#f44336'; condMain.textContent = `主${s.mainCount}/12-18`; }
+      if (condSub) { condSub.style.color = s.subCount >= 6 && s.subCount <= 12 ? '#4CAF50' : '#f44336'; condSub.textContent = `副${s.subCount}/6-12`; }
+      if (condDom) { condDom.style.color = s.domC <= 2 ? '#4CAF50' : '#f44336'; condDom.textContent = `领域${s.domC}/≤2`; }
     }
 
     // 事件绑定
