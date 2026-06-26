@@ -37,8 +37,42 @@ class GameUI {
     this._attackTargeting = false;
     this.playZoneSelf = []; // 己方出牌展示区
     this.playZoneAi = [];   // AI出牌展示区
-    this.customDeck = null; // 玩家自定义卡组
+    this.customDeck = null; // 玩家自定义卡组（当前选中的）
+    this.savedDecks = {};   // 保存的卡组套装 {名称: {ids:[], main, sub}}
     this._lastHandIds = []; // renderHand 局部更新追踪
+    this._loadDecks();      // 从localStorage加载
+  }
+
+  /** 从localStorage加载已保存的卡组 */
+  _loadDecks() {
+    try {
+      const raw = localStorage.getItem('physics_saved_decks');
+      this.savedDecks = raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      this.savedDecks = {};
+    }
+  }
+
+  /** 保存卡组到localStorage */
+  _saveDecks() {
+    try {
+      localStorage.setItem('physics_saved_decks', JSON.stringify(this.savedDecks));
+    } catch (e) {
+      console.warn('保存卡组失败:', e.message);
+    }
+  }
+
+  /** 更新开始界面卡组下拉 */
+  _updateDeckSelect() {
+    const select = document.getElementById('deck-select');
+    if (!select) return;
+    const names = Object.keys(this.savedDecks);
+    select.innerHTML = '<option value="">🃏 使用默认卡组</option>' +
+      names.map(n => `<option value="${n}">${n}</option>`).join('');
+    select.style.display = names.length > 0 ? '' : 'none';
+    if (this.customDeckName) {
+      select.value = this.customDeckName;
+    }
   }
 
   // ==================== 初始化 ====================
@@ -124,7 +158,8 @@ class GameUI {
 
           <div class="start-footer">
             <div class="start-actions">
-              <button id="btn-deck-builder" class="btn-deck-builder" disabled>🃏 自定义卡组</button>
+              <select id="deck-select" class="deck-select" style="display:none"><option value="">🃏 使用自定义卡组</option></select>
+              <button id="btn-deck-builder" class="btn-deck-builder" disabled>🃏 编辑卡组</button>
               <button id="btn-start-game" class="btn-start" disabled>⚔ 开始战斗</button>
             </div>
             <p id="start-hint" class="start-hint">请先选择主领域和副领域</p>
@@ -202,6 +237,13 @@ class GameUI {
       .btn-deck-builder:disabled { opacity:.3; cursor:not-allowed; }
       .start-hint { font-size:11px; color:var(--mt); margin-top:6px; }
       .deck-summary { font-size:12px; color:#c084fc; margin-top:6px; }
+      .deck-select {
+        padding:10px 14px; font-size:14px; font-weight:700;
+        background:rgba(147,51,234,.12); color:#c084fc;
+        border:1.5px solid rgba(147,51,234,.3); border-radius:10px;
+        cursor:pointer; max-width:200px;
+      }
+      .deck-select option { background:#1a1a2e; color:#ccc; }
     `;
     document.head.appendChild(style);
   }
@@ -239,6 +281,21 @@ class GameUI {
     if (deckBtn) deckBtn.addEventListener('click', () => {
       if (this.mainDomain && this.subDomain) {
         this.showDeckBuilder();
+      }
+    });
+
+    // 卡组下拉选择
+    const deckSelect = document.getElementById('deck-select');
+    if (deckSelect) deckSelect.addEventListener('change', () => {
+      const name = deckSelect.value;
+      if (name && this.savedDecks[name]) {
+        this.customDeck = [...this.savedDecks[name].ids];
+        this.customDeckName = name;
+        this._updateStartButton();
+      } else {
+        this.customDeck = null;
+        this.customDeckName = null;
+        this._updateStartButton();
       }
     });
 
@@ -296,12 +353,15 @@ class GameUI {
     btn.disabled = !ready;
     if (btnDeck) btnDeck.disabled = !ready;
     
+    // 更新卡组下拉
+    this._updateDeckSelect();
+    
     // 显示自定义卡组摘要
     if (this.customDeck && this.customDeck.length > 0) {
       const deckSummary = document.getElementById('deck-summary');
       if (deckSummary) {
         deckSummary.style.display = 'block';
-        deckSummary.innerHTML = '🃏 自定义卡组：' + this.customDeck.length + ' 张（点击自定义卡组可修改）';
+        deckSummary.innerHTML = '🃏 ' + (this.customDeckName || '自定义卡组') + '：' + this.customDeck.length + ' 张';
       }
     }
     
@@ -582,8 +642,15 @@ class GameUI {
       if (subCount > 12) { alert('副领域「' + self.subDomain + '」最多12张（当前' + subCount + '张）'); return; }
       if (domainCount > 2) { alert('领域卡最多2张（当前' + domainCount + '张）'); return; }
       
-      this.customDeck = ids;
-      this._updateStartButton();
+      // 取名保存
+      const defaultName = self.mainDomain + '·' + self.subDomain + ' 卡组 ' + (Object.keys(self.savedDecks).length + 1);
+      const name = prompt('为这套卡组起个名字：', self.customDeckName || defaultName);
+      if (!name) return;
+      self.savedDecks[name] = { ids, main: self.mainDomain, sub: self.subDomain };
+      self._saveDecks();
+      self.customDeck = ids;
+      self.customDeckName = name;
+      self._updateStartButton();
       overlay.remove();
     });
 
