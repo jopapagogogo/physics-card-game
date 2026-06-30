@@ -597,29 +597,38 @@ class GameUI {
 
       const curStats = () => {
         const s = computeStats.call(self);
-        const pm = picked.filter(x => inMain(x)).length;
-        const ps = picked.filter(x => inSub(x)).length;
-        const pd = picked.filter(x => x.type === 'domain').length;
         return {
-          main: s.mainCount + pm, sub: s.subCount + ps,
-          dom: s.domC + pd, total: selected.size + picked.length
+          main: s.mainCount + picked.filter(x => inMain(x)).length,
+          sub: s.subCount + picked.filter(x => inSub(x)).length,
+          dom: s.domC + picked.filter(x => x.type === 'domain').length,
+          total: selected.size + picked.length
         };
       };
-      const needM = () => Math.max(0, 12 - curStats().main);
-      const needS = () => Math.max(0, 6 - curStats().sub);
 
       const pool = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
-      const addTo = (arr) => { for (const c of arr) { if (curStats().total >= MAX_C) break; if (!picked.includes(c)) picked.push(c); } };
 
       // 阶段1a：填主领域唯一卡到主≥12
-      addTo(pool.filter(c => inMain(c) && !inSub(c) && c.type !== 'domain' && needM() > 0));
+      for (const c of pool) {
+        if (curStats().main >= 12 || curStats().total >= MAX_C) break;
+        if (!inMain(c) || inSub(c) || c.type === 'domain') continue;
+        picked.push(c);
+      }
 
       // 阶段1b：填副领域唯一卡到副≥6
-      addTo(pool.filter(c => inSub(c) && !inMain(c) && c.type !== 'domain' && needS() > 0));
+      for (const c of pool) {
+        if (curStats().sub >= 6 || curStats().total >= MAX_C) break;
+        if (!inSub(c) || inMain(c) || c.type === 'domain') continue;
+        picked.push(c);
+      }
 
       // 阶段1c：交叉领域卡补缺口
-      if (needM() > 0 || needS() > 0) {
-        addTo(pool.filter(c => inBoth(c) && c.type !== 'domain' && !picked.includes(c)));
+      if (curStats().main < 12 || curStats().sub < 6) {
+        for (const c of pool) {
+          if (curStats().total >= MAX_C) break;
+          if (curStats().main >= 12 && curStats().sub >= 6) break;
+          if (!inBoth(c) || c.type === 'domain' || picked.includes(c)) continue;
+          picked.push(c);
+        }
       }
 
       // 阶段2：随机约束填充到30
@@ -635,12 +644,21 @@ class GameUI {
 
       // 阶段3：中性卡兜底
       if (curStats().total < MAX_C) {
-        addTo(pool.filter(c => !picked.includes(c) && c.type !== 'domain' && inNeither(c)));
+        for (const c of pool) {
+          if (curStats().total >= MAX_C) break;
+          if (picked.includes(c) || c.type === 'domain') continue;
+          if (!inNeither(c)) continue;
+          picked.push(c);
+        }
       }
 
       // 阶段4：最终兜底
       if (curStats().total < MAX_C) {
-        addTo(pool.filter(c => !picked.includes(c) && c.type !== 'domain'));
+        for (const c of pool) {
+          if (curStats().total >= MAX_C) break;
+          if (picked.includes(c) || c.type === 'domain') continue;
+          picked.push(c);
+        }
       }
 
       for (const c of picked) selected.add(c.id);
