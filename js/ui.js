@@ -2001,9 +2001,9 @@ class GameUI {
     const style = this.getDomainStyle(cardData.domain);
     const artUrl = this.artMap[cardData.id] || '';
     const typeText = typeLabel === 'domain' ? '领域' : '辅助';
-    const desc = (cardData.description || '').substring(0, 25);
+    const cardClass = typeLabel === 'domain' ? 'domain-card' : 'support-card';
     return `
-      <div class="field-card-v3" style="display:flex;flex-direction:column;width:96px;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid ${style.color};background:#1a1a2e;box-shadow:0 0 10px ${style.bg};">
+      <div class="field-card-v3 ${cardClass}" data-card-id="${this._escapeAttr(cardData.id)}" style="display:flex;flex-direction:column;width:96px;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid ${style.color};background:#1a1a2e;box-shadow:0 0 10px ${style.bg};">
         <div style="height:72px;background:${style.bg};display:flex;align-items:center;justify-content:center;overflow:hidden;">
           ${artUrl ? `<img src="${this._escapeAttr(artUrl)}" style="width:100%;height:100%;object-fit:cover;">` : `<span style="font-size:28px;opacity:.2;">⚛</span>`}
         </div>
@@ -2216,17 +2216,15 @@ class GameUI {
             }
           }
         } else if (cardEl.classList.contains('support-card')) {
-          const nameEl = cardEl.querySelector('.v3-name, .card-name');
-          if (nameEl) {
-            const supports = gs.players[1].fieldSupports || [];
-            const sup = supports.find(s => (s.card && s.card.name === nameEl.textContent.trim()) || s.name === nameEl.textContent.trim());
-            if (sup) {
-              const cardData = sup.card || this.engine?.getCardById?.(sup.id);
-              if (cardData) {
-                cardData._fromHand = false;
-                cardData.turns = sup.turns;
-                this._showCardDetail(cardData);
-              }
+          const cardId = cardEl.dataset.cardId;
+          const supports = gs.players[1].fieldSupports || [];
+          const sup = supports.find(s => s.id === cardId || s.card?.id === cardId);
+          if (sup) {
+            const cardData = sup.card || this.engine?.getCardById?.(sup.id);
+            if (cardData) {
+              cardData._fromHand = false;
+              cardData.turns = sup.turns;
+              this._showCardDetail(cardData);
             }
           }
         } else if (cardEl.classList.contains('domain-card')) {
