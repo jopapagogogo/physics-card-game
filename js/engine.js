@@ -1233,6 +1233,7 @@ class GameEngine {
       this.echoBombPending[attackerIdx] = true;
       this.echoBombDmg[attackerIdx] = 100;
       damage = 0;
+      effects.push({ type: 'echo_bomb_pending', dmg: 100, msg: '回声爆破待触发，下回合自动造成100伤害' });
     }
 
     if (card.id === 'A41') {
@@ -1622,6 +1623,10 @@ class GameEngine {
         });
       }
     }
+    // 领域级防御（forceDefense/soundDefense/electricDefense）被动生效，加条目
+    if (card.effect.forceDefense) effects.push({ type: 'defense', value: card.effect.forceDefense });
+    if (card.effect.soundDefense) effects.push({ type: 'defense', value: card.effect.soundDefense });
+    if (card.effect.electricDefense) effects.push({ type: 'defense', value: card.effect.electricDefense });
 
     // 增伤buff效果（驻场）
     if (card.effect.buffDmg && !card.effect.defense && !card.effect.draw && !card.effect.drawCards) {
