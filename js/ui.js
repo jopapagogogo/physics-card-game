@@ -950,7 +950,7 @@ class GameUI {
     const total = this.quizQuestions.length || 0;
     const correctCount = this.quizAnswers.filter(a => a).length;
     const bonus = total > 0 ? this.quiz.getQuizBonus(correctCount) : 0;
-    const bonusText = bonus > 0 ? `+${bonus}%` : '无增益';
+    const bonusText = bonus > 0 ? `+${Math.round(bonus * 100)}%` : '无增益';
     const messages = ['实验失败', '方向正确', '数据吻合', '实验成功'];
     const resultMsg = total > 0
       ? messages[Math.min(correctCount, 3)] || messages[0]

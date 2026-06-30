@@ -1180,11 +1180,13 @@ body {
 .skin-minimal .v3-formula { opacity:.5; }
 .skin-minimal .v3-rarity-bar { opacity:.2; }
 
-/* V3 卡牌悬浮动画 */
-.card-v3:hover {
-  transform:translateY(-4px);
-  box-shadow:0 0 22px var(--dm-glow), 0 8px 28px rgba(0,0,0,.6);
-  transition:transform .25s, box-shadow .25s;
+/* V3 卡牌悬浮动画 — 仅桌面端 */
+@media (hover: hover) and (pointer: fine) {
+  .card-v3:hover {
+    transform:translateY(-4px);
+    box-shadow:0 0 22px var(--dm-glow), 0 8px 28px rgba(0,0,0,.6);
+    transition:transform .25s, box-shadow .25s;
+  }
 }
 
 /* V3 皮肤标签 */

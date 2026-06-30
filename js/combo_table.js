@@ -141,7 +141,7 @@ const COMBO_TABLE = {
   "A25→A26": {
     type: "combo_a25_a26",
     msg: "蒸发消散→凝固封锁：偷取精神力15→25",
-    effects: [{ type: "steal_spirit", value: 25 }]
+    effects: [{ type: "steal_spirit", value: 10 }]  // A25基值15 + combo增量10 = 总25
   },
 
   // ============ 电领域 (5) ============

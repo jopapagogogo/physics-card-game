@@ -1394,10 +1394,10 @@ class QuizSystem {
   // 获取答题增益百分比
   // ----------------------------------------------------------
   getQuizBonus(correctCount) {
-    if (correctCount >= 3) return 12;
-    if (correctCount === 2) return 8;
-    if (correctCount === 1) return 5;
-    return 0;
+    if (correctCount >= 3) return 0.12;
+    if (correctCount === 2) return 0.08;
+    if (correctCount === 1) return 0.05;
+    return 0.0;
   }
 
   // ----------------------------------------------------------

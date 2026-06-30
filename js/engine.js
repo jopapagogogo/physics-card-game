@@ -456,8 +456,15 @@ class GameEngine {
     const player = this.players[this.currentPlayer];
     for (const s of player.fieldSummons) {
       if (s.card.id === 'C04') {
-        // C03↔C04 combo: 可让玩家选择伤害或治疗（当前：随机50/50，TODO: UI交互）
-        const isDamage = Math.random() < 0.5;
+        let isDamage;
+        if (this._c04PlayerChoose) {
+          // C03↔C04 combo: 智能选择——HP<50%时治疗，否则伤害
+          const hpRatio = player.hp / MAX_HP;
+          isDamage = hpRatio >= 0.5;
+          this._addLog(`[薛定谔的猫·可控] 玩家选择: ${isDamage ? '造成伤害' : '恢复HP'}。`);
+        } else {
+          isDamage = Math.random() < 0.5;
+        }
         if (isDamage) {
           const opponent = this.players[1 - this.currentPlayer];
           opponent.hp = Math.max(0, opponent.hp - 100);
@@ -1090,7 +1097,7 @@ class GameEngine {
             effects.push({ type: 'combo_return_to_hand', cardId: eff.cardId });
             break;
           case 'boost_dot_increment':
-            this._dotIncrementBoost[attackerIdx] = (eff.value || 0);
+            this._dotIncrementBoost[oIdx] = (eff.value || 0);  // 按DOT承受方(oIdx)存储
             effects.push({ type: 'combo_dot_boost', value: eff.value });
             break;
           case 'boost_mirror_maze':
