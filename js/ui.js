@@ -1953,35 +1953,22 @@ class GameUI {
     // 己方场上
     if (selfField) {
       let html = '';
-      // 领域卡
+      // 领域卡 — 完整卡面+插画
       if (gs.players[0].fieldDomain) {
         const d = gs.players[0].fieldDomain;
         const cardData = this.engine?.getCardById?.(d.cardId);
         if (cardData) {
-          const style = this.getDomainStyle(d.domain);
-          const domainClass = this._domainClass(d.domain);
-          html += `
-            <div class="domain-card ${domainClass}" style="display:flex;flex-direction:column;width:100px;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid ${style.color};background:${style.bg};box-shadow:0 0 12px ${style.bg};">
-              <div class="v3-header" style="padding:4px 6px;"><div class="v3-cost" style="font-size:12px;">${cardData.cost ?? '-'}</div><div class="v3-name" style="font-size:10px;">${this._escapeHtml(cardData.name)}</div></div>
-              <div class="v3-type-ribbon" style="font-size:9px;padding:1px 6px;"><span class="v3-type-pip domain">领域</span></div>
-              <div class="v3-stats" style="font-size:10px;padding:2px 6px;">剩余${d.turns}回合</div>
-            </div>
-          `;
+          html += this._buildFieldCardHTML(cardData, d.turns, 'domain');
         }
       }
       // 召唤物 → 已移至 A 区 zone-a-upper 渲染
-      // 驻场辅助卡
+      // 驻场辅助卡 — 完整卡面+插画
       const selfSupports = gs.players[0].fieldSupports || [];
       for (const sup of selfSupports) {
         const cardData = sup.card || this.engine?.getCardById?.(sup.id);
-        const style = this.getDomainStyle(sup.domain);
-        const name = cardData?.name || sup.name;
-        const cost = cardData?.cost ?? '?';
-        html += `<div class="card support-card small" style="border-left:3px solid ${style.color};background:${style.bg};padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:#fff;border:1px solid rgba(255,255,255,.06);">
-          <span style="font-weight:700;color:${style.color};">${cost}费</span>
-          <span>${this._escapeHtml(name)}</span>
-          <span style="opacity:.6;font-size:9px;margin-left:auto;">${sup.turns}回合</span>
-        </div>`;
+        if (cardData) {
+          html += this._buildFieldCardHTML(cardData, sup.turns, 'support');
+        }
       }
       selfField.innerHTML = html || '<div class="empty-state"><span class="empty-icon">🏟️</span>场上暂无卡牌</div>';
     }
@@ -1993,26 +1980,42 @@ class GameUI {
         const d = gs.players[1].fieldDomain;
         const cardData = this.engine?.getCardById?.(d.cardId);
         if (cardData) {
-          const style = this.getDomainStyle(d.domain);
-          const domainClass = this._domainClass(d.domain);
-          html += `
-            <div class="domain-card ${domainClass}" style="display:flex;flex-direction:column;width:100px;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid ${style.color};background:${style.bg};box-shadow:0 0 12px ${style.bg};">
-              <div class="v3-header" style="padding:4px 6px;"><div class="v3-cost" style="font-size:12px;">${cardData.cost ?? '-'}</div><div class="v3-name" style="font-size:10px;">${this._escapeHtml(cardData.name)}</div></div>
-              <div class="v3-type-ribbon" style="font-size:9px;padding:1px 6px;"><span class="v3-type-pip domain">领域</span></div>
-              <div class="v3-stats" style="font-size:10px;padding:2px 6px;">剩余${d.turns}回合</div>
-            </div>
-          `;
+          html += this._buildFieldCardHTML(cardData, d.turns, 'domain');
         }
       }
       // 召唤物 → 已移至 A 区 zone-a-upper 渲染
-      // 驻场辅助卡
+      // 驻场辅助卡 — 完整卡面+插画
       const oppSupports = gs.players[1].fieldSupports || [];
       for (const sup of oppSupports) {
-        const style = this.getDomainStyle(sup.domain);
-        html += `<div class="card support-card small" style="border-left-color:${style.color}"><span class="card-name">${this._escapeHtml(sup.name)}</span><span class="card-type">辅助·${sup.turns}回合</span></div>`;
+        const cardData = sup.card || this.engine?.getCardById?.(sup.id);
+        if (cardData) {
+          html += this._buildFieldCardHTML(cardData, sup.turns, 'support');
+        }
       }
       oppField.innerHTML = html || '<div class="empty-state"><span class="empty-icon">🏟️</span>对方场上暂无卡牌</div>';
     }
+  }
+
+  /** 构建场上驻场卡HTML（完整卡面+插画） */
+  _buildFieldCardHTML(cardData, turns, typeLabel) {
+    const style = this.getDomainStyle(cardData.domain);
+    const artUrl = this.artMap[cardData.id] || '';
+    const typeText = typeLabel === 'domain' ? '领域' : '辅助';
+    const desc = (cardData.description || '').substring(0, 25);
+    return `
+      <div class="field-card-v3" style="display:flex;flex-direction:column;width:96px;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid ${style.color};background:#1a1a2e;box-shadow:0 0 10px ${style.bg};">
+        <div style="height:72px;background:${style.bg};display:flex;align-items:center;justify-content:center;overflow:hidden;">
+          ${artUrl ? `<img src="${this._escapeAttr(artUrl)}" style="width:100%;height:100%;object-fit:cover;">` : `<span style="font-size:28px;opacity:.2;">⚛</span>`}
+        </div>
+        <div style="padding:3px 5px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:10px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55px;">${this._escapeHtml(cardData.name)}</span>
+          <span style="font-size:9px;color:${style.color};font-weight:700;">${cardData.cost ?? '?'}费</span>
+        </div>
+        <div style="padding:0 5px 3px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:8px;color:${style.color};background:${style.bg};padding:1px 4px;border-radius:3px;">${typeText}</span>
+          <span style="font-size:8px;color:#888;">${turns}回合</span>
+        </div>
+      </div>`;
   }
 
   /** 在 A 区渲染召唤物（头像左右两侧） */
