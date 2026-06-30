@@ -3745,6 +3745,8 @@ class GameUI {
         case 'latent_heat': msgs.push(`🔥 潜热释放: 消耗2层灼烧恢复${eff.heal}HP并清除负面状态`); break;
         case 'freeze_lock': msgs.push(`❄ ${eff.msg || '对方下回合被凝固封锁'}`); break;
         case 'extra_cost': msgs.push(`💰 对方下回合每出卡额外消耗${eff.value}精神力`); break;
+        case 'convex_real': msgs.push(`🔍 凸透成像·实像: 恢复 ${eff.heal} HP`); break;
+        case 'convex_virtual': msgs.push(`🔍 凸透成像·虚像: 造成 ${eff.dmg} 伤害（额外消耗${eff.extraCost}精神力）`); break;
         // misc
         case 'clear_debuff': msgs.push(`✨ ${eff.msg || '清除了负面状态'}`); break;
         case 'view_hand': 

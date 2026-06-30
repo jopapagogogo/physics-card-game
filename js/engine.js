@@ -1684,7 +1684,7 @@ class GameEngine {
 
     // S21 凸透成像 — 复现上回合卡牌效果
     if (card.effect.convexLens) {
-      const lastCard = this._lastTurnCard[attackerIdx]; // 对手上一回合打出的最后一张攻击/辅助卡
+      const lastCard = this._lastTurnCard[1 - attackerIdx]; // 对手上回合打出的最后一张攻击/辅助卡
       const lensEff = card.effect.convexLens;
       if (lastCard) {
         // 随机选择实像/虚像
