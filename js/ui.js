@@ -587,29 +587,67 @@ class GameUI {
 
     overlay.querySelector('#db-auto').addEventListener('click', () => {
       // 在已选基础上智能补全到30张，不覆盖已有选择
-      const s = computeStats.call(self);
-      const pool = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
+      const MAX_CARDS = 30;
       const picked = [];
-      // 第一轮：严格约束填充
+      const getStats = () => {
+        const s = computeStats.call(self);
+        return {
+          main: s.mainCount + picked.filter(x => self._cardHasDomain(x, self.mainDomain)).length,
+          sub: s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length,
+          dom: s.domC + picked.filter(x => x.type === 'domain').length,
+          total: selected.size + picked.length
+        };
+      };
+
+      const pool = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
+      const inDomain = (c, d) => self._cardHasDomain(c, d);
+      const inMain = (c) => inDomain(c, self.mainDomain);
+      const inSub = (c) => inDomain(c, self.subDomain);
+      const isNeutral = (c) => !inMain(c) && !inSub(c);
+
+      // 第1轮：严格约束填充
       for (const c of pool) {
-        if (selected.size + picked.length >= MAX_CARDS) break;
-        const curDomain = s.domC + picked.filter(x => x.type === 'domain').length;
-        const curMain = s.mainCount + picked.filter(x => self._cardHasDomain(x, self.mainDomain)).length;
-        const curSub = s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length;
-        if (c.type === 'domain' && curDomain >= 2) continue;
-        const hm = self._cardHasDomain(c, self.mainDomain);
-        const hs = self._cardHasDomain(c, self.subDomain);
-        if (hm && curMain >= 18) continue;
-        if (hs && curSub >= 12) continue;
+        if (getStats().total >= MAX_CARDS) break;
+        const st = getStats();
+        if (c.type === 'domain' && st.dom >= 2) continue;
+        if (inMain(c) && st.main >= 18) continue;
+        if (inSub(c) && st.sub >= 12) continue;
         picked.push(c);
       }
-      // 第二轮：兜底填充——如果还没到30张，放宽领域限制补满
-      const remaining = pool.filter(c => !picked.includes(c));
-      for (const c of remaining) {
-        if (selected.size + picked.length >= MAX_CARDS) break;
-        if (c.type === 'domain') continue; // 领域卡仍限制最多2
-        picked.push(c);
+
+      // 第2轮：填中性卡（不属于主/副领域）
+      if (getStats().total < MAX_CARDS) {
+        for (const c of pool) {
+          if (getStats().total >= MAX_CARDS) break;
+          if (picked.includes(c)) continue;
+          if (c.type === 'domain') continue;
+          if (!isNeutral(c)) continue;
+          picked.push(c);
+        }
       }
+
+      // 第3轮：兜底——主领域优先（不超18），再副领域（不超12），再其他
+      if (getStats().total < MAX_CARDS) {
+        const fallback = pool.filter(c => !picked.includes(c) && c.type !== 'domain');
+        // 优先主领域
+        for (const c of fallback) {
+          if (getStats().total >= MAX_CARDS) break;
+          if (inMain(c) && getStats().main < 18) { picked.push(c); continue; }
+        }
+        // 再副领域
+        for (const c of fallback) {
+          if (getStats().total >= MAX_CARDS) break;
+          if (picked.includes(c)) continue;
+          if (inSub(c) && getStats().sub < 12) { picked.push(c); continue; }
+        }
+        // 其余任意
+        for (const c of fallback) {
+          if (getStats().total >= MAX_CARDS) break;
+          if (picked.includes(c)) continue;
+          picked.push(c);
+        }
+      }
+
       for (const c of picked) selected.add(c.id);
       renderCards();
       renderDeckPanel();
@@ -720,75 +758,82 @@ class GameUI {
 
     const usedIds = new Set();
     const deck = [];
-    const MAX_MAIN = 18, MAX_SUB = 12, MAX_DOMAIN = 2, TOTAL = 30;
+    const MAX_MAIN = 18, MIN_MAIN = 12, MAX_SUB = 12, MIN_SUB = 6, MAX_DOMAIN = 2, TOTAL = 30;
 
-    const stats = () => {
+    const inD = (c, d) => Array.isArray(c.domain) ? c.domain.includes(d) : c.domain === d;
+    const inMain = (c) => inD(c, mainDomain);
+    const inSub = (c) => inD(c, subDomain);
+    const inBoth = (c) => inMain(c) && inSub(c);
+    const inNeither = (c) => !inMain(c) && !inSub(c);
+
+    const count = () => {
       let m = 0, s = 0, d = 0;
       for (const c of deck) {
         if (c.type === 'domain') d++;
-        if (this._cardHasDomain(c, mainDomain)) m++;
-        if (this._cardHasDomain(c, subDomain)) s++;
+        if (inMain(c)) m++;
+        if (inSub(c)) s++;
       }
-      return { main: m, sub: s, domain: d };
+      return { main: m, sub: s, dom: d };
     };
 
-    const canAdd = (c) => {
-      const st = stats();
-      if (c.type === 'domain' && st.domain >= MAX_DOMAIN) return false;
-      const hm = this._cardHasDomain(c, mainDomain);
-      const hs = this._cardHasDomain(c, subDomain);
-      if (hm && st.main >= MAX_MAIN) return false;
-      if (hs && st.sub >= MAX_SUB) return false;
-      return true;
-    };
+    const add = (c) => { deck.push(c); usedIds.add(c.id); };
 
-    const addCards = (cards, max) => {
-      for (const c of cards) {
+    // 阶段1：优先填充达到最低要求（主12/副6）
+    const needMain = () => Math.max(0, MIN_MAIN - count().main);
+    const needSub = () => Math.max(0, MIN_SUB - count().sub);
+
+    // 1a: 主领域唯一卡（只属于主，不属于副）
+    const mainOnly = CARDS.filter(c => inMain(c) && !inSub(c) && c.type !== 'domain').sort(() => Math.random() - 0.5);
+    for (const c of mainOnly) {
+      if (needMain() <= 0 || deck.length >= TOTAL) break;
+      if (usedIds.has(c.id)) continue;
+      add(c);
+    }
+
+    // 1b: 副领域唯一卡
+    const subOnly = CARDS.filter(c => inSub(c) && !inMain(c) && c.type !== 'domain').sort(() => Math.random() - 0.5);
+    for (const c of subOnly) {
+      if (needSub() <= 0 || deck.length >= TOTAL) break;
+      if (usedIds.has(c.id)) continue;
+      add(c);
+    }
+
+    // 1c: 交叉领域卡（达到最低后可补任意一方）
+    if (needMain() > 0 || needSub() > 0) {
+      const crossPool = CARDS.filter(c => inBoth(c) && c.type !== 'domain').sort(() => Math.random() - 0.5);
+      for (const c of crossPool) {
         if (deck.length >= TOTAL) break;
         if (usedIds.has(c.id)) continue;
-        if (!canAdd(c)) continue;
-        const added = deck.filter(x => x.id === c.id).length;
-        if (added >= max) continue;
-        deck.push(c);
-        usedIds.add(c.id);
+        if (needMain() > 0 || needSub() > 0) add(c);
       }
-    };
-
-    // 按优先级取卡：攻击 > 辅助 > 召唤 > 领域 > 相变
-    const mainAtk = CARDS.filter(c => this._cardHasDomain(c, mainDomain) && c.type === 'attack' && c.rarity === 'common');
-    const subAtk = CARDS.filter(c => this._cardHasDomain(c, subDomain) && !this._cardHasDomain(c, mainDomain) && c.type === 'attack');
-    const crossAtk = CARDS.filter(c => this._cardHasDomain(c, mainDomain) && this._cardHasDomain(c, subDomain) && c.type === 'attack');
-    const mainSup = CARDS.filter(c => this._cardHasDomain(c, mainDomain) && !this._cardHasDomain(c, subDomain) && c.type === 'support');
-    const subSup = CARDS.filter(c => this._cardHasDomain(c, subDomain) && !this._cardHasDomain(c, mainDomain) && c.type === 'support');
-    const domain = CARDS.filter(c => c.type === 'domain' && (this._cardHasDomain(c, mainDomain) || this._cardHasDomain(c, subDomain)));
-    const summon = CARDS.filter(c => c.type === 'summon' && (this._cardHasDomain(c, mainDomain) || this._cardHasDomain(c, subDomain)));
-    const phase = CARDS.filter(c => c.type === 'phase');
-
-    addCards(mainAtk, 1);
-    addCards(subAtk, 1);
-    addCards(crossAtk, 1);
-    addCards(mainSup, 1);
-    addCards(subSup, 1);
-    addCards(domain, 1);
-    addCards(summon, 1);
-    addCards(phase, 1);
-
-    // 补到30张（严格约束）
-    const allPool = CARDS.filter(c => !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
-    for (const c of allPool) {
-      if (deck.length >= TOTAL) break;
-      if (!canAdd(c)) continue;
-      deck.push(c);
-      usedIds.add(c.id);
     }
-    // 兜底：约束填充未满30张时，放宽填满
+
+    // 阶段2：随机约束填充到30
+    const rest = CARDS.filter(c => !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
+    for (const c of rest) {
+      if (deck.length >= TOTAL) break;
+      const st = count();
+      if (c.type === 'domain' && st.dom >= MAX_DOMAIN) continue;
+      if (inMain(c) && st.main >= MAX_MAIN) continue;
+      if (inSub(c) && st.sub >= MAX_SUB) continue;
+      add(c);
+    }
+
+    // 阶段3：中性卡兜底
     if (deck.length < TOTAL) {
-      const fallbackPool = CARDS.filter(c => !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
-      for (const c of fallbackPool) {
+      for (const c of rest) {
         if (deck.length >= TOTAL) break;
-        if (c.type === 'domain') continue; // 领域卡保持≤2
-        deck.push(c);
-        usedIds.add(c.id);
+        if (usedIds.has(c.id) || c.type === 'domain') continue;
+        if (inNeither(c)) add(c);
+      }
+    }
+
+    // 阶段4：最终兜底
+    if (deck.length < TOTAL) {
+      for (const c of rest) {
+        if (deck.length >= TOTAL) break;
+        if (usedIds.has(c.id) || c.type === 'domain') continue;
+        add(c);
       }
     }
 
