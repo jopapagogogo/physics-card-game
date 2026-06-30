@@ -2041,6 +2041,21 @@ class GameEngine {
       if (p.dotEffects.length > 0) p.dotEffects.shift();
       effects.push({ type: 'draw', count: eff.draw });
     }
+
+    // === 通用驻场逻辑：support卡有持续效果但未加入fieldSupports的，自动加入 ===
+    if (card.type === 'support') {
+      const already = player.fieldSupports.find(s => s.card.id === card.id);
+      if (!already) {
+        // 有turns的持续效果卡（S08/S16/S20/S31等）
+        if (eff.turns) {
+          player.fieldSupports.push({ card, turnsRemaining: eff.turns });
+        }
+        // 下次攻击加成卡（S01/S02/S03/S12等）
+        else if (eff.nextForceBonus || eff.nextAtkBonus || eff.nextSoundBonus) {
+          player.fieldSupports.push({ card, turnsRemaining: 1 });
+        }
+      }
+    }
   }
 
   // ==========================================================
