@@ -1951,8 +1951,8 @@ class GameEngine {
         player.spirit = Math.min(MAX_SPIRIT, player.spirit + (eff.spiritRestore || 15));
         effects.push({ type: 'heat_engine', spiritRestore: eff.spiritRestore || 15 });
       }
-      if (card.id === 'S25' && player.burnLayers >= eff.consumeBurn) {
-        player.burnLayers -= eff.consumeBurn;
+      if (card.id === 'S25' && opponent.burnLayers >= eff.consumeBurn) {
+        opponent.burnLayers -= eff.consumeBurn;
         player.hp = Math.min(MAX_HP, player.hp + (eff.heal || 80));
         if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
         if (player.dotEffects.length > 0) player.dotEffects.shift();
@@ -2603,9 +2603,9 @@ class GameEngine {
       }
     }
 
-    // S23热机驱动：消耗对方2层灼烧；S25潜热释放：消耗己方2层灼烧
-    if (card.id === 'S25' && player.burnLayers < 2) {
-      return { can: false, reason: '自身灼烧层数不足2层。' };
+    // S23/S25 热机驱动/潜热释放：均消耗对方2层灼烧
+    if (card.id === 'S25' && opponent.burnLayers < 2) {
+      return { can: false, reason: '对方灼烧层数不足2层。' };
     }
     if (card.id === 'S23') {
       const opp = this.players[1 - playerIdx];
@@ -2650,8 +2650,8 @@ class GameEngine {
     if (card.id === 'A26' && opponent.burnLayers < 2) {
       return { can: false, reason: '对方灼烧层数不足2层，无法发动凝固封锁。' };
     }
-    if (card.id === 'S25' && player.burnLayers < 2) {
-      return { can: false, reason: '自身灼烧层数不足2层。' };
+    if (card.id === 'S25' && opponent.burnLayers < 2) {
+      return { can: false, reason: '对方灼烧层数不足2层。' };
     }
     if (card.id === 'S23' && opponent.burnLayers < 2) {
       return { can: false, reason: '对方灼烧层数不足2层。' };
