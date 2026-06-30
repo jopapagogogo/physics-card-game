@@ -2581,6 +2581,11 @@ class GameUI {
       this._showConvexLensChoice();
     }
 
+    // S09频率调节选择
+    if (this.engine._pendingFrequencyChoice) {
+      this._showFrequencyChoice();
+    }
+
     this.selectedCard = null;
 
     // 检查游戏是否结束
@@ -3335,6 +3340,30 @@ class GameUI {
     };
     overlay.querySelector('#cvx-real').onclick = () => done('real');
     overlay.querySelector('#cvx-virtual').onclick = () => done('virtual');
+  }
+
+  /** S09频率调节：升高/降低选择弹窗 */
+  _showFrequencyChoice() {
+    if (!this.engine._pendingFrequencyChoice) return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:24px;max-width:360px;text-align:center;">
+      <h3 style="color:#fff;margin:0 0 8px;">🎵 频率调节</h3>
+      <div style="display:flex;gap:12px;">
+        <button id="freq-high" style="flex:1;padding:12px;border-radius:8px;background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;font-size:13px;cursor:pointer;">🔊 升高<br><small>下张声系卡+20伤害</small></button>
+        <button id="freq-low" style="flex:1;padding:12px;border-radius:8px;background:linear-gradient(135deg,#8e44ad,#6c3483);color:#fff;border:none;font-size:13px;cursor:pointer;">🔉 降低<br><small>本回合声系+5<br>次声震荡+2回合</small></button>
+      </div></div>`;
+    document.body.appendChild(overlay);
+    const done = (choice) => {
+      overlay.remove();
+      const result = this.engine.frequencyApply(choice);
+      if (result) {
+        this.addLogMessage('🎵 ' + result.msg);
+      }
+      this.updateAllDisplay();
+    };
+    overlay.querySelector('#freq-high').onclick = () => done('high');
+    overlay.querySelector('#freq-low').onclick = () => done('low');
   }
 
   /**

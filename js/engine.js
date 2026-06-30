@@ -148,6 +148,7 @@ class GameEngine {
     // S21 凸透成像—对手上回合打出的最后一张卡
     this._lastTurnCard = [null, null];         // 对手上回合最后打出的卡 {card, damage(dealt)}
     this._pendingConvexLens = null;            // S21凸透成像待选择
+    this._pendingFrequencyChoice = false;      // S09频率调节待选择
     // S32 低压启动—目标电系卡引用
     this._reduceElectricTarget = [{ cardRef: null, costReduction: 0 }, { cardRef: null, costReduction: 0 }];
 
@@ -629,6 +630,26 @@ class GameEngine {
       return { type: 'convex_virtual', dmg: copyDmg, extraCost, cardName: lastCard.card.name };
     }
     return null;
+  }
+
+  /** S09频率调节：应用玩家选择 */
+  frequencyApply(choice) {
+    if (!this._pendingFrequencyChoice) return null;
+    this._pendingFrequencyChoice = false;
+    const player = this.players[0];
+    const opponent = this.players[1];
+    if (choice === 'high') {
+      player.cardForms['S09'] = 'up';
+      this.nextBonus[0].sound = (this.nextBonus[0].sound || 0) + 20;
+      return { type: 'set_frequency_form', form: 'up', msg: '升高：下张声系+20' };
+    } else {
+      player.cardForms['S09'] = 'down';
+      this._turnAllSoundBonus[0] += 5;
+      for (const dot of opponent.dotEffects) {
+        if (dot.cardId === 'A10') dot.turnsRemaining += 2;
+      }
+      return { type: 'set_frequency_form', form: 'down', msg: '降低：全体声系+5' };
+    }
   }
 
   // ==========================================================
@@ -1661,25 +1682,26 @@ class GameEngine {
 
     // S09 频率调节 — 双模式
     if (card.id === 'S09') {
-      // AI 决策：如果有 A10 (次声震荡) 在场，选择 low 模式
-      const hasA10Field = attacker.fieldSupports.some(s => s.card.id === 'A10') ||
-        opponent.dotEffects.some(d => d.cardId === 'A10');
-      if (hasA10Field) {
-        // Low 模式：全体声波+5 + 延长回合
-        attacker.cardForms['S09'] = 'down';
-        this._turnAllSoundBonus[attackerIdx] += 5;
-        // 延长 A10 DOT 2回合
-        for (const dot of opponent.dotEffects) {
-          if (dot.cardId === 'A10') {
-            dot.turnsRemaining += 2;
+      if (attackerIdx === 1) {
+        // AI: 有A10在场→降低，否则→升高
+        const hasA10 = attacker.fieldSupports.some(s => s.card.id === 'A10') ||
+          opponent.dotEffects.some(d => d.cardId === 'A10');
+        if (hasA10) {
+          attacker.cardForms['S09'] = 'down';
+          this._turnAllSoundBonus[attackerIdx] += 5;
+          for (const dot of opponent.dotEffects) {
+            if (dot.cardId === 'A10') dot.turnsRemaining += 2;
           }
+          effects.push({ type: 'set_frequency_form', form: 'down', msg: '频率调节：降低模式' });
+        } else {
+          attacker.cardForms['S09'] = 'up';
+          this.nextBonus[attackerIdx].sound = (this.nextBonus[attackerIdx].sound || 0) + 20;
+          effects.push({ type: 'set_frequency_form', form: 'up', msg: '频率调节：升高模式' });
         }
-        effects.push({ type: 'set_frequency_form', form: 'down', msg: '频率调节：降低模式（全体声波+5，延长次声震荡+2回合）' });
       } else {
-        // High 模式：下次声系+20
-        attacker.cardForms['S09'] = 'up';
-        this.nextBonus[attackerIdx].sound = (this.nextBonus[attackerIdx].sound || 0) + 20;
-        effects.push({ type: 'set_frequency_form', form: 'up', msg: '频率调节：升高模式（下次声系+20）' });
+        // 玩家: 待选择
+        this._pendingFrequencyChoice = true;
+        effects.push({ type: 'freq_pending', msg: '选择升高或降低频率' });
       }
     }
 
