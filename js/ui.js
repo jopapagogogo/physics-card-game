@@ -1966,6 +1966,7 @@ class GameUI {
       const selfSupports = gs.players[0].fieldSupports || [];
       for (const sup of selfSupports) {
         const cardData = sup.card || this.engine?.getCardById?.(sup.id);
+        console.log('[renderField] support:', sup.id, 'cardData:', !!cardData, 'turns:', sup.turns);
         if (cardData) {
           html += this._buildFieldCardHTML(cardData, sup.turns, 'support');
         }
