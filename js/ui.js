@@ -1520,6 +1520,8 @@ class GameUI {
       /* === Log / Damage / Combo / Quiz（保留） === */
       .log-area{position:fixed;bottom:16px;right:16px;z-index:250;display:flex;flex-direction:column-reverse;gap:4px;max-width:260px;pointer-events:none}
       .log-message{padding:1px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+      .log-card-play{color:#fff;font-weight:700;font-size:12px;border-bottom-color:rgba(255,255,255,.1);padding:2px 0}
+      .log-toast{font-size:11px;color:#ccc;animation:fadeIn .2s ease}
       .log-drawer{position:fixed;right:0;top:0;bottom:0;width:280px;z-index:300;background:var(--pnl);border-left:1px solid var(--bd);transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;padding:16px}
       .log-drawer.open{transform:translateX(0)}
       .log-drawer-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;color:var(--lt);font-weight:700}
@@ -2541,9 +2543,13 @@ class GameUI {
 
     // 显示效果日志 & 视觉特效
     if (result.effects && Array.isArray(result.effects)) {
+      // 卡牌打出标题
+      const domainLabel = Array.isArray(card.domain) ? card.domain.join('/') : card.domain;
+      const typeEmoji = { attack: '⚔️', support: '✨', domain: '🏛️', summon: '👾', phase: '🌀' }[card.type] || '🃏';
+      this.addLogMessage(`${typeEmoji} [你] ${card.name}（${domainLabel}·${this.getTypeLabel(card.type)}）`, 'log-card-play');
       const msgs = this._formatEffects(result.effects);
       for (const msg of msgs) {
-        this.addLogMessage(msg);
+        this.addLogMessage('  ' + msg);
       }
       // 伤害/治疗数字弹出
       this._processEffectAnimations(result.effects, card.type);
@@ -3137,8 +3143,15 @@ class GameUI {
           // AI卡牌飞行动画（从对手手牌→AI出牌区）
           this._animateAICardFly(aiCard);
 
-          // AI攻击特效：伤害数字弹出（对己方造成伤害时）
+          // AI攻击特效 + 日志
           if (_aiResult && _aiResult.effects && Array.isArray(_aiResult.effects)) {
+            const domainLabel = Array.isArray(aiCard.domain) ? aiCard.domain.join('/') : aiCard.domain;
+            const typeEmoji = { attack: '⚔️', support: '✨', domain: '🏛️', summon: '👾', phase: '🌀' }[aiCard.type] || '🃏';
+            this.addLogMessage(`${typeEmoji} [AI] ${aiCard.name}（${domainLabel}·${this.getTypeLabel(aiCard.type)}）`, 'log-card-play');
+            const _aiMsgs = this._formatEffects(_aiResult.effects);
+            for (const _am of _aiMsgs) {
+              this.addLogMessage('  ' + _am);
+            }
             this._processAIEffectAnimations(_aiResult.effects);
           }
           // AI Combo特效
