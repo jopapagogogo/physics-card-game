@@ -78,6 +78,8 @@ class GameEngine {
 
     // 声系下次增伤 (A51声速激增)
     this.soundSpeedBuff = [0, 0];
+    // 镜面回声本回合声/光加成 (A53)
+    this.mirrorEchoBonus = [0, 0];
 
     // 偏振过滤 (S15)
     this.polarizeRestriction = [null, null];
@@ -290,6 +292,7 @@ class GameEngine {
     this._filterDomain[pIdx] = null;
     this._filterDomainReduction[pIdx] = 0;
     this._reduceElectricTarget[pIdx] = { cardRef: null, costReduction: 0 };
+    this.mirrorEchoBonus[pIdx] = 0;
 
     // A11 啸叫：每回合声压叠加
     const a11OnField = player.fieldSupports.find(s => s.card?.id === 'A11');
@@ -773,10 +776,9 @@ class GameEngine {
         damage += card.effect.domainBonus;
     }
 
-    // A53 镜面回声: +10 to sound and light attacks
-    const echoEffect = attacker.fieldSupports?.find(f => f.card.type === 'mirror_echo');
-    if (echoEffect && (card.domain.includes('声') || card.domain.includes('光'))) {
-        damage += 10;
+    // A53 镜面回声: +10 to sound and light attacks this turn
+    if (this.mirrorEchoBonus[attackerIdx] > 0 && (card.domain.includes('声') || card.domain.includes('光'))) {
+        damage += this.mirrorEchoBonus[attackerIdx];
     }
 
     // P2: A11 声压—对方有声压时声系攻击加伤
@@ -981,6 +983,12 @@ class GameEngine {
     // 卡牌放入弃牌堆（除驻场卡外）
     if (!this.isFieldCard(card)) {
       player.discardPile.push(card);
+    } else if (!['domain', 'summon'].includes(card.type)) {
+      // 攻击/辅助类驻场卡（如A05重力势能）：未在 _handleSupport 中加入的，补加入 fieldSupports
+      const alreadyTracked = player.fieldSupports.find(s => s.card?.id === card.id);
+      if (!alreadyTracked) {
+        player.fieldSupports.push({ card, turnsRemaining: 999 });
+      }
     }
 
     // 检查胜利条件
@@ -1744,9 +1752,9 @@ class GameEngine {
 
     player.fieldSummons.push({
       card,
-      hp: card.effect.hp || 200
+      hp: card.hp || card.effect.hp || 200
     });
-    effects.push({ type: 'summon', name: card.name, hp: card.effect.hp || 200 });
+    effects.push({ type: 'summon', name: card.name, hp: card.hp || card.effect.hp || 200 });
 
     // 处理召唤物相关的 combo 效果（如 C03↔C04 的 modify_flag）
     const combo = this.pendingCombo[playerIdx];
@@ -1931,6 +1939,11 @@ class GameEngine {
       this.soundSpeedBuff[playerIdx] += buff;
       effects.push({ type: 'sound_speed_buff', value: buff });
     }
+    // 镜面回声 (A53)
+    if (card.id === 'A53' && card.effect?.soundLightBonus) {
+      this.mirrorEchoBonus[playerIdx] = 10;
+      effects.push({ type: 'mirror_echo', value: 10 });
+    }
 
     // 镜面回声 (A53)
     if (card.id === 'A53') {
@@ -2053,18 +2066,9 @@ class GameEngine {
 
     const burnDmg = player.burnEnhanced ? BURN_ENHANCED_DMG : BURN_BASE_DMG;
     const totalDmg = player.burnLayers * burnDmg;
+    player.hp = Math.max(0, player.hp - totalDmg);
 
-    // 热领域(D04)加成：每层+3
-    if (player.fieldDomain?.card?.id === 'D04') {
-      const d04 = player.fieldDomain.card;
-      const perBurnBonus = (d04?.effect?.perBurnBonus) || 4;
-      const extraDmg = player.burnLayers * perBurnBonus;
-      player.hp = Math.max(0, player.hp - totalDmg - extraDmg);
-    } else {
-      player.hp = Math.max(0, player.hp - totalDmg);
-    }
-
-    this._addLog(`[灼烧] ${playerIdx === 0 ? '玩家' : 'AI'} 受到 ${player.burnLayers}层灼烧共 ${burnDmg * player.burnLayers} 点伤害。`);
+    this._addLog(`[灼烧] ${playerIdx === 0 ? '玩家' : 'AI'} 受到 ${player.burnLayers}层灼烧共 ${totalDmg} 点伤害。`);
 
     // 层数-1
     player.burnLayers = Math.max(0, player.burnLayers - 1);
@@ -2509,6 +2513,48 @@ class GameEngine {
       }
     }
 
+    return { can: true, reason: '' };
+  }
+
+  /** 纯查询版 canPlay — 不消耗镜面迷宫/棱镜界随机次数，供 renderHand 使用 */
+  canPlayQuery(playerIdx, card) {
+    const player = this.players[playerIdx];
+    const opponent = this.players[1 - playerIdx];
+
+    if (player.turnBlocked && playerIdx === this.currentPlayer) {
+      return { can: false, reason: '本回合被凝固封锁，无法出牌。' };
+    }
+    if (this.shadowBindTurns[playerIdx] > 0 && card.type === 'support') {
+      return { can: false, reason: '被影子束缚，无法出辅助卡。' };
+    }
+    // 跳过镜面迷宫/棱镜界随机判定（纯查询，不影响游戏状态）
+    if (this.polarizeRestriction[playerIdx] && playerIdx === this.currentPlayer) {
+      if (this.cardsThisTurn.length > 0) {
+        const firstType = this.getCardById(this.cardsThisTurn[0])?.type;
+        if (firstType && card.type !== firstType) {
+          return { can: false, reason: '偏振过滤：本回合只能出一种类型的卡。' };
+        }
+      }
+    }
+    if (!this.canAfford(playerIdx, card)) {
+      return { can: false, reason: '精神力不足。' };
+    }
+    // 其他特殊条件（与 canPlay 相同）
+    if (card.type === 'phase') {
+      if (card.id === 'T02') {
+        const hpPercent = player.hp / MAX_HP;
+        if (hpPercent >= 0.3) return { can: false, reason: 'HP需低于30%才能打出临界突破。' };
+      }
+    }
+    if (card.id === 'A26' && opponent.burnLayers < 2) {
+      return { can: false, reason: '对方灼烧层数不足2层，无法发动凝固封锁。' };
+    }
+    if (card.id === 'S25' && player.burnLayers < 2) {
+      return { can: false, reason: '自身灼烧层数不足2层。' };
+    }
+    if (card.id === 'S23' && opponent.burnLayers < 2) {
+      return { can: false, reason: '对方灼烧层数不足2层。' };
+    }
     return { can: true, reason: '' };
   }
 

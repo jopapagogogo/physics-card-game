@@ -1660,8 +1660,8 @@ class GameUI {
 
         for (let i = 0; i < totalCards; i++) {
           const card = cards[i];
-          const cpResult = this.phase === 'play' && this.engine.canPlay
-            ? this.engine.canPlay(0, card)
+          const cpResult = this.phase === 'play' && (this.engine.canPlayQuery || this.engine.canPlay)
+            ? (this.engine.canPlayQuery || this.engine.canPlay).call(this.engine, 0, card)
             : { can: false };
           const isPlayable = cpResult.can;
           const isSelected = this.selectedCard && this.selectedCard.id === card.id;
@@ -3096,7 +3096,7 @@ class GameUI {
       if (!card.domain || !card.domain.includes('光')) continue;
       // 检查在对方回合能否打出 + 精神力是否足够
       const canAfford = this.engine.canAfford(0, card);
-      const canPlayCheck = this.engine.canPlay(0, card);
+      const canPlayCheck = (this.engine.canPlayQuery || this.engine.canPlay).call(this.engine, 0, card);
       if (canAfford && canPlayCheck.can) {
         playable.push(card);
       }
