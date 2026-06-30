@@ -1598,14 +1598,14 @@ class GameUI {
       if (p.burnLayers > 0) {
         const tip = `灼烧: 每回合${p.burnLayers}层×${burnPerLayer}=${p.burnLayers * burnPerLayer}伤害`;
         html += `<span class="debuff-badge burn" title="${tip}">
-          <span class="debuff-icon">🔥</span><span class="debuff-count">${p.burnLayers}</span>
+          <img src="${DOMAIN_RUNES['热']}" class="rune-img" style="width:14px;height:14px;"><span class="debuff-count">${p.burnLayers}</span>
         </span>`;
       }
 
       // 灼烧免疫（比热护盾）
       if (p.burnImmune > 0) {
-        html += `<span class="debuff-badge immune" title="比热护盾: 免疫灼烧伤害 ${p.burnImmune}回合（灼烧仍可附加和衰减）">
-          <span class="debuff-icon">🛡</span><span class="debuff-count">${p.burnImmune}t</span>
+        html += `<span class="debuff-badge immune" title="比热护盾: 免疫灼烧伤害 ${p.burnImmune}回合">
+          <img src="${DOMAIN_RUNES['热']}" class="rune-img" style="width:14px;height:14px;opacity:.6;"><span class="debuff-count">${p.burnImmune}t</span>
         </span>`;
       }
 
@@ -1613,14 +1613,14 @@ class GameUI {
       if (p.paralysis > 0) {
         const paraCost = p.paralysis * 2;
         html += `<span class="debuff-badge paralysis" title="麻痹: 每卡额外消耗${paraCost}精神力 + 每回合${p.paralysis}×15伤害">
-          <span class="debuff-icon">⚡</span><span class="debuff-count">${p.paralysis}</span>
+          <img src="${DOMAIN_RUNES['电']}" class="rune-img" style="width:14px;height:14px;"><span class="debuff-count">${p.paralysis}</span>
         </span>`;
       }
 
       // 精神力减益
       if (p.spiritDebuff < 0) {
         html += `<span class="debuff-badge paralysis" title="精神力恢复减益: ${p.spiritDebuff}/回合">
-          <span class="debuff-icon">📉</span><span class="debuff-count">${p.spiritDebuff}</span>
+          <img src="${DOMAIN_RUNES['力']}" class="rune-img" style="width:14px;height:14px;opacity:.5;"><span class="debuff-count">${p.spiritDebuff}</span>
         </span>`;
       }
 
@@ -1867,14 +1867,18 @@ class GameUI {
       // 领域卡
       if (gs.players[0].fieldDomain) {
         const d = gs.players[0].fieldDomain;
-        const style = this.getDomainStyle(d.domain);
-        const domainClass = this._domainClass(d.domain);
-        html += `
-          <div class="domain-card ${domainClass}" style="border-color:${style.color}; background:${style.bg}">
-            <span class="card-name">${this._escapeHtml(d.name)}</span>
-            <span class="domain-label">领域</span>
-          </div>
-        `;
+        const cardData = this.engine?.getCardById?.(d.cardId);
+        if (cardData) {
+          const style = this.getDomainStyle(d.domain);
+          const domainClass = this._domainClass(d.domain);
+          html += `
+            <div class="domain-card ${domainClass}" style="display:flex;flex-direction:column;width:100px;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid ${style.color};background:${style.bg};box-shadow:0 0 12px ${style.bg};">
+              <div class="v3-header" style="padding:4px 6px;"><div class="v3-cost" style="font-size:12px;">${cardData.cost ?? '-'}</div><div class="v3-name" style="font-size:10px;">${this._escapeHtml(cardData.name)}</div></div>
+              <div class="v3-type-ribbon" style="font-size:9px;padding:1px 6px;"><span class="v3-type-pip domain">领域</span></div>
+              <div class="v3-stats" style="font-size:10px;padding:2px 6px;">剩余${d.turns}回合</div>
+            </div>
+          `;
+        }
       }
       // 召唤物 → 已移至 A 区 zone-a-upper 渲染
       // 驻场辅助卡
@@ -1891,14 +1895,18 @@ class GameUI {
       let html = '';
       if (gs.players[1].fieldDomain) {
         const d = gs.players[1].fieldDomain;
-        const style = this.getDomainStyle(d.domain);
-        const domainClass = this._domainClass(d.domain);
-        html += `
-          <div class="domain-card ${domainClass}" style="border-color:${style.color}; background:${style.bg}">
-            <span class="card-name">${this._escapeHtml(d.name)}</span>
-            <span class="domain-label">领域</span>
-          </div>
-        `;
+        const cardData = this.engine?.getCardById?.(d.cardId);
+        if (cardData) {
+          const style = this.getDomainStyle(d.domain);
+          const domainClass = this._domainClass(d.domain);
+          html += `
+            <div class="domain-card ${domainClass}" style="display:flex;flex-direction:column;width:100px;flex-shrink:0;border-radius:6px;overflow:hidden;border:2px solid ${style.color};background:${style.bg};box-shadow:0 0 12px ${style.bg};">
+              <div class="v3-header" style="padding:4px 6px;"><div class="v3-cost" style="font-size:12px;">${cardData.cost ?? '-'}</div><div class="v3-name" style="font-size:10px;">${this._escapeHtml(cardData.name)}</div></div>
+              <div class="v3-type-ribbon" style="font-size:9px;padding:1px 6px;"><span class="v3-type-pip domain">领域</span></div>
+              <div class="v3-stats" style="font-size:10px;padding:2px 6px;">剩余${d.turns}回合</div>
+            </div>
+          `;
+        }
       }
       // 召唤物 → 已移至 A 区 zone-a-upper 渲染
       // 驻场辅助卡
