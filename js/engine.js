@@ -2022,6 +2022,9 @@ class GameEngine {
     if (card.id === 'S16') {
       this.lightSpeedActive[playerIdx] = true;
       this.lightSpeedTurns[playerIdx] = eff.turns || 4;
+      if (!player.fieldSupports.find(s => s.card.id === 'S16')) {
+        player.fieldSupports.push({ card, turnsRemaining: eff.turns || 4 });
+      }
       effects.push({ type: 'light_speed', turns: eff.turns || 4 });
     }
 
@@ -2093,6 +2096,9 @@ class GameEngine {
     if (card.id === 'S20') {
       if (opponent.fieldSupports.length > 0 || opponent.fieldSummons.length > 0 || opponent.fieldDomain) {
         this.shadowBindTurns[oIdx] = 2;
+        if (!player.fieldSupports.find(s => s.card.id === 'S20')) {
+          player.fieldSupports.push({ card, turnsRemaining: 2 });
+        }
         effects.push({ type: 'shadow_bind', msg: '对方下2回合不能出辅助卡' });
       }
     }
@@ -2122,6 +2128,9 @@ class GameEngine {
     // 高压击穿 (S31)
     if (card.id === 'S31') {
       this.highVoltagePierce[playerIdx] = 3;
+      if (!player.fieldSupports.find(s => s.card.id === 'S31')) {
+        player.fieldSupports.push({ card, turnsRemaining: 3 });
+      }
       effects.push({ type: 'high_voltage', msg: '电攻无视20点防御，持续3回合' });
     }
 
@@ -2134,6 +2143,10 @@ class GameEngine {
     // 噪音干扰 (S08)
     if (card.id === 'S08') {
       opponent.extraCost = eff.opponentExtraCost || 5;
+      // 驻场显示
+      if (!player.fieldSupports.find(s => s.card.id === 'S08')) {
+        player.fieldSupports.push({ card, turnsRemaining: eff.turns || 1 });
+      }
       effects.push({ type: 'noise', msg: '对方下回合每出卡+5费' });
     }
 
