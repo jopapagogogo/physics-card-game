@@ -586,24 +586,24 @@ class GameEngine {
     // 避免 processFieldEffects 双重递减领域卡回合
   }
 
-  /** 拉普拉斯妖：重新排序对方牌库顶部（scry） */
+  /** scry：重新排序指定玩家牌库顶部（C03窥对手/S13自窥） */
   scryReorderTarget(cardIds) {
     if (!this._pendingScry) return false;
     const { targetPlayerIdx, count } = this._pendingScry;
-    const opponent = this.players[targetPlayerIdx];
-    if (!opponent || opponent.deck.length < count) return false;
+    const target = this.players[targetPlayerIdx];
+    if (!target || target.deck.length < count) return false;
     if (!Array.isArray(cardIds) || cardIds.length !== count) return false;
-    const removed = opponent.deck.splice(-count, count);
+    const removed = target.deck.splice(-count, count);
     const newCards = cardIds.map(id => {
       const idx = removed.findIndex(c => c.id === id);
       return idx === -1 ? null : removed[idx];
     });
     if (newCards.includes(null)) {
-      opponent.deck.push(...removed);
+      target.deck.push(...removed);
       return false;
     }
-    opponent.deck.push(...newCards.reverse());
-    this._addLog('[拉普拉斯妖] 已重新排列对方牌库顶部。');
+    target.deck.push(...newCards.reverse());
+    this._addLog(`[窥牌] 已重新排列牌库顶部 ${count} 张。`);
     this._pendingScry = null;
     return true;
   }
@@ -2099,6 +2099,18 @@ class GameEngine {
           player.fieldSupports.push({ card, turnsRemaining: 1 });
         }
       }
+    }
+
+    // 通用窥牌效果 (effect.scry, e.g. S13多普勒探测)
+    if (eff.scry && player.deck.length > 0) {
+      const scryCount = Math.min(eff.scry, player.deck.length);
+      const topCards = player.deck.slice(-scryCount).reverse();
+      this._pendingScry = {
+        targetPlayerIdx: playerIdx,
+        cards: topCards.map(c => ({ id: c.id, name: c.name, domain: c.domain, type: c.type, dmg: c.effect?.dmg || 0 })),
+        count: scryCount
+      };
+      effects.push({ type: 'scry_self', count: scryCount, msg: `预览牌库顶${scryCount}张` });
     }
   }
 

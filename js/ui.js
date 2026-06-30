@@ -2555,6 +2555,11 @@ class GameUI {
       this._showComboEffect(combo.type, combo.msg);
     }
 
+    // S13多普勒探测等自窥牌库效果
+    if (this.engine._pendingScry && this.engine._pendingScry.targetPlayerIdx === 0) {
+      this._showScryModal();
+    }
+
     this.selectedCard = null;
 
     // 检查游戏是否结束
@@ -3224,10 +3229,13 @@ class GameUI {
   async _showScryModal() {
     if (!this.engine._pendingScry) return false;
     const scry = this.engine._pendingScry;
+    const isSelf = scry.targetPlayerIdx === 0;
+    const title = isSelf ? '🔮 窥牌排序（己方牌库）' : '🔮 拉普拉斯妖 · 窥牌排序';
+    const hint = isSelf ? '拖拽调整己方牌库顶部' : '拖拽调整对方牌库顶部';
     return new Promise((resolve) => {
       const overlay = document.createElement('div');
       overlay.className = 'scry-overlay';
-      overlay.innerHTML = '<div class="scry-dialog"><h2>🔮 拉普拉斯妖 · 窥牌排序</h2><p class="scry-hint">拖拽调整对方牌库顶部 ' + scry.cards.length + ' 张牌的顺序，然后点击确认</p><ul class="scry-list" id="scry-list"></ul><div class="scry-btns"><button class="scry-auto" id="scry-auto-dmg">⚔️ 伤害降序</button><button class="scry-confirm" id="scry-confirm">✅ 确认排序</button></div></div>';
+      overlay.innerHTML = `<div class="scry-dialog"><h2>${title}</h2><p class="scry-hint">${hint} ${scry.cards.length} 张牌的顺序，然后点击确认</p><ul class="scry-list" id="scry-list"></ul><div class="scry-btns"><button class="scry-auto" id="scry-auto-dmg">⚔️ 伤害降序</button><button class="scry-confirm" id="scry-confirm">✅ 确认排序</button></div></div>`;
       document.body.appendChild(overlay);
       const list = overlay.querySelector('#scry-list');
       let order = [...scry.cards];
