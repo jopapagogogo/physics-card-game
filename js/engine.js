@@ -1216,6 +1216,42 @@ class GameEngine {
       }
     }
 
+    // A27-A30: 电系辅助卡数量触发效果
+    const elecSupCount = attacker.fieldSupports.filter(s => s.card.domain.includes('电')).length;
+    if (card.id === 'A27' && elecSupCount >= 2) {
+      // 闪电劈击：无视20点防御+额外20伤害
+      const trig = card.effect.triggerElectric2 || {};
+      damage += (trig.bonusDmg || 20);
+      this._ignoreDefBonus[attackerIdx] += (trig.ignoreDefense || 20);
+      effects.push({ type: 'electric_trigger', msg: '高压击穿：无视20防御+额外20伤害' });
+    }
+    if (card.id === 'A28' && elecSupCount >= 1) {
+      // 雷暴链击：对方每张辅助卡额外15伤害
+      const trig = card.effect.triggerElectric1 || {};
+      const oppSupports = opponent.fieldSupports.length;
+      const chainDmg = oppSupports * (trig.chainPerSupport || 15);
+      damage += chainDmg;
+      if (chainDmg > 0) effects.push({ type: 'electric_trigger', msg: `连锁伤害: ${oppSupports}张×${trig.chainPerSupport||15}=${chainDmg}` });
+    }
+    if (card.id === 'A29' && elecSupCount >= 1) {
+      // 电弧灼烧：额外20灼烧伤害
+      const trig = card.effect.triggerElectric1 || {};
+      damage += (trig.bonusDmg || 20);
+      effects.push({ type: 'electric_trigger', msg: '电弧灼烧：额外+20伤害' });
+    }
+    if (card.id === 'A30' && elecSupCount >= 2) {
+      // 电磁脉冲：消灭驻场卡+额外15伤害
+      const trig = card.effect.triggerElectric2 || {};
+      damage += (trig.bonusDmg || 15);
+      if (trig.destroyField && opponent.fieldSupports.length > 0) {
+        const target = opponent.fieldSupports[opponent.fieldSupports.length - 1];
+        opponent.discardPile.push(target.card);
+        opponent.fieldSupports.pop();
+        effects.push({ type: 'destroy_field', msg: `电磁脉冲摧毁了「${target.card.name}」` });
+      }
+      effects.push({ type: 'electric_trigger', msg: '电磁脉冲：额外+15伤害' });
+    }
+
     if (card.id === 'A54') {
       // 爆燃：引爆所有灼烧层数（默认48，S24→A54 combo可提升）
       const perLayerDmg = this._burnDmgPerLayer[attackerIdx];
@@ -1838,6 +1874,14 @@ class GameEngine {
     // 弃置对方手牌 (effect.discardOpponent)
     if (eff.discardOpponent) {
       effects.push({ type: 'discard_opponent', count: eff.discardOpponent });
+    }
+
+    // 盲选弹回对方手牌 (effect.bounceHand, e.g. A22)
+    if (eff.bounceHand && opponent.hand.length > 0) {
+      const rIdx = Math.floor(Math.random() * opponent.hand.length);
+      const bounced = opponent.hand.splice(rIdx, 1)[0];
+      opponent.deck.push(bounced);
+      effects.push({ type: 'bounce_hand', msg: `盲选弹回了「${bounced.name}」到牌库顶` });
     }
 
     // 清除负面状态 (effect.clearDebuff)
