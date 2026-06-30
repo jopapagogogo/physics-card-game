@@ -631,6 +631,15 @@ class GameUI {
         }
       }
 
+      // 阶段1d：优选1-2张领域卡（主/副领域相关）
+      if (curStats().dom < 2) {
+        const domCards = pool.filter(c => c.type === 'domain' && (inMain(c) || inSub(c)) && !picked.includes(c));
+        for (const c of domCards) {
+          if (curStats().dom >= 2 || curStats().total >= MAX_C) break;
+          picked.push(c);
+        }
+      }
+
       // 阶段2：随机约束填充到30
       for (const c of pool) {
         if (curStats().total >= MAX_C) break;
@@ -818,6 +827,15 @@ class GameUI {
         if (deck.length >= TOTAL) break;
         if (usedIds.has(c.id)) continue;
         if (needMain() > 0 || needSub() > 0) add(c);
+      }
+    }
+
+    // 1d: 优选1-2张领域卡（主/副领域相关）
+    if (count().dom < MAX_DOMAIN) {
+      const domPool = CARDS.filter(c => c.type === 'domain' && (inMain(c) || inSub(c)) && !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
+      for (const c of domPool) {
+        if (count().dom >= MAX_DOMAIN || deck.length >= TOTAL) break;
+        add(c);
       }
     }
 
