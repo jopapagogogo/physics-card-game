@@ -1973,8 +1973,15 @@ class GameUI {
       // 驻场辅助卡
       const selfSupports = gs.players[0].fieldSupports || [];
       for (const sup of selfSupports) {
+        const cardData = sup.card || this.engine?.getCardById?.(sup.id);
         const style = this.getDomainStyle(sup.domain);
-        html += `<div class="card support-card small" style="border-left-color:${style.color}"><span class="card-name">${this._escapeHtml(sup.name)}</span><span class="card-type">辅助·${sup.turns}回合</span></div>`;
+        const name = cardData?.name || sup.name;
+        const cost = cardData?.cost ?? '?';
+        html += `<div class="card support-card small" style="border-left:3px solid ${style.color};background:${style.bg};padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:6px;font-size:10px;color:#fff;border:1px solid rgba(255,255,255,.06);">
+          <span style="font-weight:700;color:${style.color};">${cost}费</span>
+          <span>${this._escapeHtml(name)}</span>
+          <span style="opacity:.6;font-size:9px;margin-left:auto;">${sup.turns}回合</span>
+        </div>`;
       }
       selfField.innerHTML = html || '<div class="empty-state"><span class="empty-icon">🏟️</span>场上暂无卡牌</div>';
     }
@@ -2564,6 +2571,11 @@ class GameUI {
     // S13多普勒探测等自窥牌库效果
     if (this.engine._pendingScry && this.engine._pendingScry.targetPlayerIdx === 0) {
       this._showScryModal();
+    }
+
+    // S21凸透成像选择
+    if (this.engine._pendingConvexLens) {
+      this._showConvexLensChoice();
     }
 
     this.selectedCard = null;
@@ -3289,6 +3301,37 @@ class GameUI {
       }, 30000);
       overlay.querySelector('#scry-confirm').addEventListener('click', () => { clearTimeout(timeout); });
     });
+  }
+
+  /** S21凸透成像：实像/虚像选择弹窗 */
+  _showConvexLensChoice() {
+    if (!this.engine._pendingConvexLens) return;
+    const { lastCard } = this.engine._pendingConvexLens;
+    const healAmt = Math.floor((lastCard.damage || 0) * 1.5);
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:24px;max-width:320px;text-align:center;">
+      <h3 style="color:#fff;margin:0 0 8px;">🔍 凸透成像</h3>
+      <p style="color:#aaa;font-size:13px;margin:0 0 16px;">对手上回合: ${lastCard.card?.name||'未知'} (${lastCard.damage||0}伤害)</p>
+      <div style="display:flex;gap:12px;">
+        <button id="cvx-real" style="flex:1;padding:12px;border-radius:8px;background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;border:none;font-size:13px;cursor:pointer;">💚 实像<br><small>恢复${healAmt}HP</small></button>
+        <button id="cvx-virtual" style="flex:1;padding:12px;border-radius:8px;background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;border:none;font-size:13px;cursor:pointer;">⚔️ 虚像<br><small>复制卡牌·120%伤害</small></button>
+      </div></div>`;
+    document.body.appendChild(overlay);
+    const done = (choice) => {
+      overlay.remove();
+      const result = this.engine.convexLensApply(choice);
+      if (result) {
+        const label = choice === 'real' ? '实像' : '虚像';
+        this.addLogMessage('🔍 凸透成像·' + label);
+        const msgs = this._formatEffects([result]);
+        for (const m of msgs) this.addLogMessage('  ' + m);
+        if (choice === 'virtual') this.addLogMessage('  🃏 对手卡牌效果已复制');
+      }
+      this.updateAllDisplay();
+    };
+    overlay.querySelector('#cvx-real').onclick = () => done('real');
+    overlay.querySelector('#cvx-virtual').onclick = () => done('virtual');
   }
 
   /**

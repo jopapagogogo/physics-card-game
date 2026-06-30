@@ -147,6 +147,7 @@ class GameEngine {
     this._filterDomainReduction = [0, 0];      // 减费量
     // S21 凸透成像—对手上回合打出的最后一张卡
     this._lastTurnCard = [null, null];         // 对手上回合最后打出的卡 {card, damage(dealt)}
+    this._pendingConvexLens = null;            // S21凸透成像待选择
     // S32 低压启动—目标电系卡引用
     this._reduceElectricTarget = [{ cardRef: null, costReduction: 0 }, { cardRef: null, costReduction: 0 }];
 
@@ -606,6 +607,28 @@ class GameEngine {
     this._addLog(`[窥牌] 已重新排列牌库顶部 ${count} 张。`);
     this._pendingScry = null;
     return true;
+  }
+
+  /** S21凸透成像：应用玩家选择 */
+  convexLensApply(choice) {
+    if (!this._pendingConvexLens) return null;
+    const { lastCard, lensEff } = this._pendingConvexLens;
+    this._pendingConvexLens = null;
+    const player = this.players[0];
+    const opponent = this.players[1];
+    if (choice === 'real' && lastCard.damage) {
+      const heal = Math.floor(lastCard.damage * (lensEff.realImage?.restoreHp || 1.5));
+      const actual = Math.min(MAX_HP - player.hp, heal);
+      player.hp += actual;
+      return { type: 'convex_real', heal: actual };
+    } else if (choice === 'virtual' && lastCard.card) {
+      const extraCost = Math.ceil((lastCard.card.cost || 0) * (lensEff.virtualImage?.extraCost || 0.5));
+      player.spirit = Math.max(0, player.spirit - extraCost);
+      const copyDmg = Math.floor((lastCard.damage || 0) * (lensEff.virtualImage?.copyEffect || 1.2));
+      if (copyDmg > 0) opponent.hp = Math.max(0, opponent.hp - copyDmg);
+      return { type: 'convex_virtual', dmg: copyDmg, extraCost, cardName: lastCard.card.name };
+    }
+    return null;
   }
 
   // ==========================================================
@@ -1682,32 +1705,32 @@ class GameEngine {
       }
     }
 
-    // S21 凸透成像 — 复现上回合卡牌效果
+    // S21 凸透成像 — 复现上回合卡牌效果（玩家选择，AI自动）
     if (card.effect.convexLens) {
-      const lastCard = this._lastTurnCard[1 - attackerIdx]; // 对手上回合打出的最后一张攻击/辅助卡
+      const lastCard = this._lastTurnCard[1 - attackerIdx];
       const lensEff = card.effect.convexLens;
-      if (lastCard) {
-        // 随机选择实像/虚像
-        const isReal = Math.random() < 0.5;
-        if (isReal && lastCard.damage) {
-          // 实像：恢复 HP = 伤害 × 150%
-          const heal = Math.floor(lastCard.damage * (lensEff.realImage.restoreHp || 1.5));
-          const actualHeal = Math.min(MAX_HP - attacker.hp, heal);
-          attacker.hp += actualHeal;
-          effects.push({ type: 'convex_real', heal: actualHeal });
-          this._addLog(`[凸透成像·实像] 恢复 ${actualHeal} 点HP。`);
-        } else if (!isReal && lastCard.damage) {
-          // 虚像：复制伤害 × 120%
-          const copyDmg = Math.floor(lastCard.damage * (lensEff.virtualImage.copyEffect || 1.2));
-          // 额外费用
-          const extraCost = Math.ceil((lastCard.card?.cost || 0) * (lensEff.virtualImage.extraCost || 0.5));
-          attacker.spirit = Math.max(0, attacker.spirit - extraCost);
-          opponent.hp = Math.max(0, opponent.hp - copyDmg);
-          effects.push({ type: 'convex_virtual', dmg: copyDmg, extraCost });
-          this._addLog(`[凸透成像·虚像] 造成 ${copyDmg} 点伤害（额外消耗 ${extraCost} 精神力）。`);
+      if (lastCard && lastCard.card) {
+        if (attackerIdx === 1) {
+          // AI: 自动选择——HP<50%且对方上回合有伤害则实像，否则虚像
+          const hpRatio = attacker.hp / MAX_HP;
+          if (hpRatio < 0.5 && lastCard.damage) {
+            const heal = Math.floor(lastCard.damage * (lensEff.realImage?.restoreHp || 1.5));
+            attacker.hp = Math.min(MAX_HP, attacker.hp + heal);
+            effects.push({ type: 'convex_real', heal });
+          } else if (lastCard.damage) {
+            const copyDmg = Math.floor(lastCard.damage * (lensEff.virtualImage?.copyEffect || 1.2));
+            const extraCost = Math.ceil((lastCard.card.cost || 0) * (lensEff.virtualImage?.extraCost || 0.5));
+            attacker.spirit = Math.max(0, attacker.spirit - extraCost);
+            opponent.hp = Math.max(0, opponent.hp - copyDmg);
+            effects.push({ type: 'convex_virtual', dmg: copyDmg, extraCost });
+          }
+        } else {
+          // 玩家: 标记待选择
+          this._pendingConvexLens = { lastCard, lensEff };
+          effects.push({ type: 'convex_pending', msg: '选择实像(回血)或虚像(复制卡牌)' });
         }
       } else {
-        this._addLog(`[凸透成像] 无上回合卡牌可复现。`);
+        effects.push({ type: 'convex_none', msg: '无上回合卡牌可复现' });
       }
     }
 
