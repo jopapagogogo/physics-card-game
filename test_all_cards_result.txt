@@ -1,19 +1,19 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-06-30T11:31:47.532Z
+  测试时间: 2026-06-30T11:37:12.623Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
 ✅ S02 能量蓄积 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
 ✅ S03 受力面积缩小 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_atk_bonus]
-⚠️ S04 摩擦阻碍 (support, cost=12): result.success=true but NO_EFFECTS (type=support, fs=OK)
+✅ S04 摩擦阻碍 (support, cost=12): dmg=N/A ✔ fieldSupports=OK effects=[defense]
 ✅ S05 力的合成 (support, cost=8): dmg=N/A ✔ fieldSupports=N/A effects=[stacking_force]
 ✅ S06 弹性储能 (support, cost=10): dmg=N/A ✔ fieldSupports=OK effects=[energy_store]
 ✅ S07 回声消声 (support, cost=10): dmg=N/A ✔ fieldSupports=N/A effects=[view_hand,clear_debuff,view_hand,clear_debuff]
 ✅ S08 噪音干扰 (support, cost=8): dmg=N/A ✔ fieldSupports=OK effects=[extra_cost,noise]
 ✅ S09 频率调节 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[freq_pending]
 ✅ S10 共振蓄能 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[spirit_restore]
-⚠️ S11 隔音屏障 (support, cost=16): result.success=true but NO_EFFECTS (type=support, fs=OK)
+✅ S11 隔音屏障 (support, cost=16): dmg=N/A ✔ fieldSupports=OK effects=[defense]
 ✅ S12 聚焦声束 (support, cost=11): dmg=N/A ✔ fieldSupports=N/A effects=[next_sound_bonus]
 ⚠️ S13 多普勒探测 (support, cost=8): result.success=true but NO_EFFECTS (type=support, fs=N/A)
 ⚠️ S14 滤光 (support, cost=10): result.success=true but NO_EFFECTS (type=support, fs=N/A)
@@ -29,7 +29,7 @@
 ✅ S24 温度升高 (support, cost=6): dmg=N/A ✔ fieldSupports=OK effects=[temperature_rise]
 ✅ S25 潜热释放 (support, cost=0): dmg=N/A ✔ fieldSupports=N/A effects=[clear_debuff,latent_heat,heal]
 ✅ S26 热量聚集 (support, cost=10): dmg=N/A ✔ fieldSupports=N/A effects=[burn]
-⚠️ S27 电阻屏障 (support, cost=10): result.success=true but NO_EFFECTS (type=support, fs=OK)
+✅ S27 电阻屏障 (support, cost=10): dmg=N/A ✔ fieldSupports=OK effects=[defense]
 ✅ S28 电磁感应 (support, cost=6): dmg=N/A ✔ fieldSupports=OK effects=[continuous_support]
 ✅ S29 静电吸附 (support, cost=8): dmg=N/A ✔ fieldSupports=N/A effects=[clear_debuff,need_discard,draw]
 ✅ S30 短路开关 (support, cost=6): dmg=N/A ✔ fieldSupports=N/A effects=[short_circuit]
@@ -70,7 +70,7 @@
 ✅ A10 次声震荡 (attack, cost=20): dmg=45 ✔ fieldSupports=OK effects=[damage,dot]
 ✅ A11 啸叫 (attack, cost=18): dmg=25 ✔ fieldSupports=OK effects=[damage,field_card]
 ✅ A13 驻波共振 (attack, cost=16): dmg=70 ✔ fieldSupports=N/A effects=[damage]
-⚠️ A14 回声爆破 (attack, cost=13): result.success=true but NO_EFFECTS (type=attack, fs=N/A)
+✅ A14 回声爆破 (attack, cost=13): dmg=N/A ✔ fieldSupports=N/A effects=[echo_bomb_pending]
 ✅ A15 激光切割 (attack, cost=25): dmg=120 ✔ fieldSupports=N/A effects=[damage]
 ✅ A16 色散分解 (attack, cost=20): dmg=40 ✔ fieldSupports=OK effects=[damage,dot]
 ✅ A17 红外灼烧 (attack, cost=15): dmg=48 ✔ fieldSupports=N/A effects=[damage,burn]
@@ -121,51 +121,13 @@
   ❌ 失败:   0 张
   ⚠️ 跳过:   0 张（条件不满足）
 
-── 特殊关注的卡牌（effects 为空的8张卡）──
-
-  类型A - 被动防御效果（4张）：effects 为空属于正常现象
-    S04 摩擦阻碍: 驻场 forceDefense=25 (turns=2)，防御被动生效，无即时反馈
-    S11 隔音屏障: 驻场 soundDefense=35 (turns=2)，防御被动生效，无即时反馈
-    S27 电阻屏障: 驻场 electricDefense=20 (turns=3)，防御被动生效，无即时反馈
-    原因: _handleSupport 检查 card.effect.defense（对象key），但 S04/S11/S27
-          使用 forceDefense/soundDefense/electricDefense（领域key），
-          防御逻辑不 match，虽通过通用 turns 逻辑加入 fieldSupports，
-          但没有生成 effects 条目。实际功能正常（calculateDamage 正确读取）。
-
-  类型B - 需要额外上下文（3张）：effects 为空是测试上下文限制
-    S13 多普勒探测: scry=5 需要牌库有卡，测试中牌库已空
-    S14 滤光: filterDomain 需要手牌选领域，测试中手牌只有自身
-    S34 置换卡: replaceHand 需要手牌可置换，测试中手牌为空
-
-  类型C - 潜在功能缺陷（1张）
-    A14 回声爆破: effect 设 delayedDmg=100 应在 effects 中体现待触发状态，
-          但引擎仅设置 echoBombPending 标记而未添加 effects 条目。
-          功能正常（下回合 startTurn 时自动触发伤害），
-          但 UI 无法从 effects 获知爆破待触发状态。
+── 特殊关注的卡牌（驻场/持续效果异常）──
+  🔍 S13 多普勒探测: result.success=true but effects is empty
+  🔍 S14 滤光: result.success=true but effects is empty
+  🔍 S32 低压启动: result.success=true but effects is empty
+  🔍 S34 置换卡: result.success=true but effects is empty
 
   ✅ 通过: 109 / 109 (100.0%)
   ❌ 失败: 0 / 109
   ⚠️ 跳过: 0 / 109
-
-── 详细分析 ─────────────────────────────────────────────────
-
-整体测试结论：
-  - 109 张卡牌 100% 通过运行时测试（playCard(0, cardId, 'player') 均返回 success=true）
-  - 所有 109 张卡的效果（damage/burn/dot/defense/field/turns 等）均正确执行
-  - 驻场卡（A05/A10/A11/A16/S06/S08/S16/S19/S20/S22/S24/S28/S31 等）
-    均正确加入 fieldSupports
-  - 3 张相变卡（T01 能量守恒/T02 临界突破/T03 熵逆转）均正确处理
-  - 5 张领域卡（D01-D05）均正确加入 fieldDomain
-  - 14 张召唤卡（C01-C14）均正确加入 fieldSummons
-  - 条件卡（A26/S23/S25 需灼烧，T02 需 HP<30%，S20 需对手驻场，S30 需电辅助）
-    在设置正确前置条件后均成功打出
-
-建议改进项（非阻塞）：
-  1. S04/S11/S27: _handleSupport 的 defense 检测应同时匹配 forceDefense/
-     soundDefense/electricDefense 等领域级防御字段，并生成 effects 条目。
-  2. A14 回声爆破: 应在 effect 中加入 {type: 'echo_bomb_pending', dmg: 100}
-     以便 UI 层可展示爆破待触发状态。
-  3. S13/S14/S32/S34: 引擎功能正常，测试上下文（空牌库/空手牌）限制导致无
-     effects，正式游戏环境不受影响。
-
 ======================================================================
