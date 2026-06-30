@@ -736,6 +736,18 @@ class GameUI {
   // ==================== 游戏开始 / 卡组生成 ====================
 
   startGame() {
+    // V30: 首次游戏新手引导
+    if (!localStorage.getItem('pcg_tutorial_done')) {
+      this._showTutorial(() => {
+        localStorage.setItem('pcg_tutorial_done', '1');
+        this._doStartGame();
+      });
+      return;
+    }
+    this._doStartGame();
+  }
+
+  _doStartGame() {
     const playerDeck = this.customDeck && this.customDeck.length === 30
       ? this.customDeck
       : this.generateDeck(this.mainDomain, this.subDomain);
@@ -1265,6 +1277,70 @@ class GameUI {
     this.updateAllDisplay();
     this.bindBattleEvents();
     this._injectBattleStyles();
+    this._spawnBattleParticles();
+  }
+
+  /** V30: 新手引导 — 4张引导卡 */
+  _showTutorial(onDone) {
+    const steps = [
+      { title: '欢迎来到物理卡牌对战', body: '用五大领域（力声光热电）的物理知识进行卡牌对战！每张卡都蕴含真实的物理原理。', icon: '⚛️' },
+      { title: '回合流程', body: '① 答题获取增益 → ② 出牌攻击/辅助/领域 → ③ 结束回合。精神力不足的卡无法打出。', icon: '🔄' },
+      { title: '卡组构建', body: '主界面可自定义卡组：主领域12-18张 + 副领域6-12张 + 最多2张领域卡 = 共30张。', icon: '🃏' },
+      { title: 'Combo连击', body: '特定卡牌组合触发Combo效果！仔细阅读卡牌描述中的物理原理，发现隐藏连招。', icon: '✨' }
+    ];
+    let step = 0;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;flex-direction:column;';
+    const render = () => {
+      const s = steps[step];
+      overlay.innerHTML = `
+        <div style="text-align:center;max-width:360px;padding:32px;">
+          <div style="font-size:48px;margin-bottom:16px;">${s.icon}</div>
+          <h2 style="color:#fff;font-size:20px;margin:0 0 12px;">${s.title}</h2>
+          <p style="color:#aaa;font-size:14px;line-height:1.6;margin:0 0 24px;">${s.body}</p>
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
+            ${steps.map((_,i) => `<span style="width:8px;height:8px;border-radius:50%;background:${i===step?'#fff':'#555'};"></span>`).join('')}
+          </div>
+          <button id="tut-next" style="padding:10px 32px;border-radius:8px;background:linear-gradient(135deg,#9b59b6,#3498db);color:#fff;border:none;font-size:14px;cursor:pointer;">${step < steps.length-1 ? '下一步 →' : '开始游戏 ⚔️'}</button>
+          <button id="tut-skip" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;margin-top:12px;">跳过引导</button>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector('#tut-next').onclick = () => {
+        step++;
+        if (step >= steps.length) { overlay.remove(); onDone(); return; }
+        render();
+      };
+      overlay.querySelector('#tut-skip').onclick = () => { overlay.remove(); onDone(); };
+    };
+    render();
+  }
+
+  /** V28: D区漂浮粒子 */
+  _spawnBattleParticles() {
+    const zones = ['opp-d-zone', 'self-d-zone'];
+    const colors = ['rgba(255,255,255,.08)', 'rgba(155,89,182,.08)', 'rgba(52,152,219,.08)', 'rgba(241,196,15,.06)'];
+    for (const zId of zones) {
+      const zone = document.getElementById(zId);
+      if (!zone) continue;
+      // 清除旧粒子
+      zone.querySelectorAll('.d-zone-particle').forEach(p => p.remove());
+      // 生成新粒子
+      for (let i = 0; i < 8; i++) {
+        const p = document.createElement('div');
+        p.className = 'd-zone-particle';
+        const size = 2 + Math.random() * 3;
+        const anims = ['particleFloat', 'particleFloat2', 'particleFloat3'];
+        p.style.cssText = `
+          width:${size}px;height:${size}px;
+          left:${5 + Math.random() * 90}%;
+          bottom:${Math.random() * 100}%;
+          background:${colors[Math.floor(Math.random() * colors.length)]};
+          animation:${anims[Math.floor(Math.random() * anims.length)]} ${4 + Math.random() * 6}s ease-in infinite;
+          animation-delay:${Math.random() * 5}s;
+        `;
+        zone.appendChild(p);
+      }
+    }
   }
 
   /** 注入战斗界面专有样式 */
@@ -1317,6 +1393,11 @@ class GameUI {
       /* === D 区 === */
       .d-zone{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px 72px;position:relative}
       .d-zone::before{content:'';position:absolute;inset:0;background-image:var(--bg-texture);background-size:180px;opacity:.12;pointer-events:none;z-index:0}
+      /* === V28: D区粒子漂浮 === */
+      .d-zone-particle{position:absolute;pointer-events:none;z-index:1;border-radius:50%;opacity:0}
+      @keyframes particleFloat{0%{opacity:0;transform:translateY(0) scale(0)}10%{opacity:.6}90%{opacity:.2}100%{opacity:0;transform:translateY(-120px) scale(1.2)}}
+      @keyframes particleFloat2{0%{opacity:0;transform:translateY(0) scale(0)}15%{opacity:.4}85%{opacity:.15}100%{opacity:0;transform:translateY(-80px) scale(.8)}}
+      @keyframes particleFloat3{0%{opacity:0;transform:translateY(0) scale(0)}20%{opacity:.5}80%{opacity:.1}100%{opacity:0;transform:translateY(-100px) scale(1)}}
       .d-half{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;width:100%}
       /* === 中央分隔栏 === */
       .divider-row{flex-shrink:0;display:flex;align-items:center;gap:10px;height:30px;padding:0 16px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
@@ -1388,6 +1469,12 @@ class GameUI {
       .card-v3.mini::before,.card-v3.mini::after{display:none!important}
       .card-v3.mini{box-shadow:0 0 4px rgba(0,0,0,.3)!important}
       .card-v3.mini.skin-cyber{box-shadow:0 0 4px var(--dm-glow)!important}
+      /* === V29: 动漫皮肤变量体系 === */
+      .card-v3.mini.skin-anime{border-radius:10px!important;box-shadow:0 0 6px rgba(255,180,200,.15),0 2px 8px rgba(0,0,0,.3)!important}
+      .card-v3.mini.skin-anime .v3-header{background:linear-gradient(135deg,rgba(255,140,180,.15),rgba(180,120,255,.1))}
+      .card-v3.mini.skin-anime .v3-art-frame{filter:brightness(1.1) saturate(1.2)}
+      .card-v3.mini.skin-anime .v3-badge{background:linear-gradient(135deg,#ff8cb4,#b478ff);color:#fff}
+      .card-tooltip .card-v3.skin-anime{box-shadow:0 0 10px rgba(255,180,200,.15)!important}
       /* === V7: 可打出卡牌光亮，不可打出变暗 === */
       .card-v3.mini{opacity:.45;transition:opacity .3s,box-shadow .3s,transform .2s}
       .card-v3.mini.playable{
