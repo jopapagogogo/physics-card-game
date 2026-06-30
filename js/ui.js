@@ -588,9 +588,10 @@ class GameUI {
     overlay.querySelector('#db-auto').addEventListener('click', () => {
       // 在已选基础上智能补全到30张，不覆盖已有选择
       const s = computeStats.call(self);
-      const pool = allCards.filter(c => !selected.has(c.id));
+      const pool = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
       const picked = [];
-      for (const c of pool.sort(() => Math.random() - 0.5)) {
+      // 第一轮：严格约束填充
+      for (const c of pool) {
         if (selected.size + picked.length >= MAX_CARDS) break;
         const curDomain = s.domC + picked.filter(x => x.type === 'domain').length;
         const curMain = s.mainCount + picked.filter(x => self._cardHasDomain(x, self.mainDomain)).length;
@@ -600,6 +601,13 @@ class GameUI {
         const hs = self._cardHasDomain(c, self.subDomain);
         if (hm && curMain >= 18) continue;
         if (hs && curSub >= 12) continue;
+        picked.push(c);
+      }
+      // 第二轮：兜底填充——如果还没到30张，放宽领域限制补满
+      const remaining = pool.filter(c => !picked.includes(c));
+      for (const c of remaining) {
+        if (selected.size + picked.length >= MAX_CARDS) break;
+        if (c.type === 'domain') continue; // 领域卡仍限制最多2
         picked.push(c);
       }
       for (const c of picked) selected.add(c.id);
@@ -765,13 +773,23 @@ class GameUI {
     addCards(summon, 1);
     addCards(phase, 1);
 
-    // 补到30张
+    // 补到30张（严格约束）
     const allPool = CARDS.filter(c => !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
     for (const c of allPool) {
       if (deck.length >= TOTAL) break;
       if (!canAdd(c)) continue;
       deck.push(c);
       usedIds.add(c.id);
+    }
+    // 兜底：约束填充未满30张时，放宽填满
+    if (deck.length < TOTAL) {
+      const fallbackPool = CARDS.filter(c => !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
+      for (const c of fallbackPool) {
+        if (deck.length >= TOTAL) break;
+        if (c.type === 'domain') continue; // 领域卡保持≤2
+        deck.push(c);
+        usedIds.add(c.id);
+      }
     }
 
     return deck.slice(0, TOTAL).map(c => c.id);
