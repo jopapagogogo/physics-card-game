@@ -700,6 +700,14 @@ class GameEngine {
       if (s.card.id === 'C05' && s.card.effect.forceDmgBonus && card.domain.includes('力')) {
         damage += s.card.effect.forceDmgBonus;
       }
+      // C09 伽利略: 每张己方辅助卡光系+3
+      if (s.card.id === 'C09' && s.card.effect.perSupportLightBonus && card.domain.includes('光')) {
+        damage += attacker.fieldSupports.length * s.card.effect.perSupportLightBonus;
+      }
+      // C14 安培: 每层麻痹电系+2
+      if (s.card.id === 'C14' && s.card.effect.perParalysisBonus && card.domain.includes('电')) {
+        damage += (defender.paralysis || 0) * s.card.effect.perParalysisBonus;
+      }
     }
 
     // 3. 串联增压（电被动：场上电辅助数×15）
@@ -808,6 +816,11 @@ class GameEngine {
     }
     if (card.effect.perBurnBonus) {
         damage += card.effect.perBurnBonus * defender.burnLayers;
+    }
+    if (card.effect.hpLossBonus) {
+        // A08 做功打击: 对方已损失HP的N%额外伤害
+        const lostHp = (defender.maxHp || MAX_HP) - defender.hp;
+        damage += Math.floor(lostHp * card.effect.hpLossBonus);
     }
     if (card.effect.perOppFieldCard) {
         const oppFieldCount = defender.fieldSummons.length +
@@ -1913,7 +1926,9 @@ class GameEngine {
     // 查看手牌 (effect.viewHand)
     if (eff.viewHand) {
       const count = eff.viewHand === 'all' ? 'all' : eff.viewHand;
-      effects.push({ type: 'view_hand', count, player: oIdx });
+      const shown = count === 'all' ? opponent.hand.length : Math.min(count, opponent.hand.length);
+      const names = opponent.hand.slice(-shown).map(c => c.name).join('、');
+      effects.push({ type: 'view_hand', count, player: oIdx, cards: names });
     }
 
     // 弃置对方手牌 (effect.discardOpponent)
@@ -2089,6 +2104,18 @@ class GameEngine {
         player.fieldSupports.splice(elecIdx, 1);
         this.shortCircuitActive[playerIdx] = true;
         effects.push({ type: 'short_circuit', msg: '牺牲电辅助卡，本回合电攻+20' });
+      }
+    }
+
+    // S10 共振蓄能：本回合若已打出声系攻击，额外恢复精神力
+    if (card.id === 'S10' && eff.soundBonusSpirit) {
+      const soundPlayed = this.cardsThisTurn.some(cid => {
+        const c = this.getCardById(cid);
+        return c && c.type === 'attack' && c.domain.includes('声');
+      });
+      if (soundPlayed) {
+        player.spirit = Math.min(MAX_SPIRIT, player.spirit + eff.soundBonusSpirit);
+        effects.push({ type: 'spirit_restore', value: eff.soundBonusSpirit });
       }
     }
 
@@ -2287,6 +2314,12 @@ class GameEngine {
           this._addLog(`[弹性储能释放] 持续结束，释放 ${releaseDmg} 点伤害！`);
           this.energyStore[playerIdx].stored = 0;
         }
+      }
+      // A16 色散分解：驻场结束后回到手牌可0费再次打出
+      if (removed.card.id === 'A16' && removed.card.effect.returnOnSurvive) {
+        removed.card.effect.cost = 0;
+        player.hand.push(removed.card);
+        this._addLog(`[色散分解] 回到手牌，可0费再次打出。`);
       }
       if (removed.card.effect.defense || removed.card.effect.buffDmg) {
         this._addLog(`[${playerIdx === 0 ? '玩家' : 'AI'}] 驻场卡「${removed.card.name}」效果结束。`);

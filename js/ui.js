@@ -3825,7 +3825,7 @@ class GameUI {
         // misc
         case 'clear_debuff': msgs.push(`✨ ${eff.msg || '清除了负面状态'}`); break;
         case 'view_hand': 
-          msgs.push(`👁 查看对方${eff.count === 'all' ? '全部' : eff.count + '张'}手牌`);
+          msgs.push(`👁 查看对方手牌: ${eff.cards || (eff.count === 'all' ? '全部' : eff.count + '张')}`);
           break;
         case 'discard_opponent': msgs.push(`🗑 弃置对方${eff.count}张手牌`); break;
         case 'need_discard': msgs.push(`🗑 ${eff.msg || '需先弃1张手牌'}`); break;
