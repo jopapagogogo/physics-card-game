@@ -586,66 +586,61 @@ class GameUI {
     overlay.querySelector('#db-clear').addEventListener('click', () => { selected.clear(); renderCards(); renderDeckPanel(); updateCount(); });
 
     overlay.querySelector('#db-auto').addEventListener('click', () => {
-      // 在已选基础上智能补全到30张，不覆盖已有选择
-      const MAX_CARDS = 30;
+      // 在已选基础上智能补全到30张，需求驱动：先保最低再随机
+      const MAX_C = 30;
       const picked = [];
-      const getStats = () => {
+      const inD = (c, d) => self._cardHasDomain(c, d);
+      const inMain = (c) => inD(c, self.mainDomain);
+      const inSub = (c) => inD(c, self.subDomain);
+      const inBoth = (c) => inMain(c) && inSub(c);
+      const inNeither = (c) => !inMain(c) && !inSub(c);
+
+      const curStats = () => {
         const s = computeStats.call(self);
+        const pm = picked.filter(x => inMain(x)).length;
+        const ps = picked.filter(x => inSub(x)).length;
+        const pd = picked.filter(x => x.type === 'domain').length;
         return {
-          main: s.mainCount + picked.filter(x => self._cardHasDomain(x, self.mainDomain)).length,
-          sub: s.subCount + picked.filter(x => self._cardHasDomain(x, self.subDomain)).length,
-          dom: s.domC + picked.filter(x => x.type === 'domain').length,
-          total: selected.size + picked.length
+          main: s.mainCount + pm, sub: s.subCount + ps,
+          dom: s.domC + pd, total: selected.size + picked.length
         };
       };
+      const needM = () => Math.max(0, 12 - curStats().main);
+      const needS = () => Math.max(0, 6 - curStats().sub);
 
       const pool = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
-      const inDomain = (c, d) => self._cardHasDomain(c, d);
-      const inMain = (c) => inDomain(c, self.mainDomain);
-      const inSub = (c) => inDomain(c, self.subDomain);
-      const isNeutral = (c) => !inMain(c) && !inSub(c);
+      const addTo = (arr) => { for (const c of arr) { if (curStats().total >= MAX_C) break; if (!picked.includes(c)) picked.push(c); } };
 
-      // 第1轮：严格约束填充
+      // 阶段1a：填主领域唯一卡到主≥12
+      addTo(pool.filter(c => inMain(c) && !inSub(c) && c.type !== 'domain' && needM() > 0));
+
+      // 阶段1b：填副领域唯一卡到副≥6
+      addTo(pool.filter(c => inSub(c) && !inMain(c) && c.type !== 'domain' && needS() > 0));
+
+      // 阶段1c：交叉领域卡补缺口
+      if (needM() > 0 || needS() > 0) {
+        addTo(pool.filter(c => inBoth(c) && c.type !== 'domain' && !picked.includes(c)));
+      }
+
+      // 阶段2：随机约束填充到30
       for (const c of pool) {
-        if (getStats().total >= MAX_CARDS) break;
-        const st = getStats();
+        if (curStats().total >= MAX_C) break;
+        if (picked.includes(c)) continue;
+        const st = curStats();
         if (c.type === 'domain' && st.dom >= 2) continue;
         if (inMain(c) && st.main >= 18) continue;
         if (inSub(c) && st.sub >= 12) continue;
         picked.push(c);
       }
 
-      // 第2轮：填中性卡（不属于主/副领域）
-      if (getStats().total < MAX_CARDS) {
-        for (const c of pool) {
-          if (getStats().total >= MAX_CARDS) break;
-          if (picked.includes(c)) continue;
-          if (c.type === 'domain') continue;
-          if (!isNeutral(c)) continue;
-          picked.push(c);
-        }
+      // 阶段3：中性卡兜底
+      if (curStats().total < MAX_C) {
+        addTo(pool.filter(c => !picked.includes(c) && c.type !== 'domain' && inNeither(c)));
       }
 
-      // 第3轮：兜底——主领域优先（不超18），再副领域（不超12），再其他
-      if (getStats().total < MAX_CARDS) {
-        const fallback = pool.filter(c => !picked.includes(c) && c.type !== 'domain');
-        // 优先主领域
-        for (const c of fallback) {
-          if (getStats().total >= MAX_CARDS) break;
-          if (inMain(c) && getStats().main < 18) { picked.push(c); continue; }
-        }
-        // 再副领域
-        for (const c of fallback) {
-          if (getStats().total >= MAX_CARDS) break;
-          if (picked.includes(c)) continue;
-          if (inSub(c) && getStats().sub < 12) { picked.push(c); continue; }
-        }
-        // 其余任意
-        for (const c of fallback) {
-          if (getStats().total >= MAX_CARDS) break;
-          if (picked.includes(c)) continue;
-          picked.push(c);
-        }
+      // 阶段4：最终兜底
+      if (curStats().total < MAX_C) {
+        addTo(pool.filter(c => !picked.includes(c) && c.type !== 'domain'));
       }
 
       for (const c of picked) selected.add(c.id);
