@@ -268,7 +268,8 @@ class GameEngine {
     this._burnCapIncrease[pIdx] = 0;
     this._burnDmgPerLayer[pIdx] = 50;
     this._ignoreDefBonus[pIdx] = 0;
-    this.spectrumBonus[pIdx] = 0;         // Bug7修复: 光谱加成每回合重置
+    this.spectrumBonus[pIdx] = 0;
+    this._inertiaNextTurn = {};             // A02惯性冲锋标记重置
     this.quizResult = { correct: 0, total: 3, bonus: 0 };
     player.extraCost = 0;
     this.quizCostReduction[pIdx] = 0;
@@ -319,8 +320,9 @@ class GameEngine {
       }
     }
 
-    // C03 拉普拉斯妖：每回合预览对方牌库顶5张并排序
-    this._pendingScry = null;  // 清除上一回合的窥牌数据
+    // C03 拉普拉斯妖/S13多普勒探测：每回合窥牌数据
+    this._pendingScry = null;  // 清除上一回合的窥牌数据（最后出牌优先）
+    this._scryHandled = false; // 本回合已处理过窥牌
     const c03 = player.fieldSummons.find(s => s.card.id === 'C03');
     if (c03 && opponent.deck.length > 0) {
       const scryCount = Math.min(c03.card.effect.scryOpponent || 5, opponent.deck.length);
@@ -994,6 +996,20 @@ class GameEngine {
     // 从手牌移除
     player.hand.splice(handIdx, 1);
     const effects = [];
+
+    // E10: 召唤卡前置检查（扣费后但可退还）
+    if (card.type === 'summon') {
+      if (player.fieldSummons.length >= MAX_SUMMONS) {
+        player.spirit = Math.min(MAX_SPIRIT, player.spirit + Math.max(0, cost));
+        player.hand.push(card);
+        return { success: false, msg: '召唤物已达上限（2个）。', effects: [] };
+      }
+      if (player.fieldSummons.some(s => s.card.id === card.id)) {
+        player.spirit = Math.min(MAX_SPIRIT, player.spirit + Math.max(0, cost));
+        player.hand.push(card);
+        return { success: false, msg: `同名召唤物「${card.name}」已存在。`, effects: [] };
+      }
+    }
 
     // 记录本回合打出的卡
     this.cardsThisTurn.push(cardId);
@@ -2153,9 +2169,15 @@ class GameEngine {
       effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });
     }
 
-    // S29 静电吸附：抽卡（需先弃1张）
+    // S29 静电吸附：弃1张手牌→抽2张+清除负面
     if (card.id === 'S29' && eff.draw) {
-      effects.push({ type: 'need_discard', msg: '需先弃1张手牌' });
+      if (player.hand.length > 0) {
+        // 弃一张手牌
+        const discardIdx = player.hand.length - 1; // 弃最后一张（简化：AI/自动选）
+        const discarded = player.hand.splice(discardIdx, 1)[0];
+        player.discardPile.push(discarded);
+        effects.push({ type: 'discard', msg: `弃置「${discarded.name}」` });
+      }
       this.drawCards(playerIdx, eff.draw);
       const p = this.players[playerIdx];
       if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
@@ -2411,19 +2433,7 @@ class GameEngine {
   }
 
   /** 光副晨曦：每回合首个光攻+10%伤害 */
-  lightSubFirstCard(playerIdx, card) {
-    if (this.players[playerIdx].isLightSub && card.domain.includes('光') && card.type === 'attack') {
-      // 检查是否为本回合首个光攻
-      const lightAttacks = this.cardsThisTurn.filter(id => {
-        const c = this.getCardById(id);
-        return c && c.domain.includes('光') && c.type === 'attack';
-      });
-      if (lightAttacks.length === 0) {
-        return 0.10; // 10%伤害加成
-      }
-    }
-    return 0;
-  }
+  // lightSubFirstCard 已移除（死代码，从未被调用）
 
   /** 检查是否可在对方回合出牌（光速传播） */
   canPlayInOpponentTurn(playerIdx, card) {
@@ -2647,6 +2657,21 @@ class GameEngine {
     if (!this.canAfford(playerIdx, card)) {
       return { can: false, reason: '精神力不足。' };
     }
+    if (card.id === 'S20' && !opponent.fieldSupports.length && !opponent.fieldSummons.length && !opponent.fieldDomain) {
+      return { can: false, reason: '对方场上无卡牌，无法使用影子束缚。' };
+    }
+    if (card.id === 'S30' && !player.fieldSupports.some(s => s.card.domain.includes('电'))) {
+      return { can: false, reason: '己方场上无电系辅助卡。' };
+    }
+
+    // S20 影子束缚: 需对方场上有卡
+    if (card.id === 'S20' && !opponent.fieldSupports.length && !opponent.fieldSummons.length && !opponent.fieldDomain) {
+      return { can: false, reason: '对方场上无卡牌，无法使用影子束缚。' };
+    }
+    // S30 短路开关: 需己方场上有电辅助
+    if (card.id === 'S30' && !player.fieldSupports.some(s => s.card.domain.includes('电'))) {
+      return { can: false, reason: '己方场上无电系辅助卡。' };
+    }
 
     // 相变卡特殊条件
     if (card.type === 'phase') {
@@ -2701,6 +2726,12 @@ class GameEngine {
     }
     if (!this.canAfford(playerIdx, card)) {
       return { can: false, reason: '精神力不足。' };
+    }
+    if (card.id === 'S20' && !opponent.fieldSupports.length && !opponent.fieldSummons.length && !opponent.fieldDomain) {
+      return { can: false, reason: '对方场上无卡牌，无法使用影子束缚。' };
+    }
+    if (card.id === 'S30' && !player.fieldSupports.some(s => s.card.domain.includes('电'))) {
+      return { can: false, reason: '己方场上无电系辅助卡。' };
     }
     // 其他特殊条件（与 canPlay 相同）
     if (card.type === 'phase') {

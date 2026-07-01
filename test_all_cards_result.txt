@@ -1,6 +1,6 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-07-01T08:52:44.351Z
+  测试时间: 2026-07-01T09:39:00.234Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
@@ -31,7 +31,7 @@
 ✅ S26 热量聚集 (support, cost=10): dmg=N/A ✔ fieldSupports=N/A effects=[burn]
 ✅ S27 电阻屏障 (support, cost=10): dmg=N/A ✔ fieldSupports=OK effects=[defense]
 ✅ S28 电磁感应 (support, cost=6): dmg=N/A ✔ fieldSupports=OK effects=[continuous_support]
-✅ S29 静电吸附 (support, cost=8): dmg=N/A ✔ fieldSupports=N/A effects=[clear_debuff,need_discard,draw]
+✅ S29 静电吸附 (support, cost=8): dmg=N/A ✔ fieldSupports=N/A effects=[clear_debuff,draw]
 ✅ S30 短路开关 (support, cost=6): dmg=N/A ✔ fieldSupports=N/A effects=[short_circuit]
 ✅ S31 高压击穿 (support, cost=10): dmg=N/A ✔ fieldSupports=OK effects=[high_voltage]
 ⚠️ S32 低压启动 (support, cost=6): result.success=true but NO_EFFECTS (type=support, fs=N/A)
