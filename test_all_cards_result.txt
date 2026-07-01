@@ -1,6 +1,6 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-07-01T08:47:28.426Z
+  测试时间: 2026-07-01T08:51:50.701Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
@@ -109,7 +109,7 @@
 ✅ A50 海市蜃楼 (attack, cost=20): dmg=80 ✔ fieldSupports=N/A effects=[damage,mirage]
 ✅ A51 声速激增 (attack, cost=16): dmg=70 ✔ fieldSupports=N/A effects=[damage,sound_speed_buff]
 ✅ A52 光电信号 (attack, cost=18): dmg=60 ✔ fieldSupports=N/A effects=[damage,view_hand]
-✅ A53 镜面回声 (attack, cost=18): dmg=70 ✔ fieldSupports=N/A effects=[damage,mirror_echo,mirror_echo]
+✅ A53 镜面回声 (attack, cost=18): dmg=70 ✔ fieldSupports=N/A effects=[damage,mirror_echo]
 ✅ A54 爆燃 (attack, cost=12): dmg=40 ✔ fieldSupports=N/A effects=[burn_explode,damage]
 ✅ A55 凸透引燃 (attack, cost=12): dmg=38 ✔ fieldSupports=N/A effects=[extra_burn,damage]
 

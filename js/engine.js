@@ -707,6 +707,13 @@ class GameEngine {
       damage += electricSupports * 15;
     }
 
+    // 3.5 驻场 buffDmg 加成（辅助卡增伤）
+    for (const s of attacker.fieldSupports) {
+      if (s.card.effect?.buffDmg) {
+        damage += s.card.effect.buffDmg;
+      }
+    }
+
     // 4. 辅助组合/条件加成
     // 处理 conditional 效果
     if (card.effect.conditional) {
@@ -894,7 +901,11 @@ class GameEngine {
     for (const s of defender.fieldSupports) {
       for (const [domain, key] of Object.entries(defKeys)) {
         if (hvpActive && domain === '电') {
-          continue; // S31 高压击穿: 跳过电领域防御
+          // S31 高压击穿: 无视20点电防御
+          if (s.card.effect[key] && cardDomains.includes(domain)) {
+            totalDefense += Math.max(0, s.card.effect[key] - 20);
+          }
+          continue;
         }
         if (s.card.effect[key] && cardDomains.includes(domain)) {
           totalDefense += s.card.effect[key];
@@ -1318,7 +1329,8 @@ class GameEngine {
     if (card.id === 'A55') {
       // 凸透引燃：每张己方驻场辅助卡附加1层灼烧（上限3层）
       const extraBurn = Math.min(3, attacker.fieldSupports.length);
-      opponent.burnLayers = Math.max(0, opponent.burnLayers + extraBurn);
+      const maxBurn = MAX_BURN_DEFAULT + this._burnCapIncrease[attackerIdx];
+      opponent.burnLayers = Math.min(maxBurn, Math.max(0, opponent.burnLayers + extraBurn));
       effects.push({ type: 'extra_burn', layers: extraBurn });
     }
 
@@ -1981,7 +1993,8 @@ class GameEngine {
 
     // 给对手附加灼烧 (effect.burn, support类型, e.g. S26)
     if (eff.burn && card.type === 'support') {
-      opponent.burnLayers += eff.burn;
+      const maxBurn = MAX_BURN_DEFAULT + this._burnCapIncrease[playerIdx];
+      opponent.burnLayers = Math.min(maxBurn, opponent.burnLayers + eff.burn);
       effects.push({ type: 'burn', layers: eff.burn });
     }
 
@@ -2036,14 +2049,9 @@ class GameEngine {
       effects.push({ type: 'sound_speed_buff', value: buff });
     }
     // 镜面回声 (A53)
-    if (card.id === 'A53' && card.effect?.soundLightBonus) {
-      this.mirrorEchoBonus[playerIdx] = 10;
-      effects.push({ type: 'mirror_echo', value: 10 });
-    }
-
-    // 镜面回声 (A53)
     if (card.id === 'A53') {
-      effects.push({ type: 'mirror_echo', msg: '本回合声系和光系攻击+10伤害' });
+      this.mirrorEchoBonus[playerIdx] = card.effect?.soundLightBonus || 10;
+      effects.push({ type: 'mirror_echo', value: card.effect?.soundLightBonus || 10, msg: '本回合声系和光系攻击+10伤害' });
     }
 
     // 偏振过滤 (S15)
