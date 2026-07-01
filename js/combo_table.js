@@ -4,7 +4,7 @@
  * 键值格式："此前打出的卡ID→刚才打出的卡ID"
  * 方向重要：S01→A01（先出辅助，再出攻击）才能触发
  * 
- * effect.type 列表（共18种）：
+ * effect.type 列表（共21种）：
  *   extra_damage              — 追加固定伤害
  *   extra_damage_per_burn     — 每层灼烧追加伤害
  *   extra_damage_per_force_card — 每张力系卡追加伤害
@@ -25,10 +25,6 @@
  *   modify_flag               — 设置特殊标记
  *   modify_height             — 修改高度加成
  *   set_return_to_hand        — 弹回手牌
- *   modify_card_dmg   — 修改本次卡牌的伤害
- *   modify_height     — 影响A05重力势能蓄能高度
- *   steal_spirit      — 偷取精神力
- *   heal_hp           — 恢复HP
  */
 const COMBO_TABLE = {
   // ============ 力领域 (5) ============

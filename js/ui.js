@@ -1966,7 +1966,6 @@ class GameUI {
       const selfSupports = gs.players[0].fieldSupports || [];
       for (const sup of selfSupports) {
         const cardData = sup.card || this.engine?.getCardById?.(sup.id);
-        console.log('[renderField] support:', sup.id, 'cardData:', !!cardData, 'turns:', sup.turns);
         if (cardData) {
           html += this._buildFieldCardHTML(cardData, sup.turns, 'support');
         }
@@ -3135,7 +3134,7 @@ class GameUI {
         if (turnTimedOut) { clearTimeout(timeoutId); return; }
 
         let aiCardCount = 0;
-        while (!this.engine.gameOver && !turnTimedOut && aiCardCount < 50) {
+        while (!this.engine.isGameOver || !this.engine.isGameOver() && !turnTimedOut && aiCardCount < 50) {
           // 获取AI下一张牌决策
           const decision = this.ai.getNextPlayDecision();
           if (!decision) break;
@@ -3208,17 +3207,17 @@ class GameUI {
       }
 
       // ─── AI 阶段 3: 结算 ───
-      if (!this.engine.gameOver) {
+      if (!this.engine.isGameOver || !this.engine.isGameOver()) {
         this.engine.settlePhase();
       }
 
       // ─── AI 阶段 4: 弃牌 ───
-      if (!this.engine.gameOver) {
+      if (!this.engine.isGameOver || !this.engine.isGameOver()) {
         this.ai._handleDiscard();
       }
 
       // ─── AI 阶段 5: 结束回合 ───
-      if (!this.engine.gameOver) {
+      if (!this.engine.isGameOver || !this.engine.isGameOver()) {
         this.engine.endTurn();
       }
 
@@ -3236,7 +3235,7 @@ class GameUI {
       this.addLogMessage('AI回合出错: ' + err.message);
       // 异常时尝试安全地结束回合
       try {
-        if (!this.engine.gameOver) {
+        if (!this.engine.isGameOver || !this.engine.isGameOver()) {
           this.engine.settlePhase();
           this.ai._handleDiscard();
           this.engine.endTurn();

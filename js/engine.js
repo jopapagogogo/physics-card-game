@@ -1332,7 +1332,7 @@ class GameEngine {
     }
 
     if (card.id === 'A54') {
-      // 爆燃：引爆所有灼烧层数（默认48，S24→A54 combo可提升）
+      // 爆燃：引爆所有灼烧层数（默认50，S24→A54 combo可提升）
       const perLayerDmg = this._burnDmgPerLayer[attackerIdx];
       const burnExplode = opponent.burnLayers * perLayerDmg;
       opponent.burnLayers = 0;
@@ -1867,9 +1867,9 @@ class GameEngine {
 
     player.fieldSummons.push({
       card,
-      hp: card.hp || card.effect.hp || 200
+      hp: card.hp || card.effect.hp || 300
     });
-    effects.push({ type: 'summon', name: card.name, hp: card.hp || card.effect.hp || 200 });
+    effects.push({ type: 'summon', name: card.name, hp: card.hp || card.effect.hp || 300 });
 
     // 处理召唤物相关的 combo 效果（如 C03↔C04 的 modify_flag）
     const combo = this.pendingCombo[playerIdx];
@@ -2062,7 +2062,7 @@ class GameEngine {
       effects.push({ type: 'mirage', turns: 4 });
     }
 
-    // 声速激增 (A51)
+    // 声速激增 (A51) — 基于自身灼烧层数（设计选择：避免依赖对手状态）
     if (card.id === 'A51') {
       const buff = player.burnLayers * 6;
       this.soundSpeedBuff[playerIdx] += buff;
