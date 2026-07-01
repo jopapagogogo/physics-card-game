@@ -2062,9 +2062,9 @@ class GameEngine {
       effects.push({ type: 'mirage', turns: 4 });
     }
 
-    // 声速激增 (A51) — 基于自身灼烧层数（设计选择：避免依赖对手状态）
+    // 声速激增 (A51) — 基于对方灼烧层数
     if (card.id === 'A51') {
-      const buff = player.burnLayers * 6;
+      const buff = (opponent.burnLayers || 0) * 6;
       this.soundSpeedBuff[playerIdx] += buff;
       effects.push({ type: 'sound_speed_buff', value: buff });
     }
