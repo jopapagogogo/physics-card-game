@@ -1530,16 +1530,7 @@ class GameEngine {
       const sc = card.effect.applyOnCast || 1;
       this.soundPressure[oIdx] += sc;
       this._addLog(`[啸叫] 叠加 ${sc} 层声压（当前 ${this.soundPressure[oIdx]} 层）。`);
-      // 检查是否立即引爆
-      const maxStacks = card.effect.maxStacks || 3;
-      if (this.soundPressure[oIdx] >= maxStacks) {
-        const detonateDmg = card.effect.detonateDmg || 60;
-        opponent.hp = Math.max(0, opponent.hp - detonateDmg);
-        this._addLog(`[啸叫引爆] 声压达到 ${maxStacks} 层，造成 ${detonateDmg} 点伤害！`);
-        this.soundPressure[oIdx] = 0;
-        effects.push({ type: 'sonic_detonate', dmg: detonateDmg });
-      }
-      // A11 驻场
+      // A11 驻场（引爆由 startTurn 统一处理，同名限1规则下打出时声压不可能满3层）
       const existingA11 = attacker.fieldSupports.find(s => s.card.id === 'A11');
       if (!existingA11) {
         attacker.fieldSupports.push({ card, turnsRemaining: 999 });
