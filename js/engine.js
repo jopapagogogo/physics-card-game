@@ -914,7 +914,11 @@ class GameEngine {
     }
 
     damage = Math.max(0, damage - (skipDefense ? 0 : totalDefense));
-
+    // 之前 Combo 的 ignore defense 加成（M2: 死变量激活）
+    if (this._ignoreDefBonus && this._ignoreDefBonus[attackerIdx] > 0) {
+      damage += this._ignoreDefBonus[attackerIdx];
+      this._ignoreDefBonus[attackerIdx] = 0;
+    }
     // 7. 最终取整
     damage = Math.floor(damage);
 
