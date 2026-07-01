@@ -1,6 +1,6 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-06-30T11:49:06.954Z
+  测试时间: 2026-07-01T08:38:01.853Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
@@ -81,7 +81,7 @@
 ✅ A22 热对流 (attack, cost=14): dmg=65 ✔ fieldSupports=N/A effects=[damage,burn,bounce_hand]
 ✅ A23 热辐射 (attack, cost=20): dmg=80 ✔ fieldSupports=N/A effects=[damage,burn]
 ✅ A24 熔岩喷发 (attack, cost=18): dmg=70 ✔ fieldSupports=N/A effects=[damage,burn,spirit_debuff]
-✅ A25 蒸发消散 (attack, cost=17): dmg=65 ✔ fieldSupports=N/A effects=[damage,burn,steal_spirit,steal_spirit]
+✅ A25 蒸发消散 (attack, cost=17): dmg=65 ✔ fieldSupports=N/A effects=[damage,burn,steal_spirit]
 ✅ A26 凝固封锁 (attack, cost=0): dmg=60 ✔ fieldSupports=N/A effects=[damage,freeze_lock]
 ✅ A27 闪电劈击 (attack, cost=10): dmg=30 ✔ fieldSupports=N/A effects=[damage]
 ✅ A28 雷暴链击 (attack, cost=9): dmg=30 ✔ fieldSupports=N/A effects=[damage]
@@ -89,8 +89,8 @@
 ✅ A30 电磁脉冲 (attack, cost=10): dmg=30 ✔ fieldSupports=N/A effects=[damage]
 ✅ A31 共振爆破 (attack, cost=20): dmg=50 ✔ fieldSupports=N/A effects=[damage]
 ✅ A32 声波推力 (attack, cost=15): dmg=80 ✔ fieldSupports=N/A effects=[damage]
-✅ A33 冲击波 (attack, cost=19): dmg=100 ✔ fieldSupports=N/A effects=[damage,extra_cost,extra_cost]
-✅ A34 摩擦生热 (attack, cost=15): dmg=60 ✔ fieldSupports=N/A effects=[damage,burn,steal_spirit,steal_spirit]
+✅ A33 冲击波 (attack, cost=19): dmg=100 ✔ fieldSupports=N/A effects=[damage,extra_cost]
+✅ A34 摩擦生热 (attack, cost=15): dmg=60 ✔ fieldSupports=N/A effects=[damage,burn,steal_spirit]
 ✅ A35 短路熔毁 (attack, cost=20): dmg=80 ✔ fieldSupports=N/A effects=[damage]
 ✅ A36 焦耳热击 (attack, cost=18): dmg=57 ✔ fieldSupports=N/A effects=[damage,burn_from_paralyze,pair_bonus]
 ✅ A37 漏电灼伤 (attack, cost=14): dmg=44 ✔ fieldSupports=N/A effects=[damage,burn]
@@ -98,8 +98,8 @@
 ✅ A39 光电效应 (attack, cost=18): dmg=80 ✔ fieldSupports=N/A effects=[damage]
 ✅ A40 安培力冲击 (attack, cost=16): dmg=50 ✔ fieldSupports=N/A effects=[damage]
 ✅ A41 太阳能聚变 (attack, cost=28): dmg=140 ✔ fieldSupports=N/A effects=[damage]
-✅ A42 电声轰鸣 (attack, cost=16): dmg=80 ✔ fieldSupports=N/A effects=[damage,spirit_halve,spirit_halve]
-✅ A43 活塞压缩 (attack, cost=13): dmg=41 ✔ fieldSupports=N/A effects=[damage,burn,extra_cost,extra_cost]
+✅ A42 电声轰鸣 (attack, cost=16): dmg=80 ✔ fieldSupports=N/A effects=[damage,spirit_halve]
+✅ A43 活塞压缩 (attack, cost=13): dmg=41 ✔ fieldSupports=N/A effects=[damage,burn,extra_cost]
 ✅ A44 火花放电 (attack, cost=8): dmg=30 ✔ fieldSupports=N/A effects=[damage]
 ✅ A45 双耳定位 (attack, cost=12): dmg=50 ✔ fieldSupports=N/A effects=[damage,view_hand]
 ✅ A46 折射偏转 (attack, cost=17): dmg=70 ✔ fieldSupports=N/A effects=[damage]

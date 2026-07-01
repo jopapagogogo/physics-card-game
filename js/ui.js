@@ -361,7 +361,7 @@ class GameUI {
       const deckSummary = document.getElementById('deck-summary');
       if (deckSummary) {
         deckSummary.style.display = 'block';
-        deckSummary.innerHTML = '🃏 ' + (this.customDeckName || '自定义卡组') + '：' + this.customDeck.length + ' 张';
+        deckSummary.innerHTML = '🃏 ' + this._escapeHtml(this.customDeckName || '自定义卡组') + '：' + this.customDeck.length + ' 张';
       }
     }
     
@@ -3449,7 +3449,7 @@ class GameUI {
           if (!card) return;
 
           // 打出卡牌（通过playInOpponentTurn，自动处理+3费用和回合限制）
-          const _lsCardEl = document.querySelector(`#self-hand .card[data-card-id="${this._escapeAttr(card.id)}"]`);
+          const _lsCardEl = document.querySelector(`#self-hand .card-v3[data-card-id="${this._escapeAttr(card.id)}"]`);
           const _lsCardRect = _lsCardEl ? _lsCardEl.getBoundingClientRect() : null;
           const result = this.engine.playInOpponentTurn(0, card.id, 'player');
           if (result && result.success) {

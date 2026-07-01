@@ -486,10 +486,6 @@ class GameEngine {
       }
     }
 
-    // 处理驻场卡回合递减
-    this._tickFieldCards(this.currentPlayer);
-    this._tickFieldCards(1 - this.currentPlayer);
-
     // 处理精神力恢复减益递减
     const opp = this.players[1 - this.currentPlayer];
     if (opp.spiritDebuff < 0) {
@@ -502,10 +498,6 @@ class GameEngine {
     }
 
     // 处理镜面迷宫(S19)
-    if (this.mirrorMaze[this.currentPlayer] > 0) {
-      this.mirrorMaze[this.currentPlayer]--;
-    }
-
     // 处理影子束缚(S20)
     if (this.shadowBindTurns[this.currentPlayer] > 0) {
       this.shadowBindTurns[this.currentPlayer]--;
@@ -1193,6 +1185,7 @@ class GameEngine {
             this._addLog(`[Combo::未识别] ${eff.type} (${combo.type})`);
         }
       }
+      this.pendingCombo[attackerIdx] = null;  // 清空已消费的combo
     }
 
     // 特殊攻击处理
@@ -1492,26 +1485,7 @@ class GameEngine {
       effects.push({ type: 'burn', layers: card.effect.burn });
     }
 
-    // 对方下回合每卡额外消耗 (A33, A43)
-    if (card.effect.opponentExtraCost) {
-      opponent.extraCost = Math.max(opponent.extraCost || 0, card.effect.opponentExtraCost);
-      effects.push({ type: 'extra_cost', value: card.effect.opponentExtraCost });
-    }
-
-    // 对方下回合精神力恢复减半 (A42)
-    if (card.effect.halveSpiritRecovery) {
-      opponent.spiritDebuff = Math.max(-10, opponent.spiritDebuff - Math.floor(SPIRIT_PER_TURN / 2));
-      effects.push({ type: 'spirit_halve', msg: '对方下回合精神力恢复减半' });
-    }
-
-    // 偷取精神力 (A25, A34)
-    if (card.effect.stealSpirit) {
-      const actual = Math.min(opponent.spirit, card.effect.stealSpirit);
-      opponent.spirit -= actual;
-      attacker.spirit = Math.min(MAX_SPIRIT, attacker.spirit + actual);
-      effects.push({ type: 'steal_spirit', value: actual });
-    }
-
+    // opponentExtraCost/stealSpirit/halveSpiritRecovery 由 _applySpecialEffects 统一处理
     // P2: A11 啸叫 — 叠加声压 + 驻场
     if (card.id === 'A11') {
       const sc = card.effect.applyOnCast || 1;
@@ -1794,7 +1768,7 @@ class GameEngine {
       if (attacker.hand.length > 0) {
         const rIdx = Math.floor(Math.random() * attacker.hand.length);
         const returned = attacker.hand.splice(rIdx, 1)[0];
-        attacker.deck.push(returned); // 放回牌库顶
+        attacker.deck.unshift(returned); // 放回牌库底
         this._addLog(`[置换卡] 将「${returned.name}」放回牌库顶部。`);
         this.drawCards(attackerIdx, 1);
         effects.push({ type: 'replace_hand', returned: returned.name });
@@ -1951,9 +1925,9 @@ class GameEngine {
 
     // 清除负面状态 (effect.clearDebuff)
     if (eff.clearDebuff) {
-      opponent.burnLayers = Math.max(0, opponent.burnLayers - 1);
-      if (opponent.paralysis > 0) opponent.paralysis = Math.max(0, opponent.paralysis - 1);
-      if (opponent.dotEffects.length > 0) opponent.dotEffects.shift();
+      player.burnLayers = Math.max(0, player.burnLayers - 1);
+      if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
+      if (player.dotEffects.length > 0) player.dotEffects.shift();
       effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });
     }
 
@@ -1965,7 +1939,7 @@ class GameEngine {
 
     // 对方下回合每出卡额外消耗 (effect.opponentExtraCost)
     if (eff.opponentExtraCost) {
-      opponent.extraCost = eff.opponentExtraCost;
+      opponent.extraCost = Math.max(opponent.extraCost || 0, eff.opponentExtraCost);
       effects.push({ type: 'extra_cost', value: eff.opponentExtraCost });
     }
 
@@ -2147,7 +2121,7 @@ class GameEngine {
 
     // 噪音干扰 (S08)
     if (card.id === 'S08') {
-      opponent.extraCost = eff.opponentExtraCost || 5;
+      opponent.extraCost = Math.max(opponent.extraCost || 0, eff.opponentExtraCost || 5);
       // 驻场显示
       if (!player.fieldSupports.find(s => s.card.id === 'S08')) {
         player.fieldSupports.push({ card, turnsRemaining: eff.turns || 1 });
@@ -2335,8 +2309,9 @@ class GameEngine {
       }
       // A16 色散分解：驻场结束后回到手牌可0费再次打出
       if (removed.card.id === 'A16' && removed.card.effect.returnOnSurvive) {
-        removed.card.effect.cost = 0;
-        player.hand.push(removed.card);
+        const cardCopy = { ...removed.card, effect: { ...removed.card.effect, cost: 0 } };
+        cardCopy._returned = true;
+        player.hand.push(cardCopy);
         this._addLog(`[色散分解] 回到手牌，可0费再次打出。`);
       }
       if (removed.card.effect.defense || removed.card.effect.buffDmg) {
