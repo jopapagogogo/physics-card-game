@@ -1409,6 +1409,16 @@ class GameEngine {
       }
     }
 
+    // A36 焦耳热击 — 对偶加伤（必须在HP扣减前）
+    if (card.id === 'A36') {
+      if (card.effect.bonusDmgPerPair) {
+        const pairs = (opponent.paralysis || 0) * opponent.burnLayers;
+        const bonus = pairs * card.effect.bonusDmgPerPair;
+        damage += bonus;
+        effects.push({ type: 'pair_bonus', value: bonus });
+      }
+    }
+
     // 造成伤害
     if (damage > 0) {
       if (target.startsWith('summon_')) {
@@ -1505,18 +1515,12 @@ class GameEngine {
       }
     }
 
-    // P2: A36 焦耳热击 — 麻痹转灼烧 + 对偶加伤
+    // P2: A36 焦耳热击 — 麻痹转灼烧 (bonusDmgPerPair 已移到伤害前)
     if (card.id === 'A36') {
       if (card.effect.burnPerParalyze) {
         const pLayers = opponent.paralysis || 0;
         opponent.burnLayers += pLayers * card.effect.burnPerParalyze;
         effects.push({ type: 'burn_from_paralyze', layers: pLayers });
-      }
-      if (card.effect.bonusDmgPerPair) {
-        const pairs = (opponent.paralysis || 0) * opponent.burnLayers;
-        const bonus = pairs * card.effect.bonusDmgPerPair;
-        damage += bonus;
-        effects.push({ type: 'pair_bonus', value: bonus });
       }
     }
 
@@ -1526,9 +1530,11 @@ class GameEngine {
         s => s.card.domain.includes('光') && !s.card.domain.includes('电')
       );
       if (lightField) {
-        lightField.card.domain = [...lightField.card.domain, '电'];
-        this._addLog(`[光电效应]「${lightField.card.name}」获得电属性。`);
-        effects.push({ type: 'dual_domain', name: lightField.card.name });
+        // 创建副本避免修改静态卡牌定义
+        const cardCopy = { ...lightField.card, domain: [...lightField.card.domain, '电'] };
+        lightField.card = cardCopy;
+        this._addLog(`[光电效应]「${cardCopy.name}」获得电属性。`);
+        effects.push({ type: 'dual_domain', name: cardCopy.name });
       }
     }
 

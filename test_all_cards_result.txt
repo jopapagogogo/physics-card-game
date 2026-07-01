@@ -1,6 +1,6 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-07-01T08:45:26.981Z
+  测试时间: 2026-07-01T08:47:28.426Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
@@ -92,7 +92,7 @@
 ✅ A33 冲击波 (attack, cost=19): dmg=100 ✔ fieldSupports=N/A effects=[damage,extra_cost]
 ✅ A34 摩擦生热 (attack, cost=15): dmg=60 ✔ fieldSupports=N/A effects=[damage,burn,steal_spirit]
 ✅ A35 短路熔毁 (attack, cost=20): dmg=80 ✔ fieldSupports=N/A effects=[damage]
-✅ A36 焦耳热击 (attack, cost=18): dmg=57 ✔ fieldSupports=N/A effects=[damage,burn_from_paralyze,pair_bonus]
+✅ A36 焦耳热击 (attack, cost=18): dmg=57 ✔ fieldSupports=N/A effects=[pair_bonus,damage,burn_from_paralyze]
 ✅ A37 漏电灼伤 (attack, cost=14): dmg=44 ✔ fieldSupports=N/A effects=[damage,burn]
 ✅ A38 光压推击 (attack, cost=15): dmg=70 ✔ fieldSupports=N/A effects=[blind_return,damage]
 ✅ A39 光电效应 (attack, cost=18): dmg=80 ✔ fieldSupports=N/A effects=[damage]
