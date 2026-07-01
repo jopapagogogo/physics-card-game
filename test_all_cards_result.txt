@@ -1,6 +1,6 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-07-01T08:38:01.853Z
+  测试时间: 2026-07-01T08:45:26.981Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
@@ -9,7 +9,7 @@
 ✅ S04 摩擦阻碍 (support, cost=12): dmg=N/A ✔ fieldSupports=OK effects=[defense]
 ✅ S05 力的合成 (support, cost=8): dmg=N/A ✔ fieldSupports=N/A effects=[stacking_force]
 ✅ S06 弹性储能 (support, cost=10): dmg=N/A ✔ fieldSupports=OK effects=[energy_store]
-✅ S07 回声消声 (support, cost=10): dmg=N/A ✔ fieldSupports=N/A effects=[view_hand,clear_debuff,view_hand,clear_debuff]
+✅ S07 回声消声 (support, cost=10): dmg=N/A ✔ fieldSupports=N/A effects=[view_hand,view_hand,clear_debuff]
 ✅ S08 噪音干扰 (support, cost=8): dmg=N/A ✔ fieldSupports=OK effects=[extra_cost,noise]
 ✅ S09 频率调节 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[freq_pending]
 ✅ S10 共振蓄能 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[spirit_restore]

@@ -2173,7 +2173,7 @@ class GameUI {
         if (summon) {
           const cardData = this.engine?.getCardById?.(summon.id) || summon.card;
           if (cardData) {
-            if (summon.hp !== undefined) { cardData.hp = summon.hp; cardData.maxHp = summon.maxHp || summon.maxHp; }
+            if (summon.hp !== undefined) { cardData.hp = summon.hp; cardData.maxHp = summon.maxHp || 300; }
             cardData._fromHand = false; cardData.type = 'summon'; cardData.cost = cardData.cost || '-';
             this._showCardDetail(cardData);
           }
@@ -3989,8 +3989,8 @@ class GameUI {
     }
 
     // 对方召唤物高亮
-    const oppField = document.getElementById('opp-field');
-    const summons = oppField?.querySelectorAll('.summon-card.enemy');
+    const oppSummons = document.getElementById('opp-summons');
+    const summons = oppSummons?.querySelectorAll('.summon-mini.enemy');
     if (summons) {
       summons.forEach(s => s.classList.add('targetable-summon'));
     }

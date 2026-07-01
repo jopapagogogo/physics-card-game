@@ -688,10 +688,7 @@ class GameEngine {
           damage += s.card.effect[key];
         }
       }
-      // 牛顿(C05)：力系攻击+20
-      if (s.card.id === 'C05' && s.card.effect.forceDmgBonus && card.domain.includes('力')) {
-        damage += s.card.effect.forceDmgBonus;
-      }
+      // 牛顿(C05) forceDmgBonus 已通过 bonusKeys 统一处理
       // C09 伽利略: 每张己方辅助卡光系+3
       if (s.card.id === 'C09' && s.card.effect.perSupportLightBonus && card.domain.includes('光')) {
         damage += attacker.fieldSupports.length * s.card.effect.perSupportLightBonus;
@@ -1923,8 +1920,8 @@ class GameEngine {
       effects.push({ type: 'bounce_hand', msg: `盲选弹回了「${bounced.name}」到牌库顶` });
     }
 
-    // 清除负面状态 (effect.clearDebuff)
-    if (eff.clearDebuff) {
+    // 清除负面状态 (effect.clearDebuff) — 跳过S07(自有处理)
+    if (eff.clearDebuff && card.id !== 'S07') {
       player.burnLayers = Math.max(0, player.burnLayers - 1);
       if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
       if (player.dotEffects.length > 0) player.dotEffects.shift();
@@ -2045,7 +2042,6 @@ class GameEngine {
 
     // 偏振过滤 (S15)
     if (card.id === 'S15') {
-      opponent.extraCost = 0;
       if (eff.polarize) {
         this.polarizeRestriction[oIdx] = 'restricted';
       }
@@ -2695,6 +2691,11 @@ class GameEngine {
         if (hpPercent >= 0.3) return { can: false, reason: 'HP需低于30%才能打出临界突破。' };
       }
     }
+    if (card.id === 'A26' && playerIdx === this.currentPlayer) {
+      if (opponent.burnLayers < 2) {
+        return { can: false, reason: '对方灼烧层数不足2层，无法发动凝固封锁。' };
+      }
+    }
     if (card.id === 'A26' && opponent.burnLayers < 2) {
       return { can: false, reason: '对方灼烧层数不足2层，无法发动凝固封锁。' };
     }
@@ -2795,7 +2796,7 @@ class GameEngine {
     const player = this.players[playerIdx];
     return player.hand.map(card => ({
       ...card,
-      canPlay: this.canPlay(playerIdx, card).can,
+      canPlay: (this.canPlayQuery ? this.canPlayQuery(playerIdx, card) : this.canPlay(playerIdx, card)).can,
       affordable: this.canAfford(playerIdx, card),
       canPlayReason: this.canPlay(playerIdx, card).reason
     }));

@@ -1009,17 +1009,17 @@ body {
 .card-v3::before{content:'';position:absolute;inset:-3px;border-radius:18px;z-index:-1;opacity:.3}
 .card-v3.skin-cyber::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1px solid rgba(255,255,255,.06);pointer-events:none;z-index:1}
 /* 领域颜色 */
-.card-v3.domain-force{--dm:#E74C3C;--dm-glow:rgba(231,76,60,.3);border-color:#8b1a1a}
+.card-v3.domain-force{--dm:#E74C3C;--dm-glow:rgba(231,76,60,.3);--dm-bg:rgba(231,76,60,.15);border-color:#8b1a1a}
 .card-v3.domain-force::before{background:linear-gradient(135deg,#8b1a1a,#E74C3C,#f06050,#E74C3C,#8b1a1a)}
-.card-v3.domain-sound{--dm:#16A085;--dm-glow:rgba(22,160,133,.3);border-color:#0a5c4a}
+.card-v3.domain-sound{--dm:#16A085;--dm-glow:rgba(22,160,133,.3);--dm-bg:rgba(22,160,133,.15);border-color:#0a5c4a}
 .card-v3.domain-sound::before{background:linear-gradient(135deg,#0a5c4a,#16A085,#1de0b5,#16A085,#0a5c4a)}
-.card-v3.domain-light{--dm:#F39C12;--dm-glow:rgba(243,156,18,.3);border-color:#8b5a00}
+.card-v3.domain-light{--dm:#F39C12;--dm-glow:rgba(243,156,18,.3);--dm-bg:rgba(243,156,18,.15);border-color:#8b5a00}
 .card-v3.domain-light::before{background:linear-gradient(135deg,#8b5a00,#F39C12,#fff3a0,#F39C12,#8b5a00)}
-.card-v3.domain-heat{--dm:#E67E22;--dm-glow:rgba(230,126,34,.3);border-color:#8a3d0a}
+.card-v3.domain-heat{--dm:#E67E22;--dm-glow:rgba(230,126,34,.3);--dm-bg:rgba(230,126,34,.15);border-color:#8a3d0a}
 .card-v3.domain-heat::before{background:linear-gradient(135deg,#8a3d0a,#E67E22,#f0a04d,#E67E22,#8a3d0a)}
-.card-v3.domain-elec{--dm:#9B59B6;--dm-glow:rgba(155,89,182,.3);border-color:#4a1d6e}
+.card-v3.domain-elec{--dm:#9B59B6;--dm-glow:rgba(155,89,182,.3);--dm-bg:rgba(155,89,182,.15);border-color:#4a1d6e}
 .card-v3.domain-elec::before{background:linear-gradient(135deg,#4a1d6e,#9B59B6,#b870d8,#9B59B6,#4a1d6e)}
-.card-v3.domain-chaos{--dm:#7B2FBE;--dm-glow:rgba(123,47,190,.3);border-color:#2e0a4a}
+.card-v3.domain-chaos{--dm:#7B2FBE;--dm-glow:rgba(123,47,190,.3);--dm-bg:rgba(123,47,190,.15);border-color:#2e0a4a}
 .card-v3.domain-chaos::before{background:linear-gradient(135deg,#2e0a4a,#7B2FBE,#b87de8,#7B2FBE,#2e0a4a)}
 /* === HEADER === */
 .card-v3 .v3-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;gap:8px;position:relative;z-index:2}
