@@ -1934,6 +1934,7 @@ class GameEngine {
       const shown = count === 'all' ? opponent.hand.length : Math.min(count, opponent.hand.length);
       const names = opponent.hand.slice(-shown).map(c => c.name).join('、');
       effects.push({ type: 'view_hand', count, player: oIdx, cards: names });
+      this.viewedOpponentHand[oIdx] = true;
     }
 
     // 弃置对方手牌 (effect.discardOpponent)
@@ -2153,6 +2154,7 @@ class GameEngine {
     // S07 回声消声：查看手牌+清除负面
     if (card.id === 'S07') {
       effects.push({ type: 'view_hand', count: eff.viewHand || 2, player: oIdx });
+      this.viewedOpponentHand[oIdx] = true;
       const p = this.players[playerIdx];
       if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
       if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
@@ -2336,7 +2338,8 @@ class GameEngine {
       }
       // A16 色散分解：驻场结束后回到手牌可0费再次打出
       if (removed.card.id === 'A16' && removed.card.effect.returnOnSurvive) {
-        const cardCopy = { ...removed.card, effect: { ...removed.card.effect, cost: 0 } };
+        // 深拷贝 effect 避免污染原始卡牌数据（Object.assign 比 spread 语义更明确）
+        const cardCopy = { ...removed.card, effect: Object.assign({}, removed.card.effect, { cost: 0 }) };
         cardCopy._returned = true;
         player.hand.push(cardCopy);
         this._addLog(`[色散分解] 回到手牌，可0费再次打出。`);
@@ -2838,7 +2841,7 @@ class GameEngine {
       ...card,
       canPlay: (this.canPlayQuery ? this.canPlayQuery(playerIdx, card) : this.canPlay(playerIdx, card)).can,
       affordable: this.canAfford(playerIdx, card),
-      canPlayReason: this.canPlay(playerIdx, card).reason
+      canPlayReason: (this.canPlayQuery ? this.canPlayQuery(playerIdx, card) : this.canPlay(playerIdx, card)).reason
     }));
   }
 

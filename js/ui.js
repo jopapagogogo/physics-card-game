@@ -68,7 +68,7 @@ class GameUI {
     if (!select) return;
     const names = Object.keys(this.savedDecks);
     select.innerHTML = '<option value="">🃏 使用默认卡组</option>' +
-      names.map(n => `<option value="${n}">${n}</option>`).join('');
+      names.map(n => `<option value="${this._escapeHtml(n)}">${this._escapeHtml(n)}</option>`).join('');
     select.style.display = names.length > 0 ? '' : 'none';
     if (this.customDeckName) {
       select.value = this.customDeckName;
@@ -2210,7 +2210,7 @@ class GameUI {
               if (summon.hp !== undefined) {
                 cardData._fromHand = false;
                 cardData.hp = summon.hp;
-                cardData.maxHp = summon.maxHp || summon.maxHp;
+                cardData.maxHp = summon.maxHp || 300;
               }
               this._showCardDetail(cardData);
             }
