@@ -4,7 +4,7 @@
  * 键值格式："此前打出的卡ID→刚才打出的卡ID"
  * 方向重要：S01→A01（先出辅助，再出攻击）才能触发
  * 
- * effect.type 列表（共21种）：
+ * effect.type 列表（实际使用 17 种）：
  *   extra_damage              — 追加固定伤害
  *   extra_damage_per_burn     — 每层灼烧追加伤害
  *   extra_damage_per_force_card — 每张力系卡追加伤害
@@ -17,14 +17,11 @@
  *   boost_burn_cap            — 提升灼烧上限
  *   boost_burn_dmg            — 提升单层灼烧伤害
  *   boost_mirror_maze         — 提升镜面迷宫概率
- *   boost_clear_debuff        — 清除己方DOT
  *   boost_ignore_defense      — 追加无视防御值
  *   view_hand                 — 查看对方手牌
  *   steal_spirit              — 偷取精神力
- *   heal_hp                   — 恢复HP
  *   modify_flag               — 设置特殊标记
  *   modify_height             — 修改高度加成
- *   set_return_to_hand        — 弹回手牌
  */
 const COMBO_TABLE = {
   // ============ 力领域 (5) ============
@@ -86,7 +83,7 @@ const COMBO_TABLE = {
     effects: [{ type: "boost_dot_increment", value: 3 }]
   },
 
-  // ============ 光领域 (5) ============
+  // ============ 光领域 (4) ============
   "S16→A19": {
     type: "combo_s16_a19",
     msg: "光速传播→光纤穿透：+25伤害",
@@ -107,11 +104,7 @@ const COMBO_TABLE = {
     msg: "滤光→凸透引燃：灼烧上限3→5层",
     effects: [{ type: "boost_burn_cap", value: 5 }]
   },
-  "S17→A16": {
-    type: "combo_s17_a16",
-    msg: "光谱叠加→色散分解：A16驻场4回合，未被清场则回手0费重打",
-    effects: [{ type: "set_return_to_hand", cardId: "A16" }]
-  },
+  // "S17→A16" 已移除：A16 自带 returnOnSurvive，combo 冗余
 
   // ============ 热领域 (5) ============
   "S24→A54": {

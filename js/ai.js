@@ -45,9 +45,6 @@ const SPIRIT_RESERVE_NORMAL = 15;
 const SPIRIT_RESERVE_LOW = 20;
 const SPIRIT_RESERVE_HIGH = 40;
 
-/** 对手 combo 潜力权重 */
-const COMBO_POTENTIAL_WEIGHT = 0.15;
-
 /** 灭杀型攻击卡 ID 集合 */
 const SUMMON_ELIMINATOR_IDS = new Set([
   'A18', 'A25', 'A30', 'A35'
@@ -56,17 +53,6 @@ const SUMMON_ELIMINATOR_IDS = new Set([
 /** 高价值召唤物 ID */
 const HIGH_VALUE_SUMMONS = new Set(['C01', 'C02', 'C07']);
 
-/** _estimateAttackDamage 中需要特殊处理的卡牌 ID */
-const SPECIAL_ATTACK_CARDS = {
-  A49: { id: 'A49', check: 'electric_supports' },
-  A02: { id: 'A02', check: 'force_history' },
-  A08: { id: 'A08', check: 'lost_hp' },
-  A54: { id: 'A54', check: 'burn_explosion' },
-  A51: { id: 'A51', check: 'burn_boost' },
-  A41: { id: 'A41', check: 'solar_boost' },
-  A53: { id: 'A53', check: 'light_sound_boost' },
-  A48: { id: 'A48', check: 'electric_chain' }
-};
 
 // ============================================================
 // 1. ComboIndex — 组合索引
@@ -178,33 +164,8 @@ class ComboIndex {
    */
   queryCombo(prevCardId, curCardId) {
     this._ensureBuilt();
-
-    // 直查前向索引
-    if (this.forwardIndex[prevCardId]?.[curCardId]) {
-      return this.forwardIndex[prevCardId][curCardId];
-    }
-
-    // 查双向索引
-    for (const [key, entry] of Object.entries(this.bidirectional)) {
-      const parsed = this._parseKey(key);
-      if (!parsed) continue;
-      if ((parsed.basePrev === prevCardId && parsed.cur === curCardId) ||
-          (parsed.basePrev === curCardId && parsed.cur === prevCardId)) {
-        return { key, ...entry };
-      }
-    }
-
-    // 查对抗索引
-    for (const [key, entry] of Object.entries(this.conflictPair)) {
-      const parsed = this._parseKey(key);
-      if (!parsed) continue;
-      if ((parsed.basePrev === prevCardId && parsed.cur === curCardId) ||
-          (parsed.basePrev === curCardId && parsed.cur === prevCardId)) {
-        return { key, ...entry };
-      }
-    }
-
-    return null;
+    // forwardIndex 已包含 →/↔/vs 所有方向的索引，直查即可
+    return this.forwardIndex[prevCardId]?.[curCardId] || null;
   }
 
   /**
@@ -411,8 +372,9 @@ const SpiritBudgetManager = {
    * 估算下回合精神力
    */
   estimateNextTurnSpirit(self, reserved) {
-    // 基础恢复 + 保留值
-    return Math.min(100, 30 + reserved);
+    // engine.js SPIRIT_PER_TURN=10，加上精神减益和保留值
+    const spiritDebuff = self.spiritDebuff || 0;
+    return Math.min(100, self.spirit + 10 + spiritDebuff + (reserved || 0));
   }
 };
 
@@ -1607,14 +1569,10 @@ class AIEngine {
     }
 
     // 使用真实 COMBO_TABLE 检查 combo 关键牌
-    const combos = comboIndex.getCombosForCard(card.id);
-    if (combos.length > 0) {
-      // 检查手牌中是否有配套卡
-      for (const comboKey of combos) {
-        const pairIds = comboIndex.getCurCardsForPrev(card.id);
-        const hasPairInHand = self.hand.some(h => pairIds.includes(h.id));
-        if (hasPairInHand) return true;
-      }
+    const pairIds = comboIndex.getCurCardsForPrev(card.id);
+    if (pairIds.length > 0) {
+      const hasPairInHand = self.hand.some(h => pairIds.includes(h.id));
+      if (hasPairInHand) return true;
     }
 
     // 检查此卡是否被其他卡需要的后续卡
