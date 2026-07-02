@@ -11,7 +11,7 @@
  *   extra_damage_ignore_block — 追加无视防御伤害
  *   extra_burn                — 追加灼烧层数
  *   extra_burn_after_detonate — 引爆后追加灼烧
- *   extra_dot                 — 追加DOT（{dmg, turns}）
+ *   extra_dot                 — 追加DOT
  *   extend_dot_turns          — 延长DOT持续回合
  *   boost_dot_increment       — 提升DOT递增幅度
  *   boost_burn_cap            — 提升灼烧上限
@@ -24,7 +24,7 @@
  *   modify_height             — 修改高度加成
  */
 const COMBO_TABLE = {
-  // ============ 力领域 (5) ============
+  // ============ 力领域 (8) ============
   "S01→A01": {
     type: "combo_s01_a01",
     msg: "质量增大→重力锤击：+65伤害",
@@ -50,8 +50,23 @@ const COMBO_TABLE = {
     msg: "力的合成→杠杆撬击：每张力系攻击+15伤害",
     effects: [{ type: "extra_damage_per_force_card", value: 15, cap: 30 }]
   },
+  "S02→A08": {
+    type: "combo_s02_a08",
+    msg: "能量蓄积→做功打击：储存动能释放，W=Fs，+25伤害",
+    effects: [{ type: "extra_damage", value: 25 }]
+  },
+  "S02→A06": {
+    type: "combo_s02_a06",
+    msg: "能量蓄积→动能冲击：蓄力后冲击释放，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
+  },
+  "S06→A04": {
+    type: "combo_s06_a04",
+    msg: "弹性储能→杠杆撬击：弹力势能释放经杠杆放大，+25伤害",
+    effects: [{ type: "extra_damage", value: 25 }]
+  },
 
-  // ============ 声领域 (5) ============
+  // ============ 声领域 (7) ============
   "S09升→A09": {
     type: "combo_s09_up_a09",
     msg: "频率调节(升高)→超声清洗：+15伤害",
@@ -77,8 +92,18 @@ const COMBO_TABLE = {
     msg: "噪音干扰→次声震荡：每回合递增伤害+3",
     effects: [{ type: "boost_dot_increment", value: 3 }]
   },
+  "S12→A13": {
+    type: "combo_s12_a13",
+    msg: "聚焦声束→驻波共振：聚焦能量形成强驻波干涉，+30伤害",
+    effects: [{ type: "extra_damage", value: 30 }]
+  },
+  "A32→A31": {
+    type: "combo_a32_a31",
+    msg: "声波推力→共振爆破：先推后震，共振放大振幅，+15伤害",
+    effects: [{ type: "extra_damage", value: 15 }]
+  },
 
-  // ============ 光领域 (4) ============
+  // ============ 光领域 (7) ============
   "S16→A19": {
     type: "combo_s16_a19",
     msg: "光速传播→光纤穿透：+25伤害",
@@ -99,9 +124,23 @@ const COMBO_TABLE = {
     msg: "滤光→凸透引燃：灼烧上限3→5层",
     effects: [{ type: "boost_burn_cap", value: 5 }]
   },
-  // "S17→A16" 已移除：A16 自带 returnOnSurvive，combo 冗余
+  "S18→A18": {
+    type: "combo_s18_a18",
+    msg: "X射线透视→紫外灭杀：电磁波短波段连续打击，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
+  },
+  "A50→A19": {
+    type: "combo_a50_a19",
+    msg: "海市蜃楼→光纤穿透：折射→全反射，光传播控制升级，+25伤害",
+    effects: [{ type: "extra_damage", value: 25 }]
+  },
+  "S17→A20": {
+    type: "combo_s17_a20",
+    msg: "光谱叠加→日光暴晒：各色光合成全光谱辐射，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
+  },
 
-  // ============ 热领域 (5) ============
+  // ============ 热领域 (9) ============
   "S24→A54": {
     type: "combo_s24_a54",
     msg: "温度升高→爆燃：引爆每层伤害50→65",
@@ -125,10 +164,30 @@ const COMBO_TABLE = {
   "A25→A26": {
     type: "combo_a25_a26",
     msg: "蒸发消散→凝固封锁：偷取精神力+10(总25)",
-    effects: [{ type: "steal_spirit", value: 10 }]  // A25基值15 + combo增量10 = 总25
+    effects: [{ type: "steal_spirit", value: 10 }]
+  },
+  "S25→A47": {
+    type: "combo_s25_a47",
+    msg: "潜热释放→升华爆散：相变潜热驱动升华，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
+  },
+  "S23→A47": {
+    type: "combo_s23_a47",
+    msg: "热机驱动→升华爆散：热机做功驱动相变，+25伤害",
+    effects: [{ type: "extra_damage", value: 25 }]
+  },
+  "A21→A23": {
+    type: "combo_a21_a23",
+    msg: "烈焰灼蚀→热辐射：热传导转为热辐射，额外+1灼烧",
+    effects: [{ type: "extra_burn", layers: 1 }]
+  },
+  "S22→A25": {
+    type: "combo_s22_a25",
+    msg: "比热护盾→蒸发消散：热容量防御后汽化反击，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
   },
 
-  // ============ 电领域 (5) ============
+  // ============ 电领域 (8) ============
   "S27→A36": {
     type: "combo_s27_a36",
     msg: "电阻屏障→焦耳热击：+25伤害",
@@ -154,8 +213,23 @@ const COMBO_TABLE = {
     msg: "多路放电→过载放电：触发后不摧毁辅助卡",
     effects: [{ type: "modify_flag", flag: "a49_no_destroy", value: true }]
   },
+  "S30→A35": {
+    type: "combo_s30_a35",
+    msg: "短路开关→短路熔毁：主动短路触发熔毁，+30伤害",
+    effects: [{ type: "extra_damage", value: 30 }]
+  },
+  "S32→A44": {
+    type: "combo_s32_a44",
+    msg: "低压启动→火花放电：低压回路击穿空气，+15伤害",
+    effects: [{ type: "extra_damage", value: 15 }]
+  },
+  "A27→A28": {
+    type: "combo_a27_a28",
+    msg: "闪电劈击→雷暴链击：高电压击穿触发链式放电，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
+  },
 
-  // ============ 跨领域 (2) ============
+  // ============ 跨领域 (3) ============
   "A39→A52": {
     type: "combo_a39_a52",
     msg: "光电效应→光电信号：A52伤害+20",
@@ -166,8 +240,13 @@ const COMBO_TABLE = {
     msg: "声波推力vs隔音屏障：力系额外40伤害仍生效",
     effects: [{ type: "extra_damage_ignore_block", value: 40 }]
   },
+  "S28→A42": {
+    type: "combo_s28_a42",
+    msg: "电磁感应→电声轰鸣：感应电流驱动电声转换，+25伤害",
+    effects: [{ type: "extra_damage", value: 25 }]
+  },
 
-  // ============ 召唤→攻击/辅助 (4) ============
+  // ============ 召唤→攻击 (7) ============
   "C05→A02": {
     type: "combo_c05_a02",
     msg: "牛顿→惯性冲锋：延续伤害+15",
@@ -187,6 +266,21 @@ const COMBO_TABLE = {
     type: "combo_c03_a45",
     msg: "拉普拉斯妖→双耳定位：查看对方全部手牌",
     effects: [{ type: "view_hand", count: "all" }]
+  },
+  "C06→A04": {
+    type: "combo_c06_a04",
+    msg: "阿基米德→杠杆撬击：给我一个支点，+25伤害",
+    effects: [{ type: "extra_damage", value: 25 }]
+  },
+  "C12→A13": {
+    type: "combo_c12_a13",
+    msg: "赫兹→驻波共振：频率发现者应用驻波，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
+  },
+  "C09→A46": {
+    type: "combo_c09_a46",
+    msg: "伽利略→折射偏转：望远镜光学先驱，+20伤害",
+    effects: [{ type: "extra_damage", value: 20 }]
   },
 
   // ============ 召唤对冲 (1) ============
