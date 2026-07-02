@@ -51,7 +51,7 @@ const COMBO_TABLE = {
     effects: [{ type: "extra_damage_per_force_card", value: 15, cap: 30 }]
   },
 
-  // ============ 声领域 (6) ============
+  // ============ 声领域 (5) ============
   "S09升→A09": {
     type: "combo_s09_up_a09",
     msg: "频率调节(升高)→超声清洗：+15伤害",
@@ -70,11 +70,6 @@ const COMBO_TABLE = {
   "S09升→A13": {
     type: "combo_s09_up_a13",
     msg: "频率调节(升高)→驻波共振：+30伤害",
-    effects: [{ type: "extra_damage", value: 30 }]
-  },
-  "S07→A14": {
-    type: "combo_s07_a14",
-    msg: "回声消声→回声爆破：反相转同相，干涉增幅，+30伤害",
     effects: [{ type: "extra_damage", value: 30 }]
   },
   "S08→A10": {
