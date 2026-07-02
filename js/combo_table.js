@@ -37,7 +37,7 @@ const COMBO_TABLE = {
   },
   "S01→A05": {
     type: "combo_s01_a05",
-    msg: "质量增大→重力势能：每点蓄能高度+15伤害",
+    msg: "质量增大→重力势能：每层高度蓄能额外+15伤害",
     effects: [{ type: "modify_height", perHeight: 15 }]
   },
   "S03→A03": {
@@ -74,7 +74,7 @@ const COMBO_TABLE = {
   },
   "S07→A14": {
     type: "combo_s07_a14",
-    msg: "回声消声→回声爆破：+30伤害",
+    msg: "回声消声→回声爆破：反相转同相，干涉增幅，+30伤害",
     effects: [{ type: "extra_damage", value: 30 }]
   },
   "S08→A10": {
@@ -129,7 +129,7 @@ const COMBO_TABLE = {
   },
   "A25→A26": {
     type: "combo_a25_a26",
-    msg: "蒸发消散→凝固封锁：偷取精神力15→25",
+    msg: "蒸发消散→凝固封锁：偷取精神力+10(总25)",
     effects: [{ type: "steal_spirit", value: 10 }]  // A25基值15 + combo增量10 = 总25
   },
 
@@ -172,16 +172,11 @@ const COMBO_TABLE = {
     effects: [{ type: "extra_damage_ignore_block", value: 40 }]
   },
 
-  // ============ 召唤→攻击/辅助 (5) ============
+  // ============ 召唤→攻击/辅助 (4) ============
   "C05→A02": {
     type: "combo_c05_a02",
     msg: "牛顿→惯性冲锋：延续伤害+15",
     effects: [{ type: "extra_dot", dmg: 15, turns: 1 }]
-  },
-  "C10→A14": {
-    type: "combo_c10_a14",
-    msg: "贝尔→回声爆破：+25伤害",
-    effects: [{ type: "extra_damage", value: 25 }]
   },
   "C08→A36": {
     type: "combo_c08_a36",
