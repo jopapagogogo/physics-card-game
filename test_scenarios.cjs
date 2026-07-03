@@ -299,6 +299,54 @@ import('./js/engine.js').then(async mod => {
     check(after === 0, 'S06-被消灭释放', '能量清零', after);
   }
 
+  // ========== 补充：A28雷暴链击 ==========
+  {
+    const eng = makeEng([card('A28')]);
+    eng.players[0].fieldSupports.push({ card: card('S27'), turnsRemaining: 3 });
+    const pre = hp1(eng);
+    eng.playCard(0, 'A28');
+    const dmg = pre - hp1(eng);
+    check(dmg >= 30 + 15, 'A28-雷暴链击+15/电辅', '≥45', dmg);
+  }
+  {
+    // A28 无电辅时仅基础伤害
+    const eng = makeEng([card('A28')]);
+    const pre = hp1(eng);
+    eng.playCard(0, 'A28');
+    const dmg = pre - hp1(eng);
+    check(dmg >= 30, 'A28-无电辅基础伤', '≥30', dmg);
+  }
+
+  // ========== 补充：A30电磁脉冲 ==========
+  {
+    const eng = makeEng([card('A30')]);
+    eng.players[0].fieldSupports.push({ card: card('S27'), turnsRemaining: 3 });
+    eng.players[0].fieldSupports.push({ card: card('S28'), turnsRemaining: 3 });
+    // 对方设一个驻场卡
+    eng.players[1].fieldSupports.push({ card: card('S08'), turnsRemaining: 1 });
+    const preSupports = eng.players[1].fieldSupports.length;
+    const pre = hp1(eng);
+    eng.playCard(0, 'A30');
+    const dmg = pre - hp1(eng);
+    const destroyed = eng.players[1].fieldSupports.length < preSupports;
+    check(dmg >= 30 + 15 && destroyed, 'A30-电磁脉冲+消灭驻场', '≥45+消灭', dmg+'/'+destroyed);
+  }
+
+  // ========== 补充：S21凸透成像 ==========
+  {
+    const eng = makeEng([card('S21')]);
+    // 模拟AI上回合打了一张攻击卡（存在对手索引1）
+    const lastCard = card('A01');
+    lastCard.damage = 75; // 临时加字段供S21使用
+    eng._lastTurnCard[1] = { card: lastCard, damage: 75 };
+    eng.playCard(0, 'S21');
+    // S21设置_pendingConvexLens
+    check(eng._pendingConvexLens !== null, 'S21-凸透成像待选择', '有pending', !!eng._pendingConvexLens);
+    if (eng._pendingConvexLens) {
+      check(eng._pendingConvexLens.lastCard.card.id === 'A01', 'S21-正确引用上张卡', 'A01', eng._pendingConvexLens.lastCard.card?.id);
+    }
+  }
+
   console.log('\n========== 结果 ==========');
   console.log(`✅ ${pass} 通过 ❌ ${fail} 失败`);
   process.exit(fail > 0 ? 1 : 0);
