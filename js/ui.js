@@ -775,12 +775,9 @@ class GameUI {
     // 初始化AI
     this.ai = new AIEngine(this.engine, this.difficulty);
 
-    // 🧪 测试模式：全部卡牌在手（按类型排序），满精神力
+    // 🧪 测试模式：按所选领域过滤+混沌卡，满精神力
     if (this.testMode) {
-      const order = { attack:1, support:2, summon:3, domain:4, phase:5 };
-      const all = [...CARDS].sort((a,b) => (order[a.type]||9) - (order[b.type]||9));
-      this.engine.players[0].hand = all.map(c => ({...c}));
-      console.log('[测试模式]', all.length, '张卡', JSON.stringify(Object.fromEntries(Object.entries(order).map(([k])=>[k,all.filter(c=>c.type===k).length]))));
+      this.engine.players[0].hand = this._getTestCards().map(c => ({...c}));
       this.engine.players[0].spirit = 100;
       this.engine.players[1].spirit = 100;
       this.timerSeconds = 999; // 不计时
@@ -907,11 +904,9 @@ class GameUI {
   startPlayerTurn() {
     if (this.phase === 'gameover') return;
 
-    // 🧪 测试模式：每回合补满全部卡牌+满精神力
+    // 🧪 测试模式：每回合补满+满精神力
     if (this.testMode) {
-      const order = { attack:1, support:2, summon:3, domain:4, phase:5 };
-      const all = [...CARDS].sort((a,b) => (order[a.type]||9) - (order[b.type]||9));
-      this.engine.players[0].hand = all.map(c => ({...c}));
+      this.engine.players[0].hand = this._getTestCards().map(c => ({...c}));
       this.engine.players[0].spirit = 100;
       if (this.playTimer) { clearInterval(this.playTimer); this.playTimer = null; }
     }
@@ -3428,6 +3423,21 @@ class GameUI {
       self.updateAllDisplay();
     };
     document.getElementById('self-hand')?.addEventListener('click', this._discardClickHandler, true);
+  }
+
+  /** 🧪 获取测试模式卡牌列表 — 按主副领域+混沌筛选 */
+  _getTestCards() {
+    const VALID = ['力','声','光','热','电'];
+    const domains = [this.mainDomain, this.subDomain].filter(d => d && VALID.includes(d));
+    if (domains.length === 0) {
+      // 兜底：领域未选则返回全部
+      return [...CARDS];
+    }
+    const set = new Set(domains);
+    return CARDS.filter(c => {
+      if (!Array.isArray(c.domain) || c.domain.length === 0) return true;
+      return c.domain.some(d => set.has(d) || d === '混沌');
+    });
   }
 
   /**
