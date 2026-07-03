@@ -3394,30 +3394,40 @@ class GameUI {
     overlay.querySelector('#freq-low').onclick = () => done('low');
   }
 
-  /** S29 静电吸附：选择1张手牌弃置 */
+  /** S29 静电吸附：点击手牌选择弃置 */
   _showDiscardChoice() {
-    const gs = this.engine.getGameState();
-    const hand = gs.players[0].hand || [];
-    if (hand.length === 0) return;
+    const self = this;
+    // 半透明遮罩提示
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML = `<div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:24px;max-width:360px;text-align:center;">
-      <h3 style="color:#fff;margin:0 0 12px;">⚡ 静电吸附 — 选择弃置1张手牌</h3>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;" id="discard-choices">
-        ${hand.map((c, i) => `<button class="discard-btn" data-idx="${i}" style="padding:8px 12px;border-radius:8px;background:#2a2a3e;color:#fff;border:1px solid rgba(255,255,255,.15);font-size:12px;cursor:pointer;">${this._escapeHtml(c.name)} (${c.cost}费)</button>`).join('')}
-      </div></div>`;
+    overlay.id = 'discard-hint';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:450;background:rgba(0,0,0,.5);color:#fff;text-align:center;padding:8px;font-size:13px;';
+    overlay.textContent = '⚡ 静电吸附 — 点击手牌选择要弃置的卡';
     document.body.appendChild(overlay);
-    const done = (idx) => {
+    // 拦截手牌点击 — 改为弃牌
+    this._discardClickHandler = (e) => {
+      const cardEl = e.target.closest('.card-v3, .card');
+      if (!cardEl) return;
+      const cardId = cardEl.dataset.cardId;
+      if (!cardId) return;
+      e.stopPropagation();
+      e.preventDefault();
+      // 在手牌中找到这张卡的索引
+      const gs = self.engine.getGameState();
+      const idx = gs.players[0].hand.findIndex(c => c.id === cardId);
+      if (idx < 0) return;
+      // 清理
       overlay.remove();
-      const result = this.engine.resolveDiscardChoice(idx);
-      if (result) {
-        this.addLogMessage('⚡ ' + result.msg);
+      if (self._discardClickHandler) {
+        document.getElementById('self-hand')?.removeEventListener('click', self._discardClickHandler, true);
+        self._discardClickHandler = null;
       }
-      this.updateAllDisplay();
+      const result = self.engine.resolveDiscardChoice(idx);
+      if (result) {
+        self.addLogMessage('⚡ ' + result.msg);
+      }
+      self.updateAllDisplay();
     };
-    overlay.querySelectorAll('.discard-btn').forEach(btn => {
-      btn.onclick = () => done(parseInt(btn.dataset.idx));
-    });
+    document.getElementById('self-hand')?.addEventListener('click', this._discardClickHandler, true);
   }
 
   /**
