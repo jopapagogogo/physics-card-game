@@ -115,10 +115,10 @@ const COMBO_TABLE = {
     msg: "红外灼烧→热辐射：灼烧层数+1",
     effects: [{ type: "extra_burn", layers: 1 }]
   },
-  "S15→S19": {
-    type: "combo_s15_s19",
-    msg: "偏振过滤→镜面迷宫：失败概率35%→65%",
-    effects: [{ type: "boost_mirror_maze", value: 0.65 }]
+  "A50→S19": {
+    type: "combo_a50_s19",
+    msg: "海市蜃楼→镜面迷宫：折射虚像叠加镜中幻影，失败率35%→50%",
+    effects: [{ type: "boost_mirror_maze", value: 0.50 }]
   },
   "S14→A55": {
     type: "combo_s14_a55",
