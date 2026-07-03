@@ -1158,7 +1158,7 @@ class GameUI {
   startPlayTimer() {
     clearInterval(this.playTimer);
     this.playTimer = null;
-    const totalSec = 30;
+    const totalSec = this.testMode ? 9999 : 30;
     const startTime = Date.now();
 
     this.playTimer = setInterval(() => {
