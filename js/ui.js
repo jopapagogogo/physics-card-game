@@ -775,11 +775,17 @@ class GameUI {
     // 初始化AI
     this.ai = new AIEngine(this.engine, this.difficulty);
 
-    // 🧪 测试模式：全卡在手，满精神力
+    // 🧪 测试模式：按所选领域过滤卡牌+通用卡，满精神力，不计时
     if (this.testMode) {
-      this.engine.players[0].hand = CARDS.map(c => ({...c}));
+      const domainFilter = new Set([this.mainDomain, this.subDomain].filter(Boolean));
+      const testCards = CARDS.filter(c => {
+        if (!c.domain || c.domain.length === 0) return true;
+        return c.domain.some(d => domainFilter.has(d) || d === '混沌');
+      });
+      this.engine.players[0].hand = testCards.map(c => ({...c}));
       this.engine.players[0].spirit = 100;
       this.engine.players[1].spirit = 100;
+      this.timerSeconds = 999; // 不计时
     }
 
     // 渲染战斗界面
@@ -903,10 +909,16 @@ class GameUI {
   startPlayerTurn() {
     if (this.phase === 'gameover') return;
 
-    // 🧪 测试模式：每回合补满全卡+满精神力
+    // 🧪 测试模式：每回合补满领域卡+满精神力
     if (this.testMode) {
-      this.engine.players[0].hand = CARDS.map(c => ({...c}));
+      const domainFilter = new Set([this.mainDomain, this.subDomain].filter(Boolean));
+      const testCards = CARDS.filter(c => {
+        if (!c.domain || c.domain.length === 0) return true;
+        return c.domain.some(d => domainFilter.has(d) || d === '混沌');
+      });
+      this.engine.players[0].hand = testCards.map(c => ({...c}));
       this.engine.players[0].spirit = 100;
+      if (this.playTimer) { clearInterval(this.playTimer); this.playTimer = null; }
     }
 
     this.engine.startTurn();
