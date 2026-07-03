@@ -230,7 +230,33 @@ class GameEngine {
     this.processParalysis(pIdx);
     // 处理DOT
     this.processDOT(pIdx);
-    // 处理场上持续效果
+
+    // 重力势能(A05)处理：每回合高度+1（必须在processFieldEffects之前）
+    const a05Card = player.fieldSupports.find(f => f.card?.id === 'A05');
+    const triggerThreshold = a05Card?.card?.effect?.triggerThreshold || 200;
+    if (a05Card) {
+      this.hightAtkTrack[pIdx]++;
+      this.hightBonus[pIdx]++;
+      this._addLog(`[重力势能] 高度增加: 当前 ${this.hightBonus[pIdx]}，累计伤害 ${this._a05DmgReceived[pIdx]}/${triggerThreshold}`);
+    }
+    const shouldTrigger = a05Card && (
+      this.hightAtkTrack[pIdx] >= 4 ||
+      this._a05DmgReceived[pIdx] >= triggerThreshold
+    );
+    if (shouldTrigger) {
+      const reason = this._a05DmgReceived[pIdx] >= triggerThreshold ?
+        `敌方累计伤害达标(${this._a05DmgReceived[pIdx]}≥${triggerThreshold})` : '蓄满4回合';
+      const bonus = this.hightBonus[pIdx];
+      const perHeightDmg = 40 + this._heightBonusPerLevel[pIdx];
+      const dmg = 40 + bonus * perHeightDmg;
+      opponent.hp = Math.max(0, opponent.hp - dmg);
+      this._addLog(`[重力势能] ${reason}触发！造成 ${dmg} 点伤害（高度=${bonus}, 每层=${perHeightDmg}）。`);
+      this.hightAtkTrack[pIdx] = 0;
+      this.hightBonus[pIdx] = 0;
+      this._a05DmgReceived[pIdx] = 0;
+    }
+
+    // 处理场上持续效果（A05 到期会被此函数移除）
     this.processFieldEffects(pIdx);
 
     // 检查胜利条件（灼烧/DOT可能导致死亡）
@@ -374,31 +400,6 @@ class GameEngine {
       this.echoBombPending[pIdx] = false;
       this.echoBombDmg[pIdx] = 0;
       if (this.checkWinCondition()) return;
-    }
-
-    // 重力势能(A05)处理：每回合高度+1，4回合后释放
-    const a05Card = player.fieldSupports.find(f => f.card?.id === 'A05');
-    const triggerThreshold = a05Card?.card?.effect?.triggerThreshold || 200;
-    if (a05Card) {
-      this.hightAtkTrack[pIdx]++;
-      this.hightBonus[pIdx]++;
-      this._addLog(`[重力势能] 高度增加: 当前 ${this.hightBonus[pIdx]}，累计伤害 ${this._a05DmgReceived[pIdx]}/${triggerThreshold}`);
-    }
-    const shouldTrigger = a05Card && (
-      this.hightAtkTrack[pIdx] >= 4 ||
-      this._a05DmgReceived[pIdx] >= triggerThreshold
-    );
-    if (shouldTrigger) {
-      const reason = this._a05DmgReceived[pIdx] >= triggerThreshold ?
-        `敌方累计伤害达标(${this._a05DmgReceived[pIdx]}≥${triggerThreshold})` : '蓄满4回合';
-      const bonus = this.hightBonus[pIdx];
-      const perHeightDmg = 40 + this._heightBonusPerLevel[pIdx];  // S01→A05 combo加成
-      const dmg = 40 + bonus * perHeightDmg;
-      opponent.hp = Math.max(0, opponent.hp - dmg);
-      this._addLog(`[重力势能] ${reason}触发！造成 ${dmg} 点伤害（高度=${bonus}, 每层=${perHeightDmg}）。`);
-      this.hightAtkTrack[pIdx] = 0;
-      this.hightBonus[pIdx] = 0;
-      this._a05DmgReceived[pIdx] = 0;
     }
 
     // 抽牌

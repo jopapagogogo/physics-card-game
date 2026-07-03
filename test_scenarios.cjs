@@ -62,9 +62,8 @@ import('./js/engine.js').then(async mod => {
     for (let i = 0; i < 4; i++) {
       eng.endTurn(); eng.startTurn(); eng.endTurn(); eng.startTurn();
     }
-    check(eng.hightBonus[0] > 0, 'A05-回合递增', 'height>0', eng.hightBonus[0]);
-    // dmg should have been dealt
-    check(hp1(eng) < 1200, 'A05-自动释放伤害', 'HP<1200', hp1(eng));
+    const dmgDealt = 1200 - hp1(eng);
+    check(dmgDealt >= 160, 'A05-4回合释放伤害≥160', '≥160', dmgDealt);
   }
   {
     // A02 惯性冲锋
