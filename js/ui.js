@@ -775,13 +775,21 @@ class GameUI {
     // 初始化AI
     this.ai = new AIEngine(this.engine, this.difficulty);
 
-    // 🧪 测试模式：按所选领域过滤卡牌+通用卡，满精神力，不计时
+    // 🧪 测试模式：按所选领域过滤卡牌，未选则全给
     if (this.testMode) {
-      const domainFilter = new Set([this.mainDomain, this.subDomain].filter(Boolean));
+      const allDomains = ['力','声','光','热','电'];
+      const domainFilter = new Set(
+        [this.mainDomain, this.subDomain].filter(d => d && allDomains.includes(d))
+      );
+      // 兜底：如果领域为空则显示全部
+      const useAll = domainFilter.size === 0;
       const testCards = CARDS.filter(c => {
         if (!c.domain || c.domain.length === 0) return true;
+        if (useAll) return true;
         return c.domain.some(d => domainFilter.has(d) || d === '混沌');
       });
+      console.log('[测试模式] 主:', this.mainDomain, '副:', this.subDomain,
+        '→', testCards.length, '张, useAll:', useAll);
       this.engine.players[0].hand = testCards.map(c => ({...c}));
       this.engine.players[0].spirit = 100;
       this.engine.players[1].spirit = 100;
@@ -911,9 +919,14 @@ class GameUI {
 
     // 🧪 测试模式：每回合补满领域卡+满精神力
     if (this.testMode) {
-      const domainFilter = new Set([this.mainDomain, this.subDomain].filter(Boolean));
+      const allDomains = ['力','声','光','热','电'];
+      const domainFilter = new Set(
+        [this.mainDomain, this.subDomain].filter(d => d && allDomains.includes(d))
+      );
+      const useAll = domainFilter.size === 0;
       const testCards = CARDS.filter(c => {
         if (!c.domain || c.domain.length === 0) return true;
+        if (useAll) return true;
         return c.domain.some(d => domainFilter.has(d) || d === '混沌');
       });
       this.engine.players[0].hand = testCards.map(c => ({...c}));
