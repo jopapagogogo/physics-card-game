@@ -375,16 +375,22 @@ class GameEngine {
       if (this.checkWinCondition()) return;
     }
 
-    // 重力势能(A05)处理
-    this.hightAtkTrack[pIdx]++;
+    // 重力势能(A05)处理：每回合高度+1，4回合后释放
     const a05Card = player.fieldSupports.find(f => f.card?.id === 'A05');
     const triggerThreshold = a05Card?.card?.effect?.triggerThreshold || 200;
-    const shouldTrigger = this.hightAtkTrack[pIdx] >= 4 ||
-        (this._a05DmgReceived[pIdx] >= triggerThreshold);
+    if (a05Card) {
+      this.hightAtkTrack[pIdx]++;
+      this.hightBonus[pIdx]++;
+      this._addLog(`[重力势能] 高度增加: 当前 ${this.hightBonus[pIdx]}，累计伤害 ${this._a05DmgReceived[pIdx]}/${triggerThreshold}`);
+    }
+    const shouldTrigger = a05Card && (
+      this.hightAtkTrack[pIdx] >= 4 ||
+      this._a05DmgReceived[pIdx] >= triggerThreshold
+    );
     if (shouldTrigger) {
       const reason = this._a05DmgReceived[pIdx] >= triggerThreshold ?
         `敌方累计伤害达标(${this._a05DmgReceived[pIdx]}≥${triggerThreshold})` : '蓄满4回合';
-      const bonus = this.hightBonus[pIdx] + 1;
+      const bonus = this.hightBonus[pIdx];
       const perHeightDmg = 40 + this._heightBonusPerLevel[pIdx];  // S01→A05 combo加成
       const dmg = 40 + bonus * perHeightDmg;
       opponent.hp = Math.max(0, opponent.hp - dmg);
@@ -676,6 +682,32 @@ class GameEngine {
     if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
     if (p.dotEffects.length > 0) p.dotEffects.shift();
     return { type: 's29_resolved', discarded: discarded.name, msg: `弃置「${discarded.name}」，抽2张并清除负面` };
+  }
+
+  /** 驻场卡被清除时，释放 S06/A05 存储的能量 */
+  _releaseOnFieldClear(fieldEntry, playerIdx) {
+    if (fieldEntry.card.id === 'S06') {
+      const stored = this.energyStore[playerIdx].stored || 0;
+      if (stored > 0) {
+        const releaseRatio = fieldEntry.card.effect.releaseRatio || 0.5;
+        const releaseDmg = Math.floor(stored * releaseRatio);
+        const opponent = this.players[1 - playerIdx];
+        opponent.hp = Math.max(0, opponent.hp - releaseDmg);
+        this._addLog(`[弹性储能] 被清除，释放 ${releaseDmg} 点伤害！`);
+        this.energyStore[playerIdx].stored = 0;
+      }
+    } else if (fieldEntry.card.id === 'A05') {
+      const bonus = this.hightBonus[playerIdx];
+      if (bonus > 0) {
+        const perHeightDmg = 40 + this._heightBonusPerLevel[playerIdx];
+        const dmg = 40 + bonus * perHeightDmg;
+        const opponent = this.players[1 - playerIdx];
+        opponent.hp = Math.max(0, opponent.hp - dmg);
+        this._addLog(`[重力势能] 被清除，释放 ${dmg} 点伤害（高度=${bonus}）！`);
+        this.hightBonus[playerIdx] = 0;
+        this.hightAtkTrack[playerIdx] = 0;
+      }
+    }
   }
 
   // ==========================================================
@@ -1443,6 +1475,7 @@ class GameEngine {
       // 消灭对方一张驻场辅助卡（领域卡不可被消灭）
       if (opponent.fieldSupports.length > 0) {
         const removed = opponent.fieldSupports.shift();
+        this._releaseOnFieldClear(removed, oIdx);
         opponent.discardPile.push(removed.card);
         effects.push({ type: 'destroy_support', msg: `消灭了「${removed.card.name}」` });
       }
@@ -1452,6 +1485,7 @@ class GameEngine {
       // 弹回对方驻场辅助卡（领域卡不可被弹回）
       if (opponent.fieldSupports.length > 0) {
         const bounced = opponent.fieldSupports.shift();
+        this._releaseOnFieldClear(bounced, oIdx);
         opponent.hand.push(bounced.card);
         effects.push({ type: 'bounce', msg: `弹回了「${bounced.card.name}」至对方手牌` });
       } else if (card.id === 'A38') {
