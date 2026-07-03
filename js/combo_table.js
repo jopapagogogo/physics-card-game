@@ -141,7 +141,7 @@ const COMBO_TABLE = {
     effects: [{ type: "extra_damage", value: 20 }]
   },
 
-  // ============ 热领域 (9) ============
+  // ============ 热领域 (7) ============
   "S24→A54": {
     type: "combo_s24_a54",
     msg: "温度升高→爆燃：引爆每层伤害50→65",
@@ -172,20 +172,10 @@ const COMBO_TABLE = {
     msg: "潜热释放→升华爆散：相变潜热驱动升华，+20伤害",
     effects: [{ type: "extra_damage", value: 20 }]
   },
-  "S23→A47": {
-    type: "combo_s23_a47",
-    msg: "热机驱动→升华爆散：热机做功驱动相变，+25伤害",
-    effects: [{ type: "extra_damage", value: 25 }]
-  },
   "A21→A23": {
     type: "combo_a21_a23",
     msg: "烈焰灼蚀→热辐射：热传导转为热辐射，额外+1灼烧",
     effects: [{ type: "extra_burn", layers: 1 }]
-  },
-  "S22→A25": {
-    type: "combo_s22_a25",
-    msg: "比热护盾→蒸发消散：热容量防御后汽化反击，+20伤害",
-    effects: [{ type: "extra_damage", value: 20 }]
   },
 
   // ============ 电领域 (8) ============
