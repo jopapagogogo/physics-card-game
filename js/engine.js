@@ -1755,15 +1755,20 @@ class GameEngine {
       effects.push({ type: 'stacking_force', perStack: card.effect.stackingForceDmg, max: card.effect.maxStacking });
     }
 
-    // S06 弹性储能 — 激活储能
+    // S06 弹性储能 — 激活储能（已存在则仅刷新持续回合，不重置能量）
     if (card.effect.energyStore) {
-      this.energyStore[attackerIdx].stored = 0;
-      // 作为驻场卡
-      attacker.fieldSupports.push({
-        card,
-        turnsRemaining: card.effect.maxTurns || 4
-      });
-      effects.push({ type: 'energy_store', max: card.effect.maxStore, ratio: card.effect.releaseRatio });
+      const existing = attacker.fieldSupports.find(s => s.card?.id === 'S06');
+      if (existing) {
+        existing.turnsRemaining = card.effect.maxTurns || 4;
+        effects.push({ type: 'energy_store_refresh', msg: '弹性储能持续回合已刷新' });
+      } else {
+        this.energyStore[attackerIdx].stored = 0;
+        attacker.fieldSupports.push({
+          card,
+          turnsRemaining: card.effect.maxTurns || 4
+        });
+        effects.push({ type: 'energy_store', max: card.effect.maxStore, ratio: card.effect.releaseRatio });
+      }
     }
 
     // S09 频率调节 — 双模式
