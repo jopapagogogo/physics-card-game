@@ -3804,6 +3804,7 @@ class GameUI {
         // special effects
         case 'light_speed': msgs.push(`⚡ 光速传播激活: ${eff.turns}回合内对方回合可出光系卡`); break;
         case 'mirage': msgs.push(`🌫 海市蜃楼: 对方 ${eff.turns} 回合内攻击命中下降`); break;
+        case 'mirage_deflect': msgs.push(`🌫 海市蜃楼偏转！攻击伤害归零`); break;
         case 'sound_speed_buff': msgs.push(`🔊 声速激增: 下次声系攻击+${eff.value}`); break;
         case 'mirror_echo': msgs.push(`🔊 镜面回声: 本回合声系/光系攻击+10`); break;
         case 'spectrum': msgs.push(`🌈 光谱叠加: 每种领域+10伤害, 共+${eff.bonus}`); break;

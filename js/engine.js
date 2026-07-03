@@ -2646,7 +2646,7 @@ class GameEngine {
       const refund = Math.floor(card.cost * 0.5);
       player.spirit = Math.min(MAX_SPIRIT, player.spirit + refund);
       this.mirrorMaze[playerIdx]--;
-      return { can: false, reason: `镜面迷宫：出牌失败，返还${refund}精神力。` };
+      return { can: false, reason: `镜面迷宫：卡牌被干扰，返还${refund}精神力。` };
     }
 
     // 光领域棱镜界(D03)失败概率
