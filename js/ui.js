@@ -775,22 +775,12 @@ class GameUI {
     // 初始化AI
     this.ai = new AIEngine(this.engine, this.difficulty);
 
-    // 🧪 测试模式：按所选领域过滤卡牌，未选则全给
+    // 🧪 测试模式：全部卡牌在手（按类型排序），满精神力
     if (this.testMode) {
-      const allDomains = ['力','声','光','热','电'];
-      const domainFilter = new Set(
-        [this.mainDomain, this.subDomain].filter(d => d && allDomains.includes(d))
-      );
-      // 兜底：如果领域为空则显示全部
-      const useAll = domainFilter.size === 0;
-      const testCards = CARDS.filter(c => {
-        if (!c.domain || c.domain.length === 0) return true;
-        if (useAll) return true;
-        return c.domain.some(d => domainFilter.has(d) || d === '混沌');
-      });
-      console.log('[测试模式] 主:', this.mainDomain, '副:', this.subDomain,
-        '→', testCards.length, '张, useAll:', useAll);
-      this.engine.players[0].hand = testCards.map(c => ({...c}));
+      const order = { attack:1, support:2, summon:3, domain:4, phase:5 };
+      const all = [...CARDS].sort((a,b) => (order[a.type]||9) - (order[b.type]||9));
+      this.engine.players[0].hand = all.map(c => ({...c}));
+      console.log('[测试模式]', all.length, '张卡', JSON.stringify(Object.fromEntries(Object.entries(order).map(([k])=>[k,all.filter(c=>c.type===k).length]))));
       this.engine.players[0].spirit = 100;
       this.engine.players[1].spirit = 100;
       this.timerSeconds = 999; // 不计时
@@ -917,19 +907,11 @@ class GameUI {
   startPlayerTurn() {
     if (this.phase === 'gameover') return;
 
-    // 🧪 测试模式：每回合补满领域卡+满精神力
+    // 🧪 测试模式：每回合补满全部卡牌+满精神力
     if (this.testMode) {
-      const allDomains = ['力','声','光','热','电'];
-      const domainFilter = new Set(
-        [this.mainDomain, this.subDomain].filter(d => d && allDomains.includes(d))
-      );
-      const useAll = domainFilter.size === 0;
-      const testCards = CARDS.filter(c => {
-        if (!c.domain || c.domain.length === 0) return true;
-        if (useAll) return true;
-        return c.domain.some(d => domainFilter.has(d) || d === '混沌');
-      });
-      this.engine.players[0].hand = testCards.map(c => ({...c}));
+      const order = { attack:1, support:2, summon:3, domain:4, phase:5 };
+      const all = [...CARDS].sort((a,b) => (order[a.type]||9) - (order[b.type]||9));
+      this.engine.players[0].hand = all.map(c => ({...c}));
       this.engine.players[0].spirit = 100;
       if (this.playTimer) { clearInterval(this.playTimer); this.playTimer = null; }
     }
