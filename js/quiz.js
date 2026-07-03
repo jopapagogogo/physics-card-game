@@ -375,9 +375,9 @@ class QuizSystem {
       },
       {
         id: "Q_S_20", domain: "声", difficulty: "challenge",
-        question: "在音乐厅听交响乐，站在不同位置听到的声音大小不同，最能解释这一现象的是？",
-        options: ["A. 响度随距离衰减", "B. 不同位置声波干涉不同", "C. 音色在不同位置不同", "D. 以上都是"],
-        answer: 3, knowledge: "声波传播、干涉、衰减综合分析", relatedCard: "D02"
+        question: "一艘船利用声呐探测海底，从发射超声波到接收回声共2s，此处海水深度约为？（海水声速1500m/s）",
+        options: ["A. 750m", "B. 1500m", "C. 3000m", "D. 4500m"],
+        answer: 1, knowledge: "回声测距：s=vt/2", relatedCard: "A14"
       },
 
       // ======================================================
@@ -437,9 +437,9 @@ class QuizSystem {
       },
       {
         id: "Q_S_29", domain: "声", difficulty: "advanced",
-        question: "能说明「液体可以传播声音」的事例是？",
-        options: ["A. 听到雨滴打在伞上的声音", "B. 钓鱼时岸边的人要轻声慢步", "C. 听到远处火车的鸣笛", "D. 潜水员能听到岸上的声音"],
-        answer: 3, knowledge: "液体传声", relatedCard: "A14"
+        question: "下列关于声音传播的说法，错误的是？",
+        options: ["A. 声音不能在真空中传播", "B. 一般来说声音在不同介质中的传播快慢关系是，固体>液体>气体", "C. 声音传播需要介质", "D. 空气中声速约为340m/h"],
+        answer: 3, knowledge: "声速单位辨析（m/s vs m/h）", relatedCard: "A51"
       },
       {
         id: "Q_S_30", domain: "声", difficulty: "advanced",
