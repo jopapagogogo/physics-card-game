@@ -19,6 +19,7 @@ class GameUI {
     this.quiz = new QuizSystem();
     this.selectedCard = null;
     this.phase = 'start'; // start | quiz | play | discard | ai | gameover
+    this.testMode = window.location.search.includes('test'); // 测试模式
     this.quizQuestions = [];
     this.quizAnswers = [];
     this.currentQuestionIndex = 0;
@@ -774,6 +775,13 @@ class GameUI {
     // 初始化AI
     this.ai = new AIEngine(this.engine, this.difficulty);
 
+    // 🧪 测试模式：全卡在手，满精神力
+    if (this.testMode) {
+      this.engine.players[0].hand = CARDS.map(c => ({...c}));
+      this.engine.players[0].spirit = 100;
+      this.engine.players[1].spirit = 100;
+    }
+
     // 渲染战斗界面
     this.renderBattleScreen();
 
@@ -894,6 +902,12 @@ class GameUI {
 
   startPlayerTurn() {
     if (this.phase === 'gameover') return;
+
+    // 🧪 测试模式：每回合补满全卡+满精神力
+    if (this.testMode) {
+      this.engine.players[0].hand = CARDS.map(c => ({...c}));
+      this.engine.players[0].spirit = 100;
+    }
 
     this.engine.startTurn();
     
