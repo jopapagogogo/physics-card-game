@@ -2419,6 +2419,13 @@ class GameEngine {
       }
     }
 
+    // 4. 场上召唤物联动：召唤物在场时，打出对应攻击卡触发 combo
+    for (const s of player.fieldSummons) {
+      if (!s.card?.id) continue;
+      const key = `${s.card.id}→${cardPlayed.id}`;
+      if (COMBO_TABLE[key]) return COMBO_TABLE[key];
+    }
+
     return null;
   }
 
