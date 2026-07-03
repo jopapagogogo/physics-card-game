@@ -1848,7 +1848,8 @@ class GameUI {
         const emptyState = selfHand.querySelector('.empty-state');
         if (emptyState) emptyState.remove();
 
-        const totalAngle = Math.min(totalCards * 3.5, 40);
+        // 🧪 测试模式：平铺滚动，扇形禁用
+        const totalAngle = this.testMode ? 0 : Math.min(totalCards * 3.5, 40);
         const startAngle = -(totalAngle / 2);
 
         const existingMap = new Map();
@@ -1880,6 +1881,20 @@ class GameUI {
           staleEl.remove();
         }
         this._lastHandIds = cards.map(c => c.id);
+
+        // 🧪 测试模式手牌样式
+        if (this.testMode) {
+          selfHand.classList.add('test-mode-hand');
+          selfHand.style.flexWrap = 'wrap';
+          selfHand.style.justifyContent = 'flex-start';
+          selfHand.style.alignItems = 'flex-start';
+          selfHand.style.maxHeight = '50vh';
+          selfHand.style.overflowY = 'auto';
+          selfHand.style.overflowX = 'hidden';
+          selfHand.style.gap = '4px';
+          selfHand.style.padding = '8px';
+          selfHand.style.scrollbarWidth = 'thin';
+        }
       }
     }
 
