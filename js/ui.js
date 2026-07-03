@@ -3443,6 +3443,31 @@ class GameUI {
     document.getElementById('self-hand')?.addEventListener('click', this._discardClickHandler, true);
   }
 
+  /** S06弹性储能 / A05重力势能 — 进度指示器 */
+  _renderBuffIndicators() {
+    const gs = this.engine?.getGameState();
+    if (!gs) return;
+    const debuffBox = document.getElementById('self-debuffs');
+    if (!debuffBox) return;
+    // S06
+    const s06 = gs.players[0].fieldSupports?.find(f => f.card?.id === 'S06');
+    const maxStore = s06?.card?.effect?.maxStore || 300;
+    const stored = this.engine?.energyStore?.[0]?.stored || 0;
+    if (s06 && stored > 0) {
+      const pct = Math.min(100, (stored / maxStore) * 100);
+      const h = `<span id="s06-bar" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#f39c12;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:4px;margin:1px;white-space:nowrap;">🌀${stored}/${maxStore}<span style="width:24px;height:4px;background:#333;border-radius:2px;display:inline-block;vertical-align:middle;"><span style="display:block;width:${pct}%;height:100%;background:#f39c12;border-radius:2px;"></span></span></span>`;
+      let el = debuffBox.querySelector('#s06-bar'); if (el) el.outerHTML = h; else debuffBox.insertAdjacentHTML('beforeend', h);
+    } else { debuffBox.querySelector('#s06-bar')?.remove(); }
+    // A05
+    const a05 = gs.players[0].fieldSupports?.find(f => f.card?.id === 'A05');
+    const height = this.engine?.hightBonus?.[0] || 0;
+    const track = this.engine?.hightAtkTrack?.[0] || 0;
+    if (a05) {
+      const h = `<span id="a05-bar" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#3498db;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:4px;margin:1px;white-space:nowrap;">📏高${height} ⏳${track}/4</span>`;
+      let el = debuffBox.querySelector('#a05-bar'); if (el) el.outerHTML = h; else debuffBox.insertAdjacentHTML('beforeend', h);
+    } else { debuffBox.querySelector('#a05-bar')?.remove(); }
+  }
+
   /** 🧪 获取测试模式卡牌列表 — 按主副领域+混沌筛选 */
   _getTestCards() {
     const VALID = ['力','声','光','热','电'];
