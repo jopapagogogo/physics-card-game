@@ -2568,9 +2568,13 @@ class GameEngine {
   // 工具方法
   // ==========================================================
 
-  /** 根据ID查找卡牌 */
+  /** 根据ID查找卡牌（带缓存） */
   getCardById(id) {
-    return CARDS.find(c => c.id === id) || null;
+    if (!this._cardCache) this._cardCache = new Map();
+    if (this._cardCache.has(id)) return this._cardCache.get(id);
+    const card = CARDS.find(c => c.id === id) || null;
+    if (card) this._cardCache.set(id, card);
+    return card;
   }
 
   /** 检查精神力是否足够 */

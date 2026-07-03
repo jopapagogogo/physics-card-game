@@ -1115,7 +1115,7 @@ class GameUI {
 
   startPlayPhase() {
     this.selectedCard = null;
-    this.playTimerSeconds = 30;
+    // playTimerSeconds removed — unused
 
     const btnEnd = document.getElementById('btn-end-turn');
     if (btnEnd) btnEnd.disabled = false;
@@ -1891,7 +1891,6 @@ class GameUI {
   renderPlayZones() {
     const selfZone = document.getElementById('self-play-zone');
     const oppZone = document.getElementById('opp-play-zone');
-    console.log('[renderPlayZones] selfZone:', selfZone, 'playZoneSelf:', this.playZoneSelf.length, 'playZoneAi:', this.playZoneAi.length);
 
     // 己方出牌区
     if (selfZone) {
