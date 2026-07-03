@@ -3879,10 +3879,7 @@ class GameUI {
     this._closeCardDetail();
 
     const style = this.getDomainStyle(cardData.domain);
-    const domainLabel = this.getDomainLabel ? this.getDomainLabel(cardData.domain)
-      : (Array.isArray(cardData.domain) ? cardData.domain.join('/') : cardData.domain);
     const typeLabel = this.getTypeLabel(cardData.type);
-    const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[cardData.type] || '🃏';
     const isHandCard = cardData._fromHand === true;
     const isAttackCard = cardData.type === 'attack';
 
