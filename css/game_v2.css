@@ -108,7 +108,6 @@ body {
 .card.domain-sound  { border-left-color:var(--snd); }
 .card.domain-light  { border-left-color:var(--lgt); }
 .card.domain-heat   { border-left-color:var(--het); }
-.card.domain-electric { border-left-color:var(--elc); }
 .card.disabled { opacity:.5; cursor:not-allowed; pointer-events:none; }
 .card.playable { animation:cardReady 2s ease-in-out infinite; }
 
@@ -126,7 +125,6 @@ body {
 .card.domain-sound  .cost { background:var(--snd); }
 .card.domain-light  .cost { background:var(--lgt); color:#333; }
 .card.domain-heat   .cost { background:var(--het); }
-.card.domain-electric .cost { background:var(--elc); }
 .card .name {
   font-size:12px; font-weight:700; color:var(--txt); text-align:center;
   margin-top:8px; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
@@ -190,7 +188,6 @@ body {
 .card-field .domain-card.domain-sound    { background:linear-gradient(135deg, #2471a3, var(--snd)); box-shadow:0 0 16px rgba(52,152,219,.4); border:2px solid var(--snd); }
 .card-field .domain-card.domain-light    { background:linear-gradient(135deg, #b7950b, var(--lgt)); color:#333; box-shadow:0 0 16px rgba(241,196,15,.4); border:2px solid var(--lgt); }
 .card-field .domain-card.domain-heat     { background:linear-gradient(135deg, #ba4a00, var(--het)); box-shadow:0 0 16px rgba(230,126,34,.4); border:2px solid var(--het); }
-.card-field .domain-card.domain-electric { background:linear-gradient(135deg, #6c3483, var(--elc)); box-shadow:0 0 16px rgba(155,89,182,.4); border:2px solid var(--elc); }
 .card-field .domain-card .domain-label { font-size:9px; margin-top:4px; opacity:.9; font-weight:700; }
 
 /* 领域效果区 */
