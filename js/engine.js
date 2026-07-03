@@ -2419,8 +2419,7 @@ class GameEngine {
       }
       // A16 色散分解：驻场结束后回到手牌可0费再次打出
       if (removed.card.id === 'A16' && removed.card.effect.returnOnSurvive) {
-        // 深拷贝 effect 避免污染原始卡牌数据（Object.assign 比 spread 语义更明确）
-        const cardCopy = { ...removed.card, effect: Object.assign({}, removed.card.effect, { cost: 0 }) };
+        const cardCopy = { ...removed.card, cost: 0 };
         cardCopy._returned = true;
         player.hand.push(cardCopy);
         this._addLog(`[色散分解] 回到手牌，可0费再次打出。`);
