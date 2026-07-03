@@ -2440,6 +2440,11 @@ class GameUI {
       return;
     }
 
+    // 🧪 测试模式：每次操作前锁定满精神力
+    if (this.testMode && this.engine) {
+      this.engine.players[0].spirit = 100;
+    }
+
     // 如果在选目标模式，点击任何手牌先取消选目标
     if (this._attackTargeting) {
       this.selectedCard = null;
