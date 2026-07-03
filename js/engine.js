@@ -1946,7 +1946,13 @@ class GameEngine {
     if (eff.viewHand) {
       const count = eff.viewHand === 'all' ? 'all' : eff.viewHand;
       const shown = count === 'all' ? opponent.hand.length : Math.min(count, opponent.hand.length);
-      const names = opponent.hand.slice(-shown).map(c => c.name).join('、');
+      // 随机抽取 N 张（而非取末尾），避免对手通过出牌顺序推测
+      const indices = [...Array(opponent.hand.length).keys()];
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      const names = indices.slice(0, shown).map(i => opponent.hand[i].name).join('、');
       effects.push({ type: 'view_hand', count, player: oIdx, cards: names });
       this.viewedOpponentHand[oIdx] = true;
     }
