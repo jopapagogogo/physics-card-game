@@ -2583,6 +2583,11 @@ class GameUI {
       this._showFrequencyChoice();
     }
 
+    // S29静电吸附弃牌选择
+    if (this.engine._pendingDiscardChoice) {
+      this._showDiscardChoice();
+    }
+
     this.selectedCard = null;
 
     // 检查游戏是否结束
@@ -3361,6 +3366,32 @@ class GameUI {
     };
     overlay.querySelector('#freq-high').onclick = () => done('high');
     overlay.querySelector('#freq-low').onclick = () => done('low');
+  }
+
+  /** S29 静电吸附：选择1张手牌弃置 */
+  _showDiscardChoice() {
+    const gs = this.engine.getGameState();
+    const hand = gs.players[0].hand || [];
+    if (hand.length === 0) return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:24px;max-width:360px;text-align:center;">
+      <h3 style="color:#fff;margin:0 0 12px;">⚡ 静电吸附 — 选择弃置1张手牌</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;" id="discard-choices">
+        ${hand.map((c, i) => `<button class="discard-btn" data-idx="${i}" style="padding:8px 12px;border-radius:8px;background:#2a2a3e;color:#fff;border:1px solid rgba(255,255,255,.15);font-size:12px;cursor:pointer;">${this._escapeHtml(c.name)} (${c.cost}费)</button>`).join('')}
+      </div></div>`;
+    document.body.appendChild(overlay);
+    const done = (idx) => {
+      overlay.remove();
+      const result = this.engine.resolveDiscardChoice(idx);
+      if (result) {
+        this.addLogMessage('⚡ ' + result.msg);
+      }
+      this.updateAllDisplay();
+    };
+    overlay.querySelectorAll('.discard-btn').forEach(btn => {
+      btn.onclick = () => done(parseInt(btn.dataset.idx));
+    });
   }
 
   /**

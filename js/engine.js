@@ -163,6 +163,7 @@ class GameEngine {
     this._lastTurnCard = [null, null];         // 对手上回合最后打出的卡 {card, damage(dealt)}
     this._pendingConvexLens = null;            // S21凸透成像待选择
     this._pendingFrequencyChoice = false;      // S09频率调节待选择
+    this._pendingDiscardChoice = false;        // S29静电吸附待选择弃牌
     // S32 低压启动—目标电系卡引用
     this._reduceElectricTarget = [{ cardRef: null, costReduction: 0 }, { cardRef: null, costReduction: 0 }];
 
@@ -659,6 +660,22 @@ class GameEngine {
       }
       return { type: 'set_frequency_form', form: 'down', msg: '降低：全体声系+5' };
     }
+  }
+
+  /** S29 静电吸附：玩家选择弃哪张后，执行抽牌+清负面 */
+  resolveDiscardChoice(discardIndex) {
+    this._pendingDiscardChoice = false;
+    const player = this.players[0];
+    if (discardIndex < 0 || discardIndex >= player.hand.length) return null;
+    const discarded = player.hand.splice(discardIndex, 1)[0];
+    player.discardPile.push(discarded);
+    // S29 效果：抽2张+清除负面
+    this.drawCards(0, 2);
+    const p = this.players[0];
+    if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
+    if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
+    if (p.dotEffects.length > 0) p.dotEffects.shift();
+    return { type: 's29_resolved', discarded: discarded.name, msg: `弃置「${discarded.name}」，抽2张并清除负面` };
   }
 
   // ==========================================================
@@ -2188,12 +2205,12 @@ class GameEngine {
     // S29 静电吸附：弃1张手牌→抽2张+清除负面
     if (card.id === 'S29' && eff.draw) {
       if (player.hand.length > 0) {
-        // 弃一张手牌
-        const discardIdx = player.hand.length - 1; // 弃最后一张（简化：AI/自动选）
-        const discarded = player.hand.splice(discardIdx, 1)[0];
-        player.discardPile.push(discarded);
-        effects.push({ type: 'discard', msg: `弃置「${discarded.name}」` });
+        // 等待玩家选择弃哪张
+        this._pendingDiscardChoice = true;
+        effects.push({ type: 'need_discard', msg: '请选择1张手牌弃置' });
+        return;
       }
+      // 无手牌可弃，直接抽牌+清负面
       this.drawCards(playerIdx, eff.draw);
       const p = this.players[playerIdx];
       if (p.burnLayers > 0) p.burnLayers = Math.max(0, p.burnLayers - 1);
