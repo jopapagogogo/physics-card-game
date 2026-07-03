@@ -3429,15 +3429,18 @@ class GameUI {
   _getTestCards() {
     const VALID = ['力','声','光','热','电'];
     const domains = [this.mainDomain, this.subDomain].filter(d => d && VALID.includes(d));
+    console.log('[测试] mainDomain:', this.mainDomain, 'subDomain:', this.subDomain, '→ domains:', domains);
     if (domains.length === 0) {
-      // 兜底：领域未选则返回全部
+      console.log('[测试] 领域为空，返回全部', CARDS.length, '张');
       return [...CARDS];
     }
     const set = new Set(domains);
-    return CARDS.filter(c => {
+    const result = CARDS.filter(c => {
       if (!Array.isArray(c.domain) || c.domain.length === 0) return true;
       return c.domain.some(d => set.has(d) || d === '混沌');
     });
+    console.log('[测试] 筛选结果:', result.length, '张, IDs:', result.map(c=>c.id).join(','));
+    return result;
   }
 
   /**
