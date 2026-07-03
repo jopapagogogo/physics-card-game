@@ -1888,7 +1888,7 @@ class GameUI {
           selfHand.style.flexWrap = 'wrap';
           selfHand.style.justifyContent = 'flex-start';
           selfHand.style.alignItems = 'flex-start';
-          selfHand.style.maxHeight = '50vh';
+          selfHand.style.maxHeight = '30vh';
           selfHand.style.overflowY = 'auto';
           selfHand.style.overflowX = 'hidden';
           selfHand.style.gap = '4px';
