@@ -2,7 +2,7 @@
  * 物理卡牌对战 — 主UI控制器
  * ES6模块，负责全部界面交互与流程编排
  */
-import { GameEngine } from './engine.js';
+import { GameEngine, shuffleArray } from './engine.js';
 import { AIEngine } from './ai.js';
 import { QuizSystem } from './quiz.js';
 import { CARDS } from './cards.js';
@@ -605,7 +605,7 @@ class GameUI {
         };
       };
 
-      const pool = allCards.filter(c => !selected.has(c.id)).sort(() => Math.random() - 0.5);
+      const pool = shuffleArray(allCards.filter(c => !selected.has(c.id)));
 
       // 阶段1a：填主领域唯一卡到主≥12
       for (const c of pool) {
@@ -817,7 +817,7 @@ class GameUI {
     const needSub = () => Math.max(0, MIN_SUB - count().sub);
 
     // 1a: 主领域唯一卡（只属于主，不属于副）
-    const mainOnly = CARDS.filter(c => inMain(c) && !inSub(c) && c.type !== 'domain').sort(() => Math.random() - 0.5);
+    const mainOnly = shuffleArray(CARDS.filter(c => inMain(c) && !inSub(c) && c.type !== 'domain'));
     for (const c of mainOnly) {
       if (needMain() <= 0 || deck.length >= TOTAL) break;
       if (usedIds.has(c.id)) continue;
@@ -825,7 +825,7 @@ class GameUI {
     }
 
     // 1b: 副领域唯一卡
-    const subOnly = CARDS.filter(c => inSub(c) && !inMain(c) && c.type !== 'domain').sort(() => Math.random() - 0.5);
+    const subOnly = shuffleArray(CARDS.filter(c => inSub(c) && !inMain(c) && c.type !== 'domain'));
     for (const c of subOnly) {
       if (needSub() <= 0 || deck.length >= TOTAL) break;
       if (usedIds.has(c.id)) continue;
@@ -834,7 +834,7 @@ class GameUI {
 
     // 1c: 交叉领域卡（达到最低后可补任意一方）
     if (needMain() > 0 || needSub() > 0) {
-      const crossPool = CARDS.filter(c => inBoth(c) && c.type !== 'domain').sort(() => Math.random() - 0.5);
+      const crossPool = shuffleArray(CARDS.filter(c => inBoth(c) && c.type !== 'domain'));
       for (const c of crossPool) {
         if (deck.length >= TOTAL) break;
         if (usedIds.has(c.id)) continue;
@@ -844,7 +844,7 @@ class GameUI {
 
     // 1d: 优选1-2张领域卡（主/副领域相关）
     if (count().dom < MAX_DOMAIN) {
-      const domPool = CARDS.filter(c => c.type === 'domain' && (inMain(c) || inSub(c)) && !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
+      const domPool = shuffleArray(CARDS.filter(c => c.type === 'domain' && (inMain(c) || inSub(c)) && !usedIds.has(c.id)));
       for (const c of domPool) {
         if (count().dom >= MAX_DOMAIN || deck.length >= TOTAL) break;
         add(c);
@@ -852,7 +852,7 @@ class GameUI {
     }
 
     // 阶段2：随机约束填充到30
-    const rest = CARDS.filter(c => !usedIds.has(c.id)).sort(() => Math.random() - 0.5);
+    const rest = shuffleArray(CARDS.filter(c => !usedIds.has(c.id)));
     for (const c of rest) {
       if (deck.length >= TOTAL) break;
       const st = count();
@@ -3041,7 +3041,7 @@ class GameUI {
         clearInterval(this.discardTimer);
         // 超时：自动随机弃牌
         const allIndices = gs.players[0].hand.map((_, i) => i);
-        const shuffled = allIndices.sort(() => Math.random() - 0.5);
+        const shuffled = shuffleArray(allIndices);
         const autoDiscard = shuffled.slice(0, toDiscard);
         if (this.engine.discardPhase) {
           this.engine.discardPhase(autoDiscard);

@@ -29,6 +29,19 @@ const PARALYSIS_BASE_DMG = 15;  // 麻痹每层基础附加伤害（电领域被
 const QUIZ_BONUS = { 3: 0.12, 2: 0.08, 1: 0.05, 0: 0.0 };
 
 // ============================================================
+// 工具函数
+// ============================================================
+
+/** Fisher-Yates 均匀洗牌（原地修改） */
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ============================================================
 // GameEngine 类
 // ============================================================
 class GameEngine {
@@ -524,7 +537,7 @@ class GameEngine {
     if (!Array.isArray(discardIndices) || discardIndices.length === 0) {
       // 自动随机弃牌兜底：手牌超上限但无指定索引
       const over = player.hand.length - MAX_HAND_SIZE;
-      const shuffled = [...Array(player.hand.length).keys()].sort(() => Math.random() - 0.5);
+      const shuffled = shuffleArray([...Array(player.hand.length).keys()]);
       discardIndices = shuffled.slice(0, over);
       this._addLog(`[${this.currentPlayer === 0 ? '玩家' : 'AI'}] 手牌超上限，自动随机弃 ${over} 张。`);
     }
@@ -2914,4 +2927,4 @@ class GameEngine {
 // ============================================================
 // 导出
 // ============================================================
-export { GameEngine };
+export { GameEngine, shuffleArray };

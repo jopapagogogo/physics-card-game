@@ -4,7 +4,7 @@
 // Phase 6 P0: AI 策略全面升级
 // ============================================================
 
-import { GameEngine } from './engine.js';
+import { GameEngine, shuffleArray } from './engine.js';
 import { COMBO_TABLE } from './combo_table.js';
 
 // ============================================================
@@ -1162,7 +1162,7 @@ class AIEngine {
   // ==========================================================
   _makeRandomDecision(hand, spirit) {
     const decisions = [];
-    const shuffled = [...hand].sort(() => Math.random() - 0.5);
+    const shuffled = shuffleArray([...hand]);
 
     for (const card of shuffled) {
       if (card.cost <= spirit) {
