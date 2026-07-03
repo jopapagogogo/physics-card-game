@@ -1423,30 +1423,20 @@ class GameEngine {
     const destroySummons = ['A35'];
 
     if (destroyCards.includes(card.id)) {
-      // 消灭对方一张驻场卡（辅助优先）
+      // 消灭对方一张驻场辅助卡（领域卡不可被消灭）
       if (opponent.fieldSupports.length > 0) {
         const removed = opponent.fieldSupports.shift();
         opponent.discardPile.push(removed.card);
         effects.push({ type: 'destroy_support', msg: `消灭了「${removed.card.name}」` });
-      } else if (opponent.fieldDomain) {
-        const removed = opponent.fieldDomain;
-        opponent.fieldDomain = null;
-        opponent.discardPile.push(removed.card);
-        effects.push({ type: 'destroy_domain', msg: `消灭了领域卡「${removed.card.name}」` });
       }
     }
 
     if (bounceCards.includes(card.id)) {
-      // 弹回对方驻场卡
+      // 弹回对方驻场辅助卡（领域卡不可被弹回）
       if (opponent.fieldSupports.length > 0) {
         const bounced = opponent.fieldSupports.shift();
         opponent.hand.push(bounced.card);
         effects.push({ type: 'bounce', msg: `弹回了「${bounced.card.name}」至对方手牌` });
-      } else if (opponent.fieldDomain) {
-        const bounced = opponent.fieldDomain;
-        opponent.fieldDomain = null;
-        opponent.hand.push(bounced.card);
-        effects.push({ type: 'bounce', msg: `弹回了领域卡「${bounced.card.name}」至对方手牌` });
       } else if (card.id === 'A38') {
         // A38光压推击：否则盲选手牌放回牌库顶
         if (opponent.hand.length > 0) {
