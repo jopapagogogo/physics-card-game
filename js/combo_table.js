@@ -22,6 +22,7 @@
  *   steal_spirit              — 偷取精神力
  *   modify_flag               — 设置特殊标记
  *   modify_height             — 修改高度加成
+ *   refund_cost               — 退回部分精神力
  */
 const COMBO_TABLE = {
   // ============ 力领域 (8) ============
@@ -129,10 +130,10 @@ const COMBO_TABLE = {
     msg: "X射线透视→紫外灭杀：电磁波短波段连续打击，+20伤害",
     effects: [{ type: "extra_damage", value: 20 }]
   },
-  "A50→A19": {
-    type: "combo_a50_a19",
-    msg: "海市蜃楼→光纤穿透：折射→全反射，光传播控制升级，+25伤害",
-    effects: [{ type: "extra_damage", value: 25 }]
+  "A15→A19": {
+    type: "combo_a15_a19",
+    msg: "激光切割→光纤穿透：退回一半精神力",
+    effects: [{ type: "refund_cost", ratio: 0.5 }]
   },
   "S17→A20": {
     type: "combo_s17_a20",

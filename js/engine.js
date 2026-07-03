@@ -1209,6 +1209,13 @@ class GameEngine {
             this._ignoreDefBonus[attackerIdx] = (eff.value || 0);
             effects.push({ type: 'combo_ignore_def', value: eff.value });
             break;
+          case 'refund_cost':
+            {
+              const refund = Math.floor((card.cost || 0) * (eff.ratio || 0.5));
+              attacker.spirit = Math.min(MAX_SPIRIT, attacker.spirit + refund);
+              effects.push({ type: 'refund_cost', value: refund, msg: `退回${refund}精神力` });
+            }
+            break;
           default:
             this._addLog(`[Combo::未识别] ${eff.type} (${combo.type})`);
         }
