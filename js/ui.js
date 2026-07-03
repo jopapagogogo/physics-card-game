@@ -736,10 +736,10 @@ class GameUI {
   // ==================== 游戏开始 / 卡组生成 ====================
 
   startGame() {
-    // V30: 首次游戏新手引导
-    if (!localStorage.getItem('pcg_tutorial_done')) {
+    // V30: 首次游戏新手引导（sessionStorage，关标签页重置）
+    if (!sessionStorage.getItem('pcg_tutorial_done')) {
       this._showTutorial(() => {
-        localStorage.setItem('pcg_tutorial_done', '1');
+        sessionStorage.setItem('pcg_tutorial_done', '1');
         this._doStartGame();
       });
       return;
