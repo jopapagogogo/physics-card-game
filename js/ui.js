@@ -158,7 +158,7 @@ class GameUI {
 
           <div class="start-footer">
             <div class="start-actions">
-              <select id="deck-select" class="deck-select" style="display:none"><option value="">🃏 使用自定义卡组</option></select>
+              <select id="deck-select" class="deck-select" style="display:none"><option value="">🃏 使用默认卡组</option></select>
               <button id="btn-deck-builder" class="btn-deck-builder" disabled>🃏 编辑卡组</button>
               <button id="btn-start-game" class="btn-start" disabled>⚔ 开始战斗</button>
             </div>
