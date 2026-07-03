@@ -17,6 +17,7 @@
  *   boost_burn_cap            — 提升灼烧上限
  *   boost_burn_dmg            — 提升单层灼烧伤害
  *   boost_mirror_maze         — 提升镜面迷宫概率
+ *   boost_mirage              — 提升海市蜃楼偏转率
  *   boost_ignore_defense      — 追加无视防御值
  *   view_hand                 — 查看对方手牌
  *   steal_spirit              — 偷取精神力
@@ -104,7 +105,7 @@ const COMBO_TABLE = {
     effects: [{ type: "extra_damage", value: 15 }]
   },
 
-  // ============ 光领域 (7) ============
+  // ============ 光领域 (8) ============
   "S16→A19": {
     type: "combo_s16_a19",
     msg: "光速传播→光纤穿透：+25伤害",
@@ -119,6 +120,11 @@ const COMBO_TABLE = {
     type: "combo_a50_s19",
     msg: "海市蜃楼→镜面迷宫：折射虚像叠加镜中幻影，失败率35%→50%",
     effects: [{ type: "boost_mirror_maze", value: 0.50 }]
+  },
+  "S19→A50": {
+    type: "combo_s19_a50",
+    msg: "镜面迷宫→海市蜃楼：镜像迷阵扰乱在先，偏转率30%→45%",
+    effects: [{ type: "boost_mirage", value: 0.45 }]
   },
   "S14→A55": {
     type: "combo_s14_a55",

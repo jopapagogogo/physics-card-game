@@ -68,6 +68,7 @@ class GameEngine {
     // 海市蜃楼偏转 (A50)
     this.mirageTurns = [0, 0];               // 剩余回合数
     this.mirageFirstAtk = [false, false];    // 本回合首次攻击已触发（海市蜃楼用）
+    this._mirageBoost = [0, 0];              // S19→A50 提升海市蜃楼偏转率
     this._zenoFirstAtk = [false, false];     // 本回合首次攻击已触发（芝诺龟用）
 
     // 镜面迷宫 (S19)
@@ -265,6 +266,7 @@ class GameEngine {
     this._heightBonusPerLevel[pIdx] = 0;
     this._dotIncrementBoost[pIdx] = 0;
     this._mirrorMazeBoost[pIdx] = 0;
+    this._mirageBoost[pIdx] = 0;
     this._burnCapIncrease[pIdx] = 0;
     this._burnDmgPerLayer[pIdx] = 50;
     this._ignoreDefBonus[pIdx] = 0;
@@ -1181,6 +1183,10 @@ class GameEngine {
             this._mirrorMazeBoost[attackerIdx] = (eff.value || 0);
             effects.push({ type: 'combo_mirror_boost', value: eff.value });
             break;
+          case 'boost_mirage':
+            this._mirageBoost[attackerIdx] = (eff.value || 0.30);
+            effects.push({ type: 'combo_mirage_boost', value: eff.value });
+            break;
           case 'boost_burn_cap':
             this._burnCapIncrease[attackerIdx] = (eff.value || 0);
             effects.push({ type: 'combo_burn_cap', value: eff.value });
@@ -1387,9 +1393,10 @@ class GameEngine {
       this._zenoFirstAtk[attackerIdx] = true;
     }
 
-    // 海市蜃楼(A50)偏转检查
+    // 海市蜃楼(A50)偏转检查（S19→A50 combo可提升偏转率）
     if (this.mirageTurns[oIdx] > 0 && !this.mirageFirstAtk[attackerIdx]) {
-      if (Math.random() < 0.3) {
+      const mirageProb = Math.max(0.30, this._mirageBoost[oIdx] || 0.30);
+      if (Math.random() < mirageProb) {
         this._addLog(`[海市蜃楼] 攻击被偏转！伤害变为0。`);
         damage = 0;
         effects.push({ type: 'mirage_deflect', msg: '海市蜃楼偏转了攻击' });
