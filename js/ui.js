@@ -2122,6 +2122,9 @@ class GameUI {
       const selfDomain = gs?.players?.[0]?.fieldDomain?.domain;
       selfZone.style.setProperty('--bg-texture', selfDomain ? this._domainTextureCSS(selfDomain) : 'none');
     }
+
+    // 🧪 驻场卡 buff 进度指示器
+    this._renderBuffIndicators();
   }
 
   // ==================== 事件绑定 ====================

@@ -98,7 +98,7 @@ const CARDS = [
     type: "attack",
     domain: ["力"],
     cost: 14,
-    description: "打出后进入蓄能状态（最多4回合），每经过己方1回合蓄能高度+1。对手对己方累计造成200伤害时或持续时间结束时触发：造成(40+蓄能高度×40)伤害。触发后此卡离场。原理：物体质量越大、位置越高，重力势能越大（Ep=mgh）。",
+    description: "打出后进入蓄能状态（最多4回合），每经过己方1回合蓄能高度+1。对手对己方累计造成200伤害时或持续时间结束时触发：造成(40+蓄能高度×40)伤害。被清除时立即释放已蓄能伤害。触发后此卡离场。原理：物体质量越大、位置越高，重力势能越大（Ep=mgh）。",
     formula: "Ep=mgh",
     rarity: "rare",
     effect: {"dmg":40,"heightBonus":40,"maxTurns":4,"triggerThreshold":200,"isFieldCard":true}
@@ -695,7 +695,7 @@ const CARDS = [
     type: "support",
     domain: ["力"],
     cost: 10,
-    description: "打出后进入储能状态（场上持续，最多4回合）。己方每打出一张力系攻击卡，将该卡实际造成伤害的30%存入储能（上限300）。时间结束或储能满时释放50%伤害。原理：弹性势能Ep=1/2kx²，弹性形变越大储能越多。",
+    description: "打出后进入储能状态（场上持续，最多4回合）。己方每打出一张力系攻击卡，将该卡实际造成伤害的30%存入储能（上限300）。时间结束、储能满或被清除时释放50%伤害。原理：弹性势能Ep=1/2kx²，弹性形变越大储能越多。",
     formula: "Ep=1/2kx²",
     rarity: "rare",
     effect: {"energyStore":0.3,"maxStore":300,"releaseRatio":0.5,"maxTurns":4,"isFieldCard":true}
