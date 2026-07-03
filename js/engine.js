@@ -366,10 +366,11 @@ class GameEngine {
     }
 
     // 回声爆破(A14)待触发 — 在出牌阶段开始处理
+    this._addLog(`[回声爆破] 检测: pending[${pIdx}]=${this.echoBombPending[pIdx]}, dmg=${this.echoBombDmg[pIdx]}`);
     if (this.echoBombPending[pIdx]) {
       const dmg = this.echoBombDmg[pIdx];
       opponent.hp = Math.max(0, opponent.hp - dmg);
-      this._addLog(`[回声爆破] 自动触发！造成 ${dmg} 点伤害。`);
+      this._addLog(`[回声爆破] 💥 自动触发！造成 ${dmg} 点伤害。`);
       this.echoBombPending[pIdx] = false;
       this.echoBombDmg[pIdx] = 0;
       if (this.checkWinCondition()) return;
@@ -1132,10 +1133,11 @@ class GameEngine {
     if (!this.isFieldCard(card)) {
       player.discardPile.push(card);
     } else if (!['domain', 'summon'].includes(card.type)) {
-      // 攻击/辅助类驻场卡（如A05重力势能）：未在 _handleSupport 中加入的，补加入 fieldSupports
+      // 攻击/辅助类驻场卡：未在 handler 中加入的，补加入 fieldSupports
       const alreadyTracked = player.fieldSupports.find(s => s.card?.id === card.id);
       if (!alreadyTracked) {
-        player.fieldSupports.push({ card, turnsRemaining: 999 });
+        const turns = card.effect.dotSequence?.length || card.effect.dotTurns || card.effect.maxTurns || card.effect.turns || 99;
+        player.fieldSupports.push({ card, turnsRemaining: turns });
       }
     }
 
