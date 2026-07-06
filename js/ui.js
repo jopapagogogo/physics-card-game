@@ -7,6 +7,7 @@ import { AIEngine } from './ai.js';
 import { QuizSystem } from './quiz.js';
 import { CARDS } from './cards.js';
 import { DOMAIN_RUNES } from './runes.js';
+import { COMBO_TABLE } from './combo_table.js';
 
 class GameUI {
   constructor(containerId) {
@@ -161,6 +162,7 @@ class GameUI {
             <div class="start-actions">
               <select id="deck-select" class="deck-select" style="display:none"><option value="">🃏 使用默认卡组</option></select>
               <button id="btn-deck-builder" class="btn-deck-builder" disabled>🃏 编辑卡组</button>
+              <button id="btn-combo-list" class="btn-deck-builder">⚡ Combo列表</button>
               <button id="btn-start-game" class="btn-start" disabled>⚔ 开始战斗</button>
             </div>
             <p id="start-hint" class="start-hint">请先选择主领域和副领域</p>
@@ -284,6 +286,10 @@ class GameUI {
         this.showDeckBuilder();
       }
     });
+
+    // Combo列表按钮
+    const comboBtn = document.getElementById('btn-combo-list');
+    if (comboBtn) comboBtn.addEventListener('click', () => this.showComboList());
 
     // 卡组下拉选择
     const deckSelect = document.getElementById('deck-select');
@@ -1148,7 +1154,7 @@ class GameUI {
   startPlayTimer() {
     clearInterval(this.playTimer);
     this.playTimer = null;
-    const totalSec = this.testMode ? 9999 : 30;
+    const totalSec = this.testMode ? 9999 : 45;
     const startTime = Date.now();
 
     this.playTimer = setInterval(() => {
@@ -1813,7 +1819,7 @@ class GameUI {
       <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
       <div class="v3-stats">${card.effect?.dmg ? `<span class="v3-stat-num">${card.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}</div>
       <div class="v3-desc-box">${hasDesc ? this._escapeHtml(descRaw) : '&nbsp;'}</div>
-      <span class="v3-badge">赛博</span>
+
     `;
     return el;
   }
@@ -2336,6 +2342,35 @@ class GameUI {
               domainCard._fromHand = false;
               this._showCardDetail(domainCard);
             }
+          }
+        }
+      });
+    }
+
+    // 己方召唤物区点击（放大查看）
+    const selfSummons = document.getElementById('self-summons');
+    if (selfSummons) {
+      selfSummons.addEventListener('click', (e) => {
+        if (this.selectedCard && this.selectedCard.type === 'attack') return;
+
+        const miniEl = e.target.closest('.summon-mini');
+        if (!miniEl) return;
+
+        const summonId = miniEl.dataset.summonId;
+        const gs = this.engine?.getGameState();
+        if (!gs) return;
+
+        const summon = (gs.players[0].fieldSummons || []).find(s => s.id === summonId);
+        if (summon) {
+          const cardData = this.engine?.getCardById?.(summon.id) || summon.card;
+          if (cardData) {
+            cardData._fromHand = false;
+            if (summon.hp !== undefined) {
+              cardData.hp = summon.hp;
+              cardData.maxHp = summon.maxHp;
+            }
+            cardData.turns = summon.turns;
+            this._showCardDetail(cardData);
           }
         }
       });
@@ -3009,7 +3044,7 @@ class GameUI {
     }
 
     // 弃牌倒计时8秒
-    let discardSeconds = 8;
+    let discardSeconds = 12;
 
     const overlay = document.createElement('div');
     overlay.className = 'discard-overlay';
@@ -3468,6 +3503,59 @@ class GameUI {
     } else { debuffBox.querySelector('#a05-bar')?.remove(); }
   }
 
+  /** ⚡ Combo列表弹窗 — 按领域分组展示 */
+  showComboList() {
+    const entries = Object.entries(COMBO_TABLE);
+    const domainGroups = { '力':[], '声':[], '光':[], '热':[], '电':[], '跨领域':[], '召唤':[] };
+    for (const [key, combo] of entries) {
+      // 判断分组
+      let group = '召唤';
+      const prefix = key.charAt(0);
+      if (prefix === 'C') group = '召唤';
+      else {
+        const idMap = { A:0, S:0, D:0, T:0 };
+        const ids = key.match(/[ASTDC]\d+/g) || [];
+        const domains = ids.map(id => {
+          const c = CARDS.find(cc => cc.id === id);
+          return c?.domain?.[0] || '混沌';
+        });
+        if (domains.every(d => d === domains[0])) group = domains[0];
+        else group = '跨领域';
+      }
+      if (!domainGroups[group]) group = '跨领域';
+      const parsed = this._parseComboMsg(combo.msg);
+      domainGroups[group].push({ key, combo, parsed });
+    }
+    // 按领域顺序输出
+    const order = ['力','声','光','热','电','跨界','召唤','跨领域'];
+    let html = '<div style="max-height:70vh;overflow-y:auto;padding:10px;">';
+    html += '<h2 style="color:#fff;text-align:center;margin:0 0 16px;">⚡ Combo 组合列表（共'+entries.length+'条）</h2>';
+    for (const g of order) {
+      const items = domainGroups[g];
+      if (!items || items.length === 0) continue;
+      html += `<h3 style="color:#f39c12;margin:12px 0 6px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px;">${g}领域 (${items.length})</h3>`;
+      for (const item of items) {
+        html += `<div style="font-size:11px;color:#aaa;margin:3px 0;padding:4px 8px;background:rgba(255,255,255,.03);border-radius:4px;">
+          <span style="color:#fff;font-weight:700;">${this._getCardName(item.parsed.from)}</span>
+          <span style="color:#f39c12;"> ${item.parsed.arrow} </span>
+          <span style="color:#fff;font-weight:700;">${this._getCardName(item.parsed.to)}</span>
+          <span style="color:#888;"> — ${item.parsed.effect}</span></div>`;
+      }
+    }
+    html += '</div>';
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:20px;max-width:480px;width:90vw;">${html}
+      <button id="combo-close" style="display:block;margin:16px auto 0;padding:8px 24px;border-radius:8px;background:#333;color:#fff;border:none;cursor:pointer;font-size:13px;">✕ 关闭</button></div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#combo-close').onclick = () => overlay.remove();
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  }
+  _getCardName(id) {
+    const c = CARDS.find(cc => cc.id === id);
+    return c ? c.name : id;
+  }
+
   /** 🧪 获取测试模式卡牌列表 — 按主副领域+混沌筛选 */
   _getTestCards() {
     const VALID = ['力','声','光','热','电'];
@@ -3841,7 +3929,7 @@ class GameUI {
         <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
         <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
         <div class="v3-desc-box"><div>${this._escapeHtml(summary)}</div>${principle ? `<span class="principle">${this._escapeHtml(principle)}</span>` : ''}</div>
-        <span class="v3-badge">赛博朋克</span>
+
       </div>
     `;
   }
@@ -4049,7 +4137,7 @@ class GameUI {
         <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
         <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
         <div class="v3-desc-box" style="max-height:200px;overflow-y:auto;"><div>${summary}</div>${principle ? `<span class="principle">${principle}</span>` : ''}</div>
-        <span class="v3-badge">赛博朋克</span>
+
         <div style="padding:10px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.08);">
           <button class="btn btn-close" id="btn-zoom-close" style="flex:1;font-size:13px;padding:10px;border-radius:8px;background:#333;color:#eee;border:none;cursor:pointer;">✕ 关闭</button>
           ${canPlayIt ? `<button class="btn btn-play" id="btn-zoom-play" style="flex:1;font-size:13px;padding:10px;border-radius:8px;background:${style.color};color:#fff;border:none;cursor:pointer;">⚔️ 打出此卡</button>` : ''}
