@@ -1444,8 +1444,8 @@ class AIEngine {
         }
       }
 
-      if (card.id === 'S18' || card.id === 'S20') {
-        if (self.burnLayers < 2) value *= 0.3;
+      if (card.id === 'S20') {
+        if (!opp.fieldSupports.length && !opp.fieldSummons.length && !opp.fieldDomain) value = 0;
       }
       if (card.id === 'S27') {
         const hasElec = self.fieldSupports.some(s => s.card.domain.includes('电'));

@@ -342,13 +342,13 @@ class GameEngine {
     // A11 啸叫：每回合声压叠加
     const a11OnField = player.fieldSupports.find(s => s.card?.id === 'A11');
     if (a11OnField) {
-      const applyPerTurn = a11OnField.card.effect.applyPerTurn || 1;
-      const maxStacks = a11OnField.card.effect.maxStacks || 3;
+      const applyPerTurn = a11OnField.card?.effect?.applyPerTurn || 1;
+      const maxStacks = a11OnField.card?.effect?.maxStacks || 3;
       this.soundPressure[oIdx] = Math.min(maxStacks, this.soundPressure[oIdx] + applyPerTurn);
       this._addLog(`[啸叫] 声压叠加至 ${this.soundPressure[oIdx]} 层。`);
       // 检查是否引爆
       if (this.soundPressure[oIdx] >= maxStacks) {
-        const detonateDmg = a11OnField.card.effect.detonateDmg || 60;
+        const detonateDmg = a11OnField.card?.effect?.detonateDmg || 60;
         opponent.hp = Math.max(0, opponent.hp - detonateDmg);
         this._addLog(`[啸叫引爆] 声压达到 ${maxStacks} 层，造成 ${detonateDmg} 点伤害！`);
         this.soundPressure[oIdx] = 0;
@@ -1099,16 +1099,36 @@ class GameEngine {
         }
         break;
       case 'support':
-        effects.push(...this._handleSupport(card, playerIdx));
+        try {
+          effects.push(...this._handleSupport(card, playerIdx));
+        } catch (e) {
+          console.error('_handleSupport error for card', card?.id, e);
+          this._addLog(`[错误] 辅助卡处理失败: ${card?.name || '未知'}`);
+        }
         break;
       case 'domain':
-        effects.push(...this._handleDomain(card, playerIdx));
+        try {
+          effects.push(...this._handleDomain(card, playerIdx));
+        } catch (e) {
+          console.error('_handleDomain error for card', card?.id, e);
+          this._addLog(`[错误] 领域卡处理失败: ${card?.name || '未知'}`);
+        }
         break;
       case 'summon':
-        effects.push(...this._handleSummon(card, playerIdx));
+        try {
+          effects.push(...this._handleSummon(card, playerIdx));
+        } catch (e) {
+          console.error('_handleSummon error for card', card?.id, e);
+          this._addLog(`[错误] 召唤卡处理失败: ${card?.name || '未知'}`);
+        }
         break;
       case 'phase':
-        effects.push(...this._handlePhase(card, playerIdx));
+        try {
+          effects.push(...this._handlePhase(card, playerIdx));
+        } catch (e) {
+          console.error('_handlePhase error for card', card?.id, e);
+          this._addLog(`[错误] 相变卡处理失败: ${card?.name || '未知'}`);
+        }
         break;
     }
 
@@ -2743,14 +2763,6 @@ class GameEngine {
     if (!this.canAfford(playerIdx, card)) {
       return { can: false, reason: '精神力不足。' };
     }
-    if (card.id === 'S20' && !opponent.fieldSupports.length && !opponent.fieldSummons.length && !opponent.fieldDomain) {
-      return { can: false, reason: '对方场上无卡牌，无法使用影子束缚。' };
-    }
-    if (card.id === 'S30' && !player.fieldSupports.some(s => s.card.domain.includes('电'))) {
-      return { can: false, reason: '己方场上无电系辅助卡。' };
-    }
-
-    // S20 影子束缚: 需对方场上有卡
     if (card.id === 'S20' && !opponent.fieldSupports.length && !opponent.fieldSummons.length && !opponent.fieldDomain) {
       return { can: false, reason: '对方场上无卡牌，无法使用影子束缚。' };
     }
