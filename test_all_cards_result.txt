@@ -1,6 +1,6 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-07-06T02:48:19.530Z
+  测试时间: 2026-07-06T03:14:59.418Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
@@ -20,7 +20,7 @@
 ✅ S15 偏振过滤 (support, cost=14): dmg=N/A ✔ fieldSupports=N/A effects=[polarize]
 ✅ S16 光速传播 (support, cost=14): dmg=N/A ✔ fieldSupports=OK effects=[light_speed]
 ✅ S17 光谱叠加 (support, cost=8): dmg=N/A ✔ fieldSupports=N/A effects=[spectrum]
-✅ S18 X射线透视 (support, cost=14): dmg=N/A ✔ fieldSupports=N/A effects=[view_hand,discard_opponent]
+✅ S18 X射线透视 (support, cost=14): dmg=N/A ✔ fieldSupports=N/A effects=[view_hand,need_discard_opponent]
 ✅ S19 镜面迷宫 (support, cost=16): dmg=N/A ✔ fieldSupports=OK effects=[mirror_maze]
 ✅ S20 影子束缚 (support, cost=10): dmg=N/A ✔ fieldSupports=OK effects=[shadow_bind]
 ✅ S21 凸透成像 (support, cost=12): dmg=N/A ✔ fieldSupports=N/A effects=[convex_none]

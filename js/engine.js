@@ -164,6 +164,7 @@ class GameEngine {
     this._pendingConvexLens = null;            // S21凸透成像待选择
     this._pendingFrequencyChoice = false;      // S09频率调节待选择
     this._pendingDiscardChoice = false;        // S29静电吸附待选择弃牌
+    this._pendingDiscardOpponent = null;       // S18 X射线透视待选择弃对方的牌
     // S32 低压启动—目标电系卡引用
     this._reduceElectricTarget = [{ cardRef: null, costReduction: 0 }, { cardRef: null, costReduction: 0 }];
 
@@ -384,6 +385,7 @@ class GameEngine {
     if (c10 && opponent.hand.length > 0) {
       const rIdx = Math.floor(Math.random() * opponent.hand.length);
       this._addLog(`[贝尔] 查看到对方手牌「${opponent.hand[rIdx].name}」。`);
+      this._bellSpiedCard = opponent.hand[rIdx].name; // 供UI显示
     }
 
     // 检查凝固封锁
@@ -684,6 +686,17 @@ class GameEngine {
     if (p.paralysis > 0) p.paralysis = Math.max(0, p.paralysis - 1);
     if (p.dotEffects.length > 0) p.dotEffects.shift();
     return { type: 's29_resolved', discarded: discarded.name, msg: `弃置「${discarded.name}」，抽2张并清除负面` };
+  }
+
+  /** S18 X射线透视：玩家选择弃对方哪张手牌 */
+  resolveDiscardOpponent(handIndex) {
+    if (!this._pendingDiscardOpponent) return null;
+    const opp = this.players[1];
+    if (handIndex < 0 || handIndex >= opp.hand.length) return null;
+    const discarded = opp.hand.splice(handIndex, 1)[0];
+    opp.discardPile.push(discarded);
+    this._pendingDiscardOpponent = null;
+    return { type: 's18_resolved', discarded: discarded.name, msg: `弃置了对方的「${discarded.name}」` };
   }
 
   /** 驻场卡被清除时，释放 S06/A05 存储的能量 */
@@ -2041,7 +2054,20 @@ class GameEngine {
 
     // 弃置对方手牌 (effect.discardOpponent)
     if (eff.discardOpponent) {
-      effects.push({ type: 'discard_opponent', count: eff.discardOpponent });
+      if (playerIdx === 0 && opponent.hand.length > 0) {
+        // 玩家：等待选择弃对方哪张牌（S18 X射线透视）
+        this._pendingDiscardOpponent = { count: eff.discardOpponent };
+        effects.push({ type: 'need_discard_opponent', msg: '请选择对方1张手牌弃置' });
+      } else {
+        // AI或空手牌：随机弃
+        const count = Math.min(eff.discardOpponent, opponent.hand.length);
+        for (let i = 0; i < count; i++) {
+          const rIdx = Math.floor(Math.random() * opponent.hand.length);
+          const discarded = opponent.hand.splice(rIdx, 1)[0];
+          opponent.discardPile.push(discarded);
+        }
+        effects.push({ type: 'discard_opponent', count: eff.discardOpponent });
+      }
     }
 
     // 盲选弹回对方手牌 (effect.bounceHand, e.g. A22)

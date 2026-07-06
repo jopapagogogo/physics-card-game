@@ -2662,6 +2662,11 @@ class GameUI {
       this._showDiscardChoice();
     }
 
+    // S18 X射线透视 — 选择弃对方手牌
+    if (this.engine._pendingDiscardOpponent) {
+      this._showDiscardOpponentChoice();
+    }
+
     this.selectedCard = null;
 
     // 检查游戏是否结束
@@ -3478,6 +3483,30 @@ class GameUI {
     document.getElementById('self-hand')?.addEventListener('click', this._discardClickHandler, true);
   }
 
+  /** S18 X射线透视 — 选择弃对方1张手牌 */
+  _showDiscardOpponentChoice() {
+    const gs = this.engine.getGameState();
+    const oppHand = gs.players[1].hand || [];
+    if (oppHand.length === 0) return;
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:24px;max-width:360px;text-align:center;">
+      <h3 style="color:#fff;margin:0 0 12px;">👁 X射线透视 — 选择弃置对方1张手牌</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+        ${oppHand.map((c, i) => `<button data-idx="${i}" style="padding:8px 14px;border-radius:8px;background:#2a2a3e;color:#fff;border:1px solid rgba(255,255,255,.15);font-size:12px;cursor:pointer;">${this._escapeHtml(c.name)} (${c.cost}费)</button>`).join('')}
+      </div></div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelectorAll('button[data-idx]').forEach(btn => {
+      btn.onclick = () => {
+        const idx = parseInt(btn.dataset.idx);
+        overlay.remove();
+        const result = this.engine.resolveDiscardOpponent(idx);
+        if (result) { this.addLogMessage('👁 ' + result.msg); }
+        this.updateAllDisplay();
+      };
+    });
+  }
+
   /** S06弹性储能 / A05重力势能 — 进度指示器 */
   _renderBuffIndicators() {
     const gs = this.engine?.getGameState();
@@ -3501,6 +3530,12 @@ class GameUI {
       const h = `<span id="a05-bar" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#3498db;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:4px;margin:1px;white-space:nowrap;">📏高${height} ⏳${track}/4</span>`;
       let el = debuffBox.querySelector('#a05-bar'); if (el) el.outerHTML = h; else debuffBox.insertAdjacentHTML('beforeend', h);
     } else { debuffBox.querySelector('#a05-bar')?.remove(); }
+    // C10 贝尔 — 每回合窥牌结果
+    const bellSpied = this.engine?._bellSpiedCard;
+    if (bellSpied) {
+      const h = `<span id="bell-bar" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#16a085;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:4px;margin:1px;white-space:nowrap;">📞窥「${bellSpied}」</span>`;
+      let el = debuffBox.querySelector('#bell-bar'); if (el) el.outerHTML = h; else debuffBox.insertAdjacentHTML('beforeend', h);
+    } else { debuffBox.querySelector('#bell-bar')?.remove(); }
   }
 
   /** ⚡ Combo列表弹窗 — 按领域分组展示 */
