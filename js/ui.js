@@ -1654,6 +1654,13 @@ class GameUI {
       this.renderDomainEffects();
       this._updateBattleTexture(gs);
       this._updateCounters(gs);
+
+      // C04 薛定谔的猫结果弹窗
+      const c04r = this.engine?._c04LastResult;
+      if (c04r) {
+        this._showC04Popup(c04r);
+        this.engine._c04LastResult = null;
+      }
     } catch (e) {
       console.error('[updateAllDisplay] error:', e.message, e.stack);
     }
@@ -3550,6 +3557,20 @@ class GameUI {
     } else { debuffBox.querySelector('#bell-bar')?.remove(); }
   }
 
+  /** C04 薛定谔的猫 — 结果弹窗 */
+  _showC04Popup(result) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;animation:fadeIn .3s ease;pointer-events:none;';
+    const icon = result.type === 'damage' ? '💥' : result.type === 'heal' ? '💚' : '🔮';
+    const msg = result.type === 'damage' ? `造成 ${result.value} 点伤害！` : result.type === 'heal' ? `恢复 ${result.value} 点HP！` : `恢复 ${result.value} 精神力！`;
+    overlay.innerHTML = `<div style="text-align:center;animation:popIn .5s ease;">
+      <div style="font-size:64px;">${icon}</div>
+      <h2 style="color:#fff;font-size:22px;margin:8px 0;">🐱 薛定谔的猫</h2>
+      <p style="color:#ddd;font-size:16px;">${msg}</p></div>`;
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 2000);
+  }
+
   /** ⚡ Combo列表弹窗 — 按领域分组展示 */
   showComboList() {
     const entries = Object.entries(COMBO_TABLE);
@@ -4090,6 +4111,10 @@ class GameUI {
         case 'domain': msgs.push(`🏛️ 领域「${eff.name}」已激活`); break;
         case 'summon': msgs.push(`👾 召唤「${eff.name}」(${eff.hp}HP)`); break;
         case 'summon_bonus': msgs.push(`✨ ${eff.msg || `${eff.name}+${eff.value}`}`); break;
+        case 'zeno_halve': msgs.push(`🐢 芝诺龟：伤害减半！`); break;
+        case 'dodge': msgs.push(`🌀 惠更斯：闪避成功！`); break;
+        case 'c04_damage': msgs.push(`🐱 薛定谔的猫：💥造成100伤害！`); break;
+        case 'c04_heal': msgs.push(`🐱 薛定谔的猫：💚恢复100HP！`); break;
         default: msgs.push(eff.msg || eff.name || JSON.stringify(eff)); break;
       }
     }

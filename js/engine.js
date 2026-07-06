@@ -499,14 +499,17 @@ class GameEngine {
           const opponent = this.players[1 - this.currentPlayer];
           opponent.hp = Math.max(0, opponent.hp - 100);
           this._addLog(`[薛定谔的猫] 造成 100 点伤害！`);
+          this._c04LastResult = { type: 'damage', value: 100 };
         } else {
           const heal = Math.min(MAX_HP - player.hp, 100);
           player.hp += heal;
           if (heal < 100) {
             player.spirit = Math.min(MAX_SPIRIT, player.spirit + 30);
             this._addLog(`[薛定谔的猫] HP已满，恢复 30 点精神力。`);
+            this._c04LastResult = { type: 'spirit', value: 30 };
           } else {
             this._addLog(`[薛定谔的猫] 恢复 ${heal} 点HP。`);
+            this._c04LastResult = { type: 'heal', value: heal };
           }
         }
         if (this.checkWinCondition()) return;
