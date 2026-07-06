@@ -385,7 +385,7 @@ class GameEngine {
     if (c10 && opponent.hand.length > 0) {
       const rIdx = Math.floor(Math.random() * opponent.hand.length);
       this._addLog(`[贝尔] 查看到对方手牌「${opponent.hand[rIdx].name}」。`);
-      this._bellSpiedCard = opponent.hand[rIdx].name; // 供UI显示
+      this._bellSpiedCard = { ...opponent.hand[rIdx] }; // 存完整卡牌供UI预览
     }
 
     // 检查凝固封锁
@@ -766,7 +766,9 @@ class GameEngine {
       const bonusKeys = {力:'forceDmgBonus',热:'heatDmgBonus',光:'lightDmgBonus',声:'soundDmgBonus',电:'electricDmgBonus'};
       for (const [domain, key] of Object.entries(bonusKeys)) {
         if (s.card.effect[key] && card.domain.includes(domain)) {
-          damage += s.card.effect[key];
+          const bonusVal = s.card.effect[key];
+          damage += bonusVal;
+          effects.push({ type: 'summon_bonus', name: s.card.name, value: bonusVal, msg: `${s.card.name}的领域加成+${bonusVal}` });
         }
       }
       // 牛顿(C05) forceDmgBonus 已通过 bonusKeys 统一处理
@@ -1155,6 +1157,7 @@ class GameEngine {
     const maxwell = player.fieldSummons.find(s => s.card.id === 'C02');
     if (maxwell) {
       player.spirit = Math.min(MAX_SPIRIT, player.spirit + 2);
+      effects.push({ type: 'spirit_restore', value: 2, msg: '麦克斯韦妖+2精神力' });
       if (player.spirit >= MAX_SPIRIT - 1) {
         const heal = Math.min(MAX_HP - player.hp, 30);
         player.hp += heal;

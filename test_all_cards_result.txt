@@ -1,6 +1,6 @@
 ======================================================================
   物理卡牌对战 — 全部 109 张卡牌运行时测试
-  测试时间: 2026-07-06T03:14:59.418Z
+  测试时间: 2026-07-06T03:43:45.127Z
 ======================================================================
 
 ✅ S01 质量增大 (support, cost=5): dmg=N/A ✔ fieldSupports=N/A effects=[next_force_bonus]
@@ -43,7 +43,7 @@
 ✅ D04 热之领域·熵增域 (domain, cost=20): dmg=N/A ✔ fieldSupports=N/A effects=[domain]
 ✅ D05 电之领域·电磁域 (domain, cost=20): dmg=N/A ✔ fieldSupports=N/A effects=[domain]
 ✅ C01 芝诺龟 (summon, cost=22): dmg=N/A ✔ fieldSupports=N/A effects=[summon]
-✅ C02 麦克斯韦妖 (summon, cost=25): dmg=N/A ✔ fieldSupports=N/A effects=[summon]
+✅ C02 麦克斯韦妖 (summon, cost=25): dmg=N/A ✔ fieldSupports=N/A effects=[summon,spirit_restore]
 ✅ C03 拉普拉斯妖 (summon, cost=25): dmg=N/A ✔ fieldSupports=N/A effects=[summon]
 ✅ C04 薛定谔的猫 (summon, cost=28): dmg=100 ✔ fieldSupports=N/A effects=[summon]
 ✅ C05 牛顿 (summon, cost=22): dmg=N/A ✔ fieldSupports=N/A effects=[summon]

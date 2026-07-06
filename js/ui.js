@@ -3533,8 +3533,20 @@ class GameUI {
     // C10 贝尔 — 每回合窥牌结果
     const bellSpied = this.engine?._bellSpiedCard;
     if (bellSpied) {
-      const h = `<span id="bell-bar" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#16a085;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:4px;margin:1px;white-space:nowrap;">📞窥「${bellSpied}」</span>`;
+      // 如果是对象（完整卡牌），显示卡名并添加点击预览
+      const name = typeof bellSpied === 'object' ? bellSpied.name : bellSpied;
+      const h = `<span id="bell-bar" class="bell-clickable" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#16a085;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:4px;margin:1px;white-space:nowrap;cursor:pointer;">📞窥「${name}」</span>`;
       let el = debuffBox.querySelector('#bell-bar'); if (el) el.outerHTML = h; else debuffBox.insertAdjacentHTML('beforeend', h);
+      // 点击弹出完整卡牌预览
+      setTimeout(() => {
+        const bellEl = debuffBox.querySelector('#bell-bar.bell-clickable');
+        if (bellEl && typeof bellSpied === 'object') {
+          bellEl.onclick = () => {
+            const cardData = { ...bellSpied, _fromHand: false };
+            this._showCardDetail(cardData);
+          };
+        }
+      }, 50);
     } else { debuffBox.querySelector('#bell-bar')?.remove(); }
   }
 
@@ -4077,6 +4089,7 @@ class GameUI {
         case 'defense': msgs.push(`🛡 获得${eff.value}点防御`); break;
         case 'domain': msgs.push(`🏛️ 领域「${eff.name}」已激活`); break;
         case 'summon': msgs.push(`👾 召唤「${eff.name}」(${eff.hp}HP)`); break;
+        case 'summon_bonus': msgs.push(`✨ ${eff.msg || `${eff.name}+${eff.value}`}`); break;
         default: msgs.push(eff.msg || eff.name || JSON.stringify(eff)); break;
       }
     }
