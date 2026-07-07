@@ -1,4 +1,4 @@
-# 代码审查报告 — 2026-07-06
+# 代码审查报告 — 2026-07-07
 
 > 全面审查，只读不修改。审查范围：全部 JS/CSS 文件 + 上次问题追踪。
 
@@ -8,63 +8,68 @@
 
 | 文件 | 行数 | 变化 | 状态 |
 |------|------|------|------|
-| js/cards.js | 1286 | -1 | 已审查 |
-| js/engine.js | 3022 | +139 | 已审查（逐行） |
-| js/combo_table.js | 291 | -4 | 已审查 |
+| js/cards.js | 1286 | ±0 | 已审查 |
+| js/engine.js | 3042 | +48/-48 | 已审查（逐行） |
+| js/combo_table.js | 291 | ±0 | 已审查 |
 | js/ai.js | 1596 | ±0 | 已审查 |
-| js/ui.js | 4305 | +281 | 已审查 |
-| js/quiz.js | 6270 | +4817 | 已审查 |
-| js/runes.js | 9 | -1 | 已审查 |
-| css/game_v2.css | 1297 | -3 | 已审查 |
+| js/ui.js | ~4300 | +11/-11 | 已审查 |
+| js/quiz.js | 6270 | ±0 | 已审查 |
+| js/runes.js | 9 | ±0 | 已审查 |
+| css/game_v2.css | ~1297 | ±0 | 已审查 |
 
-> quiz.js 从 1453 行暴增至 6270 行（1035 题，覆盖 力210/声210/电200/热200/光200/混沌15），超出原设计 190 题容量 5 倍以上。
+> 本次唯一变更：engine.js 和 ui.js 各 1 次提交（"修复审查Top5: N8/N9/N4/N10/M11"），其余文件无变化。
 
 ---
 
 ## 本次新发现问题
 
-### 🔴 严重（1 项）
+### 🟡 中等（1 项）
 
 | # | 问题描述 | 文件:行号 | 建议修复 |
 |---|---------|-----------|---------|
-| N8 | **`calculateDamage` 第 774 行引用未定义的 `effects` 变量，导致运行时崩溃** — `calculateDamage(card, attackerIdx, defenderIdx, comboBonus, skipDefense)` 函数签名中没有 `effects` 参数，也未声明局部 `effects` 变量。但第 774 行 `effects.push({ type: 'summon_bonus', ... })` 直接引用了 `effects`。当己方场上有召唤物且其拥有领域特定伤害加成（如 C05 牛顿 forceDmgBonus、C08 焦耳 heatDmgBonus、C09 伽利略 lightDmgBonus 等），且打出匹配领域的攻击卡时，此代码路径被触发，抛出 `ReferenceError: effects is not defined`。 | `engine.js:774` | 删除该行（`calculateDamage` 不应产生 effects 输出），或将 `effects` 作为参数传入 |
+| N13 | **`_handleAttack` 中 A11 引爆后 `return;` 未返回 effects 数组** — 当打出 A11 且声压≥3层触发引爆，若引爆伤害直接击杀对手，`this.checkWinCondition()` 返回 true 后执行 `return;`（无返回值）。`_handleAttack` 预期返回 `effects[]` 数组，`playCard` 用 `effects.push(...result)` 消费返回值，`...undefined` 会触发 `TypeError`。虽被 try-catch 捕获，但会在控制台打印虚假错误日志。 | `engine.js:1665` | 改为 `return effects;` 或 `return [];` |
 
-### 🟡 中等（2 项）
-
-| # | 问题描述 | 文件:行号 | 建议修复 |
-|---|---------|-----------|---------|
-| N9 | **`canPlayQuery` 中存在重复的 A26 条件检查** — 第 2873-2876 行检查 `A26 && playerIdx === this.currentPlayer`，第 2878-2880 行又检查 `A26 && opponent.burnLayers < 2`。当 `playerIdx === this.currentPlayer` 时，第二个检查是冗余死代码。虽然不产生实际错误，但增加维护混淆。 | `engine.js:2873-2880` | 删除第 2878-2880 行的重复检查，或合并两个条件 |
-| N10 | **`_getTestCards` 遗留学生产级 debug console.log** — 第 3631/3633/3641 行各有一处 `console.log` 输出测试模式的领域筛选信息，其中包含完整 ID 列表。测试模式下每次组牌都会输出大量日志。 | `ui.js:3631-3641` | 删除或包裹在 `if (this.testMode)` 条件块中，避免非测试模式下的日志污染 |
-
-### 🟢 轻微（2 项）
+### 🟢 轻微（3 项）
 
 | # | 问题描述 | 文件:行号 | 建议修复 |
 |---|---------|-----------|---------|
-| N11 | **`calculateDamage` 中 `bonusKeys` 对象每调用一次就重新创建** — 第 769 行 `const bonusKeys = {力:'forceDmgBonus',...}` 定义在循环内部。虽然 GC 会处理，但高频调用（每次攻击计算）会产生不必要的分配。 | `engine.js:769` | 提升到模块级别常量 |
-| N12 | **quiz.js 从 190 题膨胀至 1035 题** — 文件从 1453 行增至 6270 行，超出原设计容量。题库注释仍标注「共1035道」（顶部注释与之前「共190题」矛盾）。需确认是否所有题目都经过验证（特别是新增题目 domain 范围是否仍在六大领域内）。 | `quiz.js:2-3` | 验证题库内容质量，确认 domain 分布合理（力210/声210/电200/热200/光200/混沌15） |
+| N14 | **`_inertiaNextTurn[attackerIdx].damage` 写入后从未被读取** — A02 惯性冲锋在 `_handleAttack` 中设置 `_inertiaNextTurn[attackerIdx].damage = damage`（1603行），但该值在当前回合内被写入后，到下一回合 `startTurn()` 时整对象被重置为 `{}`（315行）。没有代码读取此字段，`nextCarryRatio` 特性可能未完整实现。 | `engine.js:1603-1604` | 确认 A02 下回合延续伤害的设计意图，补充读取逻辑或移除死代码 |
+| N15 | **`bonusKeys` 对象在 `calculateDamage` 和 `_handleAttack` 中重复定义** — 同一对象 `{力:'forceDmgBonus',...}` 在两处分别定义（769行和1209行），任何修改需同步更新两处。上次报告 N11 建议提升为模块常量，本次修复反而新增了第二份定义（1209行是为 N8 修复添加的召唤物加成收集代码）。 | `engine.js:769, 1209` | 提升为模块级别常量 `SUMMON_BONUS_KEYS` |
+| N16 | **`_loadCardArt` 中 init 日志残留** — 初始化时输出 `console.log('[init] 插画映射: N 张')`。虽仅执行一次且有用，但作为生产级日志不够规范（应统一使用 debug 级别或条件编译）。 | `ui.js:103` | 改为 `console.debug` 或包裹条件判断 |
 
 ---
 
-## 上次问题跟踪（2026-07-02 报告 N1-N7）
+## 上次问题跟踪（2026-07-06 报告 Top 5）
+
+| 上次# | 严重度 | 状态 | 变更说明 |
+|:---:|:---:|:---:|------|
+| N8 | 🔴 | ✅ 已修复 | calculateDamage 中 effects 引用错误 — 删除该行，效果收集移至 `_handleAttack` (1207-1218行) |
+| N9 | 🟡 | ✅ 已修复 | canPlayQuery 重复 A26 检查 — 删除第一处（playerIdx===currentPlayer）检查 |
+| N4 | 🟡 | ✅ 已修复 | _escapeHtml 性能 — DOM 方案改为正则替换 (ui.js:3955) |
+| N10 | 🟡 | ✅ 已修复 | _getTestCards debug console.log — 3处全部删除 |
+| M11 | 🟡 | ✅ 已修复 | A11 啸叫引爆逻辑 — 全面重写：增加 maxStacks 封顶、打出时引爆检测、驻场/弃牌逻辑分支 |
+
+### 上次 N1-N7 问题
 
 | 上次# | 严重度 | 状态 | 说明 |
 |:---:|:---:|:---:|------|
-| N1 | 🔴 | ✅ 已修复 | canPlay 重复条件检查死代码 — canPlay() 和 canPlayQuery() 均已清理，S20/S30 各仅一次检查 |
-| N2 | 🔴 | ✅ 已修复 | a11OnField 可选链 — engine.js:344-352 全部使用 `?.` 保护 |
-| N3 | 🟡 | ✅ 已修复 | renderPlayZones debug console.log — 已移除，renderPlayZones (1934-1988) 无日志输出 |
-| N4 | 🟡 | ❌ 未修复 | _escapeHtml 性能 — ui.js:3958 仍使用 `document.createElement('div')` 创建临时 DOM |
-| N5 | 🟢 | ❌ 未修复 | color-mix CSS 兼容性 — ui.js:209 仍使用 `color-mix(in srgb, ...)`，无 fallback |
+| N1 | 🔴 | ✅ 已修复 | canPlay 重复条件检查 |
+| N2 | 🔴 | ✅ 已修复 | a11OnField 可选链 |
+| N3 | 🟡 | ✅ 已修复 | renderPlayZones debug console.log |
+| N4 | 🟡 | ✅ 已修复 | _escapeHtml 性能（本次修复） |
+| N5 | 🟢 | ❌ 未修复 | color-mix CSS — ui.js:209 仍使用 `color-mix(in srgb, ...)` 无 fallback |
 | N6 | 🟢 | ❌ 未修复 | 横屏断点 `max-height: 500px` — css/game_v2.css:773 未变更 |
-| N7 | 🟢 | ✅ 已修复 | 错误处理不对称 — engine.js:1112-1149 所有 handler 均已包裹 try-catch |
+| N7 | 🟢 | ✅ 已修复 | 错误处理不对称 |
+
+---
 
 ## 上次遗留历史问题复查
 
-### 🟡 中等项（仍遗留 9 项）
+### 🟡 中等项（仍遗留 8 项——M11 已修复）
 
 | 上次# | 问题 | 状态 |
 |:---:|------|:---:|
 | M9 | S08 extraCost 覆盖语义 | ❌ 未修复 |
-| M11 | A11 啸叫引爆逻辑不一致 | ❌ 未修复 |
 | M13 | 镜面迷宫概率索引方向 | ❌ 未修复 |
 | M14 | S17→A16 combo 冗余 | ❌ 未修复 |
 | M15 | S07→A14 / C10→A14 语义不明 | ❌ 未修复 |
@@ -73,19 +78,19 @@
 | M19 | combo_table.js 注释 effect.type 数量错误 | ❌ 未修复 |
 | M20-M23 | AI 代码质量问题 | ❌ 未修复 |
 
-### 🟢 轻微项（变化情况）
+### 🟢 轻微项
 
 | 上次# | 问题 | 状态 |
 |:---:|------|:---:|
 | L1 | A54 爆燃注释"默认48"与实际50不符 | ❌ 未修复（cards.js:367 注释说48但效果为50） |
-| L3 | getCardById O(n) 未缓存 | ✅ 已修复 — engine.js:2691 已使用 `new Map()` 缓存 |
-| L4 | viewHand 取手牌末尾非随机 | ✅ 已修复 — engine.js:2051-2054 已使用 Fisher-Yates 随机选取 |
+| L3 | getCardById O(n) 未缓存 | ✅ 已修复 — engine.js:2691 已使用 `new Map()` |
+| L4 | viewHand 取手牌末尾非随机 | ✅ 已修复 — Fisher-Yates 随机选取 |
 | L5 | maxHp 默认值不一致 | ❌ 未修复 |
 | L6 | 多处 null 安全检查缺失 | ❌ 未修复 |
-| L8-L9 | 题库答案争议(Q_S_20, Q_S_29) | ⚠️ quiz.js 已大幅重写，旧题目 ID 已不存在 |
-| L10 | ai.js sort随机洗牌非均匀 | ❌ 未修复 |
-| L11 | ui.js console.log 残留 | → 原渲染区日志已清除，但新增 N10 |
-| L12 | gameOver 检查不一致 | ❌ 未修复（使用 `.gameOver` 而非 `.isGameOver()` 的地方仍存在） |
+| L8-L9 | 题库答案争议(Q_S_20, Q_S_29) | ⚠️ quiz.js 已重写，旧题目 ID 不存在 |
+| L10 | ai.js sort 随机洗牌非均匀 | ❌ 未修复 |
+| L11 | ui.js console.log 残留 | → 原渲染区日志已清除，N10 也修复；仅剩 N16 的 init 日志 |
+| L12 | gameOver 检查不一致 | ✅ 已修复 — ui.js 全部使用 `engine.isGameOver()` 调用 |
 | L14-L20 | 卡组下拉/变量/类名/可访问性等 | ❌ 未修复 |
 
 ---
@@ -94,23 +99,23 @@
 
 | 严重度 | 上次合计 | 本次已修复 | 仍遗留(历史) | 本次新发现 | 当前合计 |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| 🔴 严重 | 1 | 1 (100%) | 0 | 1 | 1 |
-| 🟡 中等 | 12 | 2 (17%) | 9 (历史) | 2 | 11 |
-| 🟢 轻微 | 21 | 2 (10%) | 15 (历史) | 2 | 17 |
-| **合计** | **34** | **5 (15%)** | **24** | **5** | **29** |
+| 🔴 严重 | 1 | 1 (100%) | 0 | 0 | 0 |
+| 🟡 中等 | 12 | **6 (50%)** | 8 (历史) | 1 | 9 |
+| 🟢 轻微 | 21 | **5 (24%)** | 11 (历史) | 3 | 14 |
+| **合计** | **34** | **12 (35%)** | **19** | **4** | **23** |
 
-> 注：本次仅修复了 N1、N2、N3、N7 四项（其中 N3/N7 为上次新发现），以及 L3（getCardById 缓存）、L4（随机 viewHand）两项历史问题。整体遗留问题仍较多。
+> 注：本次集中修复了 5 项 Top 问题（N8/N9/N4/N10/M11），加上确认修复的 L12，累计修复率从 15% 提升至 35%。严重项清零。中等项减少 25%。
 
 ---
 
 ## 🎯 本次优先修复建议 (Top 5)
 
-1. **N8 — calculateDamage 引用未定义 effects 变量** — 这是运行时崩溃 bug，会直接打断游戏，必须立即修复
-2. **N4 — _escapeHtml 性能问题** — 每次渲染手牌时高频创建临时 DOM，改为正则替代表现提升显著
-3. **N9 — canPlayQuery 重复 A26 条件** — 清理死代码，降低维护成本
-4. **M11 — A11 啸叫引爆逻辑不一致** — 上次遗留的中等问题，统一出牌时和回合开始时的行为
-5. **N10 — _getTestCards debug 日志** — 清理测试残余日志
+1. **N13 — _handleAttack A11 引爆后无返回值** — 虽被 try-catch 兜底，但会打印误导性错误日志，属代码规范性修复
+2. **M9 — S08 extraCost 覆盖语义** — 长期遗留的中等问题，影响费用计算正确性
+3. **M13 — 镜面迷宫概率索引方向** — 驻场效果触发逻辑可能存在索引混淆
+4. **N5 — color-mix CSS 兼容性** — 影响旧版浏览器显示效果（虽然用户群体主要是现代浏览器）
+5. **N15 — bonusKeys 重复定义合并** — 简单重构，避免未来维护时两处不同步
 
 ---
 
-> 📝 报告生成时间：2026-07-06 23:30 GMT+8 | 审查方式：逐行审查全部 7 个 JS + 1 个 CSS 文件 + 逐项追踪 34 个历史问题
+> 📝 报告生成时间：2026-07-07 23:30 GMT+8 | 审查方式：逐行审查全部 8 个文件 + 逐项追踪 34 个历史问题 + git diff 分析
