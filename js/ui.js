@@ -3628,9 +3628,7 @@ class GameUI {
   _getTestCards() {
     const VALID = ['力','声','光','热','电'];
     const domains = [this.mainDomain, this.subDomain].filter(d => d && VALID.includes(d));
-    console.log('[测试] mainDomain:', this.mainDomain, 'subDomain:', this.subDomain, '→ domains:', domains);
     if (domains.length === 0) {
-      console.log('[测试] 领域为空，返回全部', CARDS.length, '张');
       return [...CARDS];
     }
     const set = new Set(domains);
@@ -3638,7 +3636,6 @@ class GameUI {
       if (!Array.isArray(c.domain) || c.domain.length === 0) return true;
       return c.domain.some(d => set.has(d) || d === '混沌');
     });
-    console.log('[测试] 筛选结果:', result.length, '张, IDs:', result.map(c=>c.id).join(','));
     return result;
   }
 
@@ -3954,12 +3951,8 @@ class GameUI {
   /** HTML转义（防止XSS） */
   _escapeHtml(str) {
     if (!str) return '';
-    if (typeof str !== 'string') {
-      str = String(str);
-    }
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    if (typeof str !== 'string') str = String(str);
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   /** 属性值转义 */

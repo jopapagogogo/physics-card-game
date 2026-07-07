@@ -771,7 +771,7 @@ class GameEngine {
         if (s.card.effect[key] && card.domain.includes(domain)) {
           const bonusVal = s.card.effect[key];
           damage += bonusVal;
-          effects.push({ type: 'summon_bonus', name: s.card.name, value: bonusVal, msg: `${s.card.name}的领域加成+${bonusVal}` });
+          // summon_bonus 效果由 _handleAttack 统一收集（effects 不在 calculateDamage 作用域内）
         }
       }
       // 牛顿(C05) forceDmgBonus 已通过 bonusKeys 统一处理
@@ -1202,6 +1202,19 @@ class GameEngine {
       damage = this._calcRawDamage(card, attackerIdx, oIdx);
     } else {
       damage = this.calculateDamage(card, attackerIdx, oIdx, 0);
+    }
+
+    // 召唤物领域伤害加成效果收集
+    if (attacker.fieldSummons && attacker.fieldSummons.length > 0) {
+      const bonusKeys = {力:'forceDmgBonus',热:'heatDmgBonus',光:'lightDmgBonus',声:'soundDmgBonus',电:'electricDmgBonus'};
+      for (const s of attacker.fieldSummons) {
+        for (const [domain, key] of Object.entries(bonusKeys)) {
+          if (s.card.effect[key] && card.domain.includes(domain)) {
+            effects.push({ type: 'summon_bonus', name: s.card.name, value: s.card.effect[key],
+              msg: `${s.card.name}的领域加成+${s.card.effect[key]}` });
+          }
+        }
+      }
     }
 
     // ========== Combo 效果处理 ==========
@@ -1637,14 +1650,26 @@ class GameEngine {
     // opponentExtraCost/stealSpirit/halveSpiritRecovery 由 _applySpecialEffects 统一处理
     // P2: A11 啸叫 — 叠加声压 + 驻场
     if (card.id === 'A11') {
-      const sc = card.effect.applyOnCast || 1;
-      this.soundPressure[oIdx] += sc;
-      this._addLog(`[啸叫] 叠加 ${sc} 层声压（当前 ${this.soundPressure[oIdx]} 层）。`);
-      // A11 驻场（引爆由 startTurn 统一处理，同名限1规则下打出时声压不可能满3层）
-      const existingA11 = attacker.fieldSupports.find(s => s.card.id === 'A11');
-      if (!existingA11) {
-        attacker.fieldSupports.push({ card, turnsRemaining: 999 });
-        effects.push({ type: 'field_card', name: card.name });
+      const maxStacks = card.effect.maxStacks || 3;
+      const applyOnCast = card.effect.applyOnCast || 1;
+      this.soundPressure[oIdx] = Math.min(maxStacks, this.soundPressure[oIdx] + applyOnCast);
+      this._addLog(`[啸叫] 声压叠加至 ${this.soundPressure[oIdx]} 层。`);
+      // 检查是否引爆
+      if (this.soundPressure[oIdx] >= maxStacks) {
+        const detonateDmg = card.effect.detonateDmg || 60;
+        opponent.hp = Math.max(0, opponent.hp - detonateDmg);
+        this._addLog(`[啸叫引爆] 声压达到 ${maxStacks} 层，造成 ${detonateDmg} 点伤害！`);
+        this.soundPressure[oIdx] = 0;
+        // 不自驻场（已引爆，卡片直接进弃牌堆）
+        opponent.discardPile.push(card);
+        if (this.checkWinCondition()) return;
+      } else {
+        // 未满层数，驻场
+        const existingA11 = attacker.fieldSupports.find(s => s.card.id === 'A11');
+        if (!existingA11) {
+          attacker.fieldSupports.push({ card, turnsRemaining: 999 });
+          effects.push({ type: 'field_card', name: card.name });
+        }
       }
     }
 
@@ -2868,11 +2893,6 @@ class GameEngine {
       if (card.id === 'T02') {
         const hpPercent = player.hp / MAX_HP;
         if (hpPercent >= 0.3) return { can: false, reason: 'HP需低于30%才能打出临界突破。' };
-      }
-    }
-    if (card.id === 'A26' && playerIdx === this.currentPlayer) {
-      if (opponent.burnLayers < 2) {
-        return { can: false, reason: '对方灼烧层数不足2层，无法发动凝固封锁。' };
       }
     }
     if (card.id === 'A26' && opponent.burnLayers < 2) {
