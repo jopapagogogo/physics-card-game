@@ -1,6 +1,6 @@
-# 代码审查报告 — 2026-07-13
+# 代码审查报告 — 2026-07-14
 
-> 全量复查 7 个 JS 文件 + 1 个 CSS 文件。本轮发现 **31 个新问题**（严重 11 / 中等 12 / 轻微 8），其中 quiz.js 问题为首次审查。上次报告的 41 个遗留问题全部仍存在（JS/CSS 自 07-12 以来零变更）。
+> 全量复查 7 个 JS 文件 + 1 个 CSS 文件。本轮确认 **上次 72 项中 2 项已修复**（NE11 图片引用、M14 冗余 combo），**新增 20 个问题**（严重 4 / 中等 7 / 轻微 9）。JS/CSS 自 07-12 以来零变更，所有遗留代码问题仍然存在。
 
 ---
 
@@ -8,275 +8,297 @@
 
 | 文件 | 行数 | 变化 | 状态 |
 |------|------|------|------|
-| js/cards.js | 1287 | ±0 | 已审查（109卡逐卡验证 + EFFECT_TYPE 枚举交叉对比） |
-| js/engine.js | 3042 | ±0 | 已审查（关键路径逐行复查 + 上次遗留问题精确定位） |
-| js/combo_table.js | 291 | ±0 | 已审查（49 combo 全量验证 + 与 engine.js 逻辑交叉检查） |
-| js/ai.js | 1596 | ±0 | 已审查（空值安全 + 未用参数 + 复杂度分析） |
-| js/ui.js | 4298 | ±0 | 已审查（XSS + 内存泄漏 + 事件清理） |
-| js/quiz.js | 6270 | ±0 | 首次审查：1035题抽样 + 领域分类 + 重复检测 |
+| js/cards.js | 1286 | ±0 | 已审查（109卡逐卡 + EFFECT_TYPE 127键验证） |
+| js/engine.js | 3042 | ±0 | 已审查（关键路径复查 + 所有遗留确认） |
+| js/combo_table.js | 291 | ±0 | 已审查（49 combo 逐个验证） |
+| js/ai.js | 1595 | ±0 | 已审查（空值安全 + 未用参数 + 硬编码） |
+| js/ui.js | 4298 | ±0 | 已审查（XSS + 事件泄漏 + 操作符优先级） |
+| js/quiz.js | 6270 | ±0 | 已审查（领域分类 + 重复检测 + 缩写问题扩大化） |
 | js/runes.js | 9 | ±0 | 已审查（导出/引用验证） |
-| css/game_v2.css | 1298 | ±0 | 已审查（兼容性 + 性能 + 可维护性） |
+| css/game_v2.css | 1297 | ±0 | 已审查（兼容性 + 性能 + 无障碍 + 8个无用keyframes确认） |
 
 ---
 
 ## 本次新发现问题
 
-### 🔴 严重（11 项）
+### 🔴 严重（4 项）
 
-#### NE01 — quiz.js：4 道题目领域分类错误
-
-| ID | 行号 | 当前领域 | 应属领域 | 说明 |
-|------|------|------|------|------|
-| Q_F_180 | 1093 | 力 | **电** | 安全用电常识，完全与力学无关 |
-| Q_F_191 | 1159 | 力 | **热** | 物态变化吸放热（熔化/凝固/液化/凝华） |
-| Q_S_068 | 1684 | 声 | **力** | 流体压强与流速关系（伯努利原理） |
-| Q_S_144 | 2140 | 声 | **光** | 角反射器原理，光的反射 |
-
-#### NE02 — quiz.js：4 组完全重复的题目（8题）
-
-| 重复组 | 题1 (行号) | 题2 (行号) | 考点 |
-|--------|-----------|-----------|------|
-| Q_S_042 vs Q_S_153 | 1528 | 2194 | 声现象综合判断 |
-| Q_S_127 vs Q_S_172 | 2038 | 2308 | 声现象正确说法 |
-| Q_S_134 vs Q_S_167 | 2080 | 2278 | 声音特性辨析 |
-| Q_S_060 vs Q_S_169 | 1636 | 2290 | 声源处减弱噪声 |
-
-#### NE03 — cards.js：A11 缺少 `isFieldCard:true`（行160）
+#### NE41 — ui.js：贝尔窥牌 bellSpied.name 未转义（XSS）（行3544-3545）
 
 ```javascript
-effect: {"dmg":25,"applyOnCast":1,"applyPerTurn":1,"maxStacks":3,"sonicDmgPerStack":10,"detonateDmg":60}
-// 缺少 isFieldCard:true，引擎可能无法正确将其识别为驻场卡
+const name = typeof bellSpied === 'object' ? bellSpied.name : bellSpied;
+const h = `<span id="bell-bar" class="bell-clickable" ...>📞窥「${name}」</span>`;
 ```
 
-对比同类型驻场卡 A10（行149）和 A16（行216），均明确包含 `isFieldCard:true`。缺少此字段会导致清场效果无法作用于 A11。
+`bellSpied` 来自 `this.engine?._bellSpiedCard`，`.name` 直接拼入 innerHTML，未经转义。与 NE06 同类问题的新增点位。
 
-#### NE04 — engine.js：`canPlay` 镜面迷宫白送精神力（行2793-2798）
+#### NE42 — ui.js：AI 回合多处存在与 NE07 相同的操作符优先级模式（行3300/3305/3310/3317/3328）
 
 ```javascript
-// canPlay 是纯查询方法，但此处进行了破坏性修改：
-if (this.mirrorMaze[playerIdx] > 0 && Math.random() < mazeProb) {
-  const refund = Math.floor(card.cost * 0.5);
-  player.spirit = Math.min(MAX_SPIRIT, player.spirit + refund);  // 玩家未付费却获得退款！
-  this.mirrorMaze[playerIdx]--;  // 修改游戏状态
+// 5 处 if 语句均使用相同模式：
+if (!this.engine.isGameOver || !this.engine.isGameOver()) { ... }
+```
+
+在 `if` 语句中短路求值使结果恰好正确，但这是不可靠的巧合。行3317 使用的是 `&&` 变体：
+```javascript
+if (this.engine.isGameOver && this.engine.isGameOver()) { ... }
+```
+
+NE07（while 循环）与这 5 处 if 语句应统一修复。建议提取 `_isGameActive()` 方法。
+
+#### NE43 — engine.js：processDOT 不检查胜利条件（行2427-2452）
+
+```javascript
+processDOT(playerIdx) {
+    for (let i = 0; i < player.dotEffects.length; i++) {
+        // ...
+        player.hp = Math.max(0, player.hp - dmg);  // 可能归零
+        dot.turnsRemaining--;
+        // 未调用 checkWinCondition()
+    }
 }
 ```
 
-玩家从未支付费用（费用扣除在 canPlay 返回 true 后才执行），却获得精神力"退款"。UI 多次调用 canPlay 时可反复刷精神力。
+多个 DOT 连续触发时从不检查胜利条件。对比 `processBurn`（行2384）和 `processParalysis`（行2408）均有检查。HP 在第一个 DOT 归零后，后续 DOT 仍继续计算。
 
-#### NE05 — engine.js：N18 深入确认 — `checkCombo` 完全不检查对手场上卡牌（行2532-2581）
-
-`checkCombo` 仅检查：①本回合已出卡牌间 combo、②己方召唤物。**完全未遍历对手的 `fieldSupports` 或 `fieldSummons`**。导致所有 vs 类型 combo（如 A32vsS11"声波推力vs隔音屏障"）永不能通过对手场上卡牌触发，只能在双方恰好都本回合打出该卡时才触发。
-
-#### NE06 — ui.js：XSS 漏洞 — 窥牌弹窗 card.name 未转义（行3370）
-
-```javascript
-li.innerHTML = '...' + card.name + '...';  // card.name 来自 engine._pendingScry，未经过 _escapeHtml
-```
-
-以及凸透成像弹窗（行3409）：`lastCard.card?.name` 同样未转义。
-
-#### NE07 — ui.js：AI 回合循环操作符优先级错误（行3227）
-
-```javascript
-while (!this.engine.isGameOver || !this.engine.isGameOver() && !turnTimedOut && aiCardCount < 50)
-```
-
-由于 `&&` 优先级高于 `||`，`!this.engine.isGameOver`（函数引用，非 null → 始终 false）无实际作用。虽恰好能工作（靠右侧条件控制），但语义完全错误且极易被误修改。
-
-#### NE08 — ui.js：弃牌弹窗事件监听器泄漏（行3458-3490）
-
-`_discardClickHandler` 绑定在 `#self-hand` 上的捕获阶段监听器，仅在用户点击手牌后才移除。若用户在弃牌阶段通过其他方式切换状态，监听器将永久残留。
-
-#### NE09 — ui.js：卡牌详情弹窗 document 级监听器泄漏（行4231-4234）
-
-```javascript
-this._zoomOutsideHandler = closeOnOutsideClick;
-setTimeout(() => { document.addEventListener('click', closeOnOutsideClick, true); }, 100);
-```
-
-若弹窗被 DOM 操作直接移除而未调用 `_closeCardDetail`，该 document 级捕获阶段监听器将永久残留。
-
-#### NE10 — game_v2.css：完全缺少 `prefers-reduced-motion` 支持（N35 再确认）
-
-文件中定义了 **40+ 个 @keyframes** 规则和大量 animation 属性，但全文无 `@media (prefers-reduced-motion: reduce)` 降级。对前庭障碍/动画敏感用户不友好。
-
-#### NE11 — quiz.js：15 道题目引用不存在的图片
-
-| 题目ID | 行号 | 题干中的图片引用 |
-|--------|------|-----------------|
-| Q_F_174/181/196 | 1057/1099/1189 | "如图所示的装置" |
-| Q_S_039/093/149/187 | 1510/1834/2170/2398 | "下列四幅图" |
-| Q_L_121/128/129/175/179/184/185/196 | 多处 | "如图所示" |
-
-纯文本答题系统中无法显示图片，严重影响答题正确性。
-
----
-
-### 🟡 中等（12 项）
-
-#### NE12 — cards.js：9 个 effect 键名未在 EFFECT_TYPE 枚举中声明
-
-| 未声明键 | 所在卡牌 | 行号 |
-|----------|---------|------|
-| `sacrificeElectricSupport` | S30 | 967 |
-| `soundSupportExtend` | C12 | 1222 |
-| `chainPerSupport` | A28 | 393 |
-| `destroyElectricSupport` | A49 | 448 |
-| `soundBonus` | S09 | 734 |
-| `allSoundBonus` | S09 | 734 |
-| `extendTurns` | S09 | 734 |
-| `restoreHp` | S21 | 866 |
-| `copyEffect` | S21 | 866 |
-
-引擎若依赖 EFFECT_CATEGORY 做校验，上述效果将静默失败。
-
-#### NE13 — cards.js：13 张卡牌 ID 排列顺序混乱
-
-A45(186)、A46(263)、A55(274)、A47(352)、A54(363)、A44(418)、A48(429)、A49(440)、A43(495)、A52(561)、A50(594)、A51(616)、A53(627) 均未按 ID 顺序排列。建议统一排序规则。
-
-#### NE14 — cards.js：S34 领域描述矛盾（行1006-1007）
-
-```javascript
-domain: ["混沌"],
-description: "...通用卡，不受任何领域加成。"
-```
-
-既然"不受任何领域加成"，为何分配混沌领域？若混沌卡享受混沌加成则与描述矛盾。
-
-#### NE15 — combo_table.js：S09降→A10 extend_dot_turns 导致 A10 负伤害（关联N38）
-
-combo 延长 A10 DOT 回合使 `turnsRemaining > initialTurns`，导致伤害公式 `(initialTurns - turnsRemaining) * 10` 为负值，实际产生**回血**而非伤害。
-
-#### NE16 — combo_table.js：注释 "17种" 实为 "19种"（M19 再确认）
-
-第7行注释写"实际使用 17 种"，但逐行计数为 19 种。`modify_height` 和 `refund_cost` 两型均实际使用。
-
-#### NE17 — ai.js：`fieldSupports` 中 `s.card` 缺少空值保护（3处：行1220/1310/1451）
-
-```javascript
-self.fieldSupports.filter(s => s.card.domain.includes('电'))  // s.card 可能为 null
-```
-
-同文件第1257/1286行已正确使用 `s.card?.domain`，但上述三处遗漏。
-
-#### NE18 — ai.js：`_handleDiscard` 硬编码 `maxSize = 7`（行1534）
-
-文件第24行已定义 `const MAX_HAND_SIZE = 7`，此处应使用常量而非魔法数字。
-
-#### NE19 — ai.js：6 个未使用参数（M20 再确认）
-
-`comboIndex`（DefensePlanner × 2）、`gameState`（getBestAttack/getBestTarget/_pickBestSupport/evaluateCardValue × 4）。若为预留接口应加 `_` 前缀或注释。
-
-#### NE20 — ui.js：`computeStats` 依赖 `.call(self)` 绑定 this（行498-504）
-
-函数内部使用 `this._cardHasDomain`，但 this 绑定依赖调用方显式使用 `.call(self)`。若直接调用则 TypeError。
-
-#### NE21 — ui.js：战斗界面 hover 监听器在屏幕切换后未移除（行2411-2483）
-
-绑定在 `this.container` 上的 mouseover/mouseout 监听器在返回开始界面后仍存在，在不必要的场景下触发。
-
-#### NE22 — ui.js：`color-mix()` 无 CSS fallback（行209，N5 再确认）
+#### NE44 — game_v2.css：完全缺少 `:focus-visible` 键盘焦点样式（全文）
 
 ```css
-background: color-mix(in srgb, var(--dc) 15%, rgba(0,0,0,.3));
+.btn { outline: none; }  /* 行212：彻底移除焦点环 */
 ```
 
-Safari < 16.2 / Chrome < 111 中 `color-mix()` 不生效，选中按钮无视觉变化。
-
-#### NE23 — game_v2.css：4 个未使用 @keyframes（N29 再确认）+ 额外发现
-
-`electricShock`(524)、`lightFlash`(525-529)、`turnDim`(725)、`rarity-rainbow`(1139) 未被任何 animation-name 引用。额外发现：`cardFlyInDown`(545)、`cardFlyInUp`(550) 在 CSS 中也无引用（可能在 JS 中通过脚本使用）。
+全文无任何 `:focus-visible` 或 `:focus` 规则。`.btn` 使用 `outline:none` 移除了焦点视觉线索，键盘导航用户无法判断当前聚焦元素。应改为：
+```css
+.btn:focus { outline: none; }
+.btn:focus-visible { outline: 2px solid var(--frc); outline-offset: 2px; }
+```
 
 ---
 
-### 🟢 轻微（8 项）
+### 🟡 中等（7 项）
 
-#### NE24 — cards.js：A26/S23/S25 存在冗余 `condition` 字段
-
-condition 为字符串描述，effect 中已有 `consumeBurn` 等对应字段，属于数据冗余。
-
-#### NE25 — cards.js：EFFECT_TYPE 注释 "共 123 键" 实际 127 键
-
-第6行注释偏差 +4 键（10大类分别计数后）。
-
-#### NE26 — quiz.js：约 13 题高度近似（同考点不同表述）
-
-雷声隆隆（3题）、地震自救（2题）、飞机投放物资（2题）、噪声监测仪（3题）等考点重复出现。
-
-#### NE27 — quiz.js：电领域约 80 题选项过度缩写
-
-如 "与测串""与测并""两压" 等缩写，应展开为"与待测电路串联""两端电压"。
-
-#### NE28 — ui.js：`sleep(ms)` 方法未被使用（行3947-3949）
-
-文件内无任何调用点，AI 使用的是 `this.ai._sleep()`。
-
-#### NE29 — ui.js：`emojiMap`/`emojiMap2` 声明但未使用（行3972/4188）
-
-两处均声明了局部变量 `emojiMap` 但从未被引用（实际使用 `DOMAIN_RUNES`）。
-
-#### NE30 — ui.js：`console.log` 残留（行103，N16 再确认）
+#### NE45 — engine.js：`_turnAllSoundBonus` 对所有领域攻击生效，而非仅声系（行968）
 
 ```javascript
-console.log(`[init] 插画映射: ${Object.keys(this.artMap).length} 张`);
+damage += this._turnAllSoundBonus[attackerIdx];  // 对力/热/电/光系攻击也加伤
 ```
 
-文件内唯一 console.log，其余使用 console.warn/console.error。
+注释和效果描述为"全体声波+5"，但代码对所有领域的攻击都加伤。若设计意图仅限声系，应添加 `card.domain.includes('声')` 条件。
 
-#### NE31 — game_v2.css：`transition: all` 性能隐患（3处：行211/357/1263）
+#### NE46 — engine.js：A11 两处引爆逻辑不一致（行344-363 vs 行1652-1673）
 
-`transition: all` 让浏览器检查所有可动画属性变化，应限制为 `transform, opacity, box-shadow` 等具体属性。
+| 调用路径 | 弃牌堆 | 驻场移除 |
+|----------|--------|----------|
+| `startTurn` 引爆（344行） | `player.discardPile` ✅ | 从 fieldSupports 移除 ✅ |
+| `_handleAttack` 引爆（1652行） | `opponent.discardPile` ❌ | 不处理（N23/N24关联） |
+
+两处引爆代码行为不一致，且 `_handleAttack` 路径存在弃牌堆归属错误和裸return崩溃。
+
+#### NE47 — engine.js：`clearDebuff` 一次调用清除 3 种 debuff 但日志称"1种"（行2113-2118）
+
+```javascript
+if (eff.clearDebuff && card.id !== 'S07') {
+    player.burnLayers = Math.max(0, player.burnLayers - 1);
+    if (player.paralysis > 0) player.paralysis = Math.max(0, player.paralysis - 1);
+    if (player.dotEffects.length > 0) player.dotEffects.shift();
+    effects.push({ type: 'clear_debuff', msg: '清除了1种负面状态' });  // 实际是3种
+}
+```
+
+同时清除灼烧-1、麻痹-1、移除1个DOT，日志却写"1种"。是否应各减一种或只减一种需设计决策。
+
+#### NE48 — quiz.js：新增 2 道领域分类错误
+
+| ID | 当前领域 | 应属领域 | 说明 |
+|------|------|------|------|
+| Q_E_114 | 电 | **热** | 内能/热量概念题，与电学无关 |
+| Q_C_015 | 混沌 | **力** | 力的作用效果，不应归入混沌 |
+
+加上 NE01 的 4 道，quiz.js 领域分类错误累计 **6 道**。
+
+#### NE49 — quiz.js：新增 4 组完全重复题目（声领域集中爆发）
+
+| 重复组 | 考点 | 严重度 |
+|--------|------|:---:|
+| Q_S_021 vs Q_S_178 | 声音传播条件 | 🟡 |
+| Q_S_033 vs Q_S_146 | 音调与频率 | 🟡 |
+| Q_S_091 vs Q_S_138 | 噪声控制 | 🟡 |
+| Q_S_098 vs Q_S_175 | 声速与介质 | 🟡 |
+
+加上 NE02 的 4 组（其中 1 组变为近似），quiz.js 累计 **7 组完全重复题**。
+
+#### NE50 — quiz.js：电/热领域约 390 题选项过度缩写（较 NE27 范围急剧扩大）
+
+NE27 发现电领域约 80 题缩写。本轮复查确认问题更加严重：
+
+| 领域 | 缩写率 | 示例 |
+|------|:---:|------|
+| 电 (Q_E_*) | ~97%（194/200题） | "与测串""两压""笔不触"→应为"与待测电路串联""两端电压""试电笔不可触碰" |
+| 热 (Q_H_*) | ~98.5%（197/200题） | "做功改？""冰""路晒"→应为"做功改变内能""冰熔化""路面暴晒" |
+
+这近 400 道题对学生来说几乎无法正常阅读。建议优先重写这些题目。
+
+#### NE51 — game_v2.css：8 个未使用 @keyframes 确认 + 持续动画性能消耗（行397/401/926/944/957/968/980/985）
+
+NE23 发现 4 个，本轮确认实际为 **8 个**：
+
+| @keyframes | 行号 | 状态 |
+|------------|------|------|
+| electricShock | 524 | 无引用 |
+| lightFlash | 525-529 | 无引用 |
+| turnDim | 725 | 空规则 |
+| rarity-rainbow | 1139 | 无引用 |
+| cardPlay | 471-475 | 无引用 |
+| cardFlyInDown | 545-549 | 无引用 |
+| cardFlyInUp | 550-554 | 无引用 |
+
+此外 9 个 `infinite` 持续动画（burnPulse/summonGlow/targetFlash/borderPulse/floatIndicator/pulseBtn/cardReady 等）始终运行，建议对非首屏元素使用 `animation-play-state: paused`。
+
+---
+
+### 🟢 轻微（9 项）
+
+#### NE52 — cards.js：A27 与 S31 同名"高压击穿"（行384/955）
+
+两张不同卡使用完全相同的 name 和 formula，UI 展示时无法区分。建议 S31 改名如"高压击穿·辅助"或"绝缘破坏"。
+
+#### NE53 — cards.js：runes.js 混沌符文为 SVG，其余 5 个为 PNG（格式不统一）（行8）
+
+混沌使用 `data:image/svg+xml;base64`，其余使用 `data:image/png;base64`。渲染时需额外判断 MIME 类型，建议统一为 PNG。
+
+#### NE54 — combo_table.js：S09升/S09降/vs 非标准键值格式未在注释说明（行4-5）
+
+```javascript
+// 注释仅描述"此前打出的卡ID→刚才打出的卡ID"
+// 实际存在："S09升→A09"（卡ID+后缀）、"A32vsS11"（vs分隔符）
+```
+
+注释未覆盖这两种特殊格式。
+
+#### NE55 — combo_table.js：召唤 combo 区域排列无序（行246-281）
+
+排列为 C05→C08→C01→C03→C06→C12→C09，无明确排序逻辑（非按ID、非按领域）。与前面按领域分组的注释风格不一致。
+
+#### NE56 — ui.js：窥牌弹窗 #scry-confirm 按钮重复绑定 click 事件（行3384/3398）
+
+同一个按钮被绑定两次 click 事件，第二个监听器的 `clearTimeout(timeout)` 逻辑应合并到第一个中。
+
+#### NE57 — ui.js：弃牌弹窗无超时兜底关闭（行3458-3491）
+
+`_showDiscardChoice()` 仅当用户点击手牌时移除监听器，无定时器自动关闭。与 `showDiscardScreen()`（有12秒倒计时）形成对比。建议添加 15 秒超时保护。
+
+#### NE58 — engine.js：`_bellSpiedCard` 和 `_scryHandled` 属性问题（行368/388）
+
+- `_bellSpiedCard`：未在构造函数声明，运行时隐式创建
+- `_scryHandled`：仅 startTurn 写入，全文件无读取（死代码）
+
+#### NE59 — engine.js：S10 共振蓄能出牌顺序敏感（行2277-2286）
+
+```javascript
+if (card.id === 'S10' && eff.soundBonusSpirit) {
+    const soundPlayed = this.cardsThisTurn.some(cid => { ... });
+    if (soundPlayed) { player.spirit += eff.soundBonusSpirit; }
+}
+```
+
+若先出 S10 再出声系攻击，bonus 不触发。注释未说明此顺序约束。
+
+#### NE60 — engine.js：领域卡过期未调用 `_releaseOnFieldClear`（行2459-2465）
+
+辅助卡过期会触发 `_releaseOnFieldClear`，但领域卡过期不会。当前领域卡无释放效果，属预留缺陷。
 
 ---
 
 ## 上次问题跟踪
 
-### N1-N40 问题状态（上次报告全部遗留，本轮再验证）
+### 已修复（2 项）✨
 
-| 编号 | 严重度 | 本轮验证结果 | 位置确认 |
+| 编号 | 内容 | 说明 |
+|:---:|------|------|
+| **NE11** | quiz.js 15 道题目引用不存在的图片 | ✅ 已修复 |
+| **M14** | S17→A16 combo 冗余 | ✅ 已移除 |
+
+### 仍遗留（70 项）
+
+#### N1-N40 问题状态
+
+| 编号 | 严重度 | 本轮验证 | 位置确认 |
 |:---:|:---:|------|------|
-| N5 | 🟢 | ❌ 仍遗留 | ui.js:209 color-mix 无 fallback（NE22 再确认） |
-| N6 | 🟢 | ❌ 仍遗留 | game_v2.css:773 横屏断点依赖 JS 注入样式 |
-| N14 | 🟡 | ❌ 仍遗留 | engine.js:315/581/1605 `_inertiaNextTurn` 跨回合失效 |
+| N5 | 🟢 | ❌ 仍遗留 | ui.js:209 color-mix 无 fallback（NE22） |
+| N6 | 🟡 | ❌ 仍遗留 | game_v2.css:773 横屏断点依赖 JS 注入 |
+| N14 | 🟡 | ❌ 仍遗留 | engine.js:315/581/1605 _inertiaNextTurn 被 endTurn 覆盖 |
 | N15 | 🟢 | ❌ 仍遗留 | engine.js:769/1209 bonusKeys 重复定义 |
-| N16 | 🟢 | ❌ 仍遗留 | ui.js:103 console.log（NE30 再确认） |
-| N17 | 🟡 | ❌ 仍遗留 | engine.js:1084/1989 重复上限/同名检查 |
-| N18 | 🔴 | ❌ 仍遗留 | engine.js:2532-2581 checkCombo 缺对手场上检查（NE05 深入确认） |
-| N22 | 🔴 | ❌ 仍遗留 | engine.js:2736 costReduction key 永不匹配 |
-| N23 | 🔴 | ❌ 仍遗留 | engine.js:1664 弃牌堆归属错误 |
-| N24 | 🔴 | ❌ 仍遗留 | engine.js:1665 空 return 导致 TypeError |
-| N25 | 🟡 | ❌ 仍遗留 | `_handleSummon` combo 分流 default 占位 |
+| N16 | 🟢 | ❌ 仍遗留 | ui.js:103 console.log（NE30） |
+| N17 | 🟡 | ❌ 仍遗留 | engine.js:1084/1989 召唤物上限/同名双重检查 |
+| N18 | 🔴 | ❌ 仍遗留 | engine.js:2532-2581 checkCombo 缺对手场上检查（NE05） |
+| N22 | 🔴 | ❌ 仍遗留 | engine.js:2736 costReduction key 永不匹配（C06/C07） |
+| N23 | 🔴 | ❌ 仍遗留 | engine.js:1664 A11 弃牌堆归属错误 |
+| N24 | 🔴 | ❌ 仍遗留 | engine.js:1665 A11 裸 return 致 TypeError |
+| N25 | 🟡 | ❌ 仍遗留 | engine.js:2016-2018 _handleSummon combo default 占位 |
 | N26 | 🟡 | ❌ 仍遗留 | C09/C14 召唤物领域加成在 effects 中缺失 |
 | N27 | 🟡 | ❌ 仍遗留 | A16 set_return_to_hand 有 case 无 combo 使用 |
-| N28 | 🟡 | ❌ 仍遗留 | `_releaseOnFieldClear` 驻场移除缺少注释 |
-| N29 | 🟡 | ❌ 仍遗留 | game_v2.css 4 个无用 @keyframes（NE23 再确认，额外发现 +2） |
-| N30 | 🟡 | ❌ 仍遗留 | game_v2.css:858 backdrop-filter 无 -webkit- 前缀和 fallback |
+| N28 | 🟡 | ❌ 仍遗留 | _releaseOnFieldClear 驻场移除缺少注释 |
+| N29 | 🟡 | ❌ 仍遗留 | game_v2.css 8 个无用 @keyframes（NE23+NE51） |
+| N30 | 🟡 | ❌ 仍遗留 | game_v2.css:858 backdrop-filter 无 -webkit- 前缀 |
 | N31 | 🟢 | ❌ 仍遗留 | calculateDamage comboBonus 参数死代码 |
-| N32 | 🟢 | ❌ 仍遗留 | `_isFirstAtkThisTurn` 注释误导 |
+| N32 | 🟢 | ❌ 仍遗留 | _isFirstAtkThisTurn 注释误导 |
 | N33 | 🟢 | ❌ 仍遗留 | processDOT A10 递增公式边界 |
 | N34 | 🟢 | ❌ 仍遗留 | customDeckName 未声明类属性 |
-| N35 | 🟢 | ❌ 仍遗留 | game_v2.css 缺少 prefers-reduced-motion（NE10 升级为严重） |
-| N36 | 🟢 | ❌ 仍遗留 | !important 15->17 处，约 10 处可避免 |
-| N37 | 🟢 | ❌ 仍遗留 | 硬编码颜色 60+ 处 |
-| N38 | 🔴 | ❌ 仍遗留 | A10 DOT 递增公式（NE15 combo 延长回合后更严重） |
+| N35 | 🔴 | ❌ 仍遗留 | game_v2.css 缺少 prefers-reduced-motion（NE10） |
+| N36 | 🟡 | ❌ 仍遗留 | !important 17 处 |
+| N37 | 🟡 | ❌ 仍遗留 | 硬编码颜色 60+ 处 |
+| N38 | 🔴 | ❌ 仍遗留 | A10 DOT 递增公式（NE15 combo 延长后更严重） |
 | N39 | 🟡 | ❌ 仍遗留 | C06/C07 召唤物减费（与 N22 同源） |
 | N40 | 🟡 | ❌ 仍遗留 | A11 try/catch 掩盖问题 |
 
-### M9-M23 中等历史遗留
+#### M9-M23 中等历史遗留
 
 | 编号 | 本轮验证 | 说明 |
 |:---:|:---:|------|
 | M9 | ❌ 仍遗留 | S08 extraCost Math.max 覆盖而非累加 |
-| M11 | ❌ 仍遗留 | A11 啸叫引爆逻辑（见 N23/N24/N40） |
-| M13 | ❌ 仍遗留 | 镜面迷宫概率索引方向 |
-| M14 | ❌ 仍遗留 | S17→A16 combo 冗余 |
+| M11 | ❌ 仍遗留 | A11 啸叫引爆逻辑（两处路径不一致，NE46 新确认） |
+| M13 | ❌ 仍遗留 | 镜面迷宫概率索引方向（功能性OK，但模式可改进） |
 | M15 | ❌ 仍遗留 | S07→A14 / C10→A14 语义不明 |
 | M16 | ❌ 仍遗留 | A25→A26 msg 表述误导 |
-| M17 | ❌ 仍遗留 | S01→A05 perHeight 语义模糊 |
-| M19 | ❌ 仍遗留 | combo_table.js 注释 17→19 种（NE16 再确认） |
-| M20 | ❌ 仍遗留 | ai.js 6 个未使用参数（NE19 再确认） |
+| M17 | ❌ 仍遗留 | S01→A05 perHeight vs heightBonus 字段命名不一致 |
+| M19 | ❌ 仍遗留 | combo_table.js 注释"17种"实际 19 种（NE16） |
 
-### L1-L20 轻微历史遗留
+#### 本次审查的 NE 系列遗留
+
+| 编号 | 本轮验证 | 说明 |
+|:---:|:---:|------|
+| NE01 | ❌ 仍遗留 | quiz.js 4 道领域分类错误 + 新发现 2 道（NE48） |
+| NE02 | ⚠️ 部分变化 | 4 组重复：3 组仍完全重复，1 组变为近似 + 新发现 4 组（NE49） |
+| NE03 | ❌ 仍遗留 | A11 缺少 isFieldCard:true |
+| NE04 | ❌ 仍遗留 | canPlay 镜面迷宫白送精神力 |
+| NE05 | ❌ 仍遗留 | checkCombo 不检查对手场上卡牌 |
+| NE06 | ❌ 仍遗留 | 窥牌/凸透成像 XSS + 新发现贝尔窥牌 XSS（NE41） |
+| NE07 | ❌ 仍遗留 | AI 回合循环操作符优先级 + 新发现 5 处同类问题（NE42） |
+| NE08 | ❌ 仍遗留 | 弃牌弹窗事件监听器泄漏 + 无超时兜底（NE57） |
+| NE09 | ❌ 仍遗留 | 卡牌详情弹窗 document 级监听器泄漏 |
+| NE10 | ❌ 仍遗留 | 缺少 prefers-reduced-motion（N35） |
+| NE12 | ❌ 仍遗留 | 9 个 effect 键名未在 EFFECT_TYPE 声明 |
+| NE13 | ❌ 仍遗留 | 13 张卡牌 ID 排列顺序混乱 |
+| NE14 | ❌ 仍遗留 | S34 领域描述矛盾 |
+| NE15 | ❌ 仍遗留 | S09 降→A10 extend_dot_turns 导致伤害越界 |
+| NE16 | ❌ 仍遗留 | combo 注释"17种"实际 19 种（M19） |
+| NE17 | ❌ 仍遗留 | ai.js fieldSupports s.card 空值保护缺失 |
+| NE18 | ❌ 仍遗留 | ai.js _handleDiscard 硬编码 maxSize=7 |
+| NE19 | ❌ 仍遗留 | ai.js 6 个未使用参数 |
+| NE20 | ❌ 仍遗留 | computeStats 依赖 .call(self) 绑定 this |
+| NE21 | ❌ 仍遗留 | 战斗界面 hover 监听器在屏幕切换后未移除 |
+| NE22 | ❌ 仍遗留 | color-mix() 无 CSS fallback（N5） |
+| NE23 | ❌ 仍遗留 | 无用 @keyframes（从 4 个扩大到 8 个，NE51） |
+| NE24 | ❌ 仍遗留 | A26/S23/S25 冗余 condition 字段 |
+| NE25 | ❌ 仍遗留 | EFFECT_TYPE 注释"共 123 键"实际 127 键 |
+| NE26 | ❌ 仍遗留 | quiz.js 约 13 题高度近似（扩大至 44 组） |
+| NE27 | ❌ 仍遗留 | 电领域约 80 题过度缩写（扩大至 ~390 题，NE50） |
+| NE28 | ❌ 仍遗留 | ui.js sleep(ms) 未被使用 |
+| NE29 | ❌ 仍遗留 | emojiMap/emojiMap2 声明但未使用 |
+| NE30 | ❌ 仍遗留 | console.log 残留（N16） |
+| NE31 | ❌ 仍遗留 | transition:all 性能隐患（从 3 处扩大到 9 处） |
+
+#### L1-L20 轻微历史遗留
 
 | 编号 | 本轮验证 | 说明 |
 |:---:|:---:|------|
@@ -288,14 +310,14 @@ console.log(`[init] 插画映射: ${Object.keys(this.artMap).length} 张`);
 
 ## 统计总览
 
-| 严重度 | 上次遗留 | 本轮新发现 | 当前合计 |
-|:---:|:---:|:---:|:---:|
-| 🔴 严重 | 4 (N22/N23/N24/N38) | 11 | **15** |
-| 🟡 中等 | 18 | 12 | **30** |
-| 🟢 轻微 | 19 | 8 | **27** |
-| **合计** | **41** | **31** | **72** |
+| 严重度 | 07-13 遗留 | 07-14 已修复 | 07-14 仍遗留 | 本轮新发现 | 当日合计 |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 🔴 严重 | 15 | 1 (NE11) | 14 | 4 | **18** |
+| 🟡 中等 | 30 | 1 (M14) | 29 | 7 | **36** |
+| 🟢 轻微 | 27 | 0 | 27 | 9 | **36** |
+| **合计** | **72** | **2** | **70** | **20** | **90** |
 
-> 注：07-10 前已修复 10 项，07-10 至今 JS/CSS 零变更，上次 41 项全部继续遗留。本轮新增 31 项，其中 quiz.js 首次审查贡献 7 项（严重 4 + 中等 0 + 轻微 3）。
+> 注：JS/CSS 自 07-12 以来连续零变更。两项修复（NE11 图片引用删除、M14 冗余 combo 移除）发生在更早的 commit 中，上次审查时未正确识别。quiz.js 问题范围扩大化（重复题 4→7 组，近似题 13→44 组，缩写题 80→390 道）。
 
 ---
 
@@ -305,15 +327,28 @@ console.log(`[init] 插画映射: ${Object.keys(this.artMap).length} 张`);
 |:---:|:---:|------|------|------|
 | **P0** | N23+N24+N40 | A11 啸叫引爆三合一（弃牌堆归属+空return崩溃+try/catch掩盖） | engine.js | 游戏崩溃 |
 | **P0** | NE04 | canPlay 镜面迷宫白送精神力 | engine.js | 游戏平衡破坏 |
-| **P0** | NE06 | 窥牌/凸透成像弹窗 XSS 风险 | ui.js | 安全 |
-| **P0** | NE02 | quiz.js 4 组完全重复题目 | quiz.js | 题库质量 |
-| **P0** | NE01 | quiz.js 4 题领域分类错误 | quiz.js | 题库质量 |
-| **P1** | N22+N39 | C06/C07 减费从未生效 | engine.js | 卡牌效果缺失 |
-| **P1** | NE03 | A11 缺少 isFieldCard:true | cards.js | 驻场识别失效 |
-| **P1** | NE05 | checkCombo 不检查对手场上卡牌 | engine.js | vs combo 失效 |
-| **P1** | NE09+NE08 | ui.js 事件监听器泄漏（弃牌+卡牌详情） | ui.js | 内存泄漏 |
-| **P2** | NE10 | 缺少 prefers-reduced-motion 支持 | game_v2.css | 无障碍 |
+| **P0** | NE06+NE41 | 窥牌/凸透成像/贝尔窥牌 共 3 处 XSS | ui.js | 安全 |
+| **P0** | NE50 | 电/热领域约 390 题过度缩写，学生无法阅读 | quiz.js | 题库可用性 |
+| **P0** | NE44 | 完全缺少 :focus-visible 键盘焦点样式 | game_v2.css | 无障碍 |
+| **P1** | N22+N39 | C06/C07 减费从未生效（costReduction key 不匹配） | engine.js | 卡牌效果缺失 |
+| **P1** | NE03 | A11 缺少 isFieldCard:true → 清场免疫 | cards.js | 驻场识别失效 |
+| **P1** | N38+NE15 | A10 DOT 递增公式被 combo 延长回合破坏 | engine.js + combo_table.js | 伤害计算错误 |
+| **P1** | NE07+NE42 | AI 操作符优先级（while×1 + if×5） | ui.js | AI 逻辑风险 |
+| **P1** | NE10 | 缺少 prefers-reduced-motion 支持 | game_v2.css | 无障碍 |
 
 ---
 
-> 📝 报告生成时间：2026-07-13 23:55 GMT+8 | 审查方式：7 个 Agent 并行审查 8 个文件 + 交叉验证历史遗留问题 + quiz.js 首次审查 | JS/CSS 自 07-12 以来零变更 | 上次 41 项问题全部遗留 + 本轮新增 31 项
+## 📊 跨版本趋势
+
+| 日期 | 严重 | 中等 | 轻微 | 合计 | JS/CSS变更 | 已修复(累计) |
+|------|:---:|:---:|:---:|:---:|:---:|:---:|
+| 07-11 | 5 | 12 | 12 | 29 | 有 | — |
+| 07-12 | 10 | 15 | 16 | 41 | 有 | 10 |
+| 07-13 | 15 | 30 | 27 | 72 | 零变更 | 10 |
+| **07-14** | **18** | **36** | **36** | **90** | **零变更** | **12** |
+
+> 问题总数上升主要因为 quiz.js 缩写问题的范围扩大化（从 80 题重评估为 390 题），以及 CSS 审查深度的提升（从 4 个无用 keyframes 确认为 8 个，transition:all 从 3 处确认为 9 处）。
+
+---
+
+> 📝 报告生成时间：2026-07-14 23:55 GMT+8 | 审查方式：7 个 Agent 并行审查 8 个文件 + 交叉验证历史遗留 + quiz.js 深度复查 | JS/CSS 自 07-12 以来连续零变更 | 上次 72 项中 2 项已修复（NE11/M14）+ 本轮新增 20 项
