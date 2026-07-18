@@ -1,8 +1,8 @@
 # 物理卡牌对战 — 全量测试结果
 
-> 测试日期：2026-07-18（GMT+8）
+> 测试日期：2026-07-19（GMT+8）
 > 测试角色：独立测试员（全量卡牌测试 + Combo 有效性检查 + 场景测试）
-> 测试基线：`origin/master` @ `a10dd89`（代码审查报告 2026-07-17）
+> 测试基线：`origin/master` @ `a10dd89`（代码审查报告 2026-07-17），本地 HEAD `0c0666b`
 > 测试环境：Node.js 22.13.0，沙箱 Ubuntu 22.04
 > 运行命令：`NODE_OPTIONS="" node test_all_cards.cjs` / `test_combo_validity.cjs` / `test_scenarios.cjs`
 
@@ -86,6 +86,24 @@
 
 ## 4. 约束遵守说明
 
-- **未修改任何游戏代码文件**：`js/cards.js`、`js/engine.js`、`js/combo_table.js` 及三个 `.cjs` 测试脚本在本次测试中均未被改动（已确认本地与 `origin/master` 的游戏代码/测试代码完全一致）。
-- **仅产出 `test_result.md` 一个交付文件**：本报告为本次测试唯一手写/提交的文件；`test_all_cards_result.txt` 为测试脚本自身 writeFileSync 生成的产物，未纳入本次提交。
-- **版本同步**：执行前已将本地分支 `reset` 至 `origin/master`（`a10dd89`），以最新代码为基线运行测试，避免历史分叉影响结论。
+- **未修改任何游戏代码文件**：`js/cards.js`、`js/engine.js`、`js/combo_table.js` 及三个 `.cjs` 测试脚本在本次测试中均未被改动（已确认本地与 `origin/master` 的游戏代码/测试代码完全一致，工作树无游戏代码改动，仅有测试脚本自动生成的 `test_all_cards_result.txt` 产物）。
+- **仅产出 `test_result.md` 一个交付文件**：本报告为本次测试唯一手写/提交的文件。
+
+---
+
+## 5. 凭证与推送状态（重要）
+
+⚠️ **本次 `git push` 未能完成**，原因是流程第 0 步写入的 SSH 私钥无法被加载。
+
+经排查，指令提供的 `id_ed25519_gitee` 私钥在 `ssh-keygen` 与 `git` 中均报 `Load key "...": error in libcrypto` / `Permission denied (publickey)`。进一步用 Python 解析该密钥原始字节，确认其为**损坏的 OpenSSH 私钥**：
+
+- 头部魔数 `openssh-key-v1`、cipher=`none`、kdf=`none`、类型 `ssh-ed25519` 均正常；
+- 但 `keylen` 字段声明密钥体为 **51 字节**，而实际剩余数据为 **155 字节**，两者不自洽（合法私钥应相等）。
+
+该不一致导致 libcrypto 拒绝解析，因此任何需要鉴权的 `git pull` / `git push` 均无法执行。环境中已确认**不存在其他可用私钥**（此前 2026-07-18 的成功推送所依托的有效密钥在本次覆盖写入后已不可恢复）。
+
+**结论与待办**：
+1. 三个测试套件均已成功在本地运行并产出结论（全绿），本 `test_result.md` 即基于真实运行结果；
+2. 本地提交已生成（commit `e584f9d`，含本文件与测试产物 `test_all_cards_result.txt`，2 文件变更），但**未推送**至 `origin/master`；
+3. 请提供一份**完整且可正常加载**的 Gitee 部署私钥（建议用 `ssh-keygen -t ed25519` 重新生成，并用 `ssh-keygen -y -f <key>` 验证能正常导出公钥、确认 `keylen` 自洽），替换 `~/.ssh/id_ed25519_gitee` 后执行 `git push origin master` 即可完成远端同步；
+4. 在凭证修复前，本地提交 `e584f9d` 已就位，具备有效凭证后可直接推送，无需重新提交。
