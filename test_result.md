@@ -1,9 +1,10 @@
 # 物理卡牌对战 — 全量测试结果
 
 > 测试员：独立测试（自动化流程）
-> 测试日期：2026-07-20（北京时间）
+> 测试日期：2026-07-21（北京时间，GMT+8）
+> 测试运行时刻：2026-07-20T18:01–18:02Z（UTC）
 > 测试环境：Node.js 22.13.0 / Ubuntu 22.04
-> 仓库分支：`master`（本地检出，commit 基线 `a9e696c` 全量测试结果 2026-07-19）
+> 仓库分支：`master`（已 rebase 至远端最新 `439bae0` 代码审查报告 2026-07-20）
 
 ## 总览
 
@@ -14,6 +15,8 @@
 | 场景测试（test_scenarios.cjs） | 38 | 0 | 0 | ✅ 全部通过 |
 
 **结论：三大测试套件共 196 项断言，0 失败。代码当前状态健康。**
+
+> 注：告警项（4 张 support 卡 `success=true` 但 `effects` 为空）不计入失败，详见第 1 节说明。
 
 ---
 
@@ -70,32 +73,21 @@
 
 ## 4. 结果推送状态
 
-> ⚠️ **推送失败（阻塞项）：提供的 SSH 私钥无法被 OpenSSH / OpenSSL 加载。**
+> ✅ **本次推送成功。**
 
 | 步骤 | 状态 | 说明 |
 |---|---|---|
-| 环境初始化（写入 SSH key） | ⚠️ 异常 | 写入的私钥 `~/.ssh/id_ed25519_gitee` 经 `ssh-keygen -y` 解析报 `Load key "...id_ed25519_gitee": error in libcrypto` |
-| git clone / pull | ❌ 失败 | `Permission denied (publickey)`，无法向 `git@gitee.com:jopapa/physics-card-game.git` 认证 |
-| 运行三个测试 | ✅ 成功 | 使用本地已检出的仓库代码完成（见上方结果） |
-| git commit / push | ❌ 未完成 | 因私钥损坏，无法认证，推送受阻 |
+| 环境初始化（写入 SSH key） | ✅ 正常 | 私钥 `~/.ssh/id_ed25519_gitee` 可正常用于 gitee.com publickey 认证 |
+| 同步代码（fetch + rebase） | ✅ 成功 | `git fetch origin` 与 `git rebase origin/master` 成功，合并远端 6 个提交（代码审查/每日摘要 07-18~07-20），测试基于最新远端代码 |
+| 运行三个测试 | ✅ 成功 | 见上方第 1~3 节结果 |
+| git commit / push | ✅ 成功 | `test_result.md` 已提交并推送至 `origin/master` |
 
-### 根因分析
-
-- 私钥 base64 主体可正常解码（共 249 字节），但其内部 OPENSSH 私钥结构在头部类型字段处解析异常，`ssh-keygen` 与 `libcrypto` 均拒绝加载。
-- 该密钥非有效可加载的 ed25519 私钥，因此无法用于 gitee.com 的 publickey 认证。
-
-### 处置建议（需用户/管理员操作）
-
-1. **更换有效密钥**：提供一份由 `ssh-keygen -t ed25519` 生成的、且对应 gitee 账户已添加公钥的私钥。
-2. 或在本地环境中预置已验证可用的部署密钥。
-3. 修复密钥后，重新执行：`git pull && node test_all_cards.cjs && node test_combo_validity.cjs && node test_scenarios.cjs`，再将本 `test_result.md` 提交并推送。
-
-> 注：本次三个测试已在**本地现有检出代码**上完整运行并产出结果；因密钥问题导致无法从远端拉取最新代码，测试结果基于本地 `master@a9e696c`。若远端自上次提交后有更新，建议修复密钥后重新拉取并复测，以确保结果反映最新代码。
+> 与上一次报告（2026-07-20）的区别：上一次运行因当时沙箱环境的 SSH 私钥加载异常导致推送受阻；**本次运行身份认证正常**，已成功拉取最新远端代码并完成推送。测试结果反映的是 rebase 后的最新代码（`439bae0`）。
 
 ---
 
 ## 附录：本文件为本次测试唯一新增/修改的产物
 
-- 新增：`test_result.md`（本文件，汇总报告）
+- 新增/覆盖：`test_result.md`（本文件，汇总报告）
 - 测试脚本自动生成的产物：`test_all_cards_result.txt`（由 `test_all_cards.cjs` 写入，非本次测试员手动编辑）
 - 游戏源码（*.js / *.json / *.html 等）**未做任何修改**。
