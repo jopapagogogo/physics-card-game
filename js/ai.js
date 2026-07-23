@@ -324,7 +324,7 @@ const SpiritBudgetManager = {
    */
   compute(hand, spirit, threatLevel, difficulty, paralysis = 0) {
     // 麻痹每张卡额外+2费，预留对应精神力缓冲
-    const effectiveSpirit = paralysis > 0 ? Math.max(0, spirit - paralysis * PARALYSIS_COST * 2) : spirit;
+    const effectiveSpirit = paralysis > 0 ? Math.max(0, spirit - paralysis * PARALYSIS_COST) : spirit;
     if (difficulty === 'easy') {
       return { thisTurnMax: effectiveSpirit, reserved: 0, strategy: 'full_send' };
     }
@@ -1261,8 +1261,9 @@ class AIEngine {
       }
     }
 
-    // 召唤物加成
+    // 召唤物加成（通用化，匹配 engine.js bonusKeys 模式）
     for (const s of self.fieldSummons) {
+      // 通用 dmgBonus（领域匹配）
       if (s.card?.effect?.dmgBonus) {
         const sDomains = Array.isArray(s.card.domain) ? s.card.domain : [s.card.domain || ''];
         const cDomains = Array.isArray(card.domain) ? card.domain : [card.domain || ''];
@@ -1270,14 +1271,20 @@ class AIEngine {
           dmg += s.card.effect.dmgBonus;
         }
       }
-      if (s.card.id === 'C14' && Array.isArray(card.domain) && card.domain.includes('电')) {
-        dmg += (opp.paralysis || 0) * 2;
+      // 领域特定伤害加成（通用化）
+      const bonusKeys = {力:'forceDmgBonus',热:'heatDmgBonus',光:'lightDmgBonus',声:'soundDmgBonus',电:'electricDmgBonus'};
+      for (const [domain, key] of Object.entries(bonusKeys)) {
+        if (s.card.effect[key] && Array.isArray(card.domain) && card.domain.includes(domain)) {
+          dmg += s.card.effect[key];
+        }
       }
-      if (s.card.id === 'C13' && Array.isArray(card.domain) && card.domain.includes('热')) {
-        dmg += (opp.burnLayers || 0) * 3;
+      // C09 伽利略: 每张己方辅助卡光系额外伤害
+      if (s.card.id === 'C09' && s.card.effect.perSupportLightBonus && Array.isArray(card.domain) && card.domain.includes('光')) {
+        dmg += self.fieldSupports.length * s.card.effect.perSupportLightBonus;
       }
-      if (s.card.id === 'C09' && Array.isArray(card.domain) && card.domain.includes('光')) {
-        dmg += self.fieldSupports.length * 3;
+      // C14 安培: 每层麻痹电系额外伤害
+      if (s.card.id === 'C14' && s.card.effect.perParalysisBonus && Array.isArray(card.domain) && card.domain.includes('电')) {
+        dmg += (opp.paralysis || 0) * s.card.effect.perParalysisBonus;
       }
     }
 
@@ -1316,28 +1323,59 @@ class AIEngine {
       }
     }
 
-    // 特殊攻击卡预估
+    // 特殊攻击卡预估（逐卡处理）
     if (card.id === 'A02') {
       dmg += Math.floor((self.totalForceDmg || 0) * 0.5);
     }
-    if (card.id === 'A08') {
-      const lostHp = (opp.maxHp || 500) - opp.hp;
-      dmg += Math.floor(lostHp * 0.1);
-    }
     if (card.id === 'A54') {
-      const burnDmg = opp.burnLayers * 48;
-      dmg += burnDmg;
+      // 引爆灼烧：每层 perBurnDmg（从 card.effect 读取，非硬编码）
+      const perBurnDmg = card.effect.perBurnDmg || 50;
+      dmg += (opp.burnLayers || 0) * perBurnDmg;
     }
-    if (card.id === 'A51') {
-      dmg += opp.burnLayers * 6;
+
+    // 平属性伤害加成（从 card.effect 读取，匹配 engine.js calculateDamage）
+    if (card.effect.perSupportBonus) {
+      dmg += card.effect.perSupportBonus * self.fieldSupports.length;
     }
-    if (card.id === 'A41') {
-      if (self.fieldDomain?.card?.domain?.includes('热')) {
-        dmg += 70;
-      }
+    if (card.effect.perBurnBonus) {
+      dmg += card.effect.perBurnBonus * (opp.burnLayers || 0);
     }
-    if (card.id === 'A53') {
-      dmg += 10;
+    if (card.effect.hpLossBonus) {
+      const lostHp = (opp.maxHp || 500) - opp.hp;
+      dmg += Math.floor(lostHp * card.effect.hpLossBonus);
+    }
+    if (card.effect.perOppFieldCard) {
+      const oppFieldCount = opp.fieldSummons.length + (opp.fieldDomain ? 1 : 0) + opp.fieldSupports.length;
+      dmg += card.effect.perOppFieldCard * oppFieldCount;
+    }
+    if (card.effect.perSoundFieldBonus) {
+      const soundFields = self.fieldSupports.filter(s => s.card?.domain?.includes('声')).length;
+      dmg += card.effect.perSoundFieldBonus * soundFields;
+    }
+    if (card.effect.forceDomainBonus && self.fieldDomain?.card?.id === 'D01') {
+      dmg += card.effect.forceDomainBonus;
+    }
+    if (card.effect.heatDomainBonus && self.fieldDomain?.card?.domain?.includes('热')) {
+      dmg += card.effect.heatDomainBonus;
+    }
+    if (card.effect.domainBonus && self.fieldDomain) {
+      dmg += card.effect.domainBonus;
+    }
+
+    // 引擎状态加成（镜面回声 A53 / 声压 A11 / 声速激增 A51）
+    const mirrorEchoBonus = (this.engine.mirrorEchoBonus && this.engine.mirrorEchoBonus[this.aiIdx]) || 0;
+    if (mirrorEchoBonus > 0 && Array.isArray(card.domain) && (card.domain.includes('声') || card.domain.includes('光'))) {
+      dmg += mirrorEchoBonus;
+    }
+    if (Array.isArray(card.domain) && card.domain.includes('声') &&
+        this.engine.soundPressure && this.engine.soundPressure[this.oppIdx] > 0) {
+      const a11Card = self.fieldSupports.find(s => s.card?.id === 'A11');
+      const sonicDmgPerStack = a11Card?.card?.effect?.sonicDmgPerStack || 10;
+      dmg += (this.engine.soundPressure[this.oppIdx] || 0) * sonicDmgPerStack;
+    }
+    if (Array.isArray(card.domain) && card.domain.includes('声') &&
+        this.engine.soundSpeedBuff && this.engine.soundSpeedBuff[this.aiIdx] > 0) {
+      dmg += this.engine.soundSpeedBuff[this.aiIdx];
     }
 
     // 答题增益
