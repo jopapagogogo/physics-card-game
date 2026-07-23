@@ -468,11 +468,6 @@ body {
 }
 
 /* ---- 动画 ---- */
-@keyframes cardPlay {
-  0%   { transform:translateY(0) scale(1); opacity:1; }
-  50%  { transform:translateY(-30px) scale(1.1); opacity:.7; }
-  100% { transform:translateY(-60px) scale(.3); opacity:0; }
-}
 @keyframes damageFloat {
   0%   { opacity:1; transform:translateY(0) scale(1); }
   30%  { opacity:1; transform:translateY(-20px) scale(1.3); }
@@ -520,12 +515,6 @@ body {
 @keyframes cardReady {
   0%,100% { box-shadow:0 0 4px rgba(52,152,219,.3); }
   50%     { box-shadow:0 0 14px rgba(52,152,219,.6); }
-}
-@keyframes electricShock { 0%,100% { opacity:1; } 50% { opacity:.3; } }
-@keyframes lightFlash {
-  0%   { box-shadow:0 0 0 rgba(241,196,15,0); }
-  50%  { box-shadow:0 0 30px rgba(241,196,15,.7); }
-  100% { box-shadow:0 0 0 rgba(241,196,15,0); }
 }
 
 /* ============================================================
@@ -722,7 +711,6 @@ body {
 }
 /* 旧 turn-overlay 不再需要，保留兼容 */
 .turn-overlay { display: none; }
-@keyframes turnDim {}
 
 /* ---- 辅助类 ---- */
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
@@ -1136,7 +1124,6 @@ body {
     linear-gradient(180deg,rgba(255,100,180,.2),rgba(100,180,255,.15),#13131f 50%,#0a0a12) !important;
   box-shadow:inset 0 0 70px rgba(255,100,200,.12),0 0 20px rgba(255,100,200,.1);
 }
-@keyframes rarity-rainbow { to { filter:hue-rotate(360deg); } }
 @keyframes badgePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.15)} }
 
 /* === 皮肤 B: 二次元幻境（柔光+星点+圆角）=== */
