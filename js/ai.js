@@ -755,8 +755,12 @@ const ComboDetector = {
         case 'boost_dot_increment':
         case 'boost_ignore_defense':
         case 'boost_mirror_maze':
+        case 'boost_mirage':
         case 'boost_clear_debuff':
           score += 25;
+          break;
+        case 'refund_cost':
+          score += (effect.ratio || 0.5) * 50;
           break;
         case 'modify_height':
           score += (effect.perHeight || 0) * 3;
@@ -1457,31 +1461,55 @@ class AIEngine {
     const scored = supports.map(card => {
       let value = 0;
 
-      if (card.effect.buffDmg) {
-        value += card.effect.buffDmg * 1.5;
-      }
-      if (card.effect.defense) {
-        value += card.effect.defense.value || 20;
-      }
-      if (card.effect.spiritRestore) {
-        value += card.effect.spiritRestore * 1.2;
-      }
+      // 伤害增益效果（实际存在的 effect 键）
+      if (card.effect.nextForceBonus) value += card.effect.nextForceBonus * 2;
+      if (card.effect.nextAtkBonus) value += card.effect.nextAtkBonus * 2;
+      if (card.effect.nextSoundBonus) value += card.effect.nextSoundBonus * 2;
+      if (card.effect.antiBarrier) value += card.effect.antiBarrier * 1.5;
+      if (card.effect.perElectricAtkBonus) value += card.effect.perElectricAtkBonus * 3;
+      if (card.effect.perElectricCard) value += card.effect.perElectricCard * 3;
+      if (card.effect.stackingForceDmg) value += card.effect.stackingForceDmg * 2;
+      if (card.effect.perDomain) value += card.effect.perDomain * 3;
+      if (card.effect.burnEnhancePerDmg) value += card.effect.burnEnhancePerDmg * 3;
 
-      const desc = card.description || '';
-      if (desc.includes('附加') && desc.includes('灼烧')) {
-        const match = desc.match(/(\d+)层灼烧/);
-        if (match) value += parseInt(match[1]) * 25;
-      }
-      if (desc.includes('查看') && desc.includes('手牌')) {
-        value += 20;
-      }
-      // 消灭驻场
-      if (desc.includes('消灭') && desc.includes('驻场')) {
-        if (opp.fieldSupports.length > 0 || opp.fieldDomain) {
-          value += 35;
-        }
-      }
+      // 防御效果
+      if (card.effect.forceDefense) value += card.effect.forceDefense * 0.8;
+      if (card.effect.soundDefense) value += card.effect.soundDefense * 0.8;
+      if (card.effect.electricDefense) value += card.effect.electricDefense * 0.8;
+      if (card.effect.burnImmune) value += 15;
 
+      // 资源效果
+      if (card.effect.spiritRestore) value += card.effect.spiritRestore * 1.2;
+      if (card.effect.spiritPerTurn) value += card.effect.spiritPerTurn * 3;
+      if (card.effect.draw) value += card.effect.draw * 18;
+      if (card.effect.costReduction) value += card.effect.costReduction * 2;
+      if (card.effect.reduceAllElectricCost) value += card.effect.reduceAllElectricCost * 2;
+      if (card.effect.reduceElectricCost) value += card.effect.reduceElectricCost * 2;
+      if (card.effect.energyStore) value += (card.effect.energyStore || card.effect.maxStore || 0) * 0.5;
+
+      // 实用效果
+      if (card.effect.viewHand) value += 20;
+      if (card.effect.scry) value += 15;
+      if (card.effect.clearDebuff) value += 20;
+      if (card.effect.heal || card.effect.restoreHp) value += (card.effect.heal || card.effect.restoreHp || 0) * 0.8;
+      if (card.effect.burn) value += card.effect.burn * 25;
+      if (card.effect.extraCost || card.effect.opponentExtraCost) value += 15;
+      if (card.effect.discardOpponent) value += 20;
+
+      // 特殊效果
+      if (card.effect.mirrorMaze) value += 25;
+      if (card.effect.shadowBind) value += 25;
+      if (card.effect.polarize) value += 20;
+      if (card.effect.spectrum) value += 20;
+      if (card.effect.failChance) value += 15;
+      if (card.effect.lightSpeed) value += 20;
+      if (card.effect.soundBonus) value += card.effect.soundBonus * 1.5;
+      if (card.effect.soundBonusSpirit) value += card.effect.soundBonusSpirit * 1.2;
+      if (card.effect.replaceHand) value += 25;
+      if (card.effect.all) value += 25;
+      if (card.effect.discard) value += 15;
+
+      // 场景适应性调整
       if (card.id === 'S20') {
         if (!opp.fieldSupports.length && !opp.fieldSummons.length && !opp.fieldDomain) value = 0;
       }

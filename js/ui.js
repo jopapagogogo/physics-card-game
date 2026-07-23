@@ -4006,7 +4006,6 @@ class GameUI {
     const emoji = { attack:'⚔️', support:'✨', domain:'🏛️', summon:'👾', phase:'🌀' }[cardData.type] || '🃏';
 
     const artUrl = this.artMap[cardData.id] || '';
-    const emojiMap = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' };
     const domains = Array.isArray(cardData.domain) ? cardData.domain : [cardData.domain];
     const runeHtml = domains.map(d => DOMAIN_RUNES[d] ? `<img src="${DOMAIN_RUNES[d]}" class="rune-img">` : (d === '混沌' ? '🌌' : '⚛')).join('');
     const descRaw = String(cardData.description || '暂无描述');
@@ -4222,7 +4221,6 @@ class GameUI {
     const hpText = cardData.hp !== undefined
       ? `❤️ ${cardData.hp}/${cardData.maxHp}` : '';
 
-    const emojiMap2 = { '力':'💪', '声':'🔊', '光':'💡', '热':'🔥', '电':'⚡' };
     const domains2 = Array.isArray(cardData.domain) ? cardData.domain : [cardData.domain];
     const runeHtml = domains2.map(d => DOMAIN_RUNES[d] ? `<img src="${DOMAIN_RUNES[d]}" class="rune-img">` : (d === '混沌' ? '🌌' : '⚛')).join('');
     const artUrl = this.artMap[cardData.id] || '';
