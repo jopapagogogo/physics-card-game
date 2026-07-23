@@ -3426,8 +3426,12 @@ class GameUI {
       }
       this.updateAllDisplay();
     };
-    overlay.querySelector('#cvx-real').onclick = () => done('real');
-    overlay.querySelector('#cvx-virtual').onclick = () => done('virtual');
+    overlay.querySelector('#cvx-real').onclick = () => { clearTimeout(cvxTimeout); done('real'); };
+    overlay.querySelector('#cvx-virtual').onclick = () => { clearTimeout(cvxTimeout); done('virtual'); };
+    // 15秒超时默认实像（回血）
+    const cvxTimeout = setTimeout(() => {
+      if (document.body.contains(overlay)) done('real');
+    }, 15000);
   }
 
   /** S09频率调节：升高/降低选择弹窗 */
@@ -3450,8 +3454,12 @@ class GameUI {
       }
       this.updateAllDisplay();
     };
-    overlay.querySelector('#freq-high').onclick = () => done('high');
-    overlay.querySelector('#freq-low').onclick = () => done('low');
+    overlay.querySelector('#freq-high').onclick = () => { clearTimeout(freqTimeout); done('high'); };
+    overlay.querySelector('#freq-low').onclick = () => { clearTimeout(freqTimeout); done('low'); };
+    // 15秒超时默认升高频率
+    const freqTimeout = setTimeout(() => {
+      if (document.body.contains(overlay)) done('high');
+    }, 15000);
   }
 
   /** S29 静电吸附：点击手牌选择弃置 */
@@ -3463,8 +3471,10 @@ class GameUI {
     overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:450;background:rgba(0,0,0,.5);color:#fff;text-align:center;padding:8px;font-size:13px;';
     overlay.textContent = '⚡ 静电吸附 — 点击手牌选择要弃置的卡';
     document.body.appendChild(overlay);
+    let discardTimeout2;
     // 拦截手牌点击 — 改为弃牌
     this._discardClickHandler = (e) => {
+      clearTimeout(discardTimeout2);
       const cardEl = e.target.closest('.card-v3, .card');
       if (!cardEl) return;
       const cardId = cardEl.dataset.cardId;
@@ -3488,6 +3498,22 @@ class GameUI {
       self.updateAllDisplay();
     };
     document.getElementById('self-hand')?.addEventListener('click', this._discardClickHandler, true);
+    // 15秒超时自动弃第一张
+    discardTimeout2 = setTimeout(() => {
+      if (document.body.contains(overlay)) {
+        overlay.remove();
+        if (self._discardClickHandler) {
+          document.getElementById('self-hand')?.removeEventListener('click', self._discardClickHandler, true);
+          self._discardClickHandler = null;
+        }
+        const gs2 = self.engine.getGameState();
+        if (gs2.players[0].hand.length > 0) {
+          const result = self.engine.resolveDiscardChoice(0);
+          if (result) self.addLogMessage('⏰ 超时自动弃牌：' + result.msg);
+        }
+        self.updateAllDisplay();
+      }
+    }, 15000);
   }
 
   /** S18 X射线透视 — 选择弃对方1张手牌 */
@@ -3506,12 +3532,23 @@ class GameUI {
     overlay.querySelectorAll('button[data-idx]').forEach(btn => {
       btn.onclick = () => {
         const idx = parseInt(btn.dataset.idx);
+        clearTimeout(discardTimeout);
         overlay.remove();
         const result = this.engine.resolveDiscardOpponent(idx);
         if (result) { this.addLogMessage('👁 ' + result.msg); }
         this.updateAllDisplay();
       };
     });
+    // 15秒超时自动随机弃牌
+    const discardTimeout = setTimeout(() => {
+      if (document.body.contains(overlay)) {
+        const idx = Math.floor(Math.random() * oppHand.length);
+        overlay.remove();
+        const result = this.engine.resolveDiscardOpponent(idx);
+        if (result) { this.addLogMessage('⏰ 超时自动弃牌：' + result.msg); }
+        this.updateAllDisplay();
+      }
+    }, 15000);
   }
 
   /** S06弹性储能 / A05重力势能 — 进度指示器 */
