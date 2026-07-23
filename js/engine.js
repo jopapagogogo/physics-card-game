@@ -1077,6 +1077,15 @@ class GameEngine {
     }
     player.spirit = Math.max(0, player.spirit - Math.max(0, cost));
 
+    // D03 棱镜界：扣费后20%概率失效，返还50%
+    if (opponent.fieldDomain?.card?.id === 'D03' && opponent.fieldDomain.card.effect.opponentFailChance) {
+      if (Math.random() < opponent.fieldDomain.card.effect.opponentFailChance) {
+        const refund = Math.floor(cost * 0.5);
+        player.spirit = Math.min(MAX_SPIRIT, player.spirit + refund);
+        return { success: false, msg: `棱镜界：出牌失效，返还${refund}精神力。`, effects: [] };
+      }
+    }
+
     // 从手牌移除
     player.hand.splice(handIdx, 1);
     const effects = [];
@@ -1660,8 +1669,8 @@ class GameEngine {
         opponent.hp = Math.max(0, opponent.hp - detonateDmg);
         this._addLog(`[啸叫引爆] 声压达到 ${maxStacks} 层，造成 ${detonateDmg} 点伤害！`);
         this.soundPressure[oIdx] = 0;
-        // 不自驻场（已引爆，卡片直接进弃牌堆）
-        opponent.discardPile.push(card);
+        // 已引爆不入驻场，卡进己方弃牌堆
+        attacker.discardPile.push(card);
         if (this.checkWinCondition()) return;
       } else {
         // 未满层数，驻场
@@ -2733,17 +2742,15 @@ class GameEngine {
 
     // 召唤物减费
     for (const s of player.fieldSummons) {
-      if (s.card.effect.costReduction) {
-        // 检查是否适用
-        if (s.card.id === 'C07') {
-          // 欧姆：电系卡费用-6
-          if (card.domain.includes('电')) cost -= 6;
-        } else if (s.card.id === 'C06') {
-          // 阿基米德：辅助卡-4，力系辅助额外-2
-          if (card.type === 'support') {
-            cost -= 4;
-            if (card.domain.includes('力')) cost -= 2;
-          }
+      // 欧姆(C07)：电系卡费用-6
+      if (s.card.id === 'C07') {
+        if (card.domain.includes('电')) cost -= s.card.effect.electricCostReduction || 6;
+      }
+      // 阿基米德(C06)：辅助卡-4，力系辅助额外-2
+      else if (s.card.id === 'C06') {
+        if (card.type === 'support') {
+          cost -= s.card.effect.supportCostReduction || 4;
+          if (card.domain.includes('力')) cost -= s.card.effect.forceSupportExtra || 2;
         }
       }
     }
@@ -2791,18 +2798,8 @@ class GameEngine {
     // 镜面迷宫失败概率（S15→S19 combo可提升概率）
     const mazeProb = Math.max(0.35, this._mirrorMazeBoost[1 - playerIdx] || 0.35);
     if (this.mirrorMaze[playerIdx] > 0 && Math.random() < mazeProb) {
-      const refund = Math.floor(card.cost * 0.5);
-      player.spirit = Math.min(MAX_SPIRIT, player.spirit + refund);
       this.mirrorMaze[playerIdx]--;
-      return { can: false, reason: `受到"镜面迷宫"干扰，出牌失败，返还${refund}精神力。` };
-    }
-
-    // 光领域棱镜界(D03)失败概率
-    const oppDomain = opponent.fieldDomain;
-    if (oppDomain?.card?.id === 'D03' && oppDomain.card.effect.opponentFailChance) {
-      if (Math.random() < oppDomain.card.effect.opponentFailChance) {
-        return { can: false, reason: '棱镜界：出牌有20%概率失效。' };
-      }
+      return { can: false, reason: `受到"镜面迷宫"干扰，出牌失败。` };
     }
 
     // 偏振过滤(S15)

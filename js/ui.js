@@ -2677,7 +2677,7 @@ class GameUI {
     this.selectedCard = null;
 
     // 检查游戏是否结束
-    if (this.engine.isGameOver && this.engine.isGameOver()) {
+    if (this.engine.isGameOver()) {
       setTimeout(() => this.showGameOver(), 600);
     }
   }
@@ -3030,7 +3030,7 @@ class GameUI {
     this.phase = 'settle';
 
     // 检查游戏是否结束
-    if (this.engine.isGameOver && this.engine.isGameOver()) {
+    if (this.engine.isGameOver()) {
       this.showGameOver();
       return;
     }
@@ -3208,7 +3208,7 @@ class GameUI {
       // ─── AI 阶段 1: 答题 ───
       const quiz = this.ai.simulateQuiz();
       this.engine.setQuizResult(quiz.correct, quiz.total);
-      if (turnTimedOut || (this.engine.isGameOver && this.engine.isGameOver())) {
+      if (turnTimedOut || (this.engine.isGameOver())) {
         clearTimeout(timeoutId);
         if (!turnTimedOut) { this.showGameOver(); this.phase = 'gameover'; }
         return;
@@ -3224,7 +3224,7 @@ class GameUI {
         if (turnTimedOut) { clearTimeout(timeoutId); return; }
 
         let aiCardCount = 0;
-        while (!this.engine.isGameOver || !this.engine.isGameOver() && !turnTimedOut && aiCardCount < 50) {
+        while (!this.engine.isGameOver() && !turnTimedOut && aiCardCount < 50) {
           // 获取AI下一张牌决策
           const decision = this.ai.getNextPlayDecision();
           if (!decision) break;
@@ -3271,7 +3271,7 @@ class GameUI {
           // 短暂延迟让玩家看到AI出牌效果
           await this.ai._sleep(600 + Math.random() * 400);
 
-          if (this.engine.isGameOver && this.engine.isGameOver()) {
+          if (this.engine.isGameOver()) {
             this.showGameOver();
             this.phase = 'gameover';
             return;
@@ -3280,7 +3280,7 @@ class GameUI {
           // ─── 光速传播反制窗口（每张AI牌后） ───
           if (this.engine.lightSpeedActive && this.engine.lightSpeedActive[0]) {
             const interrupted = await this.showLightSpeedInterrupt();
-            if (this.engine.isGameOver && this.engine.isGameOver()) {
+            if (this.engine.isGameOver()) {
               this.showGameOver();
               this.phase = 'gameover';
               return;
@@ -3297,24 +3297,24 @@ class GameUI {
       }
 
       // ─── AI 阶段 3: 结算 ───
-      if (!this.engine.isGameOver || !this.engine.isGameOver()) {
+      if (!this.engine.isGameOver()) {
         this.engine.settlePhase();
       }
 
       // ─── AI 阶段 4: 弃牌 ───
-      if (!this.engine.isGameOver || !this.engine.isGameOver()) {
+      if (!this.engine.isGameOver()) {
         this.ai._handleDiscard();
       }
 
       // ─── AI 阶段 5: 结束回合 ───
-      if (!this.engine.isGameOver || !this.engine.isGameOver()) {
+      if (!this.engine.isGameOver()) {
         this.engine.endTurn();
       }
 
       this.updateAllDisplay();
 
       // 检查游戏结束
-      if (this.engine.isGameOver && this.engine.isGameOver()) {
+      if (this.engine.isGameOver()) {
         clearTimeout(timeoutId);
         this.showGameOver();
         this.phase = 'gameover';
@@ -3325,7 +3325,7 @@ class GameUI {
       this.addLogMessage('AI回合出错: ' + err.message);
       // 异常时尝试安全地结束回合
       try {
-        if (!this.engine.isGameOver || !this.engine.isGameOver()) {
+        if (!this.engine.isGameOver()) {
           this.engine.settlePhase();
           this.ai._handleDiscard();
           this.engine.endTurn();
