@@ -3367,7 +3367,7 @@ class GameUI {
           li.className = 'scry-item';
           li.draggable = true;
           li.dataset.idx = idx;
-          li.innerHTML = '<span class="scry-handle">☰</span><span class="scry-order">' + (idx + 1) + '</span><span class="scry-name">' + card.name + '</span><span class="scry-dmg">' + (card.dmg > 0 ? '⚔' + card.dmg : '') + '</span>';
+          li.innerHTML = '<span class="scry-handle">☰</span><span class="scry-order">' + (idx + 1) + '</span><span class="scry-name">' + this._escapeHtml(card.name) + '</span><span class="scry-dmg">' + (card.dmg > 0 ? '⚔' + card.dmg : '') + '</span>';
           li.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', idx.toString()); li.classList.add('dragging'); });
           li.addEventListener('dragend', () => li.classList.remove('dragging'));
           li.addEventListener('dragover', (e) => { e.preventDefault(); li.classList.add('drag-over'); });
@@ -4202,7 +4202,7 @@ class GameUI {
         <div class="v3-art-frame" style="height:250px;">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:36px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
         <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
         <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
-        <div class="v3-desc-box" style="max-height:200px;overflow-y:auto;"><div>${summary}</div>${principle ? `<span class="principle">${principle}</span>` : ''}</div>
+        <div class="v3-desc-box" style="max-height:200px;overflow-y:auto;"><div>${this._escapeHtml(summary)}</div>${principle ? `<span class="principle">${this._escapeHtml(principle)}</span>` : ''}</div>
 
         <div style="padding:10px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.08);">
           <button class="btn btn-close" id="btn-zoom-close" style="flex:1;font-size:13px;padding:10px;border-radius:8px;background:#333;color:#eee;border:none;cursor:pointer;">✕ 关闭</button>

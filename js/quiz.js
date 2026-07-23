@@ -1156,7 +1156,7 @@ class QuizSystem {
         answer: 3, knowledge: "速度概念理解", relatedCard: "A06"
       },
       {
-        id: "Q_F_191", domain: "力", difficulty: "challenge",
+        id: "Q_F_191", domain: "热", difficulty: "challenge",
         question: "下列物态变化中吸收热量的是？",
         options: ["A. 熔化", "B. 凝固", "C. 液化", "D. 凝华"],
         answer: 0, knowledge: "熔化吸热", relatedCard: "A26"
@@ -2137,7 +2137,7 @@ class QuizSystem {
         answer: 2, knowledge: "声速与介质有关", relatedCard: "A14"
       },
       {
-        id: "Q_S_144", domain: "声", difficulty: "advanced",
+        id: "Q_S_144", domain: "光", difficulty: "advanced",
         question: "夜晚当汽车发出的光照射到自行车尾灯上时司机看到尾灯反射的光就能及时避让。以下说法正确的是？",
         options: ["A. 自行车尾灯是光源", "B. 这是利用声音反射", "C. 尾灯是角反射器能按原方向反射光", "D. 以上都不对"],
         answer: 2, knowledge: "角反射器", relatedCard: "A14"
@@ -2451,8 +2451,8 @@ class QuizSystem {
       {
         id: "Q_S_196", domain: "声", difficulty: "advanced",
         question: "下面做法中不能减弱噪声的是？",
-        options: ["A. 在教室周围植树", "B. 休息时将手机调成静音模式", "C. 在公路旁安装隔音板", "D. 纺织工人戴上防噪声耳罩"],
-        answer: 3, knowledge: "D是人耳处减弱", relatedCard: "S07"
+        options: ["A. 在教室周围植树", "B. 休息时将手机调成静音模式", "C. 在公路旁安装隔音板", "D. 打开门窗通风"],
+        answer: 3, knowledge: "开门窗不能减弱噪声", relatedCard: "S07"
       },
       {
         id: "Q_S_197", domain: "声", difficulty: "basic",
@@ -4767,7 +4767,7 @@ class QuizSystem {
       {
         id: "Q_H_171", domain: "热", difficulty: "basic",
         question: "正确的是？",
-        options: ["A. 固都有熔", "B. 液沸温不变", "C. 蒸在表", "D. 都对"],
+        options: ["A. 晶体都有确定的熔点", "B. 液体沸腾时温度不变", "C. 蒸发只在液体表面发生", "D. 都对"],
         answer: 3, knowledge: "都对", relatedCard: "A25"
       },
       {
@@ -5626,7 +5626,7 @@ class QuizSystem {
         answer: 1, knowledge: "相等", relatedCard: "C07"
       },
       {
-        id: "Q_E_114", domain: "电", difficulty: "basic",
+        id: "Q_E_114", domain: "力", difficulty: "basic",
         question: "费力杠杆？",
         options: ["A. 筷子", "B. 起", "C. 钳", "D. 扳"],
         answer: 0, knowledge: "筷子", relatedCard: "A04"

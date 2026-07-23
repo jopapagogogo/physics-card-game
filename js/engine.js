@@ -2700,6 +2700,12 @@ class GameEngine {
     if (removed) {
       player.discardPile.push(removed.card);
       this._addLog(`[消灭] 驻场卡「${removed.card.name}」被消灭。`);
+      // S24温度升高被消灭时清除burnEnhanced
+      if (removed.card.id === 'S24') {
+        this.players[0].burnEnhanced = false;
+        this.players[1].burnEnhanced = false;
+        this._addLog(`[系统] 灼烧增强效果结束。`);
+      }
       return true;
     }
     return false;
@@ -2712,6 +2718,12 @@ class GameEngine {
     if (bounced) {
       player.hand.push(bounced.card);
       this._addLog(`[弹回] 驻场卡「${bounced.card.name}」弹回手牌。`);
+      // S24温度升高被弹回时清除burnEnhanced
+      if (bounced.card.id === 'S24') {
+        this.players[0].burnEnhanced = false;
+        this.players[1].burnEnhanced = false;
+        this._addLog(`[系统] 灼烧增强效果结束。`);
+      }
       return true;
     }
     return false;
