@@ -3,7 +3,7 @@
    领域: 力=#E74C3C 声=#3498DB 光=#F1C40F 热=#E67E22 电=#9B59B6
    ============================================================ */
 :root {
-  --frc: #E74C3C; --snd: #3498DB; --lgt: #F1C40F; --het: #E67E22; --elc: #9B59B6;
+  --frc: #E74C3C; --snd: #16A085; --lgt: #F1C40F; --het: #E67E22; --elc: #9B59B6;
   --bg: #1a1a2e; --pnl: #16213e; --crd: #fff; --txt: #333; --lt: #eee; --mt: #999; --bd: #2a2a4a;
   --grn: #2ecc71; --ylw: #f39c12; --red: #e74c3c; --blu: #3498db; --scs: #27ae60;
   --r4: 4px; --r8: 8px; --r12: 12px; --r16: 16px; --r50: 50%;
@@ -185,7 +185,7 @@ body {
   color:#fff; font-size:24px;
 }
 .card-field .domain-card.domain-force    { background:linear-gradient(135deg, #c0392b, var(--frc)); box-shadow:0 0 16px rgba(231,76,60,.4); border:2px solid var(--frc); }
-.card-field .domain-card.domain-sound    { background:linear-gradient(135deg, #2471a3, var(--snd)); box-shadow:0 0 16px rgba(52,152,219,.4); border:2px solid var(--snd); }
+.card-field .domain-card.domain-sound    { background:linear-gradient(135deg, #0f6b56, var(--snd)); box-shadow:0 0 16px rgba(22,160,133,.4); border:2px solid var(--snd); }
 .card-field .domain-card.domain-light    { background:linear-gradient(135deg, #b7950b, var(--lgt)); color:#333; box-shadow:0 0 16px rgba(241,196,15,.4); border:2px solid var(--lgt); }
 .card-field .domain-card.domain-heat     { background:linear-gradient(135deg, #ba4a00, var(--het)); box-shadow:0 0 16px rgba(230,126,34,.4); border:2px solid var(--het); }
 .card-field .domain-card .domain-label { font-size:9px; margin-top:4px; opacity:.9; font-weight:700; }
@@ -1090,7 +1090,7 @@ body {
 /* === 手牌边框：按领域色，稀有度仅微调亮度 === */
 .card-v3.mini{ border-width:2px; border-style:solid; }
 .card-v3.mini.domain-force{ border-color:#e74c3c; }
-.card-v3.mini.domain-sound{ border-color:#3498db; }
+.card-v3.mini.domain-sound{ border-color:#16A085; }
 .card-v3.mini.domain-light{ border-color:#f1c40f; }
 .card-v3.mini.domain-heat{ border-color:#e67e22; }
 .card-v3.mini.domain-elec{ border-color:#9b59b6; }

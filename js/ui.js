@@ -1504,7 +1504,7 @@ class GameUI {
         box-shadow:0 0 10px var(--dg,.rgba(255,255,255,.15))!important;
       }
       .card-v3.mini.playable.domain-force{--dg:rgba(231,76,60,.5)}
-      .card-v3.mini.playable.domain-sound{--dg:rgba(52,152,219,.5)}
+      .card-v3.mini.playable.domain-sound{--dg:rgba(22,160,133,.5)}
       .card-v3.mini.playable.domain-light{--dg:rgba(241,196,15,.5)}
       .card-v3.mini.playable.domain-heat{--dg:rgba(230,126,34,.5)}
       .card-v3.mini.playable.domain-elec{--dg:rgba(155,89,182,.5)}
@@ -3934,7 +3934,7 @@ class GameUI {
     const d = Array.isArray(domain) ? domain[0] : domain;
     const styles = {
       '力': { color: '#E74C3C', bg: 'rgba(231,76,60,.25)' },
-      '声': { color: '#3498DB', bg: 'rgba(52,152,219,.25)' },
+      '声': { color: '#16A085', bg: 'rgba(22,160,133,.25)' },
       '光': { color: '#F1C40F', bg: 'rgba(241,196,15,.2)' },
       '热': { color: '#E67E22', bg: 'rgba(230,126,34,.25)' },
       '电': { color: '#9B59B6', bg: 'rgba(155,89,182,.25)' }
