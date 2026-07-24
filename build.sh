@@ -13,7 +13,7 @@ ART_DIR="$GAME_DIR/art_samples"
 
 echo "🧹 清理旧构建..."
 rm -rf "$DOCS_DIR"
-mkdir -p "$DOCS_DIR/js" "$DOCS_DIR/css" "$DOCS_DIR/art_samples/card_art"
+mkdir -p "$DOCS_DIR/js" "$DOCS_DIR/css" "$DOCS_DIR/art_samples/card_art" "$DOCS_DIR/art_samples/qr"
 
 echo "📄 复制静态资源..."
 cp "$GAME_DIR/index.html" "$DOCS_DIR/index.html"
@@ -22,6 +22,7 @@ cp "$CSS_DIR"/*.css "$DOCS_DIR/css/" 2>/dev/null || true
 cp "$ART_DIR/card_art/"*.png "$DOCS_DIR/art_samples/card_art/" 2>/dev/null || true
 cp "$ART_DIR/card_art/"*.jpg "$DOCS_DIR/art_samples/card_art/" 2>/dev/null || true
 cp "$ART_DIR/card_art/"*.webp "$DOCS_DIR/art_samples/card_art/" 2>/dev/null || true
+cp "$ART_DIR/qr/"* "$DOCS_DIR/art_samples/qr/" 2>/dev/null || true
 
 echo "🔒 混淆压缩 JS..."
 for js_file in "$JS_DIR"/*.js; do
