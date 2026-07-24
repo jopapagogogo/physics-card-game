@@ -19,6 +19,12 @@
       #game-container .card-v3.mini{width:min(100px,28vw)!important;height:min(143px,40vw)!important}
       #game-container .card-v3.mini:hover{transform:rotate(var(--rot)) scale(1.08) translateY(-4px)!important}
     }
+    @media(orientation:landscape) and (max-height:500px){
+      #game-container .card-v3.mini{width:min(72px,18vw)!important;height:min(103px,26vw)!important}
+    }
+    /* 移动端禁止图片长按弹出菜单 */
+    .card-v3,.card-v3 img,.card,.card img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+    .card-hand{-webkit-touch-callout:none}
   </style>
   <script>
   var _hmt = _hmt || [];
