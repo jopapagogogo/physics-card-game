@@ -34,6 +34,7 @@ class GameUI {
     this.mainDomain = null;
     this.subDomain = null;
     this.difficulty = 'normal';
+    this.quizTime = 15;        // 答题总时间(秒)，999=不限时
     this.autoPlayTimeout = null;
     this._hoverTooltip = null;
     this._attackTargeting = false;
@@ -156,6 +157,16 @@ class GameUI {
                 <button class="btn-diff" data-diff="hard">🥇 巅峰</button>
               </div>
             </div>
+            <div class="start-col">
+              <h2 class="section-title">④ 答题时间</h2>
+              <div id="quiz-time-btns" class="difficulty-col">
+                <button class="btn-time" data-time="15">⚡ 15秒</button>
+                <button class="btn-time active" data-time="30">⏱ 30秒</button>
+                <button class="btn-time" data-time="45">🕐 45秒</button>
+                <button class="btn-time" data-time="60">🧘 60秒</button>
+                <button class="btn-time" data-time="999">♾ 不限时</button>
+              </div>
+            </div>
           </div>
 
           <div class="start-footer">
@@ -221,6 +232,13 @@ class GameUI {
       }
       .btn-diff:hover { border-color:rgba(255,255,255,.15); }
       .btn-diff.active { border-color:var(--blu); color:#fff; box-shadow:0 0 12px rgba(52,152,219,.2); }
+      .btn-time {
+        width:120px; padding:12px 8px; background:rgba(255,255,255,.04); color:var(--mt);
+        border:2px solid rgba(255,255,255,.06); border-radius:10px;
+        cursor:pointer; font-size:14px; font-weight:700; transition:all .2s; text-align:center;
+      }
+      .btn-time:hover { border-color:rgba(255,255,255,.15); }
+      .btn-time.active { border-color:var(--grn); color:#fff; box-shadow:0 0 12px rgba(46,204,113,.2); }
       .start-footer { text-align:center; }
       .start-actions { display:flex; gap:10px; justify-content:center; }
       .btn-start {
@@ -301,7 +319,7 @@ class GameUI {
         .domain-grid{grid-template-columns:repeat(4,1fr);gap:6px}
         .btn-domain{width:52px;height:52px;font-size:11px}
         .difficulty-col{flex-direction:row;flex-wrap:wrap;gap:6px}
-        .btn-diff{font-size:12px;padding:8px 14px}
+        .btn-diff,.btn-time{font-size:12px;padding:8px 14px}
         .start-actions{flex-wrap:wrap;gap:6px;justify-content:center}
         .btn-start,.btn-deck-builder,.btn-wechat{font-size:12px;padding:8px 14px}
         .qr-popup-img-wrap img{width:180px;height:180px}
@@ -335,6 +353,15 @@ class GameUI {
         document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.difficulty = btn.dataset.diff;
+      });
+    });
+
+    // 答题时间选择
+    document.querySelectorAll('.btn-time').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-time').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.quizTime = parseInt(btn.dataset.time) || 15;
       });
     });
 
@@ -1031,7 +1058,7 @@ class GameUI {
 
     this.quizAnswers = [];
     this.currentQuestionIndex = 0;
-    this.quizTimerSeconds = 15;
+    this.quizTimerSeconds = this.quizTime;
 
     this.showQuizOverlay();
     this.showQuestion(0);
@@ -1166,16 +1193,23 @@ class GameUI {
 
   startQuizTimer() {
     clearInterval(this.quizTimer);
-    const totalSec = 15;
+    const isUnlimited = this.quizTime >= 999;
+    const totalSec = this.quizTime;
     const startTime = Date.now();
     const totalMs = totalSec * 1000;
+
+    // 不限时：隐藏倒计时条
+    const timerFill = document.getElementById('quiz-timer-fill');
+    if (timerFill) {
+      timerFill.style.display = isUnlimited ? 'none' : 'block';
+    }
+    if (isUnlimited) return; // 不限时不需要倒计时
 
     this.quizTimer = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const remaining = Math.max(0, totalMs - elapsed);
       const pct = (remaining / totalMs) * 100;
 
-      const timerFill = document.getElementById('quiz-timer-fill');
       if (timerFill) {
         timerFill.style.width = pct + '%';
         timerFill.style.background = pct < 30 ? '#e74c3c' : pct < 60 ? '#f39c12' : '#3498db';
