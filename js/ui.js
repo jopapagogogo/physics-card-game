@@ -184,7 +184,7 @@ class GameUI {
     style.id = 'start-screen-styles';
     style.textContent = `
       .start-screen {
-        width:100vw; height:100vh;
+        width:100%; height:100vh; height:100dvh; height:-webkit-fill-available;
         background:#0a0a1a;
         background-image:
           radial-gradient(ellipse at 30% 50%, rgba(52,152,219,.05) 0%, transparent 60%),
@@ -1437,7 +1437,7 @@ class GameUI {
     style.id = 'battle-screen-styles';
     style.textContent = `
       /* === P3 网格布局 === */
-      .p3-grid{display:flex;flex-direction:column;width:100vw;height:100vh;background:#0a0a1a;color:var(--lt);overflow:hidden}
+      .p3-grid{display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;height:-webkit-fill-available;background:#0a0a1a;color:var(--lt);overflow:hidden}
       /* === ABC 行 === */
       .abc-row{display:flex;flex-shrink:0;background:rgba(255,255,255,.02);overflow:visible}
       .abc-row.opponent{flex-basis:16%;border-bottom:1px solid rgba(255,255,255,.06)}
@@ -1675,7 +1675,7 @@ class GameUI {
 
       /* ─── 移动端响应式 ─── */
       @media(max-width:768px){
-        .p3-grid{height:100dvh}
+        .p3-grid{height:100vh;height:100dvh;height:-webkit-fill-available}
         .abc-row.opponent{flex-basis:12%}
         .abc-row.self{flex-basis:30%}
         .zone-b,.zone-c{width:32px;font-size:9px}

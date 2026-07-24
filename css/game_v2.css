@@ -26,7 +26,7 @@ body {
 
 /* ---- 游戏容器 ---- */
 .game-container {
-  width:100%; min-height:100vh; height:100vh; margin:0 auto;
+  width:100%; min-height:100vh; min-height:100dvh; min-height:-webkit-fill-available; height:100vh; height:100dvh; height:-webkit-fill-available; margin:0 auto;
   background:var(--bg);
   background-image:
     radial-gradient(ellipse at 50% 0%, rgba(52,152,219,.08) 0%, transparent 60%),
@@ -1189,7 +1189,7 @@ body {
   .card-v3 .v3-desc-effect { font-size:9.5px; }
   .card-v3 .v3-desc-principle { font-size:8px; }
   .scry-dialog { min-width:auto; width:calc(100vw - 24px); padding:20px; }
-  .game-container { height:100dvh; }
+  .game-container { height:100vh; height:100dvh; height:-webkit-fill-available; }
 }
 
 /* ======== 拉普拉斯妖 窥牌排序弹窗 ======== */
