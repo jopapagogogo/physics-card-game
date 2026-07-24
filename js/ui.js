@@ -163,6 +163,7 @@ class GameUI {
               <select id="deck-select" class="deck-select" style="display:none"><option value="">🃏 使用默认卡组</option></select>
               <button id="btn-deck-builder" class="btn-deck-builder" disabled>🃏 编辑卡组</button>
               <button id="btn-combo-list" class="btn-deck-builder">⚡ Combo列表</button>
+              <button id="btn-wechat-qr" class="btn-deck-builder btn-wechat">💬 扫码加作者</button>
               <button id="btn-start-game" class="btn-start" disabled>⚔ 开始战斗</button>
             </div>
             <p id="start-hint" class="start-hint">请先选择主领域和副领域</p>
@@ -247,6 +248,46 @@ class GameUI {
         cursor:pointer; max-width:200px;
       }
       .deck-select option { background:#1a1a2e; color:#ccc; }
+
+      /* 微信二维码按钮 */
+      .btn-wechat { background:rgba(7,193,96,.12); color:#07c160; border-color:rgba(7,193,96,.35); }
+      .btn-wechat:hover { background:rgba(7,193,96,.22); }
+
+      /* 二维码弹窗 */
+      .qr-popup-overlay {
+        position:fixed; inset:0; z-index:5000;
+        background:rgba(0,0,0,.65); backdrop-filter:blur(4px);
+        display:flex; align-items:center; justify-content:center;
+        animation:qrFadeIn .2s ease both;
+      }
+      .qr-popup-overlay.closing { animation:qrFadeOut .2s ease both; }
+      @keyframes qrFadeIn { from{opacity:0} to{opacity:1} }
+      @keyframes qrFadeOut { from{opacity:1} to{opacity:0} }
+      .qr-popup-card {
+        position:relative; background:#16162a; border-radius:16px;
+        padding:28px 28px 24px; min-width:300px; max-width:90vw;
+        box-shadow:0 12px 60px rgba(0,0,0,.6),0 0 80px rgba(7,193,96,.15);
+        border:1.5px solid rgba(7,193,96,.25);
+        animation:qrPopIn .3s cubic-bezier(.16,1,.3,1) both;
+      }
+      @keyframes qrPopIn { from{opacity:0;transform:scale(.9) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+      .qr-popup-close {
+        position:absolute; top:10px; right:12px;
+        width:28px; height:28px; border:none; background:transparent;
+        color:#888; font-size:18px; cursor:pointer; border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        transition:all .15s;
+      }
+      .qr-popup-close:hover { background:rgba(255,255,255,.1); color:#fff; }
+      .qr-popup-title { font-size:18px; font-weight:700; color:#07c160; margin:0 0 6px; text-align:center; }
+      .qr-popup-sub { font-size:12px; color:#8888aa; text-align:center; margin:0 0 18px; }
+      .qr-popup-img-wrap {
+        background:#fff; border-radius:12px; padding:12px;
+        display:flex; align-items:center; justify-content:center;
+        box-shadow:0 4px 20px rgba(0,0,0,.4);
+      }
+      .qr-popup-img-wrap img { width:240px; height:240px; object-fit:contain; display:block; }
+      .qr-popup-hint { font-size:11px; color:#666; text-align:center; margin:12px 0 0; }
     `;
     document.head.appendChild(style);
   }
@@ -290,6 +331,10 @@ class GameUI {
     // Combo列表按钮
     const comboBtn = document.getElementById('btn-combo-list');
     if (comboBtn) comboBtn.addEventListener('click', () => this.showComboList());
+
+    // 微信二维码按钮
+    const qrBtn = document.getElementById('btn-wechat-qr');
+    if (qrBtn) qrBtn.addEventListener('click', () => this._showWechatQR());
 
     // 卡组下拉选择
     const deckSelect = document.getElementById('deck-select');
@@ -3707,6 +3752,40 @@ class GameUI {
       <p style="color:#ddd;font-size:16px;">${msg}</p></div>`;
     document.body.appendChild(overlay);
     setTimeout(() => overlay.remove(), 2000);
+  }
+
+  /** 💬 显示作者微信二维码弹窗 */
+  _showWechatQR() {
+    const overlay = document.createElement('div');
+    overlay.className = 'qr-popup-overlay';
+    overlay.innerHTML = `
+      <div class="qr-popup-card">
+        <button class="qr-popup-close">✕</button>
+        <h3 class="qr-popup-title">💬 扫码加作者</h3>
+        <p class="qr-popup-sub">物理教学交流 · 反馈建议 · 玩法讨论</p>
+        <div class="qr-popup-img-wrap">
+          <img src="art_samples/qr/wechat.png" alt="微信二维码">
+        </div>
+        <p class="qr-popup-hint">用微信扫一扫即可添加</p>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    // 点击关闭（背景或✕）
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay || e.target.classList.contains('qr-popup-close')) {
+        overlay.classList.add('closing');
+        setTimeout(() => overlay.remove(), 200);
+      }
+    });
+    // ESC 关闭
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        overlay.classList.add('closing');
+        setTimeout(() => overlay.remove(), 200);
+        document.removeEventListener('keydown', onKey);
+      }
+    };
+    document.addEventListener('keydown', onKey);
   }
 
   /** ⚡ Combo列表弹窗 — 按领域分组展示 */

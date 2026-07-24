@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物理卡牌对战</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #080816;
+    font-family: 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    width: 1200px;
+    height: 675px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* 动态网格背景 */
+  .bg-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(100, 60, 180, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100, 60, 180, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 70%);
+  }
+
+  /* 顶部光晕 */
+  .glow-top {
+    position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse at center, rgba(120, 60, 220, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* 底部光晕 */
+  .glow-bottom {
+    position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 250px;
+    background: radial-gradient(ellipse at center, rgba(40, 150, 220, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* 粒子装饰 */
+  .particle {
+    position: absolute; border-radius: 50%;
+    background: rgba(180, 140, 255, 0.6);
+    pointer-events: none;
+    animation: floatUp 6s ease-in-out infinite;
+  }
+  .particle:nth-child(1) { width: 3px; height: 3px; left: 10%; top: 70%; animation-delay: 0s; animation-duration: 7s; }
+  .particle:nth-child(2) { width: 2px; height: 2px; left: 25%; top: 60%; animation-delay: 1.5s; animation-duration: 5s; }
+  .particle:nth-child(3) { width: 4px; height: 4px; left: 40%; top: 75%; animation-delay: 3s; animation-duration: 8s; }
+  .particle:nth-child(4) { width: 2px; height: 2px; left: 60%; top: 65%; animation-delay: 0.8s; animation-duration: 6s; }
+  .particle:nth-child(5) { width: 3px; height: 3px; left: 75%; top: 72%; animation-delay: 2.2s; animation-duration: 7.5s; }
+  .particle:nth-child(6) { width: 2px; height: 2px; left: 88%; top: 63%; animation-delay: 4s; animation-duration: 5.5s; }
+
+  @keyframes floatUp {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 0.8; transform: translateY(-20px); }
+  }
+
+  /* 主标题区域 */
+  .header {
+    position: relative; z-index: 10;
+    text-align: center; padding: 28px 0 0;
+  }
+  .title {
+    font-family: 'Orbitron', 'PingFang SC', sans-serif;
+    font-size: 46px; font-weight: 900;
+    background: linear-gradient(180deg, #f0d060 0%, #e8a020 50%, #c07810 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 6px;
+    filter: drop-shadow(0 0 20px rgba(240, 208, 96, 0.3));
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 16px; color: #8899bb;
+    letter-spacing: 4px;
+  }
+  .subtitle span { color: #c8a0ff; font-weight: 700; }
+
+  /* 卡牌展示区 */
+  .cards-row {
+    position: relative; z-index: 10;
+    display: flex; justify-content: center; gap: 28px;
+    margin: 22px 50px 0;
+  }
+
+  .card-wrap {
+    position: relative;
+    width: 215px;
+    transition: transform 0.3s ease;
+  }
+  .card-wrap:nth-child(2) .card-glow { background: radial-gradient(ellipse at center, rgba(149,165,166,0.45) 0%, transparent 70%); }
+  .card-wrap:nth-child(3) .card-glow { background: radial-gradient(ellipse at center, rgba(241,196,15,0.45) 0%, transparent 70%); }
+  .card-wrap:nth-child(4) .card-glow { background: radial-gradient(ellipse at center, rgba(230,126,34,0.45) 0%, transparent 70%); }
+
+  .card-glow {
+    position: absolute; top: -20px; left: -20px;
+    width: calc(100% + 40px); height: calc(100% + 40px);
+    background: radial-gradient(ellipse at center, rgba(155,89,182,0.5) 0%, transparent 70%);
+    border-radius: 12px; pointer-events: none;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  .card-wrap:nth-child(2) .card-glow { animation-delay: 0.5s; }
+  .card-wrap:nth-child(3) .card-glow { animation-delay: 1s; }
+  .card-wrap:nth-child(4) .card-glow { animation-delay: 1.5s; }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .card-frame {
+    position: relative;
+    background: #12122a;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+
+  .card-art {
+    width: 100%; height: 270px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    background: #0a0a18;
+  }
+  .card-art img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  .card-label {
+    padding: 12px 14px 14px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(255,255,255,0.06));
+    border-top: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+  .card-label .card-name {
+    font-size: 16px; font-weight: 700; color: #fff;
+    display: block; margin-bottom: 4px;
+  }
+  .card-label .card-rarity {
+    font-size: 12px; font-weight: 600; letter-spacing: 2px;
+    display: inline-block;
+    padding: 2px 10px; border-radius: 10px;
+  }
+  .rarity-mythic { color: #d4a0ff; background: rgba(155,89,182,0.2); border: 1px solid rgba(155,89,182,0.4); }
+  .rarity-epic { color: #ff7060; background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.35); }
+  .rarity-legendary { color: #ffb040; background: rgba(243,156,18,0.15); border: 1px solid rgba(243,156,18,0.35); }
+
+  /* 底部信息 */
+  .footer {
+    position: relative; z-index: 10;
+    text-align: center; margin-top: 18px;
+    padding-top: 10px;
+  }
+  .url {
+    font-family: 'Orbitron', 'Consolas', monospace;
+    font-size: 16px; color: #88aacc;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  .tags {
+    margin-top: 8px;
+    font-size: 12px; color: #8866aa;
+    letter-spacing: 3px;
+  }
+
+  /* 领域符文装饰 */
+  .runes-top {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    display: flex; gap: 80px; z-index: 5; pointer-events: none; opacity: 0.06;
+  }
+  .rune {
+    font-size: 120px; font-weight: 900;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow-top"></div>
+<div class="glow-bottom"></div>
+
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+<div class="particle"></div>
+
+<div class="runes-top">
+  <span class="rune">力</span>
+  <span class="rune">电</span>
+  <span class="rune">光</span>
+</div>
+
+<div class="header">
+  <div class="title">物理卡牌对战</div>
+  <div class="subtitle">五大领域 × <span>109张</span>赛博朋克卡牌 · 把公式变成战斗力</div>
+</div>
+
+<div class="cards-row">
+  <div class="card-wrap">
+    <div class="card-glow"></div>
+    <div class="card-frame">
+      <div class="card-art"><img src="art_samples/card_art/C04.png" alt="薛定谔的猫"></div>
+      <div class="card-label">
+        <span class="card-name">薛定谔的猫</span>
+        <span class="card-rarity rarity-mythic">神话·混沌</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-wrap">
+    <div class="card-glow"></div>
+    <div class="card-frame">
+      <div class="card-art"><img src="art_samples/card_art/A31.png" alt="共振爆破"></div>
+      <div class="card-label">
+        <span class="card-name">共振爆破</span>
+        <span class="card-rarity rarity-epic">史诗·声/力</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-wrap">
+    <div class="card-glow"></div>
+    <div class="card-frame">
+      <div class="card-art"><img src="art_samples/card_art/S19.png" alt="镜面迷宫"></div>
+      <div class="card-label">
+        <span class="card-name">镜面迷宫</span>
+        <span class="card-rarity rarity-epic">史诗·光</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-wrap">
+    <div class="card-glow"></div>
+    <div class="card-frame">
+      <div class="card-art"><img src="art_samples/card_art/A35.png" alt="短路熔毁"></div>
+      <div class="card-label">
+        <span class="card-name">短路熔毁</span>
+        <span class="card-rarity rarity-epic">史诗·电/热</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="url">jopapagogogo.github.io/physics-card-game</div>
+  <div class="tags"># 物理卡牌对战 &nbsp;# 初中物理 &nbsp;# TCG &nbsp;# 赛博朋克</div>
+</div>
+
+</body>
+</html>
