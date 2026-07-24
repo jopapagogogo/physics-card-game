@@ -138,12 +138,11 @@
 
 ## ⏳ 当前待办
 
-> 阶段1视觉打磨 ✅ | 阶段2体验打磨 ✅ (30/30) | 代码审查 ✅ (13/13) | 卡牌效果 ✅ (109/109)
+> 阶段1视觉打磨 ✅ | 阶段2体验打磨 ✅ (30/30) | 代码审查 ✅ (13/13) | 卡牌效果 ✅ (109/109) | 部署上线 ✅
 
 | 优先级 | 内容 | 状态 |
 |:--:|------|:--:|
 | — | 用户验收测试（V28粒子/V29皮肤/V30引导 + 6张修复卡） | ⏳ |
-| — | 阶段3：Gitee Pages 部署 | ⏳ |
 
 ---
 
@@ -233,12 +232,13 @@
 
 | 任务 | 内容 | 状态 |
 |------|------|:--:|
-| B1 | 部署到静态托管（GitHub Pages / Gitee Pages） | ⚪ |
+| B1 | 部署到 GitHub Pages | ✅ https://jopapagogogo.github.io/physics-card-game/ |
 | B2 | 编写玩家指南（规则说明 + FAQ） | ⚪ |
 | B3 | 邀请物理教研群内测，收集反馈问卷 | ⚪ |
 | B4 | 根据反馈迭代修复 | ⚪ |
 
 > 出口标准：≥ 20 名学生独立完成游戏，整体满意度 ≥ 80%。
+> 说明：Gitee Pages 已于 2024 年下线，改用 GitHub Pages 部署。
 
 ### 阶段 4：PWA 化
 
@@ -274,7 +274,8 @@
 
 ## Git
 
-- 仓库：git@gitee.com:jopapa/physics-card-game.git
-- 分支：master
+- Gitee：git@gitee.com:jopapa/physics-card-game.git（日常开发，双推保留）
+- GitHub：git@github.com:jopapagogogo/physics-card-game.git（GitHub Pages 部署）
+- 分支：master（双推 origin + github）
 
-> 📝 本次：代码审查68→0 ✓ | combo 31→49 ✓ | 自动化管线(审查+测试+摘要) ✓ | 工作模式/优先级/批处理/速查表落地 ✓
+> 📝 本次：GitHub Pages 部署上线 → https://jopapagogogo.github.io/physics-card-game/ | AI伤害估算修复(N504/N505/N405) | 支援卡评估死代码修复(N509) | combo评分补全(NE129) | CSS兼容性(N422/N425) | emojiMap冗余清理(N426)
