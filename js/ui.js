@@ -2376,10 +2376,53 @@ class GameUI {
       });
     }
 
-    // 己方手牌点击（事件代理）
+    // 己方手牌点击/触摸（事件代理）
     const selfHand = document.getElementById('self-hand');
     if (selfHand) {
+      // ─── 移动端长按预览（触摸设备） ───
+      let longPressTimer = null, longPressTriggered = false, touchStartPos = null;
+      const self = this;
+
+      selfHand.addEventListener('touchstart', (e) => {
+        const cardEl = e.target.closest('.card-v3, .card');
+        if (!cardEl) return;
+        const cardId = cardEl.dataset.cardId;
+        if (!cardId) return;
+        longPressTriggered = false;
+        touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        longPressTimer = setTimeout(() => {
+          longPressTriggered = true;
+          cardEl.classList.add('long-press-active');
+          const gs = self.engine?.getGameState();
+          const card = (gs?.players[0].hand || []).find(c => c.id === cardId);
+          if (card) {
+            card._fromHand = true;
+            self._showCardDetail(card);
+          }
+        }, 500);
+      }, { passive: false });
+
+      selfHand.addEventListener('touchmove', (e) => {
+        if (!touchStartPos) return;
+        const dx = (e.touches[0].clientX - touchStartPos.x);
+        const dy = (e.touches[0].clientY - touchStartPos.y);
+        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+          if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+        }
+      });
+
+      selfHand.addEventListener('touchend', () => {
+        if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+        if (longPressTriggered) {
+          // 长按已触发详情，阻止后续 click
+          const active = selfHand.querySelector('.long-press-active');
+          if (active) active.classList.remove('long-press-active');
+        }
+      });
+
+      // ─── 点击出牌（桌面端 + 手机短按） ───
       selfHand.addEventListener('click', (e) => {
+        if (longPressTriggered) { longPressTriggered = false; return; }
         const cardEl = e.target.closest('.card-v3, .card');
         if (!cardEl) return;
         const cardId = cardEl.dataset.cardId;
