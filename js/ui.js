@@ -1698,6 +1698,24 @@ class GameUI {
         .d-half .play-zone{width:56px}
         .d-zone{padding:3px 3px}
       }
+      /* ─── 横屏适配（手机横过来）─── */
+      @media(orientation:landscape) and (max-height:500px){
+        .abc-row.opponent{flex-basis:8%}
+        .abc-row.self{flex-basis:20%}
+        .divider-row{height:14px}
+        .d-zone{padding:2px 8px}
+        .d-half{padding:0}
+        .d-half .card-field{min-height:32px;gap:2px}
+        .d-half .play-zone{width:72px;max-height:48px}
+        .card-field .field-card-v3{width:48px;font-size:8px}
+        .card-field .field-card-v3 .card-landing-art{height:40px}
+        .abc-row .card-hand{padding:1px}
+        .summon-mini{width:32px;height:44px;font-size:7px}
+        .zone-b,.zone-c{width:24px;font-size:8px}
+        .card-landing-card{width:90px}
+        .card-landing-art{height:60px}
+        .card-landing-name{font-size:11px}
+      }
     `;
     document.head.appendChild(style);
   }

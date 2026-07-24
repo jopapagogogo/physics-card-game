@@ -759,20 +759,21 @@ body {
    横屏适配（P3布局，高度受限时压缩上下区域）
    ============================================================ */
 @media (orientation: landscape) and (max-height: 500px) {
-  .abc-row.opponent { flex-basis: 12%; }
-  .abc-row.self { flex-basis: 16%; }
-  .d-zone { padding: 3px 52px; }
-  .divider-row { height: 24px; }
+  .abc-row.opponent { flex-basis: 8%; }
+  .abc-row.self { flex-basis: 20%; }
+  .d-zone { padding: 2px 8px; }
+  .divider-row { height: 14px; }
+  .card-field .summon, .card-field .domain-card { width:48px; height:66px; }
   /* 答题横屏布局 */
   .quiz-card {
-    max-width:680px; padding:20px 28px;
+    max-width:680px; padding:14px 24px;
     display:flex; flex-direction:column;
   }
-  .quiz-card .quiz-question { font-size:18px; margin-bottom:12px; }
+  .quiz-card .quiz-question { font-size:16px; margin-bottom:8px; }
   .quiz-card .quiz-options {
-    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
   }
-  .quiz-card .quiz-option { min-height:44px; font-size:14px; margin:0; }
+  .quiz-card .quiz-option { min-height:38px; font-size:13px; margin:0; }
 }
 
 /* ============================================================
