@@ -1594,6 +1594,21 @@ class GameUI {
       @keyframes fadeIn{from{opacity:0}to{opacity:1}}
       @keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
       @keyframes playCardIn{from{opacity:0;transform:translateY(-40px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
+      @keyframes fieldCardLand{from{opacity:0;transform:scale(.85) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+      .field-card-v3{animation:fieldCardLand .35s ease both;}
+      /* 大卡落地特效（position:fixed 由 JS 内联设置，避开 d-zone overflow:hidden） */
+      .card-landing-overlay{display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .25s ease;animation:landingIn .3s ease both;}
+      .card-landing-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,.45) 0%,rgba(0,0,0,.15) 60%,transparent 100%);pointer-events:none;animation:fadeIn .3s ease both;}
+      @keyframes landingIn{from{opacity:0;transform:scale(.92) translateY(-12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+      .card-landing-card{position:relative;display:flex;flex-direction:column;width:140px;border-radius:10px;overflow:hidden;border:3px solid #888;background:#1a1a2e;box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 80px var(--landing-glow,rgba(255,255,255,.1));animation:landingCardIn .45s cubic-bezier(.16,1,.3,1) both;}
+      @keyframes landingCardIn{from{opacity:0;transform:translateY(-20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+      .card-landing-art{height:105px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#111;}
+      .card-landing-art img{width:100%;height:100%;object-fit:cover;}
+      .card-landing-emoji{font-size:48px;opacity:.25;}
+      .card-landing-info{display:flex;flex-direction:column;align-items:center;padding:8px 10px 10px;gap:3px;background:linear-gradient(to bottom,rgba(255,255,255,.03),rgba(255,255,255,.06));border-top:1px solid rgba(255,255,255,.06);}
+      .card-landing-type{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;}
+      .card-landing-name{font-size:15px;font-weight:700;color:#fff;text-align:center;text-shadow:0 0 10px rgba(255,255,255,.2);}
+      .card-landing-cost{font-size:12px;font-weight:700;padding:2px 10px;border-radius:12px;color:#fff;margin-top:3px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
     `;
     document.head.appendChild(style);
   }
@@ -1664,6 +1679,77 @@ class GameUI {
     } catch (e) {
       console.error('[updateAllDisplay] error:', e.message, e.stack);
     }
+  }
+
+  /** 快速更新（出牌后第一步）：不含 field/summons，让玩家先看清 play-zone 中刚打出的牌 */
+  _quickUpdateAfterPlay() {
+    try {
+      const gs = this.engine?.getGameState();
+      if (!gs || !gs.players) return;
+      this._updateHP(gs);
+      this._updateSpirit(gs);
+      this._updateDebuffs(gs);
+      this._updateLightSpeedIndicator();
+      this.renderPlayZones();
+      this.renderHand();
+      this._updateCounters(gs);
+    } catch (e) {
+      console.error('[_quickUpdateAfterPlay] error:', e.message);
+    }
+  }
+
+  /** 延迟更新驻场区（出牌后第二步）：field + summons + 领域效果 + 底纹 */
+  _showFieldAfterPlay() {
+    try {
+      const gs = this.engine?.getGameState();
+      if (!gs || !gs.players) return;
+      this.renderField();
+      this._renderSummons();
+      this.renderDomainEffects();
+      this._updateBattleTexture(gs);
+    } catch (e) {
+      console.error('[_showFieldAfterPlay] error:', e.message);
+    }
+  }
+
+  /** 大卡落地效果：在 D 区中央临时展示打出的卡牌（渲染到 body 避免被 overflow:hidden 裁切） */
+  _showCardLandingEffect(card, isPlayer) {
+    if (!card) return;
+    const dZone = isPlayer ? document.getElementById('self-d-zone') : document.getElementById('opp-d-zone');
+    if (!dZone) return;
+    const dRect = dZone.getBoundingClientRect();
+
+    const style = this.getDomainStyle(card.domain);
+    const artUrl = this.artMap[card.id] || '';
+    const typeEmoji = { attack: '⚔️', support: '✨', domain: '🏛️', summon: '👾', phase: '🌀' }[card.type] || '🃏';
+    const domainLabel = Array.isArray(card.domain) ? card.domain.join('/') : (card.domain || '混沌');
+
+    const landing = document.createElement('div');
+    landing.className = 'card-landing-overlay';
+    landing.style.cssText = `
+      position:fixed; left:${dRect.left}px; top:${dRect.top}px;
+      width:${dRect.width}px; height:${dRect.height}px;
+      z-index:200; pointer-events:none;
+    `;
+    landing.innerHTML = `
+      <div class="card-landing-card" style="border-color:${style.color};--landing-glow:${style.bg};">
+        <div class="card-landing-art" style="background:linear-gradient(135deg,${style.bg},#1a1a2e);">
+          ${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span class="card-landing-emoji">⚛</span>`}
+        </div>
+        <div class="card-landing-info">
+          <span class="card-landing-type">${typeEmoji} ${domainLabel}·${this.getTypeLabel(card.type)}</span>
+          <span class="card-landing-name">${this._escapeHtml(card.name)}</span>
+          <span class="card-landing-cost" style="background:${style.bg};color:#fff;">${card.cost ?? '?'}费</span>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(landing);
+
+    // 展示后渐隐移除
+    setTimeout(() => {
+      landing.style.opacity = '0';
+      setTimeout(() => landing.remove(), 250);
+    }, 800);
   }
 
   /** 更新墓地/牌库计数 */
@@ -2329,26 +2415,24 @@ class GameUI {
             }
           }
         } else if (cardEl.classList.contains('support-card')) {
-          const nameEl = cardEl.querySelector('.v3-name, .card-name');
-          if (nameEl) {
-            const supports = gs.players[0].fieldSupports || [];
-            const sup = supports.find(s => (s.card && s.card.name === nameEl.textContent.trim()) || s.name === nameEl.textContent.trim());
-            if (sup) {
-              const cardData = sup.card || this.engine?.getCardById?.(sup.id);
-              if (cardData) {
-                cardData._fromHand = false;
-                cardData.turns = sup.turns;
-                this._showCardDetail(cardData);
-              }
+          const cardId = cardEl.dataset.cardId;
+          const supports = gs.players[0].fieldSupports || [];
+          const sup = supports.find(s => (s.card && s.card.id === cardId) || s.id === cardId);
+          if (sup) {
+            const cardData = sup.card || this.engine?.getCardById?.(sup.id);
+            if (cardData) {
+              cardData._fromHand = false;
+              cardData.turns = sup.turns;
+              this._showCardDetail(cardData);
             }
           }
         } else if (cardEl.classList.contains('domain-card')) {
-          if (gs.players[0].fieldDomain) {
-            const domainCard = this.engine?.getCardById?.(gs.players[0].fieldDomain.cardId);
-            if (domainCard) {
-              domainCard._fromHand = false;
-              this._showCardDetail(domainCard);
-            }
+          const cardId = cardEl.dataset.cardId;
+          const domainCard = this.engine?.getCardById?.(cardId) 
+            || (gs.players[0].fieldDomain ? this.engine?.getCardById?.(gs.players[0].fieldDomain.cardId) : null);
+          if (domainCard) {
+            domainCard._fromHand = false;
+            this._showCardDetail(domainCard);
           }
         }
       });
@@ -2614,8 +2698,8 @@ class GameUI {
       cost: this.selectedCard.cost
     });
 
-    // 先刷新UI使play zone DOM就绪
-    this.updateAllDisplay();
+    // 第一步：先展示卡牌在 play-zone（不含 field）
+    this._quickUpdateAfterPlay();
 
     // 知识减费/加费视觉反馈
     this._showQuizCostFeedback();
@@ -2628,6 +2712,17 @@ class GameUI {
         this._animateCardFly(card, cardRect, targetRect);
       }
     }
+
+    // 大卡落地效果（D区中央醒目展示）
+    this._showCardLandingEffect(card, true);
+
+    // 第二步：延迟展示驻场卡落地
+    const self = this;
+    setTimeout(() => {
+      if (self.engine && !self.engine.isGameOver()) {
+        self._showFieldAfterPlay();
+      }
+    }, 450);
 
     // 显示效果日志 & 视觉特效
     if (result.effects && Array.isArray(result.effects)) {
@@ -3246,10 +3341,11 @@ class GameUI {
             });
           }
 
-          this.updateAllDisplay();
+          // 第一步：先展示卡牌在 play-zone（不含 field）
+          this._quickUpdateAfterPlay();
 
-          // AI卡牌飞行动画（从对手手牌→AI出牌区）
-          this._animateAICardFly(aiCard);
+          // 大卡落地效果（D区中央醒目展示，替代飞行动画）
+          this._showCardLandingEffect(aiCard, false);
 
           // AI攻击特效 + 日志
           if (_aiResult && _aiResult.effects && Array.isArray(_aiResult.effects)) {
@@ -3268,8 +3364,13 @@ class GameUI {
             this._showComboEffect(_aiCombo.type, _aiCombo.msg + ' (AI)');
           }
 
-          // 短暂延迟让玩家看到AI出牌效果
-          await this.ai._sleep(600 + Math.random() * 400);
+          // 停顿让玩家看清打出的牌
+          await this.ai._sleep(500);
+
+          // 第二步：展示驻场卡落地（field + summons + 领域效果）
+          if (!this.engine.isGameOver()) {
+            this._showFieldAfterPlay();
+          }
 
           if (this.engine.isGameOver()) {
             this.showGameOver();
