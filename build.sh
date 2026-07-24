@@ -17,6 +17,7 @@ mkdir -p "$DOCS_DIR/js" "$DOCS_DIR/css" "$DOCS_DIR/art_samples/card_art"
 
 echo "📄 复制静态资源..."
 cp "$GAME_DIR/index.html" "$DOCS_DIR/index.html"
+cp "$GAME_DIR/approved_cards.json" "$DOCS_DIR/approved_cards.json"
 cp "$CSS_DIR"/*.css "$DOCS_DIR/css/" 2>/dev/null || true
 cp "$ART_DIR/card_art/"*.png "$DOCS_DIR/art_samples/card_art/" 2>/dev/null || true
 cp "$ART_DIR/card_art/"*.jpg "$DOCS_DIR/art_samples/card_art/" 2>/dev/null || true
