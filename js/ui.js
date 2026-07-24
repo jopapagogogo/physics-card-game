@@ -288,6 +288,24 @@ class GameUI {
       }
       .qr-popup-img-wrap img { width:240px; height:240px; object-fit:contain; display:block; }
       .qr-popup-hint { font-size:11px; color:#666; text-align:center; margin:12px 0 0; }
+
+      /* ─── 移动端响应式 ─── */
+      @media(max-width:768px){
+        .start-screen{flex-direction:column;padding:12px 14px;gap:12px;overflow-y:auto}
+        .start-left{max-width:none;text-align:center}
+        .start-left .start-title{font-size:22px}
+        .start-left .start-subtitle{font-size:13px}
+        .start-row{flex-wrap:wrap;gap:8px}
+        .start-col{flex:1 1 100%;min-width:0}
+        .section-title{font-size:14px}
+        .domain-grid{grid-template-columns:repeat(4,1fr);gap:6px}
+        .btn-domain{width:52px;height:52px;font-size:11px}
+        .difficulty-col{flex-direction:row;flex-wrap:wrap;gap:6px}
+        .btn-diff{font-size:12px;padding:8px 14px}
+        .start-actions{flex-wrap:wrap;gap:6px;justify-content:center}
+        .btn-start,.btn-deck-builder,.btn-wechat{font-size:12px;padding:8px 14px}
+        .qr-popup-img-wrap img{width:180px;height:180px}
+      }
     `;
     document.head.appendChild(style);
   }
@@ -1654,6 +1672,32 @@ class GameUI {
       .card-landing-type{font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;}
       .card-landing-name{font-size:15px;font-weight:700;color:#fff;text-align:center;text-shadow:0 0 10px rgba(255,255,255,.2);}
       .card-landing-cost{font-size:12px;font-weight:700;padding:2px 10px;border-radius:12px;color:#fff;margin-top:3px;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+
+      /* ─── 移动端响应式 ─── */
+      @media(max-width:768px){
+        .p3-grid{height:100dvh}
+        .abc-row.opponent{flex-basis:12%}
+        .abc-row.self{flex-basis:30%}
+        .zone-b,.zone-c{width:32px;font-size:9px}
+        .zone-a .player-info .avatar{width:36px;height:36px;font-size:20px}
+        .d-zone{padding:4px 6px}
+        .d-half .play-zone{width:68px;max-height:56px}
+        .divider-row{height:18px}
+        .abc-row .card-hand{gap:1px;padding:2px}
+        .summon-mini{width:40px;height:54px;font-size:8px}
+        .card-field .domain-card,.card-field .support-card{width:60px}
+        .card-field .field-card-v3{width:60px;font-size:9px}
+        .card-landing-card{width:110px}
+        .card-landing-art{height:80px}
+        .card-landing-name{font-size:13px}
+      }
+      @media(max-width:480px){
+        .zone-b,.zone-c{width:24px;padding:0 2px}
+        .abc-row.opponent{flex-basis:10%}
+        .abc-row.self{flex-basis:34%}
+        .d-half .play-zone{width:56px}
+        .d-zone{padding:3px 3px}
+      }
     `;
     document.head.appendChild(style);
   }

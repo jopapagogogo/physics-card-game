@@ -1188,6 +1188,8 @@ body {
   .card-v3 .v3-name { font-size:11px; padding-left:34px; min-height:26px; }
   .card-v3 .v3-desc-effect { font-size:9.5px; }
   .card-v3 .v3-desc-principle { font-size:8px; }
+  .scry-dialog { min-width:auto; width:calc(100vw - 24px); padding:20px; }
+  .game-container { height:100dvh; }
 }
 
 /* ======== 拉普拉斯妖 窥牌排序弹窗 ======== */
