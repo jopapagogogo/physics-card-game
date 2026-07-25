@@ -236,7 +236,8 @@ body {
 }
 .quiz-card {
   background:#fff; color:var(--txt); border-radius:var(--r16); padding:24px;
-  width:calc(100% - 32px); max-width:360px; box-shadow:var(--shdO);
+  width:calc(100% - 32px); max-width:360px; max-height:none; overflow:visible;
+  box-shadow:var(--shdO);
   animation:quizPopIn .4s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes quizPopIn {
@@ -250,7 +251,7 @@ body {
   0%,100% { opacity:1; }
   50% { opacity:.4; }
 }
-.quiz-card .quiz-question { font-size:16px; font-weight:700; line-height:1.5; margin-bottom:16px; text-align:center; word-break:break-word; overflow-wrap:break-word; }
+.quiz-card .quiz-question { font-size:16px; font-weight:700; line-height:1.5; margin-bottom:16px; text-align:center; overflow-wrap:break-word; word-wrap:break-word; }
 .quiz-timer { height:4px; border-radius:2px; background:#e0e0e0; overflow:hidden; margin-bottom:16px; }
 .quiz-timer-fill { height:100%; border-radius:2px; background:var(--red); transition:width .1s linear; }
 
