@@ -4046,7 +4046,7 @@ class QuizSystem {
       },
       {
         id: "Q_H_051", domain: "热", difficulty: "advanced",
-        question: "白气是什么？",
+        question: "冬天说话时呼出的「白气」是什么？",
         options: ["A. 水蒸气", "B. 水蒸气液化成小水滴", "C. 空气", "D. 干冰"],
         answer: 1, knowledge: "白气=液滴", relatedCard: "A25"
       },
@@ -4064,7 +4064,7 @@ class QuizSystem {
       },
       {
         id: "Q_H_054", domain: "热", difficulty: "advanced",
-        question: "等质同温水煤油吸同热升温多的？",
+        question: "质量相等、初温相同的水和煤油吸收相同热量，哪个升温更多？",
         options: ["A. 水", "B. 煤油", "C. 同", "D. 无法"],
         answer: 1, knowledge: "煤比热小", relatedCard: "S22"
       },
@@ -4220,7 +4220,7 @@ class QuizSystem {
       },
       {
         id: "Q_H_080", domain: "热", difficulty: "challenge",
-        question: "等质同温铜铝吸同热接触传热？(c铝>c铜)",
+        question: "质量相等、初温相同的铜和铝吸收相同热量后接触，热从哪个物体传递到哪个物体？（c铝>c铜）",
         options: ["A. 铜→铝", "B. 铝→铜", "C. 不传", "D. 无法"],
         answer: 0, knowledge: "铜温升多", relatedCard: "S22"
       },
@@ -4274,14 +4274,14 @@ class QuizSystem {
       },
       {
         id: "Q_H_089", domain: "热", difficulty: "basic",
-        question: "红铁入冷现白气发生？",
-        options: ["A. 只汽", "B. 只液", "C. 先汽后液", "D. 先液后汽"],
+        question: "烧红的铁块放入冷水中出现白气，发生的物态变化是？",
+        options: ["A. 只汽化", "B. 只液化", "C. 先汽化后液化", "D. 先液化后汽化"],
         answer: 2, knowledge: "汽后液", relatedCard: "A25"
       },
       {
         id: "Q_H_090", domain: "热", difficulty: "basic",
-        question: "哈气暖吹气凉因？",
-        options: ["A. 哈液放吹蒸吸", "B. 哈蒸吸吹液放", "C. 都液", "D. 都蒸"],
+        question: "冬天哈气暖、吹气凉，这是因为？",
+        options: ["A. 哈气液化放热吹气蒸发吸热", "B. 哈气蒸发吸热吹气液化放热", "C. 都是液化", "D. 都是蒸发"],
         answer: 0, knowledge: "液化放蒸发吸", relatedCard: "A25"
       },
       {
@@ -4388,20 +4388,20 @@ class QuizSystem {
       },
       {
         id: "Q_H_108", domain: "热", difficulty: "advanced",
-        question: "等质同温甲升慢？",
-        options: ["A. 甲比热大", "B. 乙比热大", "C. 同", "D. 无法"],
+        question: "质量相等、初温相同的甲乙两物体吸收相同热量，甲升温较慢，说明什么？",
+        options: ["A. 甲比热容大", "B. 乙比热容大", "C. 一样大", "D. 无法判断"],
         answer: 0, knowledge: "升慢比大", relatedCard: "S22"
       },
       {
         id: "Q_H_109", domain: "热", difficulty: "advanced",
         question: "结论错误的是？",
-        options: ["A. 车水冷好", "B. 液比热都>固", "C. 同物异态比不同", "D. 等质冰水升同冰吸少"],
+        options: ["A. 车用水冷效果好", "B. 液体比热容都大于固体", "C. 同种物质不同状态比热容不同", "D. 等质量的冰和水升高相同温度，冰吸收的热量少"],
         answer: 1, knowledge: "反例水银", relatedCard: "S22"
       },
       {
         id: "Q_H_110", domain: "热", difficulty: "challenge",
-        question: "等质同温甲升温慢？",
-        options: ["A. 甲大", "B. 乙大", "C. 同", "D. 无法"],
+        question: "质量相等、初温相同的甲乙两物体吸收相同热量，甲升温较慢，说明甲的比热容比乙？",
+        options: ["A. 更大", "B. 更小", "C. 相等", "D. 无法判断"],
         answer: 0, knowledge: "比热大", relatedCard: "S22"
       },
       {
@@ -4436,7 +4436,7 @@ class QuizSystem {
       },
       {
         id: "Q_H_116", domain: "热", difficulty: "basic",
-        question: "镜片起雾又清？",
+        question: "冬天镜片进入室内起雾后又变清晰，发生的物态变化是？",
         options: ["A. 汽后液", "B. 液后汽", "C. 凝后蒸", "D. 熔后凝"],
         answer: 1, knowledge: "液后汽", relatedCard: "A25"
       },
@@ -4490,8 +4490,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_125", domain: "热", difficulty: "basic",
-        question: "等质同温乙升快？",
-        options: ["A. c甲>c乙", "B. c甲<c乙", "C. 等", "D. 无法"],
+        question: "质量相等、初温相同的甲乙两物体吸收相同热量，乙升温较快，则比热容大小关系为？",
+        options: ["A. c甲>c乙", "B. c甲<c乙", "C. 相等", "D. 无法判断"],
         answer: 0, knowledge: "甲慢=大", relatedCard: "S22"
       },
       {
@@ -4502,8 +4502,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_127", domain: "热", difficulty: "basic",
-        question: "内→机？",
-        options: ["A. 晒阳", "B. 爆竹", "C. 锯热", "D. 弯铁丝"],
+        question: "下列现象中属于内能转化为机械能的是？",
+        options: ["A. 晒太阳取暖", "B. 爆竹升空", "C. 锯木头变热", "D. 弯铁丝发热"],
         answer: 1, knowledge: "爆竹", relatedCard: "S18"
       },
       {
@@ -4544,14 +4544,14 @@ class QuizSystem {
       },
       {
         id: "Q_H_134", domain: "热", difficulty: "basic",
-        question: "镜片室→暖起雾又消？",
-        options: ["A. 凝→升", "B. 液→汽", "C. 凝→蒸", "D. 凝华→升"],
+        question: "镜片从室外进入温暖的室内，起雾后又消失，发生的物态变化是？",
+        options: ["A. 凝华→升华", "B. 液化→汽化", "C. 凝固→蒸发", "D. 凝华→升华"],
         answer: 1, knowledge: "液汽", relatedCard: "A25"
       },
       {
         id: "Q_H_135", domain: "热", difficulty: "basic",
-        question: "内→机？",
-        options: ["A. 流星", "B. 泡脚", "C. 汽油压", "D. 蒸气顶壶"],
+        question: "下列现象中属于内能转化为机械能的是？",
+        options: ["A. 流星", "B. 泡脚", "C. 汽油压缩", "D. 蒸汽顶起壶盖"],
         answer: 3, knowledge: "蒸汽", relatedCard: "S18"
       },
       {
@@ -4562,20 +4562,20 @@ class QuizSystem {
       },
       {
         id: "Q_H_137", domain: "热", difficulty: "advanced",
-        question: "质2:3吸等升3:2比热比？",
+        question: "甲乙两物体质量比为2:3，吸收相等热量后升温比为3:2，则比热容之比为？",
         options: ["A. 1:1", "B. 9:4", "C. 4:9", "D. 2:3"],
         answer: 0, knowledge: "1:1", relatedCard: "S22"
       },
       {
         id: "Q_H_138", domain: "热", difficulty: "advanced",
-        question: "内转机？",
-        options: ["A. 吸", "B. 压", "C. 功", "D. 排"],
+        question: "内燃机中内能转化为机械能的冲程是？",
+        options: ["A. 吸气", "B. 压缩", "C. 做功", "D. 排气"],
         answer: 2, knowledge: "功", relatedCard: "S18"
       },
       {
         id: "Q_H_139", domain: "热", difficulty: "challenge",
-        question: "等质同温甲升快？",
-        options: ["A. 甲大", "B. 甲小", "C. 同", "D. 无法"],
+        question: "质量相等、初温相同的甲乙两物体吸收相同热量，甲升温较快，说明甲的比热容比乙？",
+        options: ["A. 更大", "B. 更小", "C. 相等", "D. 无法判断"],
         answer: 1, knowledge: "升快=比小", relatedCard: "S22"
       },
       {
@@ -4605,7 +4605,7 @@ class QuizSystem {
       {
         id: "Q_H_144", domain: "热", difficulty: "basic",
         question: "比热判正确的是？",
-        options: ["A. 不同必不同", "B. 干土升慢", "C. 沿海温差大", "D. 等质铝铜升同铝吸多"],
+        options: ["A. 不同物质比热容必不同", "B. 干泥土升温慢", "C. 沿海地区温差大", "D. 等质量的铝和铜升高相同温度，铝吸收的热量多"],
         answer: 3, knowledge: "铝>铜", relatedCard: "S22"
       },
       {
@@ -4622,8 +4622,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_147", domain: "热", difficulty: "advanced",
-        question: "等质同温液a升快？",
-        options: ["A. ca>cb", "B. ca<cb", "C. 等", "D. 无法"],
+        question: "质量相等、初温相同的液体a和b吸收相同热量，a升温较快，则比热容关系为？",
+        options: ["A. ca>cb", "B. ca<cb", "C. 相等", "D. 无法判断"],
         answer: 1, knowledge: "比小", relatedCard: "S22"
       },
       {
@@ -4634,14 +4634,14 @@ class QuizSystem {
       },
       {
         id: "Q_H_149", domain: "热", difficulty: "challenge",
-        question: "等质水煤煤升快说明？",
-        options: ["A. 煤>水", "B. 煤<水", "C. 吸多", "D. 吸少"],
+        question: "质量相等的水和煤油吸收相同热量，煤油升温较快，说明煤油的比热容？",
+        options: ["A. 比水大", "B. 比水小", "C. 吸热多", "D. 吸热少"],
         answer: 1, knowledge: "比小", relatedCard: "S22"
       },
       {
         id: "Q_H_150", domain: "热", difficulty: "basic",
-        question: "半瓶酒精剩下？",
-        options: ["A. 热不变比半", "B. 都不变", "C. 热半比不变", "D. 热不变比增"],
+        question: "一瓶酒精用掉一半后，剩下酒精的热值和比热容如何变化？",
+        options: ["A. 热值不变比热容减半", "B. 都不变", "C. 热值减半比热容不变", "D. 热值不变比热容增大"],
         answer: 1, knowledge: "不变", relatedCard: "S22"
       },
       {
@@ -4658,19 +4658,19 @@ class QuizSystem {
       },
       {
         id: "Q_H_153", domain: "热", difficulty: "advanced",
-        question: "等质甲降20乙升15甲放=2乙吸比热比？",
+        question: "质量相等的甲乙两物体，甲降温20°C放出的热量等于乙升温15°C吸收热量的2倍，则比热容之比为？",
         options: ["A. 5:8", "B. 8:5", "C. 3:2", "D. 2:3"],
         answer: 2, knowledge: "3:2", relatedCard: "S22"
       },
       {
         id: "Q_H_154", domain: "热", difficulty: "challenge",
-        question: "等质同温铜水放同铜入水？",
-        options: ["A. 铜→水", "B. 水→铜", "C. 不传", "D. 无法"],
+        question: "质量相等、初温相同的铜和水放出相同热量后，将铜放入水中，热传递方向为？",
+        options: ["A. 铜→水", "B. 水→铜", "C. 不传热", "D. 无法判断"],
         answer: 0, knowledge: "铜温低", relatedCard: "S22"
       },
       {
         id: "Q_H_155", domain: "热", difficulty: "basic",
-        question: "镜模又清？",
+        question: "镜片起雾后又变清晰，先后经历的物态变化是？",
         options: ["A. 液后汽", "B. 汽后液", "C. 只液", "D. 只汽"],
         answer: 0, knowledge: "液汽", relatedCard: "A25"
       },
@@ -4700,8 +4700,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_160", domain: "热", difficulty: "basic",
-        question: "功内热正确的是？",
-        options: ["A. 温不变内不变", "B. 做功热传改", "C. 温高含多", "D. 大内→小内"],
+        question: "关于做功、内能、热量，说法正确的是？",
+        options: ["A. 温度不变内能不变", "B. 做功和热传递都能改变内能", "C. 温度高含热量多", "D. 内能大的物体传热给内能小的"],
         answer: 1, knowledge: "做功热传", relatedCard: "S19"
       },
       {
@@ -4718,13 +4718,13 @@ class QuizSystem {
       },
       {
         id: "Q_H_163", domain: "热", difficulty: "advanced",
-        question: "1800转1s功？",
+        question: "四冲程汽油机转速为1800r/min时，1秒内做功多少次？",
         options: ["A. 15", "B. 30", "C. 60", "D. 120"],
         answer: 0, knowledge: "15", relatedCard: "S18"
       },
       {
         id: "Q_H_164", domain: "热", difficulty: "challenge",
-        question: "甲比乙2倍质3倍放同降温比？",
+        question: "甲物体比热容是乙的2倍、质量是乙的3倍，放出相同热量后，甲乙降温之比为？",
         options: ["A. 2:3", "B. 3:2", "C. 1:6", "D. 6:1"],
         answer: 2, knowledge: "1:6", relatedCard: "S22"
       },
@@ -4736,8 +4736,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_166", domain: "热", difficulty: "basic",
-        question: "扇凉因？",
-        options: ["A. 风凉", "B. 赶热", "C. 加速蒸", "D. 降空气温"],
+        question: "夏天扇扇子感觉凉快，主要原因是？",
+        options: ["A. 风本身凉", "B. 赶走热空气", "C. 加速汗液蒸发", "D. 降低空气温度"],
         answer: 2, knowledge: "蒸", relatedCard: "A25"
       },
       {
@@ -4814,14 +4814,14 @@ class QuizSystem {
       },
       {
         id: "Q_H_179", domain: "热", difficulty: "basic",
-        question: "等质水煤煤升快？",
-        options: ["A. >水", "B. <水", "C. 等", "D. 无法"],
+        question: "质量相等的水和煤油吸收相同热量，煤油升温较快，说明煤油比热容比水？",
+        options: ["A. 更大", "B. 更小", "C. 相等", "D. 无法判断"],
         answer: 1, knowledge: "<", relatedCard: "S22"
       },
       {
         id: "Q_H_180", domain: "热", difficulty: "basic",
-        question: "水增质升慢图？",
-        options: ["A. 不变", "B. 陡", "C. 平缓", "D. 低"],
+        question: "加热水时，水的质量增大导致升温变慢，此时温度-时间图像会变得？",
+        options: ["A. 不变", "B. 更陡峭", "C. 更平缓", "D. 位置更低"],
         answer: 2, knowledge: "慢", relatedCard: "S22"
       },
       {
@@ -4838,8 +4838,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_183", domain: "热", difficulty: "basic",
-        question: "气门关活上？",
-        options: ["A. 压化→内", "B. 压机→内", "C. 功内→机", "D. 功机→内"],
+        question: "气门关闭、活塞上行时，发生的能量转化是？",
+        options: ["A. 化学能→内能", "B. 机械能→内能", "C. 内能→机械能", "D. 机械能→化学能"],
         answer: 1, knowledge: "压", relatedCard: "S23"
       },
       {
@@ -4862,8 +4862,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_187", domain: "热", difficulty: "advanced",
-        question: "汽柴错的？",
-        options: ["A. 汽火花柴喷", "B. 汽油气柴空", "C. 功内→机", "D. 汽效>柴"],
+        question: "关于汽油机和柴油机，说法错误的是？",
+        options: ["A. 汽油机火花塞柴油机喷油嘴", "B. 汽油机吸汽油气柴油机吸空气", "C. 做功冲程都是内能→机械能", "D. 汽油机效率>柴油机"],
         answer: 3, knowledge: "柴高", relatedCard: "S18"
       },
       {
@@ -4899,19 +4899,19 @@ class QuizSystem {
       {
         id: "Q_H_193", domain: "热", difficulty: "basic",
         question: "温内热正确的是？",
-        options: ["A. 吸定升", "B. 热从高到低", "C. 等质水煤煤升快", "D. 内增定吸"],
+        options: ["A. 吸热温度一定升高", "B. 热从高温物体传向低温物体", "C. 等质量的水和煤油吸收相同热量，煤油升温更快", "D. 内能增加一定吸热"],
         answer: 2, knowledge: "煤升快", relatedCard: "S22"
       },
       {
         id: "Q_H_194", domain: "热", difficulty: "advanced",
-        question: "粽子正确的是？",
-        options: ["A. 白=汽", "B. 沾利用汽化吸", "C. 冻霜=凝", "D. 水珠渗"],
+        question: "关于煮粽子的现象，说法正确的是？",
+        options: ["A. 白气=水蒸气", "B. 粽子沾水利用汽化吸热降温", "C. 冻霜=凝固", "D. 水珠渗出"],
         answer: 1, knowledge: "汽吸", relatedCard: "A25"
       },
       {
         id: "Q_H_195", domain: "热", difficulty: "challenge",
-        question: "等质温甲乙先后入冷升t？",
-        options: ["A. 甲大", "B. 乙大", "C. 等", "D. 无法"],
+        question: "质量相等、初温相同的甲乙两物体先后放入同一杯冷水中，最终哪杯水升温更多？",
+        options: ["A. 放甲那杯", "B. 放乙那杯", "C. 一样多", "D. 无法判断"],
         answer: 1, knowledge: "乙再升", relatedCard: "S22"
       },
       {
@@ -4922,8 +4922,8 @@ class QuizSystem {
       },
       {
         id: "Q_H_197", domain: "热", difficulty: "challenge",
-        question: "等质同温乙升慢？",
-        options: ["A. 甲大", "B. 乙大", "C. 等", "D. 无法"],
+        question: "质量相等、初温相同的甲乙两物体吸收相同热量，乙升温较慢，说明乙的比热容比甲？",
+        options: ["A. 更小", "B. 更大", "C. 相等", "D. 无法判断"],
         answer: 1, knowledge: "乙大", relatedCard: "S22"
       },
       {
@@ -5447,7 +5447,7 @@ class QuizSystem {
       },
       {
         id: "Q_E_084", domain: "电", difficulty: "challenge",
-        question: "滑变左移？",
+        question: "滑动变阻器滑片向左移动，电压表和电流表示数如何变化？",
         options: ["A. V↑A↓", "B. V↓A↑", "C. V↑A↑", "D. V↓A↓"],
         answer: 1, knowledge: "电阻减", relatedCard: "C07"
       },
@@ -5537,8 +5537,8 @@ class QuizSystem {
       },
       {
         id: "Q_E_099", domain: "电", difficulty: "basic",
-        question: "两门关灯亮？",
-        options: ["A. 串", "B. 并", "C. 一个", "D. 无法"],
+        question: "两个开关都闭合时灯才亮，两个开关的连接方式是？",
+        options: ["A. 串联", "B. 并联", "C. 只需一个", "D. 无法判断"],
         answer: 0, knowledge: "串", relatedCard: "C07"
       },
       {
@@ -5561,8 +5561,8 @@ class QuizSystem {
       },
       {
         id: "Q_E_103", domain: "电", difficulty: "basic",
-        question: "灯丝磁中晃因？",
-        options: ["A. 感应", "B. 磁力", "C. 热效", "D. 吸"],
+        question: "通电灯丝在磁场中晃动，是因为？",
+        options: ["A. 电磁感应", "B. 磁场对电流有力的作用", "C. 热效应", "D. 吸引"],
         answer: 1, knowledge: "磁力", relatedCard: "D05"
       },
       {
@@ -5663,7 +5663,7 @@ class QuizSystem {
       },
       {
         id: "Q_E_120", domain: "电", difficulty: "basic",
-        question: "滑变左移？",
+        question: "滑动变阻器滑片向左移动，两表示数如何变化？",
         options: ["A. A↑V↓", "B. A↑V↑", "C. A↓V↑", "D. A↓V↓"],
         answer: 2, knowledge: "R增", relatedCard: "C07"
       },
@@ -5729,8 +5729,8 @@ class QuizSystem {
       },
       {
         id: "Q_E_131", domain: "电", difficulty: "basic",
-        question: "安提错？",
-        options: ["A. 不树", "B. 不湿", "C. 只高压险", "D. 接地"],
+        question: "关于安全用电提示，说法错误的是？",
+        options: ["A. 不在树下避雨", "B. 不用湿手摸电器", "C. 只有高压才危险", "D. 电器需接地"],
         answer: 2, knowledge: "都险", relatedCard: "S27"
       },
       {
@@ -5819,14 +5819,14 @@ class QuizSystem {
       },
       {
         id: "Q_E_146", domain: "电", difficulty: "advanced",
-        question: "串灯暗？",
-        options: ["A. 功小暗", "B. 大暗", "C. 流小", "D. 压小"],
+        question: "两灯串联后一灯较暗，原因是该灯？",
+        options: ["A. 实际功率小所以暗", "B. 电阻大所以暗", "C. 电流小", "D. 电压大"],
         answer: 0, knowledge: "功小暗", relatedCard: "C07"
       },
       {
         id: "Q_E_147", domain: "电", difficulty: "advanced",
-        question: "串220两灯？",
-        options: ["A. 大功亮", "B. 小亮", "C. 同", "D. 都不"],
+        question: "额定电压220V的两灯串联接入220V电路，亮度关系是？",
+        options: ["A. 额定功率大的亮", "B. 额定功率小的亮", "C. 一样亮", "D. 都不亮"],
         answer: 1, knowledge: "阻大亮=小功", relatedCard: "A49"
       },
       {
@@ -5855,7 +5855,7 @@ class QuizSystem {
       },
       {
         id: "Q_E_152", domain: "电", difficulty: "advanced",
-        question: "滑右移？",
+        question: "滑动变阻器滑片向右移动，两表示数如何变化？",
         options: ["A. A↓V↑", "B. A↑V↓", "C. A↓V↓", "D. A↓V不变"],
         answer: 3, knowledge: "A↓V不变", relatedCard: "C07"
       },
@@ -5873,8 +5873,8 @@ class QuizSystem {
       },
       {
         id: "Q_E_155", domain: "电", difficulty: "basic",
-        question: "安全错？",
-        options: ["A. 不触靠", "B. 更断", "C. 不湿损", "D. 到寿不换"],
+        question: "关于安全用电，说法错误的是？",
+        options: ["A. 不接触低压带电体不靠近高压", "B. 更换前断开电源", "C. 不用湿手操作破损电器", "D. 电器到寿命不换也行"],
         answer: 3, knowledge: "及换", relatedCard: "S27"
       },
       {
@@ -5987,8 +5987,8 @@ class QuizSystem {
       },
       {
         id: "Q_E_174", domain: "电", difficulty: "challenge",
-        question: "等压并灯？",
-        options: ["A. 大阻亮", "B. 小亮", "C. 同", "D. 无法"],
+        question: "额定电压相同的两灯并联，亮度关系是？",
+        options: ["A. 电阻大的亮", "B. 电阻小的亮", "C. 一样亮", "D. 无法判断"],
         answer: 1, knowledge: "P=U²/R", relatedCard: "A49"
       },
       {
