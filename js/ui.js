@@ -2424,7 +2424,8 @@ class GameUI {
         if (!cardEl) return;
         const cardId = cardEl.dataset.cardId;
         if (!cardId) return;
-        e.preventDefault(); // 阻止移动端长按弹出保存图片菜单
+        // 长按防菜单已由 CSS (-webkit-touch-callout:none + pointer-events:none + user-select:none) 处理
+        // 不再调用 e.preventDefault() —— 否则会阻止后续 click 事件，导致移动端无法出牌
         longPressTriggered = false;
         touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         longPressTimer = setTimeout(() => {
