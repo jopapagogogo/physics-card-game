@@ -2416,7 +2416,7 @@ class GameUI {
     const selfHand = document.getElementById('self-hand');
     if (selfHand) {
       // ─── 移动端长按预览（触摸设备） ───
-      let longPressTimer = null, longPressTriggered = false, touchStartPos = null;
+      let longPressTimer = null, longPressTriggered = false, touchMoved = false, touchStartPos = null;
       const self = this;
 
       selfHand.addEventListener('touchstart', (e) => {
@@ -2427,6 +2427,7 @@ class GameUI {
         // 长按防菜单已由 CSS (-webkit-touch-callout:none + pointer-events:none + user-select:none) 处理
         // 不再调用 e.preventDefault() —— 否则会阻止后续 click 事件，导致移动端无法出牌
         longPressTriggered = false;
+        touchMoved = false;
         touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         longPressTimer = setTimeout(() => {
           longPressTriggered = true;
@@ -2445,6 +2446,7 @@ class GameUI {
         const dx = (e.touches[0].clientX - touchStartPos.x);
         const dy = (e.touches[0].clientY - touchStartPos.y);
         if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+          touchMoved = true;
           if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
         }
       });
@@ -2452,12 +2454,13 @@ class GameUI {
       selfHand.addEventListener('touchend', (e) => {
         if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
         if (longPressTriggered) {
-          // 长按已触发详情，阻止后续 click
           const active = selfHand.querySelector('.long-press-active');
           if (active) active.classList.remove('long-press-active');
           longPressTriggered = false;
           return;
         }
+        // 滑动中不触发短按出牌
+        if (touchMoved) { touchMoved = false; return; }
         // 短按 → 直接在 touchend 中出牌（不依赖 click，click 在移动端不可靠）
         const cardEl = e.target.closest('.card-v3, .card');
         if (!cardEl) return;

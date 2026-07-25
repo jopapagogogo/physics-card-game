@@ -21,6 +21,18 @@
     }
     @media(orientation:landscape) and (max-height:500px){
       #game-container .card-v3.mini{width:min(60px,12vw)!important;height:min(86px,20vw)!important}
+      /* 释放空间给插画：隐藏描述、伤害数值、分割线 */
+      #game-container .card-v3.mini .v3-desc-box{display:none!important}
+      #game-container .card-v3.mini .v3-stats{display:none!important}
+      #game-container .card-v3.mini .v3-divider{display:none!important}
+      /* 详情弹窗缩小 */
+      .card-zoom-overlay .card-v3{width:220px!important;max-height:95vh!important}
+      .card-zoom-overlay .v3-art-frame{height:140px!important}
+      .card-zoom-overlay .v3-desc-box{max-height:80px!important}
+      /* 弃牌弹窗缩小 */
+      .discard-card{max-width:320px!important;padding:14px!important}
+      .discard-card h3{font-size:13px!important;margin-bottom:10px!important}
+      .discard-choice{padding:6px 10px!important;font-size:11px!important}
     }
     /* 移动端禁止图片长按弹出菜单（穿透触摸+禁callout） */
     .card-v3 img,.card img{pointer-events:none;-webkit-touch-callout:none}
