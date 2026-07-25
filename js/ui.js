@@ -2449,12 +2449,22 @@ class GameUI {
         }
       });
 
-      selfHand.addEventListener('touchend', () => {
+      selfHand.addEventListener('touchend', (e) => {
         if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
         if (longPressTriggered) {
           // 长按已触发详情，阻止后续 click
           const active = selfHand.querySelector('.long-press-active');
           if (active) active.classList.remove('long-press-active');
+          longPressTriggered = false;
+          return;
+        }
+        // 短按 → 直接在 touchend 中出牌（不依赖 click，click 在移动端不可靠）
+        const cardEl = e.target.closest('.card-v3, .card');
+        if (!cardEl) return;
+        const cardId = cardEl.dataset.cardId;
+        if (cardId) {
+          longPressTriggered = true; // 复用标志位：阻止后续 click 重复执行
+          self.handleCardSelect(cardId);
         }
       });
 
