@@ -1734,9 +1734,9 @@ class GameUI {
       }
       /* ─── 横屏适配（手机横过来）─── */
       @media(orientation:landscape) and (max-height:500px){
-        .abc-row.opponent{flex-basis:6%}
-        .abc-row.self{flex-basis:16%}
-        .divider-row{height:10px}
+        .abc-row.opponent{flex-basis:5%}
+        .abc-row.self{flex-basis:12%}
+        .divider-row{height:6px}
         .d-zone{padding:2px 8px}
         .d-half{padding:0}
         .d-half .card-field{min-height:28px;gap:2px}

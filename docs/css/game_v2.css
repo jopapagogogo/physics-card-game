@@ -759,10 +759,10 @@ body {
    横屏适配（P3布局，高度受限时压缩上下区域）
    ============================================================ */
 @media (orientation: landscape) and (max-height: 500px) {
-  .abc-row.opponent { flex-basis: 8%; }
-  .abc-row.self { flex-basis: 20%; }
+  .abc-row.opponent { flex-basis: 5%; }
+  .abc-row.self { flex-basis: 12%; }
   .d-zone { padding: 2px 8px; }
-  .divider-row { height: 14px; }
+  .divider-row { height: 6px; }
   .card-field .summon, .card-field .domain-card { width:48px; height:66px; }
   /* 答题横屏布局 */
   .quiz-card {
