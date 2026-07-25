@@ -20,15 +20,35 @@
       #game-container .card-v3.mini:hover{transform:rotate(var(--rot)) scale(1.08) translateY(-4px)!important}
     }
     @media(orientation:landscape) and (max-height:500px){
-      #game-container .card-v3.mini{width:min(60px,12vw)!important;height:min(86px,20vw)!important}
-      /* 释放空间给插画：隐藏描述、伤害数值、分割线 */
+      /* 横屏手牌卡：放大尺寸，让插画占据视觉重心 */
+      #game-container .card-v3.mini{width:min(82px,15vw)!important;height:min(116px,26vw)!important}
+      /* 压缩顶部信息区，让插画更突出 */
+      #game-container .card-v3.mini .v3-header{padding:4px 6px 1px!important;gap:3px!important}
+      #game-container .card-v3.mini .v3-cost{width:20px!important;height:20px!important;font-size:.7em!important}
+      #game-container .card-v3.mini .v3-cost::before{inset:-1px!important;-webkit-mask:radial-gradient(circle,transparent 9px,#000 9.5px)!important;mask:radial-gradient(circle,transparent 9px,#000 9.5px)!important}
+      #game-container .card-v3.mini .v3-name{font-size:.58em!important;letter-spacing:0!important;padding:0!important}
+      #game-container .card-v3.mini .v3-rune{width:14px!important;height:14px!important}
+      #game-container .card-v3.mini .v3-type-ribbon{padding:0 0 2px!important}
+      #game-container .card-v3.mini .v3-type-pip{font-size:.5em!important;padding:0 4px!important}
+      /* art-frame 已用 flex:1 自动撑满中部 */
+      /* 隐藏描述、伤害数值、分割线 */
       #game-container .card-v3.mini .v3-desc-box{display:none!important}
       #game-container .card-v3.mini .v3-stats{display:none!important}
       #game-container .card-v3.mini .v3-divider{display:none!important}
-      /* 详情弹窗缩小 */
-      .card-zoom-overlay .card-v3{width:220px!important;max-height:95vh!important}
-      .card-zoom-overlay .v3-art-frame{height:140px!important}
-      .card-zoom-overlay .v3-desc-box{max-height:80px!important}
+      /* 横屏 hover 缩放更克制，避免溢出视野 */
+      #game-container .card-v3.mini:hover{transform:rotate(var(--rot)) scale(1.1) translateY(-6px)!important}
+      /* 详情弹窗：单屏完整显示 */
+      .card-zoom-overlay .card-v3{width:200px!important;max-height:78vh!important;overflow:hidden!important}
+      .card-zoom-overlay .v3-header{padding:8px 12px 2px!important;gap:6px!important}
+      .card-zoom-overlay .v3-cost{width:32px!important;height:32px!important;font-size:1em!important}
+      .card-zoom-overlay .v3-name{font-size:.85em!important;letter-spacing:1px!important}
+      .card-zoom-overlay .v3-rune{width:22px!important;height:22px!important}
+      .card-zoom-overlay .v3-type-ribbon{padding:0 0 4px!important}
+      .card-zoom-overlay .v3-art-frame{height:96px!important;margin:0 8px!important}
+      .card-zoom-overlay .v3-art-frame img{width:calc(100% - 4px)!important;height:calc(100% - 4px)!important}
+      .card-zoom-overlay .v3-desc-box{max-height:56px!important;overflow-y:auto!important;font-size:.6em!important;line-height:1.3!important;margin:0 12px 6px!important;padding:4px 6px!important}
+      .card-zoom-overlay .v3-stats{padding:0 12px 4px!important;min-height:20px!important;font-size:.7em!important}
+      .card-zoom-overlay .v3-divider{padding:1px 12px!important}
       /* 弃牌弹窗缩小 */
       .discard-card{max-width:320px!important;padding:14px!important}
       .discard-card h3{font-size:13px!important;margin-bottom:10px!important}

@@ -4563,17 +4563,17 @@ class GameUI {
     const hasHp = cardData.hp !== undefined;
 
     overlay.innerHTML = `
-      <div class="card-v3 ${this._domainClass(cardData.domain)} rarity-${cardData.rarity || 'common'} skin-cyber" style="width:300px; max-height:90vh; overflow-y:auto; margin:auto;">
+      <div class="card-v3 ${this._domainClass(cardData.domain)} rarity-${cardData.rarity || 'common'} skin-cyber" style="width:300px; max-height:85vh; overflow:hidden; margin:auto; display:flex; flex-direction:column;">
         <div class="v3-header">
           <div class="v3-cost">${cardData.cost ?? '-'}</div>
           <div class="v3-name">${this._escapeHtml(cardData.name)}</div>
           <div class="v3-rune">${runeHtml}</div>
         </div>
         <div class="v3-type-ribbon"><span class="v3-type-pip ${cardData.type}">${typeLabel}</span></div>
-        <div class="v3-art-frame" style="height:250px;">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:36px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
+        <div class="v3-art-frame" style="height:200px;flex:1 1 0;min-height:0;">${artUrl ? `<img src="${this._escapeAttr(artUrl)}" alt="">` : `<span style="font-size:36px;opacity:.1;">⚛</span>`}<div class="v3-art-corner tl"></div><div class="v3-art-corner tr"></div><div class="v3-art-corner bl"></div><div class="v3-art-corner br"></div></div>
         <div class="v3-divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
         <div class="v3-stats">${cardData.effect?.dmg ? `<span class="v3-stat-num">${cardData.effect.dmg}</span><span class="v3-stat-unit">伤害</span>` : ''}${hasHp ? `<div class="v3-hp">❤ ${cardData.hp}/${cardData.maxHp}</div>` : ''}</div>
-        <div class="v3-desc-box" style="max-height:200px;overflow-y:auto;"><div>${this._escapeHtml(summary)}</div>${principle ? `<span class="principle">${this._escapeHtml(principle)}</span>` : ''}</div>
+        <div class="v3-desc-box" style="max-height:140px;overflow-y:auto;flex-shrink:0;"><div>${this._escapeHtml(summary)}</div>${principle ? `<span class="principle">${this._escapeHtml(principle)}</span>` : ''}</div>
 
         <div style="padding:10px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.08);">
           <button class="btn btn-close" id="btn-zoom-close" style="flex:1;font-size:13px;padding:10px;border-radius:8px;background:#333;color:#eee;border:none;cursor:pointer;">✕ 关闭</button>
